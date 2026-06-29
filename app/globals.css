@@ -1,0 +1,89 @@
+@import "tailwindcss";
+
+@theme {
+  --color-surface: #07080F;
+  --color-card: #0D1020;
+  --color-panel: #1E2240;
+  --color-accent: #1D4ED8;
+  --color-accent-hover: #1e40af;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background-color: #07080F;
+  color: #e2e8f0;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.premium-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0)),
+    #0D1020;
+  border: 1px solid #1E2240;
+  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.28);
+}
+
+.premium-card-hover {
+  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.premium-card-hover:hover {
+  border-color: rgba(29, 78, 216, 0.46);
+  box-shadow: 0 22px 80px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(29, 78, 216, 0.08) inset;
+  transform: translateY(-1px);
+}
+
+.animate-fade-up {
+  animation: fade-up 420ms ease both;
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-up,
+  .animate-soft-pulse {
+    animation: none;
+  }
+
+  .premium-card-hover:hover {
+    transform: none;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #07080F;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E2240;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2d3a70;
+}
