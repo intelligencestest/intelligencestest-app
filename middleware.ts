@@ -2,7 +2,18 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PROTECTED = ["/dashboard", "/projects", "/candidates", "/assessments", "/reports", "/settings"];
+const PROTECTED = [
+  "/dashboard",
+  "/projects",
+  "/candidates",
+  "/assessments",
+  "/reports",
+  "/settings",
+  "/onboarding",
+];
+
+// Authenticated users visiting these are bounced to /dashboard
+const AUTH_PAGES = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
@@ -29,12 +40,13 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtected = PROTECTED.some((p) => pathname === p || pathname.startsWith(p + "/"));
+  const isAuthPage = AUTH_PAGES.some((p) => pathname === p);
 
   if (isProtected && !user) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (pathname === "/login" && user) {
+  if (isAuthPage && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -42,5 +54,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|test/).*)"],
+  // Exclude static assets, API routes, test routes, and the OAuth callback
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|api/|test/|auth/callback).*)"],
 };
