@@ -8,20 +8,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   let userName: string | undefined;
   let userEmail: string | undefined = user?.email ?? undefined;
+  let activeAssessmentCount = 0;
 
   if (user) {
     const admin = createAdminClient();
-    const { data: profile } = await admin
-      .from("users")
-      .select("full_name")
-      .eq("id", user.id)
-      .single();
+    const [{ data: profile }, { count }] = await Promise.all([
+      admin
+        .from("users")
+        .select("full_name")
+        .eq("id", user.id)
+        .single(),
+      admin
+        .from("assessments")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "active"),
+    ]);
     userName = profile?.full_name ?? undefined;
+    activeAssessmentCount = count ?? 0;
   }
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#07080F]">
-      <Sidebar userEmail={userEmail} userName={userName} />
+      <Sidebar userEmail={userEmail} userName={userName} activeAssessmentCount={activeAssessmentCount} />
       <main className="flex-1 overflow-y-auto">
         <div className="p-6 lg:p-8 min-h-full">{children}</div>
       </main>

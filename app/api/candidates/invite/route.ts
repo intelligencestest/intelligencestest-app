@@ -3,6 +3,31 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
+const testPaths: Record<string, string> = {
+  "Critical Thinking Test": "critical-thinking",
+  "Adversity Quotient (AQ) Test": "aq",
+  "Emotional Intelligence Test": "emotional-intelligence",
+  "Leadership Styles Test": "leadership-styles",
+  "Numerical Intelligence Test": "numerical-intelligence",
+  "Personality Type Test": "personality-type",
+  "Situational Judgment Test": "situational-judgment",
+  "Attention to Detail Test": "attention-detail",
+  "Verbal Reasoning Test": "verbal-reasoning",
+  "Abstract Reasoning Test": "abstract-reasoning",
+  "Mechanical Reasoning Test": "mechanical-reasoning",
+  "Communication Skills Test": "communication-skills",
+  "Problem Solving Test": "problem-solving",
+  "Work Style Assessment": "work-style",
+  "Sales Aptitude Test": "sales-aptitude",
+  "Customer Service Skills Test": "customer-service-skills",
+  "Teamwork & Collaboration Test": "teamwork-collaboration",
+  "Time Management Test": "time-management",
+  "Stress Tolerance Test": "stress-tolerance",
+  "Integrity & Ethics Test": "integrity-ethics",
+  "Decision Making Test": "decision-making",
+  "Learning Agility Test": "learning-agility",
+};
+
 export async function POST(request: NextRequest) {
   // Verify the caller is authenticated
   const supabase = await createServerSupabaseClient();
@@ -69,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const testPath = assessment_type === "Adversity Quotient (AQ) Test" ? "aq" : "critical-thinking";
+  const testPath = testPaths[assessment_type] ?? "critical-thinking";
   const testUrl = `/test/${testPath}?token=${candidate.token}`;
 
   return NextResponse.json({ candidate_id: candidate.id, test_url: testUrl });

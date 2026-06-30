@@ -66,9 +66,10 @@ const navItems = [
 interface SidebarProps {
   userEmail?: string;
   userName?: string;
+  activeAssessmentCount?: number;
 }
 
-export default function Sidebar({ userEmail, userName }: SidebarProps) {
+export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -123,7 +124,16 @@ export default function Sidebar({ userEmail, userName }: SidebarProps) {
               }`}
             >
               <span className={`transition-colors ${active ? "text-[#8CB1FF]" : "text-slate-500 group-hover:text-slate-300"}`}>{item.icon}</span>
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.href === "/assessments" && activeAssessmentCount > 0 && (
+                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                  active
+                    ? "border-[#8CB1FF]/35 bg-[#1D4ED8]/25 text-[#C6D7FF]"
+                    : "border-[#1E2240] bg-[#07080F] text-slate-400 group-hover:text-slate-200"
+                }`}>
+                  {activeAssessmentCount}
+                </span>
+              )}
             </Link>
           );
         })}

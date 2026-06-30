@@ -17,6 +17,33 @@ const avatarColors = [
   "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
 ];
 
+const activeAssessmentOptions = [
+  { name: "Critical Thinking Test", route: "critical-thinking", label: "Critical Thinking Test (25 min)" },
+  { name: "Numerical Intelligence Test", route: "numerical-intelligence", label: "Numerical Intelligence Test (20 min)" },
+  { name: "Personality Type Test", route: "personality-type", label: "Personality Type Test (20 min)" },
+  { name: "Situational Judgment Test", route: "situational-judgment", label: "Situational Judgment Test (20 min)" },
+  { name: "Emotional Intelligence Test", route: "emotional-intelligence", label: "Emotional Intelligence Test (20 min)" },
+  { name: "Leadership Styles Test", route: "leadership-styles", label: "Leadership Styles Test (15 min)" },
+  { name: "Adversity Quotient (AQ) Test", route: "aq", label: "AQ Test - Adversity Quotient (20 min)" },
+  { name: "Attention to Detail Test", route: "attention-detail", label: "Attention to Detail Test (20 min)" },
+  { name: "Verbal Reasoning Test", route: "verbal-reasoning", label: "Verbal Reasoning Test (20 min)" },
+  { name: "Abstract Reasoning Test", route: "abstract-reasoning", label: "Abstract Reasoning Test (20 min)" },
+  { name: "Mechanical Reasoning Test", route: "mechanical-reasoning", label: "Mechanical Reasoning Test (25 min)" },
+  { name: "Communication Skills Test", route: "communication-skills", label: "Communication Skills Test (20 min)" },
+  { name: "Problem Solving Test", route: "problem-solving", label: "Problem Solving Test (25 min)" },
+  { name: "Work Style Assessment", route: "work-style", label: "Work Style Assessment (20 min)" },
+  { name: "Sales Aptitude Test", route: "sales-aptitude", label: "Sales Aptitude Test (20 min)" },
+  { name: "Customer Service Skills Test", route: "customer-service-skills", label: "Customer Service Skills Test (20 min)" },
+  { name: "Teamwork & Collaboration Test", route: "teamwork-collaboration", label: "Teamwork & Collaboration Test (20 min)" },
+  { name: "Time Management Test", route: "time-management", label: "Time Management Test (20 min)" },
+  { name: "Stress Tolerance Test", route: "stress-tolerance", label: "Stress Tolerance Test (15 min)" },
+  { name: "Integrity & Ethics Test", route: "integrity-ethics", label: "Integrity & Ethics Test (20 min)" },
+  { name: "Decision Making Test", route: "decision-making", label: "Decision Making Test (20 min)" },
+  { name: "Learning Agility Test", route: "learning-agility", label: "Learning Agility Test (20 min)" },
+] as const;
+
+type SharedAssessmentRoute = (typeof activeAssessmentOptions)[number]["route"];
+
 interface Candidate {
   id: string;
   full_name: string;
@@ -88,11 +115,16 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
   const [inviteMode, setInviteMode] = useState<"single" | "bulk" | "shared">("single");
 
   // Single invite state
-  const [singleForm, setSingleForm] = useState({
+  const [singleForm, setSingleForm] = useState<{
+    full_name: string;
+    email: string;
+    project_id: string;
+    assessment_type: string;
+  }>({
     full_name: "",
     email: "",
     project_id: projects[0]?.id ?? "",
-    assessment_type: "Critical Thinking Test",
+    assessment_type: activeAssessmentOptions[0].name,
   });
   const [singleInviting, setSingleInviting] = useState(false);
   const [singleError, setSingleError] = useState("");
@@ -101,7 +133,7 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
   // Bulk invite state
   const [bulkEmails, setBulkEmails] = useState("");
   const [bulkProjectId, setBulkProjectId] = useState(projects[0]?.id ?? "");
-  const [bulkAssessment, setBulkAssessment] = useState("Critical Thinking Test");
+  const [bulkAssessment, setBulkAssessment] = useState<string>(activeAssessmentOptions[0].name);
   const [bulkInviting, setBulkInviting] = useState(false);
   const [bulkResults, setBulkResults] = useState<BulkResult[] | null>(null);
   const [bulkError, setBulkError] = useState("");
@@ -109,7 +141,7 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
 
   // Shared link state
   const [sharedProjectId, setSharedProjectId] = useState(projects[0]?.id ?? "");
-  const [sharedAssessment, setSharedAssessment] = useState<"critical-thinking" | "aq">("critical-thinking");
+  const [sharedAssessment, setSharedAssessment] = useState<SharedAssessmentRoute>(activeAssessmentOptions[0].route);
 
   const filtered = candidates.filter((c) => {
     const matchSearch =
@@ -225,10 +257,10 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
     setBulkError("");
     setBulkEmails("");
     setCopyToast("");
-    setSingleForm({ full_name: "", email: "", project_id: projects[0]?.id ?? "", assessment_type: "Critical Thinking Test" });
+    setSingleForm({ full_name: "", email: "", project_id: projects[0]?.id ?? "", assessment_type: activeAssessmentOptions[0].name });
     setInviteMode("single");
     setSharedProjectId(projects[0]?.id ?? "");
-    setSharedAssessment("critical-thinking");
+    setSharedAssessment(activeAssessmentOptions[0].route);
   };
 
   const counts = {
@@ -549,8 +581,11 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
                           onChange={(e) => setSingleForm((f) => ({ ...f, assessment_type: e.target.value }))}
                           className={selectClass}
                         >
-                          <option value="Critical Thinking Test">Critical Thinking Test (25 min)</option>
-                          <option value="Adversity Quotient (AQ) Test">AQ Test - Adversity Quotient (20 min)</option>
+                          {activeAssessmentOptions.map((assessment) => (
+                            <option key={assessment.name} value={assessment.name}>
+                              {assessment.label}
+                            </option>
+                          ))}
                         </select>
                       </div>
                       <div className="flex gap-3 pt-2">
@@ -594,11 +629,14 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
                         <select
                           value={sharedAssessment}
-                          onChange={(e) => setSharedAssessment(e.target.value as "critical-thinking" | "aq")}
+                          onChange={(e) => setSharedAssessment(e.target.value as SharedAssessmentRoute)}
                           className={selectClass}
                         >
-                          <option value="critical-thinking">Critical Thinking Test (25 min)</option>
-                          <option value="aq">AQ Test — Adversity Quotient (20 min)</option>
+                          {activeAssessmentOptions.map((assessment) => (
+                            <option key={assessment.route} value={assessment.route}>
+                              {assessment.label}
+                            </option>
+                          ))}
                         </select>
                       </div>
                       <div>
@@ -650,8 +688,11 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
                         <select value={bulkAssessment} onChange={(e) => setBulkAssessment(e.target.value)} className={selectClass}>
-                          <option value="Critical Thinking Test">Critical Thinking Test (25 min)</option>
-                          <option value="Adversity Quotient (AQ) Test">AQ Test - Adversity Quotient (20 min)</option>
+                          {activeAssessmentOptions.map((assessment) => (
+                            <option key={assessment.name} value={assessment.name}>
+                              {assessment.label}
+                            </option>
+                          ))}
                         </select>
                       </div>
                       <div className="flex gap-3 pt-2">

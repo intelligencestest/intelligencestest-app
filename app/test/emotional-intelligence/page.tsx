@@ -1,0 +1,62 @@
+"use client";
+
+import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
+import { EI_DIMENSIONS, EI_DURATION_SECONDS, EI_QUESTIONS, scoreEI } from "@/lib/questions/emotional-intelligence";
+
+const dimensionClassNames = EI_DIMENSIONS.reduce<Record<string, string>>((acc, dimension) => {
+  acc[dimension.label] = dimension.className;
+  return acc;
+}, {});
+
+const questions: RunnerQuestion[] = EI_QUESTIONS.map((question) => ({
+  id: question.id,
+  text: question.text,
+  kind: "likert",
+  groupLabel: question.dimension,
+  groupClassName: dimensionClassNames[question.dimension],
+}));
+
+export default function EmotionalIntelligenceTest({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string; project?: string }>;
+}) {
+  return (
+    <AssessmentRunner
+      searchParams={searchParams}
+      assessmentName="Emotional Intelligence Test"
+      shortName="Emotional Intelligence"
+      categoryLabel="Emotional Intelligence"
+      categoryClassName="border-purple-500/20 bg-purple-500/10 text-purple-300"
+      accentColor="#7c3aed"
+      durationSeconds={EI_DURATION_SECONDS}
+      questions={questions}
+      questionTypeLabel="Likert Scale"
+      details={[
+        { label: "Questions", value: "40" },
+        { label: "Time Limit", value: "20 min" },
+        { label: "Question Type", value: "Likert Scale" },
+      ]}
+      dimensionSummary={EI_DIMENSIONS}
+      instructions={[
+        "Rate each statement from 1 (Strongly Disagree) to 5 (Strongly Agree).",
+        "Answer honestly based on your typical behavior, not your ideal behavior.",
+        "Your score is not shown after completion; results are saved for review.",
+        "The test auto-submits when the timer reaches zero.",
+      ]}
+      submittingText="Saving your emotional intelligence results..."
+      scoreAnswers={(answers) => {
+        const scored = scoreEI(answers);
+        return {
+          score: scored.percentage,
+          rawAnswers: {
+            answers,
+            total: scored.total,
+            percentage: scored.percentage,
+            dimensions: scored.dimensions,
+          },
+        };
+      }}
+    />
+  );
+}
