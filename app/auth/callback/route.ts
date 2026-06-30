@@ -1,5 +1,4 @@
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 
@@ -12,44 +11,57 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/login?error=no_code", origin));
   }
 
-  const cookieStore = await cookies();
+  // Create the redirect response first so we can write session cookies to it.
+  // Route Handlers must write cookies to the Response object, NOT to the
+  // next/headers cookie store (which is request-scoped and read-only here).
+  const response = NextResponse.redirect(new URL(next, origin));
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll(); },
+        getAll() {
+          return request.cookies.getAll();
+        },
         setAll(cookiesToSet) {
+          // Write the session tokens onto the response that the browser will receive
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
+            response.cookies.set(name, value, options)
           );
         },
       },
     }
   );
 
-  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  try {
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
-  if (error || !data.user) {
-    return NextResponse.redirect(new URL("/login?error=auth_failed", origin));
+    if (error || !data.user) {
+      console.error("[auth/callback] exchangeCodeForSession error:", error?.message);
+      return NextResponse.redirect(new URL("/login?error=auth_failed", origin));
+    }
+
+    // Password-reset flow — forgot-password sets next=/reset-password
+    if (next === "/reset-password") {
+      response.headers.set("Location", new URL("/reset-password", origin).toString());
+      return response;
+    }
+
+    // New Google OAuth users won't have a users row yet — send them to onboarding
+    const admin = createAdminClient();
+    const { data: userRow } = await admin
+      .from("users")
+      .select("company_id")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    const destination = userRow?.company_id ? next : "/onboarding";
+    response.headers.set("Location", new URL(destination, origin).toString());
+    return response;
+
+  } catch (err) {
+    console.error("[auth/callback] unexpected error:", err);
+    return NextResponse.redirect(new URL("/login?error=server_error", origin));
   }
-
-  // Password-reset recovery flow — next is set to /reset-password by the forgot-password page
-  if (next === "/reset-password") {
-    return NextResponse.redirect(new URL("/reset-password", origin));
-  }
-
-  // Check if this user has a company linked (new Google OAuth users won't)
-  const admin = createAdminClient();
-  const { data: userRow } = await admin
-    .from("users")
-    .select("company_id")
-    .eq("id", data.user.id)
-    .maybeSingle();
-
-  if (!userRow?.company_id) {
-    return NextResponse.redirect(new URL("/onboarding", origin));
-  }
-
-  return NextResponse.redirect(new URL(next, origin));
 }
