@@ -3,17 +3,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/dashboard";
+
+  // Behind a reverse proxy (Nginx → Node on localhost:3000), request.url has
+  // the wrong host. Reconstruct the public origin from forwarded headers, with
+  // NEXT_PUBLIC_SITE_URL as the explicit override and request.url as last resort.
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const fwdHost = request.headers.get("x-forwarded-host");
+  const fwdProto = request.headers.get("x-forwarded-proto") ?? "https";
+  const origin =
+    siteUrl ??
+    (fwdHost ? `${fwdProto}://${fwdHost}` : new URL(request.url).origin);
 
   if (!code) {
     return NextResponse.redirect(new URL("/login?error=no_code", origin));
   }
 
-  // Create the redirect response first so we can write session cookies to it.
-  // Route Handlers must write cookies to the Response object, NOT to the
-  // next/headers cookie store (which is request-scoped and read-only here).
   const response = NextResponse.redirect(new URL(next, origin));
 
   const supabase = createServerClient(
@@ -25,7 +32,6 @@ export async function GET(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          // Write the session tokens onto the response that the browser will receive
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options)
           );
@@ -42,13 +48,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/login?error=auth_failed", origin));
     }
 
-    // Password-reset flow — forgot-password sets next=/reset-password
     if (next === "/reset-password") {
       response.headers.set("Location", new URL("/reset-password", origin).toString());
       return response;
     }
 
-    // New Google OAuth users won't have a users row yet — send them to onboarding
     const admin = createAdminClient();
     const { data: userRow } = await admin
       .from("users")
