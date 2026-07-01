@@ -154,11 +154,21 @@ export async function POST(request: NextRequest) {
   if (delivery_method === "email") {
     const origin = new URL(request.url).origin;
     const absoluteUrl = `${origin}${testUrl}`;
+    const toAddress = email.toLowerCase().trim();
+
+    console.log("[invite/email] sending", {
+      from: process.env.RESEND_FROM_EMAIL ?? "(RESEND_FROM_EMAIL not set)",
+      to: toAddress,
+      apiKeyPresent: !!process.env.RESEND_API_KEY,
+      apiKeyPrefix: process.env.RESEND_API_KEY?.slice(0, 8) ?? "(none)",
+      subject: `${companyName} — Your assessment invitation`,
+      testUrl: absoluteUrl,
+    });
 
     const resend = new Resend(process.env.RESEND_API_KEY);
-    const { error: sendError } = await resend.emails.send({
+    const resendResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
-      to: email.toLowerCase().trim(),
+      to: toAddress,
       subject: `${companyName} — Your assessment invitation`,
       html: buildInviteEmail({
         candidateName: full_name?.trim() || null,
@@ -167,15 +177,17 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    if (sendError) {
-      // Candidate row was created — return the URL anyway so the caller can handle it,
-      // but signal the email failure clearly so it's never silently swallowed.
+    console.log("[invite/email] Resend response", JSON.stringify(resendResult));
+
+    if (resendResult.error) {
+      console.error("[invite/email] send FAILED:", resendResult.error);
       return NextResponse.json(
-        { error: `Candidate created but email failed: ${sendError.message}`, test_url: testUrl, candidate_id: candidate.id },
+        { error: `Candidate created but email failed: ${resendResult.error.message}`, test_url: testUrl, candidate_id: candidate.id },
         { status: 502 }
       );
     }
 
+    console.log("[invite/email] sent OK, id:", resendResult.data?.id);
     return NextResponse.json({ candidate_id: candidate.id, test_url: testUrl, email_sent: true });
   }
 

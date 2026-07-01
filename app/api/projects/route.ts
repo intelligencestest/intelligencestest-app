@@ -41,13 +41,22 @@ export async function POST(request: NextRequest) {
   }
 
   // Link selected assessments
-  if (assessment_ids?.length > 0) {
-    await admin.from("project_assessments").insert(
+  if (Array.isArray(assessment_ids) && assessment_ids.length > 0) {
+    console.log("[projects/create] linking assessments", { project_id: project.id, assessment_ids });
+    const { error: linkError } = await admin.from("project_assessments").insert(
       assessment_ids.map((aid: string) => ({
         project_id: project.id,
         assessment_id: aid,
       }))
     );
+    if (linkError) {
+      console.error("[projects/create] assessment link FAILED:", linkError);
+      // Project was created — return the project_id with a warning so the client can still navigate
+      return NextResponse.json({ project_id: project.id, assessment_link_error: linkError.message });
+    }
+    console.log("[projects/create] assessment link OK, count:", assessment_ids.length);
+  } else {
+    console.log("[projects/create] no assessments to link, assessment_ids:", assessment_ids);
   }
 
   return NextResponse.json({ project_id: project.id });

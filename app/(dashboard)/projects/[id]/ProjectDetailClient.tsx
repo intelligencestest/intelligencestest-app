@@ -47,6 +47,12 @@ type InviteSuccess =
   | { type: "link"; url: string }
   | { type: "email"; to: string };
 
+interface EditForm {
+  name: string;
+  description: string;
+  deadline: string;
+}
+
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -102,6 +108,16 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
   const [addOpen, setAddOpen] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
 
+  // Edit project state
+  const [editOpen, setEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState<EditForm>({
+    name: project.name,
+    description: project.description ?? "",
+    deadline: project.deadline ? project.deadline.slice(0, 10) : "",
+  });
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState("");
+
   // Sync invite form assessment when assessments prop changes (after router.refresh)
   useEffect(() => {
     setInviteForm((f) => ({
@@ -116,6 +132,41 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [addOpen]);
+
+  useEffect(() => {
+    if (!editOpen) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setEditOpen(false); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [editOpen]);
+
+  const handleEditSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditError("");
+    if (!editForm.name.trim()) { setEditError("Project name is required"); return; }
+    setEditSaving(true);
+    try {
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editForm.name,
+          description: editForm.description,
+          deadline: editForm.deadline,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setEditError(data.error ?? "Failed to save changes");
+      } else {
+        setEditOpen(false);
+        router.refresh();
+      }
+    } catch {
+      setEditError("Network error. Please try again.");
+    }
+    setEditSaving(false);
+  };
 
   const linkedIds = new Set(assessments.map((a) => a.id));
 
@@ -211,15 +262,35 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             )}
           </div>
         </div>
-        <Link
-          href={`/reports?project=${project.id}`}
-          className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240] hover:text-blue-200"
-        >
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 10a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 0v10m0-10a2 2 0 0 1 2 2h2a2 2 0 0 1 2-2V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2" />
-          </svg>
-          View report
-        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setEditForm({
+                name: project.name,
+                description: project.description ?? "",
+                deadline: project.deadline ? project.deadline.slice(0, 10) : "",
+              });
+              setEditError("");
+              setEditOpen(true);
+            }}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-[#1E2240] hover:text-white"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+            </svg>
+            Edit
+          </button>
+          <Link
+            href={`/reports?project=${project.id}`}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240] hover:text-blue-200"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 10a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 0v10m0-10a2 2 0 0 1 2 2h2a2 2 0 0 1 2-2V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2" />
+            </svg>
+            View report
+          </Link>
+        </div>
       </div>
 
       {/* Battery + Invite panel */}
@@ -478,6 +549,104 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           </div>
         )}
       </div>
+
+      {/* Edit project modal */}
+      {editOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setEditOpen(false)}
+        >
+          <div
+            className="premium-card w-full max-w-md rounded-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-semibold text-white">Edit project</h2>
+                <p className="mt-0.5 text-xs text-slate-500">Update project name, description, or deadline.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditOpen(false)}
+                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <form onSubmit={handleEditSave} className="space-y-4">
+              {editError && (
+                <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                  {editError}
+                </div>
+              )}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Project name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  required
+                  value={editForm.name}
+                  onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Description
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                </label>
+                <textarea
+                  rows={3}
+                  value={editForm.description}
+                  onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
+                  placeholder="Describe the role or hiring context…"
+                  className="w-full resize-none rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Deadline
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                </label>
+                <input
+                  type="date"
+                  value={editForm.deadline}
+                  onChange={(e) => setEditForm((f) => ({ ...f, deadline: e.target.value }))}
+                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 [color-scheme:dark]"
+                />
+              </div>
+              <div className="flex gap-2.5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditOpen(false)}
+                  className="flex-1 cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editSaving}
+                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {editSaving ? (
+                    <>
+                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                      </svg>
+                      Saving…
+                    </>
+                  ) : (
+                    "Save changes"
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Add assessment modal */}
       {addOpen && (
