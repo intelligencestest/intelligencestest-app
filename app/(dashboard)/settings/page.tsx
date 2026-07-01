@@ -20,10 +20,10 @@ export default function SettingsPage() {
     weeklyDigest: true,
   });
   const [profile, setProfile] = useState({
-    name: "HR Admin",
-    email: "admin@company.com",
+    name: "",
+    email: "",
     company: "",
-    role: "HR Manager",
+    role: "",
   });
 
   const handleSave = async () => {
@@ -139,14 +139,11 @@ export default function SettingsPage() {
 
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-[#1D4ED8]/20 border-2 border-[#1D4ED8]/40 flex items-center justify-center text-xl font-bold text-[#6B9FFF]">
-            HR
+            {profile.name ? profile.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() : "?"}
           </div>
           <div>
-            <p className="text-sm font-medium text-white">{profile.name}</p>
-            <p className="text-xs text-slate-500 mt-0.5">{profile.email}</p>
-            <button className="text-xs text-[#6B9FFF] hover:text-blue-300 mt-1.5 transition-colors">
-              Change avatar
-            </button>
+            <p className="text-sm font-medium text-white">{profile.name || <span className="text-slate-500">Your name</span>}</p>
+            <p className="text-xs text-slate-500 mt-0.5">{profile.email || "—"}</p>
           </div>
         </div>
 
@@ -155,7 +152,7 @@ export default function SettingsPage() {
             { key: "name", label: "Full Name", placeholder: "Your name" },
             { key: "email", label: "Email Address", placeholder: "you@company.com" },
             { key: "company", label: "Company", placeholder: "Company name" },
-            { key: "role", label: "Job Title", placeholder: "Your role" },
+            { key: "role", label: "Job Title", placeholder: "e.g. Recruiter, Operations Manager" },
           ].map((field) => (
             <div key={field.key}>
               <label className="block text-sm font-medium text-slate-300 mb-2">{field.label}</label>

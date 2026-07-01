@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface Assessment {
   id: string;
@@ -488,6 +488,14 @@ export default function AssessmentsClient({ assessments }: { assessments: Assess
   const es = locale === "es";
 
   const [preview, setPreview] = useState<Assessment | null>(null);
+
+  useEffect(() => {
+    if (!preview) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setPreview(null); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [preview]);
+
   const grouped = useMemo(() => groupAssessments(assessments), [assessments]);
   const activeCount = assessments.filter(isActive).length;
   const totalMinutes = assessments.filter(isActive).reduce((sum, a) => sum + (a.duration_minutes ?? 0), 0);
@@ -620,13 +628,13 @@ export default function AssessmentsClient({ assessments }: { assessments: Assess
                     <div className="mt-4 border-t border-[#1E2240] pt-4">
                       {active ? (
                         <Link
-                          href={`/test/${route}`}
+                          href={`/projects/new?assessment=${assessment.id}`}
                           onClick={(event) => event.stopPropagation()}
                           className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/25 transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/50 focus:ring-offset-2 focus:ring-offset-[#0D1020]"
                         >
-                          {t("start")}
+                          {t("addToProject")}
                           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-6-6 6 6-6 6" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
                           </svg>
                         </Link>
                       ) : (

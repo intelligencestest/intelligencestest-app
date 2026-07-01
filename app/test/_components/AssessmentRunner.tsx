@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 
@@ -307,11 +308,20 @@ export default function AssessmentRunner({
         <div className="w-full max-w-md rounded-xl border border-[#1E2240] bg-[#0D1020] p-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
             <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
           </div>
           <h2 className="mb-2 text-xl font-semibold text-white">{s.errorHeading}</h2>
-          <p className="text-slate-400">{errorMsg}</p>
+          <p className="mb-6 text-slate-400">{errorMsg}</p>
+          <Link
+            href="/assessments"
+            className="inline-flex items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:border-[#2d3a70] hover:text-white"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5m7-7-7 7 7 7" />
+            </svg>
+            {locale === "es" ? "Volver a la biblioteca" : "Back to library"}
+          </Link>
         </div>
       </div>
     );
