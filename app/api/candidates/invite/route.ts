@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase-server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import { Resend } from "resend";
 
 const testPaths: Record<string, string> = {
   "Critical Thinking Test": "critical-thinking",
@@ -28,8 +29,36 @@ const testPaths: Record<string, string> = {
   "Learning Agility Test": "learning-agility",
 };
 
+function buildInviteEmail(opts: {
+  candidateName: string | null;
+  companyName: string;
+  testUrl: string;
+}): string {
+  const greeting = opts.candidateName ? `Hi ${opts.candidateName},` : "Hi there,";
+  return `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background-color:#07080F;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
+  <div style="max-width:520px;margin:48px auto;padding:40px;background-color:#0D1020;border:1px solid #1E2240;border-radius:16px">
+    <p style="margin:0 0 32px;font-size:13px;font-weight:600;color:#8CB1FF;letter-spacing:0.05em;text-transform:uppercase">${opts.companyName}</p>
+    <h1 style="margin:0 0 12px;font-size:22px;font-weight:600;color:#FFFFFF;line-height:1.3">${greeting}</h1>
+    <p style="margin:0 0 28px;font-size:15px;color:#94A3B8;line-height:1.65">
+      You've been invited to complete an online assessment. Find a quiet space and set aside uninterrupted time before you start — once begun, the timer cannot be paused.
+    </p>
+    <a href="${opts.testUrl}" style="display:inline-block;background-color:#1D4ED8;color:#FFFFFF;font-size:15px;font-weight:600;padding:14px 28px;border-radius:12px;text-decoration:none;letter-spacing:0.01em">
+      Start your assessment &rarr;
+    </a>
+    <p style="margin:28px 0 0;font-size:12px;color:#475569;line-height:1.6">
+      This link expires in <strong style="color:#64748B">7 days</strong>. If you weren't expecting this invitation, you can safely ignore this email.
+    </p>
+    <hr style="border:none;border-top:1px solid #1E2240;margin:24px 0">
+    <p style="margin:0;font-size:11px;color:#334155">Sent by ${opts.companyName} via IntelligencesTest</p>
+  </div>
+</body>
+</html>`;
+}
+
 export async function POST(request: NextRequest) {
-  // Verify the caller is authenticated
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -38,15 +67,21 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { full_name, email, project_id, assessment_type } = body;
+  const { full_name, email, project_id, assessment_type, delivery_method } = body;
 
   if (!project_id) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  // Validate email early when sending via email to avoid creating dangling records
+  if (delivery_method === "email") {
+    if (!email || !String(email).includes("@")) {
+      return NextResponse.json({ error: "A valid email address is required" }, { status: 400 });
+    }
+  }
+
   const admin = createAdminClient();
 
-  // Get user's company_id
   const { data: userProfile } = await admin
     .from("users")
     .select("company_id")
@@ -57,15 +92,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "User has no company" }, { status: 400 });
   }
 
-  // Look up company language for the invite link
   const { data: company } = await admin
     .from("companies")
-    .select("language")
+    .select("name, language")
     .eq("id", userProfile.company_id)
     .single();
-  const lang = company?.language && ["en", "es"].includes(company.language) ? company.language : "en";
 
-  // Validate the assessment is in this project before creating any records
+  const lang = company?.language && ["en", "es"].includes(company.language) ? company.language : "en";
+  const companyName = company?.name ?? "Your Company";
+
   if (!assessment_type) {
     return NextResponse.json({ error: "Assessment type is required" }, { status: 400 });
   }
@@ -92,7 +127,7 @@ export async function POST(request: NextRequest) {
   }
 
   const token = randomUUID();
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const { data: candidate, error } = await admin
     .from("candidates")
@@ -115,6 +150,34 @@ export async function POST(request: NextRequest) {
   const testPath = testPaths[assessment_type] ?? "critical-thinking";
   const langParam = lang !== "en" ? `&lang=${lang}` : "";
   const testUrl = `/test/${testPath}?token=${candidate.token}${langParam}`;
+
+  if (delivery_method === "email") {
+    const origin = new URL(request.url).origin;
+    const absoluteUrl = `${origin}${testUrl}`;
+
+    const resend = new Resend(process.env.RESEND_API_KEY);
+    const { error: sendError } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL!,
+      to: email.toLowerCase().trim(),
+      subject: `${companyName} — Your assessment invitation`,
+      html: buildInviteEmail({
+        candidateName: full_name?.trim() || null,
+        companyName,
+        testUrl: absoluteUrl,
+      }),
+    });
+
+    if (sendError) {
+      // Candidate row was created — return the URL anyway so the caller can handle it,
+      // but signal the email failure clearly so it's never silently swallowed.
+      return NextResponse.json(
+        { error: `Candidate created but email failed: ${sendError.message}`, test_url: testUrl, candidate_id: candidate.id },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({ candidate_id: candidate.id, test_url: testUrl, email_sent: true });
+  }
 
   return NextResponse.json({ candidate_id: candidate.id, test_url: testUrl });
 }

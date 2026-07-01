@@ -27,6 +27,11 @@ interface Props {
   totalCandidates: number;
 }
 
+type LoadingMode = "link" | "email" | null;
+type SuccessState =
+  | { type: "link"; url: string }
+  | { type: "email"; to: string };
+
 const statusConfig: Record<string, { label: string; class: string; dot: string }> = {
   active: { label: "Active", class: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400" },
   draft: { label: "Draft", class: "bg-slate-500/10 text-slate-300 border-slate-500/25", dot: "bg-slate-400" },
@@ -37,19 +42,19 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
   const t = useTranslations("projects");
 
   const [inviteProjectId, setInviteProjectId] = useState<string | null>(null);
-  const [form, setForm] = useState({ full_name: "", assessment_id: "" });
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ full_name: "", email: "", assessment_id: "" });
+  const [loadingMode, setLoadingMode] = useState<LoadingMode>(null);
   const [error, setError] = useState("");
-  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [success, setSuccess] = useState<SuccessState | null>(null);
 
   const availableAssessments = inviteProjectId ? (projectAssessments[inviteProjectId] ?? []) : [];
 
   useEffect(() => {
     if (inviteProjectId) {
       const first = (projectAssessments[inviteProjectId] ?? [])[0];
-      setForm({ full_name: "", assessment_id: first?.id ?? "" });
+      setForm({ full_name: "", email: "", assessment_id: first?.id ?? "" });
       setError("");
-      setCopiedUrl(null);
+      setSuccess(null);
     }
   }, [inviteProjectId, projectAssessments]);
 
@@ -62,18 +67,32 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
 
   const closeModal = () => {
     setInviteProjectId(null);
-    setForm({ full_name: "", assessment_id: "" });
+    setForm({ full_name: "", email: "", assessment_id: "" });
     setError("");
-    setCopiedUrl(null);
-    setLoading(false);
+    setSuccess(null);
+    setLoadingMode(null);
   };
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const resetForm = () => {
+    const first = inviteProjectId ? (projectAssessments[inviteProjectId] ?? [])[0] : undefined;
+    setForm({ full_name: "", email: "", assessment_id: first?.id ?? "" });
+    setError("");
+    setSuccess(null);
+  };
+
+  const handleInvite = async (mode: "link" | "email") => {
     setError("");
     const selectedAssessment = availableAssessments.find((a) => a.id === form.assessment_id);
     if (!selectedAssessment || !inviteProjectId) return;
-    setLoading(true);
+
+    if (mode === "email") {
+      if (!form.email || !form.email.includes("@")) {
+        setError(t("emailRequired"));
+        return;
+      }
+    }
+
+    setLoadingMode(mode);
 
     try {
       const res = await fetch("/api/candidates/invite", {
@@ -81,22 +100,28 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           full_name: form.full_name,
+          email: form.email,
           project_id: inviteProjectId,
           assessment_type: selectedAssessment.name,
+          delivery_method: mode,
         }),
       });
       const data = await res.json();
+
       if (!res.ok) {
-        setError(data.error ?? "Failed to generate invite link");
-      } else {
+        setError(data.error ?? "Failed to generate invite");
+      } else if (mode === "link") {
         const url = `${window.location.origin}${data.test_url}`;
-        await navigator.clipboard.writeText(url);
-        setCopiedUrl(url);
+        await navigator.clipboard.writeText(url).catch(() => {});
+        setSuccess({ type: "link", url });
+      } else {
+        setSuccess({ type: "email", to: form.email });
       }
     } catch {
       setError("Network error. Please try again.");
     }
-    setLoading(false);
+
+    setLoadingMode(null);
   };
 
   return (
@@ -263,37 +288,48 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
               </button>
             </div>
 
-            {copiedUrl ? (
+            {success ? (
               <div className="space-y-4">
-                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                    <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
+                {success.type === "link" ? (
+                  <>
+                    <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
+                        <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-emerald-300">{t("linkCopied")}</p>
+                        <p className="text-xs text-slate-500">{t("linkValid")}</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
+                      <p className="break-all font-mono text-xs text-blue-300">{success.url}</p>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
+                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-emerald-300">{t("emailSent")}</p>
+                      <p className="truncate text-xs text-slate-500">{success.to}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-emerald-300">{t("linkCopied")}</p>
-                    <p className="text-xs text-slate-500">{t("linkValid")}</p>
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
-                  <p className="break-all font-mono text-xs text-blue-300">{copiedUrl}</p>
-                </div>
+                )}
                 <button
                   type="button"
-                  onClick={() => {
-                    const first = (projectAssessments[inviteProjectId] ?? [])[0];
-                    setForm({ full_name: "", assessment_id: first?.id ?? "" });
-                    setError("");
-                    setCopiedUrl(null);
-                  }}
+                  onClick={resetForm}
                   className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
                 >
                   {t("inviteAnother")}
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleInvite} className="space-y-4">
+              <div className="space-y-4">
                 {error && (
                   <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
                     {error}
@@ -312,6 +348,19 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                   />
                 </div>
                 <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    {t("emailAddress")}
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">{t("emailOptionalHint")}</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    placeholder="jane@example.com"
+                    className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                  />
+                </div>
+                <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{t("assessmentLabel")}</label>
                   <select
                     value={form.assessment_id}
@@ -325,29 +374,45 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     ))}
                   </select>
                 </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? (
-                    <>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    disabled={loadingMode !== null}
+                    onClick={() => handleInvite("link")}
+                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#1E2240] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {loadingMode === "link" ? (
                       <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
                       </svg>
-                      {t("generating")}
-                    </>
-                  ) : (
-                    <>
+                    ) : (
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
                       </svg>
-                      {t("generateLink")}
-                    </>
-                  )}
-                </button>
-              </form>
+                    )}
+                    {loadingMode === "link" ? t("generating") : t("copyLink")}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={loadingMode !== null}
+                    onClick={() => handleInvite("email")}
+                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {loadingMode === "email" ? (
+                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
+                      </svg>
+                    )}
+                    {loadingMode === "email" ? t("sendingEmail") : t("sendEmail")}
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>

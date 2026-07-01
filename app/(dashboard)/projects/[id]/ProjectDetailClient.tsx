@@ -42,6 +42,11 @@ interface Props {
   allAssessments: LibraryAssessment[];
 }
 
+type LoadingMode = "link" | "email" | null;
+type InviteSuccess =
+  | { type: "link"; url: string }
+  | { type: "email"; to: string };
+
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -88,10 +93,10 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
   const router = useRouter();
 
   // Invite state
-  const [inviteForm, setInviteForm] = useState({ full_name: "", assessment_id: assessments[0]?.id ?? "" });
-  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ full_name: "", email: "", assessment_id: assessments[0]?.id ?? "" });
+  const [inviteLoadingMode, setInviteLoadingMode] = useState<LoadingMode>(null);
   const [inviteError, setInviteError] = useState("");
-  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<InviteSuccess | null>(null);
 
   // Add assessment state
   const [addOpen, setAddOpen] = useState(false);
@@ -130,12 +135,19 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
     setAddingId(null);
   };
 
-  const handleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInvite = async (mode: "link" | "email") => {
     setInviteError("");
     const selected = assessments.find((a) => a.id === inviteForm.assessment_id);
     if (!selected) return;
-    setInviteLoading(true);
+
+    if (mode === "email") {
+      if (!inviteForm.email || !inviteForm.email.includes("@")) {
+        setInviteError("A valid email address is required to send an invite.");
+        return;
+      }
+    }
+
+    setInviteLoadingMode(mode);
 
     try {
       const res = await fetch("/api/candidates/invite", {
@@ -143,29 +155,36 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           full_name: inviteForm.full_name,
+          email: inviteForm.email,
           project_id: project.id,
           assessment_type: selected.name,
+          delivery_method: mode,
         }),
       });
       const data = await res.json();
+
       if (!res.ok) {
-        setInviteError(data.error ?? "Failed to generate invite link");
-      } else {
+        setInviteError(data.error ?? "Failed to generate invite");
+      } else if (mode === "link") {
         const url = `${window.location.origin}${data.test_url}`;
         await navigator.clipboard.writeText(url).catch(() => {});
-        setInviteUrl(url);
+        setInviteSuccess({ type: "link", url });
+        router.refresh();
+      } else {
+        setInviteSuccess({ type: "email", to: inviteForm.email });
         router.refresh();
       }
     } catch {
       setInviteError("Network error. Please try again.");
     }
-    setInviteLoading(false);
+
+    setInviteLoadingMode(null);
   };
 
   const resetInvite = () => {
-    setInviteUrl(null);
+    setInviteSuccess(null);
     setInviteError("");
-    setInviteForm({ full_name: "", assessment_id: assessments[0]?.id ?? "" });
+    setInviteForm({ full_name: "", email: "", assessment_id: assessments[0]?.id ?? "" });
   };
 
   const cfg = projectStatusConfig[project.status] ?? projectStatusConfig.draft;
@@ -265,40 +284,56 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         {/* Invite panel */}
         <div className="premium-card rounded-xl p-5">
           <div className="mb-4 border-b border-[#1E2240] pb-4">
-            <h2 className="text-base font-semibold text-white">Generate candidate link</h2>
-            <p className="mt-0.5 text-xs text-slate-500">Create a secure, time-limited invite for one candidate.</p>
+            <h2 className="text-base font-semibold text-white">Invite candidate</h2>
+            <p className="mt-0.5 text-xs text-slate-500">Generate a secure, 7-day invite link.</p>
           </div>
 
-          {inviteUrl ? (
+          {inviteSuccess ? (
             <div className="space-y-4">
-              <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                  <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
+              {inviteSuccess.type === "link" ? (
+                <>
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
+                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-emerald-300">Link copied to clipboard</p>
+                      <p className="text-xs text-slate-500">Valid for 7 days · share with your candidate</p>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Invite link</p>
+                    <div className="flex items-center gap-2">
+                      <p className="flex-1 break-all font-mono text-xs text-blue-300">{inviteSuccess.url}</p>
+                      <CopyButton text={inviteSuccess.url} />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
+                    <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
+                    </svg>
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-emerald-300">Email sent</p>
+                    <p className="truncate text-xs text-slate-500">{inviteSuccess.to}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-emerald-300">Link copied to clipboard</p>
-                  <p className="text-xs text-slate-500">Valid for 7 days · share with your candidate</p>
-                </div>
-              </div>
-              <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
-                <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Invite link</p>
-                <div className="flex items-center gap-2">
-                  <p className="flex-1 break-all font-mono text-xs text-blue-300">{inviteUrl}</p>
-                  <CopyButton text={inviteUrl} />
-                </div>
-              </div>
+              )}
               <button
                 type="button"
                 onClick={resetInvite}
                 className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
               >
-                Generate another link
+                Generate another invite
               </button>
             </div>
           ) : (
-            <form onSubmit={handleInvite} className="space-y-4">
+            <div className="space-y-4">
               {inviteError && (
                 <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
                   {inviteError}
@@ -313,6 +348,19 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   value={inviteForm.full_name}
                   onChange={(e) => setInviteForm((f) => ({ ...f, full_name: e.target.value }))}
                   placeholder="Jane Smith"
+                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                  Email address
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">(required for Send Email)</span>
+                </label>
+                <input
+                  type="email"
+                  value={inviteForm.email}
+                  onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
+                  placeholder="jane@example.com"
                   className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                 />
               </div>
@@ -334,29 +382,45 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   </select>
                 )}
               </div>
-              <button
-                type="submit"
-                disabled={inviteLoading || assessments.length === 0}
-                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {inviteLoading ? (
-                  <>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  type="button"
+                  disabled={inviteLoadingMode !== null || assessments.length === 0}
+                  onClick={() => handleInvite("link")}
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#1E2240] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {inviteLoadingMode === "link" ? (
                     <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
                     </svg>
-                    Generating…
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
                     </svg>
-                    Generate link
-                  </>
-                )}
-              </button>
-            </form>
+                  )}
+                  {inviteLoadingMode === "link" ? "Copying…" : "Copy Link"}
+                </button>
+                <button
+                  type="button"
+                  disabled={inviteLoadingMode !== null || assessments.length === 0}
+                  onClick={() => handleInvite("email")}
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {inviteLoadingMode === "email" ? (
+                    <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                    </svg>
+                  ) : (
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
+                    </svg>
+                  )}
+                  {inviteLoadingMode === "email" ? "Sending…" : "Send Email"}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>
