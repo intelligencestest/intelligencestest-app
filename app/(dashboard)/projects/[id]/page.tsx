@@ -63,12 +63,12 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   type PaRow = {
     assessment_id: string;
-    assessments: { id: string; name: string; duration_minutes: number | null; question_count: number | null } | null;
+    assessments: { id: string; name: string; duration_minutes: number | null; question_count: number | null }[];
   };
 
   const assessments = ((paRows ?? []) as PaRow[])
     .map((row) => {
-      const a = row.assessments;
+      const a = row.assessments[0];
       if (!a) return null;
       return {
         id: a.id,
