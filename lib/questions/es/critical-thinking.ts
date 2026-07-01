@@ -1,4 +1,4 @@
-export const TRANSLATION_STATUS = "draft" as const;
+export const TRANSLATION_STATUS = "reviewed" as const;
 
 export const CT_QUESTIONS_ES: Record<number, { text: string; options: [string, string, string, string] }> = {
   1:  { text: "Todos los mamíferos son de sangre caliente. Un delfín es un mamífero. ¿Qué debe ser verdad?", options: ["Todos los animales de sangre caliente son mamíferos", "Los delfines son de sangre caliente", "Los delfines no pueden sobrevivir en agua fría", "Ningún animal de sangre fría vive en el agua"] },
@@ -33,7 +33,7 @@ export const CT_QUESTIONS_ES: Record<number, { text: string; options: [string, s
   30: { text: "Lanzas una moneda justa tres veces y obtienes cara cada vez. ¿Cuál es la probabilidad de que el siguiente lanzamiento también sea cara?", options: ["Menos de 50% — es improbable", "Exactamente 50%", "Más de 50% — está pendiente", "25%"] },
   31: { text: "¿Qué sigue: ZA, YB, XC, WD, ___?", options: ["VE", "VF", "UE", "UF"] },
   32: { text: "Una tienda vende artículos con un margen de ganancia del 25%. Si el costo es $80, ¿cuál es el precio de venta?", options: ["$95", "$100", "$105", "$110"] },
-  33: { text: "Tienes una jarra de 3 litros y una de 5 litros con agua ilimitada. ¿Cómo mides exactamente 4 litros?", options: ["Llena la de 5L, vierte en la de 3L hasta llenarla (quedan 2L). Vacía la de 3L. Pon los 2L en la de 3L. Rellena la de 5L, vierte 1L en la de 3L. Quedan 4L en la de 5L.", "Llena ambas y combínalas", "Es imposible con estas dos jarras", "Llena la de 3L dos veces, luego quita 2L"] },
+  33: { text: "Tienes una jarra de 3 litros y una de 5 litros con agua ilimitada. ¿Cómo mides exactamente 4 litros?", options: ["Llene la de 5L, vierta en la de 3L hasta llenarla (quedan 2L). Vacíe la de 3L. Ponga los 2L en la de 3L. Rellene la de 5L, vierta 1L en la de 3L. Quedan 4L en la de 5L.", "Llene ambas y combínelas", "Es imposible con estas dos jarras", "Llene la de 3L dos veces, luego quite 2L"] },
   34: { text: "Los ingresos de una empresa crecieron de $200,000 a $250,000. ¿Cuál fue el aumento porcentual?", options: ["20%", "25%", "50%", "15%"] },
   35: { text: "¿Cuál es un ejemplo de falacia ad hominem?", options: ["'No confíes en sus consejos de dieta — claramente tiene sobrepeso.'", "'Los estudios muestran que el ejercicio es beneficioso para la salud cardíaca.'", "'Si baja el desempleo, la confianza del consumidor suele aumentar.'", "'Como la mayoría de la gente cree en X, X es probablemente verdad.'"] },
   36: { text: "¿Cuál es el siguiente número: 0, 1, 3, 6, 10, 15, ___?", options: ["18", "20", "21", "24"] },

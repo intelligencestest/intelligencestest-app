@@ -94,6 +94,25 @@
     "spanish": "Español",
     "switcher": "Idioma"
   },
+  "assessments": {
+    "title": "Biblioteca de Evaluaciones",
+    "badge": "Biblioteca de evaluaciones",
+    "subtitle": "{count} pruebas activas en {categories} categorías",
+    "availableNow": "Disponibles ahora",
+    "testsLabel": "pruebas",
+    "totalBattery": "Batería total",
+    "duration": "Duración",
+    "questions": "Preguntas",
+    "start": "Comenzar",
+    "comingSoon": "Próximamente",
+    "addToProject": "Agregar al proyecto",
+    "sampleQuestion": "Pregunta de ejemplo",
+    "fallbackDescription": "Los detalles de la evaluación están siendo preparados.",
+    "fallbackSample": "La vista previa de una pregunta de ejemplo aparecerá aquí cuando el banco de preguntas sea publicado.",
+    "active": "Activo",
+    "close": "Cerrar",
+    "activeOf": "{active} activos / {total} en total"
+  },
   "settings": {
     "title": "Configuración",
     "description": "Gestione su cuenta y las preferencias de la plataforma.",

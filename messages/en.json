@@ -94,6 +94,25 @@
     "spanish": "Español",
     "switcher": "Language"
   },
+  "assessments": {
+    "title": "Assessment Library",
+    "badge": "Assessment library",
+    "subtitle": "{count} active tests across {categories} categories",
+    "availableNow": "Available now",
+    "testsLabel": "tests",
+    "totalBattery": "Total battery",
+    "duration": "Duration",
+    "questions": "Questions",
+    "start": "Start",
+    "comingSoon": "Coming Soon",
+    "addToProject": "Add to Project",
+    "sampleQuestion": "Sample question",
+    "fallbackDescription": "Assessment details are being prepared.",
+    "fallbackSample": "A sample question preview will appear here once the question bank is published.",
+    "active": "Active",
+    "close": "Close",
+    "activeOf": "{active} active / {total} total"
+  },
   "settings": {
     "title": "Settings",
     "description": "Manage your account and platform preferences.",

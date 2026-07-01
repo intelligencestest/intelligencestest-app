@@ -8,7 +8,7 @@ export const TW_QUESTIONS_ES: Record<number, { text: string }> = {
   5:  { text: "Reconozco y aprecio las contribuciones de mis compañeros de equipo abiertamente." },
   6:  { text: "Prefiero mantener mi trabajo separado e independiente en lugar de integrarlo con el del equipo." },
   7:  { text: "Estoy dispuesto/a a ajustar mi enfoque cuando eso ayuda al equipo a funcionar con mayor eficacia." },
-  8:  { text: "Intervivo para ayudar a un colega que tiene dificultades, incluso cuando no es formalmente mi responsabilidad." },
+  8:  { text: "Intervengo para ayudar a un colega que tiene dificultades, incluso cuando no es formalmente mi responsabilidad." },
   9:  { text: "Pienso en cómo mis decisiones y acciones afectan a otros miembros del equipo antes de proceder." },
   10: { text: "Mantengo a mis compañeros informados sobre mi progreso sin esperar a que me lo pregunten." },
   11: { text: "Comunico claramente lo que necesito de otros para completar mi trabajo de manera efectiva." },
