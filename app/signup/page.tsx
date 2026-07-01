@@ -65,6 +65,9 @@ export default function SignupPage() {
       return;
     }
 
+    const langCookie = document.cookie.split("; ").find((r) => r.startsWith("lang="))?.split("=")?.[1] ?? "en";
+    const language = ["en", "es"].includes(langCookie) ? langCookie : "en";
+
     setLoading(true);
     const res = await fetch("/api/auth/signup", {
       method: "POST",
@@ -74,6 +77,7 @@ export default function SignupPage() {
         password: form.password,
         full_name: form.full_name,
         company_name: form.company_name,
+        language,
       }),
     });
     const data = await res.json();

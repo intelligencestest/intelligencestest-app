@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -22,7 +22,8 @@ export default function OnboardingPage() {
   const router = useRouter();
   const t = useTranslations("onboarding");
   const language = useTranslations("language");
-  const [form, setForm] = useState({ company_name: "", industry: "", language: "en" });
+  const locale = useLocale();
+  const [form, setForm] = useState({ company_name: "", industry: "", language: locale === "es" ? "es" : "en" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

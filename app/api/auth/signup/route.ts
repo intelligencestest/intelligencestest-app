@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase-server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { email, password, full_name, company_name } = await request.json();
+  const { email, password, full_name, company_name, language } = await request.json();
 
   if (!email || !password || !full_name || !company_name) {
     return NextResponse.json({ error: "All fields are required" }, { status: 400 });
@@ -10,6 +10,8 @@ export async function POST(request: NextRequest) {
   if (password.length < 8) {
     return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
   }
+
+  const lang = ["en", "es"].includes(language) ? language : "en";
 
   const admin = createAdminClient();
 
@@ -27,7 +29,7 @@ export async function POST(request: NextRequest) {
   // 1. Create company
   const { data: company, error: companyError } = await admin
     .from("companies")
-    .insert({ name: company_name, email: email.toLowerCase() })
+    .insert({ name: company_name, email: email.toLowerCase(), language: lang })
     .select("id")
     .single();
 

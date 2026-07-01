@@ -135,7 +135,7 @@ export default function LoginPage() {
                 <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("welcomeBack")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("noAccountYet")}{" "}
-                  <Link href="/signup" className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
+                  <Link href="/select-language" className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
                     {auth("createOneFree")}
                   </Link>
                 </p>
