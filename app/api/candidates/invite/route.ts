@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
 
+const PRODUCTION_APP_URL = "https://app.intelligencestest.com";
+const EMAIL_LOGO_URL = `${PRODUCTION_APP_URL}/intelligencestest-email-logo.png`;
+
 const testPaths: Record<string, string> = {
   "Critical Thinking Test": "critical-thinking",
   "Adversity Quotient (AQ) Test": "aq",
@@ -31,6 +34,35 @@ const testPaths: Record<string, string> = {
 
 type InviteEmailLocale = "en" | "es";
 
+const localizedAssessmentNames: Record<InviteEmailLocale, Record<string, string>> = {
+  en: {},
+  es: {
+    "Critical Thinking Test": "Prueba de Pensamiento Crítico",
+    "Adversity Quotient (AQ) Test": "Prueba de Cociente de Adversidad (AQ)",
+    "Emotional Intelligence Test": "Prueba de Inteligencia Emocional",
+    "Leadership Styles Test": "Prueba de Estilos de Liderazgo",
+    "Numerical Intelligence Test": "Prueba de Inteligencia Numérica",
+    "Personality Type Test": "Prueba de Tipo de Personalidad",
+    "Situational Judgment Test": "Prueba de Juicio Situacional",
+    "Attention to Detail Test": "Prueba de Atención al Detalle",
+    "Verbal Reasoning Test": "Prueba de Razonamiento Verbal",
+    "Abstract Reasoning Test": "Prueba de Razonamiento Abstracto",
+    "Mechanical Reasoning Test": "Prueba de Razonamiento Mecánico",
+    "Communication Skills Test": "Prueba de Habilidades de Comunicación",
+    "Problem Solving Test": "Prueba de Resolución de Problemas",
+    "Work Style Assessment": "Evaluación de Estilo de Trabajo",
+    "Work Style Test": "Prueba de Estilo de Trabajo",
+    "Sales Aptitude Test": "Prueba de Aptitud Comercial",
+    "Customer Service Skills Test": "Prueba de Atención al Cliente",
+    "Teamwork & Collaboration Test": "Prueba de Trabajo en Equipo y Colaboración",
+    "Time Management Test": "Prueba de Gestión del Tiempo",
+    "Stress Tolerance Test": "Prueba de Tolerancia al Estrés",
+    "Integrity & Ethics Test": "Prueba de Integridad y Ética",
+    "Decision Making Test": "Prueba de Toma de Decisiones",
+    "Learning Agility Test": "Prueba de Agilidad de Aprendizaje",
+  },
+};
+
 interface InviteEmailOptions {
   candidateName: string | null;
   companyName: string;
@@ -38,7 +70,16 @@ interface InviteEmailOptions {
   durationMinutes: number | null;
   questionCount: number | null;
   testUrl: string;
+  logoUrl: string;
   locale: InviteEmailLocale;
+}
+
+function getPublicAppUrl() {
+  return PRODUCTION_APP_URL;
+}
+
+function getLocalizedAssessmentName(name: string, locale: InviteEmailLocale) {
+  return localizedAssessmentNames[locale][name] ?? name;
 }
 
 function escapeHtml(value: string) {
@@ -55,7 +96,9 @@ function inviteCopy(locale: InviteEmailLocale) {
     return {
       subject: (companyName: string) => `${companyName} - Invitación a evaluación`,
       preheader: (companyName: string) => `${companyName} le ha invitado a completar una evaluación online.`,
-      greeting: (name: string | null) => (name ? `Hola ${name},` : "Hola,"),
+      greeting: (name: string | null) => (name ? `Estimado/a ${name},` : "Estimado/a candidato/a,"),
+      brandSubtitle: "Plataforma de evaluación humana",
+      logoAlt: "Logotipo de IntelligencesTest",
       title: (companyName: string) => `${companyName} le ha invitado a completar una evaluación`,
       intro:
         "Esta evaluación ayuda al equipo a conocer mejor sus fortalezas y su forma de resolver situaciones de trabajo. Busque un lugar tranquilo antes de comenzar.",
@@ -72,7 +115,7 @@ function inviteCopy(locale: InviteEmailLocale) {
       fallback: "Si el botón no funciona, copie y pegue este enlace en su navegador:",
       footerIntro: (companyName: string) => `Este correo fue enviado porque ${companyName} le invitó a completar una evaluación.`,
       support: "Soporte: support@intelligencestest.com | Preferencias de correo: gestionadas por la organización que invita.",
-      powered: "Powered by IntelligencesTest",
+      powered: "Con tecnología de IntelligencesTest",
     };
   }
 
@@ -80,6 +123,8 @@ function inviteCopy(locale: InviteEmailLocale) {
     subject: (companyName: string) => `${companyName} - Assessment invitation`,
     preheader: (companyName: string) => `${companyName} has invited you to complete an online assessment.`,
     greeting: (name: string | null) => (name ? `Hi ${name},` : "Hi there,"),
+    brandSubtitle: "Human Assessment Platform",
+    logoAlt: "IntelligencesTest logo",
     title: (companyName: string) => `${companyName} has invited you to complete an assessment`,
     intro:
       "This assessment helps the team understand your strengths and how you approach work-related situations. Please find a quiet place before you begin.",
@@ -107,6 +152,7 @@ function buildInviteSubject(opts: { companyName: string; locale: InviteEmailLoca
 function buildInviteEmailText(opts: InviteEmailOptions): string {
   const copy = inviteCopy(opts.locale);
   const candidateName = opts.candidateName?.trim() || null;
+  const assessmentName = getLocalizedAssessmentName(opts.assessmentName, opts.locale);
   const duration = opts.durationMinutes ? copy.minutes(opts.durationMinutes) : copy.unknown;
   const questions = opts.questionCount ? `${opts.questionCount}` : copy.unknown;
 
@@ -117,7 +163,7 @@ function buildInviteEmailText(opts: InviteEmailOptions): string {
     "",
     copy.intro,
     "",
-    `${copy.assessment}: ${opts.assessmentName}`,
+    `${copy.assessment}: ${assessmentName}`,
     `${copy.time}: ${duration}`,
     `${copy.questions}: ${questions}`,
     "",
@@ -135,12 +181,16 @@ function buildInviteEmailText(opts: InviteEmailOptions): string {
 function buildInviteEmail(opts: InviteEmailOptions): string {
   const copy = inviteCopy(opts.locale);
   const candidateName = opts.candidateName?.trim() || null;
+  const assessmentName = getLocalizedAssessmentName(opts.assessmentName, opts.locale);
   const safeCompanyName = escapeHtml(opts.companyName);
-  const safeAssessmentName = escapeHtml(opts.assessmentName);
+  const safeAssessmentName = escapeHtml(assessmentName);
   const safeGreeting = escapeHtml(copy.greeting(candidateName));
   const safeTitle = escapeHtml(copy.title(opts.companyName));
   const safeIntro = escapeHtml(copy.intro);
   const safeUrl = escapeHtml(opts.testUrl);
+  const safeLogoUrl = escapeHtml(opts.logoUrl);
+  const safeLogoAlt = escapeHtml(copy.logoAlt);
+  const safeBrandSubtitle = escapeHtml(copy.brandSubtitle);
   const duration = opts.durationMinutes ? copy.minutes(opts.durationMinutes) : copy.unknown;
   const questions = opts.questionCount ? `${opts.questionCount}` : copy.unknown;
 
@@ -158,18 +208,18 @@ function buildInviteEmail(opts: InviteEmailOptions): string {
     </div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#07080F;border-collapse:collapse;">
       <tr>
-        <td align="center" style="padding:28px 12px;">
+        <td align="center" style="padding:24px 12px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;border-collapse:collapse;">
             <tr>
-              <td style="padding:0 0 14px 0;">
+              <td style="padding:0 0 16px 0;">
                 <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
                   <tr>
-                    <td width="42" height="42" align="center" valign="middle" style="width:42px;height:42px;background-color:#1D4ED8;border:1px solid #6B9FFF;border-radius:12px;color:#FFFFFF;font-size:14px;line-height:42px;font-weight:700;letter-spacing:0.02em;">
-                      IT
+                    <td width="48" height="48" align="center" valign="middle" style="width:48px;height:48px;">
+                      <img src="${safeLogoUrl}" width="48" height="48" alt="${safeLogoAlt}" style="display:block;width:48px;height:48px;border:0;outline:none;text-decoration:none;border-radius:12px;" />
                     </td>
-                    <td style="padding-left:12px;">
-                      <div style="font-size:16px;line-height:20px;font-weight:700;color:#FFFFFF;">IntelligencesTest</div>
-                      <div style="font-size:12px;line-height:16px;color:#64748B;">Human Assessment Platform</div>
+                    <td style="padding-left:13px;">
+                      <div style="font-size:17px;line-height:21px;font-weight:700;color:#FFFFFF;">IntelligencesTest</div>
+                      <div style="font-size:12px;line-height:16px;color:#64748B;">${safeBrandSubtitle}</div>
                     </td>
                   </tr>
                 </table>
@@ -224,11 +274,11 @@ function buildInviteEmail(opts: InviteEmailOptions): string {
                     </td>
                   </tr>
                   <tr>
-                    <td align="center" style="padding:26px 24px 8px 24px;">
-                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                    <td align="center" style="padding:28px 24px 8px 24px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
                         <tr>
                           <td align="center" bgcolor="#1D4ED8" style="border-radius:12px;background-color:#1D4ED8;">
-                            <a href="${safeUrl}" target="_blank" style="display:inline-block;padding:15px 28px;color:#FFFFFF;background-color:#1D4ED8;border:1px solid #1D4ED8;border-radius:12px;font-size:15px;line-height:18px;font-weight:700;text-decoration:none;">
+                            <a href="${safeUrl}" target="_blank" style="display:block;padding:16px 28px;color:#FFFFFF;background-color:#1D4ED8;border:1px solid #1D4ED8;border-radius:12px;font-size:16px;line-height:20px;font-weight:700;text-decoration:none;text-align:center;">
                               ${escapeHtml(copy.cta)}
                             </a>
                           </td>
@@ -364,8 +414,9 @@ export async function POST(request: NextRequest) {
   const testUrl = `/test/${testPath}?token=${candidate.token}${langParam}`;
 
   if (delivery_method === "email") {
-    const origin = new URL(request.url).origin;
-    const absoluteUrl = `${origin}${testUrl}`;
+    const appUrl = getPublicAppUrl();
+    const absoluteUrl = `${appUrl}${testUrl}`;
+    const logoUrl = EMAIL_LOGO_URL;
     const toAddress = email.toLowerCase().trim();
     const emailLocale: InviteEmailLocale = lang === "es" ? "es" : "en";
     const emailOptions: InviteEmailOptions = {
@@ -375,6 +426,7 @@ export async function POST(request: NextRequest) {
       durationMinutes: assessment.duration_minutes ?? null,
       questionCount: assessment.question_count ?? null,
       testUrl: absoluteUrl,
+      logoUrl,
       locale: emailLocale,
     };
     const subject = buildInviteSubject({ companyName, locale: emailLocale });
