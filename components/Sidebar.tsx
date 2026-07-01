@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
@@ -8,7 +9,7 @@ import { createClient } from "@/lib/supabase";
 const navItems = [
   {
     href: "/dashboard",
-    label: "Dashboard",
+    labelKey: "dashboard",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 3h7v7H3zM13 3h8v7h-8zM3 13h7v8H3zM13 13h8v8h-8z" />
@@ -17,7 +18,7 @@ const navItems = [
   },
   {
     href: "/projects",
-    label: "Hiring Projects",
+    labelKey: "projects",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zm0 0V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
@@ -26,7 +27,7 @@ const navItems = [
   },
   {
     href: "/candidates",
-    label: "Candidates",
+    labelKey: "candidates",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" />
@@ -35,7 +36,7 @@ const navItems = [
   },
   {
     href: "/assessments",
-    label: "Assessments",
+    labelKey: "assessments",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
@@ -44,7 +45,7 @@ const navItems = [
   },
   {
     href: "/reports",
-    label: "Reports",
+    labelKey: "reports",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2" />
@@ -53,7 +54,7 @@ const navItems = [
   },
   {
     href: "/settings",
-    label: "Settings",
+    labelKey: "settings",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -72,6 +73,8 @@ interface SidebarProps {
 export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const nav = useTranslations("nav");
+  const auth = useTranslations("auth");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -124,7 +127,7 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
               }`}
             >
               <span className={`transition-colors ${active ? "text-[#8CB1FF]" : "text-slate-500 group-hover:text-slate-300"}`}>{item.icon}</span>
-              <span className="flex-1">{item.label}</span>
+              <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
               {item.href === "/assessments" && activeAssessmentCount > 0 && (
                 <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
                   active
@@ -146,7 +149,7 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-slate-200 truncate">{userName ?? "HR Admin"}</div>
+            <div className="text-sm font-medium text-slate-200 truncate">{userName ?? "Admin"}</div>
             <div className="text-xs text-slate-500 truncate">{userEmail ?? ""}</div>
           </div>
         </div>
@@ -158,7 +161,7 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          {loggingOut ? "Signing out..." : "Sign out"}
+          {loggingOut ? auth("signingOut") : auth("signOut")}
         </button>
       </div>
     </div>

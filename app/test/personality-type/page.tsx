@@ -7,6 +7,7 @@ import {
   PERSONALITY_QUESTIONS,
   scorePersonality,
 } from "@/lib/questions/personality-type";
+import { PERSONALITY_QUESTIONS_ES } from "@/lib/questions/es/personality-type";
 
 const dimensionClassNames = PERSONALITY_DIMENSIONS.reduce<Record<string, string>>((acc, dimension) => {
   acc[dimension.label] = dimension.className;
@@ -24,7 +25,7 @@ const questions: RunnerQuestion[] = PERSONALITY_QUESTIONS.map((question) => ({
 export default function PersonalityTypeTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -50,6 +51,14 @@ export default function PersonalityTypeTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Califique cada afirmación del 1 (Muy en desacuerdo) al 5 (Muy de acuerdo).",
+        "Responda según su comportamiento laboral habitual, no una situación reciente.",
+        "No hay respuestas correctas ni incorrectas en este perfil de personalidad.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={PERSONALITY_QUESTIONS_ES}
       submittingText="Saving your personality profile..."
       scoreAnswers={(answers) => {
         const scored = scorePersonality(answers);

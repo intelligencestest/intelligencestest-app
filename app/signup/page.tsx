@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -31,6 +33,8 @@ const Logo = () => (
 
 export default function SignupPage() {
   const router = useRouter();
+  const auth = useTranslations("auth");
+  const onboarding = useTranslations("onboarding");
   const [form, setForm] = useState({
     company_name: "",
     full_name: "",
@@ -97,6 +101,9 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-[#07080F] text-slate-100">
+      <div className="fixed right-4 top-4 z-50">
+        <LanguageSwitcher showLabel={false} />
+      </div>
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
@@ -139,11 +146,11 @@ export default function SignupPage() {
 
             <div className="premium-card rounded-2xl p-6 shadow-2xl sm:p-8">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold tracking-tight text-white">Create your account</h2>
+                <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("createAccount")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  Already have an account?{" "}
+                  {auth("alreadyHaveAccount")}{" "}
                   <Link href="/login" className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
-                    Sign in
+                    {auth("signIn")}
                   </Link>
                 </p>
               </div>
@@ -163,12 +170,12 @@ export default function SignupPage() {
                 ) : (
                   <GoogleIcon />
                 )}
-                Continue with Google
+                {auth("continueWithGoogle")}
               </button>
 
               <div className="mb-5 flex items-center gap-3">
                 <span className="h-px flex-1 bg-[#1E2240]" />
-                <span className="text-xs text-slate-600">or sign up with email</span>
+                <span className="text-xs text-slate-600">{auth("orSignUpWithEmail")}</span>
                 <span className="h-px flex-1 bg-[#1E2240]" />
               </div>
 
@@ -182,9 +189,9 @@ export default function SignupPage() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">Company name <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{onboarding("companyName")} <span className="text-red-400">*</span></label>
                     <input
                       required
                       placeholder="Acme Corp"
@@ -193,7 +200,7 @@ export default function SignupPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">Your full name <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("fullName")} <span className="text-red-400">*</span></label>
                     <input
                       required
                       placeholder="Jane Smith"
@@ -204,7 +211,7 @@ export default function SignupPage() {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-400">Work email <span className="text-red-400">*</span></label>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("workEmail")} <span className="text-red-400">*</span></label>
                   <input
                     required
                     type="email"
@@ -214,9 +221,9 @@ export default function SignupPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">Password <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("password")} <span className="text-red-400">*</span></label>
                     <input
                       required
                       type="password"
@@ -226,7 +233,7 @@ export default function SignupPage() {
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">Confirm password <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("confirmPassword")} <span className="text-red-400">*</span></label>
                     <input
                       required
                       type="password"
@@ -248,10 +255,10 @@ export default function SignupPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Creating account...
+                      {auth("creatingAccount")}
                     </>
                   ) : (
-                    "Create account"
+                    auth("createAccount")
                   )}
                 </button>
               </form>

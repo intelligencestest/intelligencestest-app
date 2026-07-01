@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { CS_QUESTIONS, CS_DURATION_SECONDS, CS_DIMENSIONS, scoreCS } from "@/lib/questions/communication-skills";
+import { CS_QUESTIONS_ES } from "@/lib/questions/es/communication-skills";
 
 const dimensionClassNames = CS_DIMENSIONS.reduce<Record<string, string>>((acc, d) => {
   acc[d.label] = d.className;
@@ -19,7 +20,7 @@ const questions: RunnerQuestion[] = CS_QUESTIONS.map((q) => ({
 export default function CommunicationSkillsTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -44,6 +45,13 @@ export default function CommunicationSkillsTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Califique cada afirmación del 1 (Muy en desacuerdo) al 5 (Muy de acuerdo).",
+        "Responda según cómo se comunica habitualmente, no según un escenario ideal.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={CS_QUESTIONS_ES}
       submittingText="Saving your communication skills profile..."
       scoreAnswers={(answers) => {
         const scored = scoreCS(answers);

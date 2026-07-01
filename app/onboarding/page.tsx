@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -12,9 +13,16 @@ const INDUSTRIES = [
   "Other",
 ] as const;
 
+const LANGUAGES = [
+  { value: "en", labelKey: "english", code: "EN" },
+  { value: "es", labelKey: "spanish", code: "ES" },
+] as const;
+
 export default function OnboardingPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ company_name: "", industry: "" });
+  const t = useTranslations("onboarding");
+  const language = useTranslations("language");
+  const [form, setForm] = useState({ company_name: "", industry: "", language: "en" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,7 +31,7 @@ export default function OnboardingPage() {
     setError("");
 
     if (!form.company_name || !form.industry) {
-      setError("Please fill in all fields");
+      setError("Please fill in all required fields");
       return;
     }
 
@@ -40,6 +48,9 @@ export default function OnboardingPage() {
       setError(data.error ?? "Something went wrong");
       return;
     }
+
+    // Set lang cookie client-side too so the next page immediately uses the right locale
+    document.cookie = `lang=${form.language}; path=/; samesite=lax`;
 
     router.push("/dashboard");
     router.refresh();
@@ -70,16 +81,16 @@ export default function OnboardingPage() {
           <div className="mb-6 flex items-center gap-2">
             <div className="h-1.5 flex-1 rounded-full bg-[#1D4ED8]" />
             <div className="h-1.5 flex-1 rounded-full bg-[#1D4ED8]" />
-            <div className="h-1.5 flex-1 rounded-full bg-[#1E2240]" />
+            <div className="h-1.5 flex-1 rounded-full bg-[#1D4ED8]" />
           </div>
 
           <div className="mb-6">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-2.5 py-1 text-xs font-medium text-[#9BB8FF]">
-              Step 2 of 3 — Company setup
+              {t("step2")}
             </div>
-            <h1 className="text-xl font-semibold text-white">Tell us about your company</h1>
+            <h1 className="text-xl font-semibold text-white">{t("tellUsAbout")}</h1>
             <p className="mt-1 text-sm text-slate-500">
-              This helps us tailor the platform to your hiring context.
+              {t("tailorPlatform")}
             </p>
           </div>
 
@@ -92,7 +103,7 @@ export default function OnboardingPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                Company name <span className="text-red-400">*</span>
+                {t("companyName")} <span className="text-red-400">*</span>
               </label>
               <input
                 required
@@ -105,7 +116,7 @@ export default function OnboardingPage() {
 
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                Industry <span className="text-red-400">*</span>
+                {t("industry")} <span className="text-red-400">*</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {INDUSTRIES.map((industry) => (
@@ -128,6 +139,43 @@ export default function OnboardingPage() {
               </div>
             </div>
 
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                {t("language")}
+              </label>
+              <p className="mb-2 text-xs text-slate-500">
+                {t("languageDescription")}
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.value}
+                    type="button"
+                    onClick={() => setForm((f) => ({ ...f, language: lang.value }))}
+                    className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left text-sm font-medium transition-colors ${
+                      form.language === lang.value
+                        ? "border-[#1D4ED8] bg-[#1D4ED8]/15 text-white"
+                        : "border-[#1E2240] bg-[#07080F] text-slate-400 hover:border-[#2d3a70]"
+                    }`}
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate">{language(lang.labelKey)}</span>
+                      <span className="mt-0.5 block text-xs font-normal text-slate-600">
+                        {lang.value === "es" ? "LATAM" : "Default"}
+                      </span>
+                    </span>
+                    <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold ${
+                      form.language === lang.value
+                        ? "border-[#6B9FFF]/35 bg-[#1D4ED8] text-white"
+                        : "border-[#1E2240] bg-[#0D1020] text-slate-500"
+                    }`}>
+                      {lang.code}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={loading || !form.company_name || !form.industry}
@@ -139,10 +187,10 @@ export default function OnboardingPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Saving...
+                  {t("saving")}
                 </>
               ) : (
-                "Continue to dashboard →"
+                t("continueToDashboard")
               )}
             </button>
           </form>

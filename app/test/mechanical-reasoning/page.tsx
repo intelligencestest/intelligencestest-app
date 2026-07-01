@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { MR_QUESTIONS, MR_DURATION_SECONDS, scoreMR } from "@/lib/questions/mechanical-reasoning";
+import { MR_QUESTIONS_ES } from "@/lib/questions/es/mechanical-reasoning";
 
 const questions: RunnerQuestion[] = MR_QUESTIONS.map((q) => ({
   id: q.id,
@@ -13,7 +14,7 @@ const questions: RunnerQuestion[] = MR_QUESTIONS.map((q) => ({
 export default function MechanicalReasoningTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -38,6 +39,13 @@ export default function MechanicalReasoningTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Responda preguntas sobre engranajes, palancas, fuerzas, circuitos y principios físicos.",
+        "Use papel borrador para cálculos si es necesario.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={MR_QUESTIONS_ES}
       submittingText="Scoring your mechanical reasoning test..."
       scoreAnswers={(answers) => {
         const scored = scoreMR(answers);

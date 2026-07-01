@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { CT_QUESTIONS, CT_DURATION_SECONDS, scoreResults } from "@/lib/questions/critical-thinking";
+import { CT_QUESTIONS_ES } from "@/lib/questions/es/critical-thinking";
+import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 
 type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "error";
 
@@ -16,8 +18,9 @@ interface CandidateInfo {
 export default function CriticalThinkingTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
+  const [locale, setLocale] = useState<Locale>("en");
   const [token, setToken] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("validating");
@@ -28,20 +31,27 @@ export default function CriticalThinkingTest({
   const [secondsLeft, setSecondsLeft] = useState(CT_DURATION_SECONDS);
   const [result, setResult] = useState<ReturnType<typeof scoreResults> | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const answersRef = useRef<(number | null)[]>(Array(CT_QUESTIONS.length).fill(null));
+  const submittedRef = useRef(false);
 
-  // Registration state (shared-link flow)
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [registering, setRegistering] = useState(false);
   const [regError, setRegError] = useState("");
 
+  const s = UI_STRINGS[locale];
+
   useEffect(() => {
     searchParams.then((params) => {
+      const rawLang = params.lang;
+      const resolvedLocale: Locale = rawLang === "es" ? "es" : "en";
+      setLocale(resolvedLocale);
+      const strings = UI_STRINGS[resolvedLocale];
+
       const t = params.token ?? null;
       const p = params.project ?? null;
 
       if (p) {
-        // Shared-link flow: show registration form
         setProjectId(p);
         setPhase("registering");
         return;
@@ -49,7 +59,7 @@ export default function CriticalThinkingTest({
 
       setToken(t);
       if (!t) {
-        setErrorMsg("No invitation token provided. Please use the link from your invitation email.");
+        setErrorMsg(strings.noToken);
         setPhase("error");
         return;
       }
@@ -65,7 +75,7 @@ export default function CriticalThinkingTest({
           }
         })
         .catch(() => {
-          setErrorMsg("Failed to validate your invitation. Please try again.");
+          setErrorMsg(strings.validateFailed);
           setPhase("error");
         });
     });
@@ -88,7 +98,7 @@ export default function CriticalThinkingTest({
       });
       const data = await res.json();
       if (!res.ok || data.error) {
-        setRegError(data.error ?? "Failed to register. Please try again.");
+        setRegError(data.error ?? s.registerError);
       } else {
         setToken(data.token);
         setCandidate({
@@ -101,7 +111,7 @@ export default function CriticalThinkingTest({
         setPhase("ready");
       }
     } catch {
-      setRegError("Network error. Please try again.");
+      setRegError(s.networkError);
     }
     setRegistering(false);
   }
@@ -109,20 +119,21 @@ export default function CriticalThinkingTest({
   function startTest() {
     setPhase("testing");
     timerRef.current = setInterval(() => {
-      setSecondsLeft((s) => {
-        if (s <= 1) {
+      setSecondsLeft((sec) => {
+        if (sec <= 1) {
           clearInterval(timerRef.current!);
-          submitAnswers(answers);
+          submitAnswers(answersRef.current);
           return 0;
         }
-        return s - 1;
+        return sec - 1;
       });
     }, 1000);
   }
 
   function selectAnswer(optionIndex: number) {
-    const next = [...answers];
+    const next = [...answersRef.current];
     next[current] = optionIndex;
+    answersRef.current = next;
     setAnswers(next);
   }
 
@@ -131,6 +142,8 @@ export default function CriticalThinkingTest({
   }
 
   async function submitAnswers(finalAnswers: (number | null)[]) {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
     if (timerRef.current) clearInterval(timerRef.current);
     setPhase("submitting");
     const scored = scoreResults(finalAnswers);
@@ -152,22 +165,49 @@ export default function CriticalThinkingTest({
     setPhase("completed");
   }
 
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m}:${sec.toString().padStart(2, "0")}`;
+  const formatTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const remainder = sec % 60;
+    return `${m}:${remainder.toString().padStart(2, "0")}`;
   };
 
   const answered = answers.filter((a) => a !== null).length;
   const progress = ((current + 1) / CT_QUESTIONS.length) * 100;
   const timeWarning = secondsLeft < 300;
 
+  const stats = [
+    { label: s.questions, value: "40" },
+    { label: s.timeLimit, value: "25 min" },
+    { label: s.questionType, value: s.multipleChoice },
+  ];
+
+  const activeInstructions = locale === "es"
+    ? [
+        s.instructions.readCarefully,
+        s.instructions.navigateFreely,
+        s.instructions.unanswered,
+        s.instructions.autoSubmit,
+        s.instructions.stableConnection,
+      ]
+    : [
+        s.instructions.readCarefully,
+        s.instructions.navigateFreely,
+        s.instructions.unanswered,
+        s.instructions.autoSubmit,
+        s.instructions.stableConnection,
+      ];
+
+  const esQ = CT_QUESTIONS_ES[current + 1];
+  const question = locale === "es" && esQ
+    ? { ...CT_QUESTIONS[current], text: esQ.text, options: [...esQ.options] }
+    : CT_QUESTIONS[current];
+
   if (phase === "validating") {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Validating your invitation...</p>
+          <p className="text-slate-400">{s.validating}</p>
         </div>
       </div>
     );
@@ -182,7 +222,7 @@ export default function CriticalThinkingTest({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">Unable to start test</h2>
+          <h2 className="text-xl font-semibold text-white mb-2">{s.errorHeading}</h2>
           <p className="text-slate-400">{errorMsg}</p>
         </div>
       </div>
@@ -195,10 +235,10 @@ export default function CriticalThinkingTest({
         <div className="max-w-md w-full rounded-xl border p-8" style={{ backgroundColor: "#0D1020", borderColor: "#1E2240" }}>
           <div className="mb-8 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">
-              Cognitive Assessment
+              {locale === "es" ? "Evaluación Cognitiva" : "Cognitive Assessment"}
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">Critical Thinking Test</h1>
-            <p className="text-slate-400 text-sm">Enter your details to begin the assessment.</p>
+            <p className="text-slate-400 text-sm">{s.registerHeading}</p>
           </div>
 
           {regError && (
@@ -209,7 +249,7 @@ export default function CriticalThinkingTest({
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Full Name</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">{s.nameLabel}</label>
               <input
                 required
                 value={regName}
@@ -219,7 +259,7 @@ export default function CriticalThinkingTest({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Email Address</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1.5">{s.emailLabel}</label>
               <input
                 required
                 type="email"
@@ -236,8 +276,14 @@ export default function CriticalThinkingTest({
               style={{ backgroundColor: "#1D4ED8" }}
             >
               {registering ? (
-                <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" /></svg> Setting up...</>
-              ) : "Continue to Assessment"}
+                <>
+                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                  </svg>
+                  {s.settingUp}
+                </>
+              ) : s.continueButton}
             </button>
           </form>
         </div>
@@ -251,18 +297,14 @@ export default function CriticalThinkingTest({
         <div className="max-w-2xl w-full rounded-xl border p-8" style={{ backgroundColor: "#0D1020", borderColor: "#1E2240" }}>
           <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">
-              Cognitive Assessment
+              {locale === "es" ? "Evaluación Cognitiva" : "Cognitive Assessment"}
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">Critical Thinking Test</h1>
-            <p className="text-slate-400">Welcome, <span className="text-white font-medium">{candidate?.full_name}</span></p>
+            <p className="text-slate-400">{s.welcomePrefix}<span className="text-white font-medium">{candidate?.full_name}</span></p>
           </div>
 
           <div className="grid grid-cols-3 gap-4 mb-8">
-            {[
-              { label: "Questions", value: "40" },
-              { label: "Time Limit", value: "25 min" },
-              { label: "Question Type", value: "Multiple Choice" },
-            ].map(({ label, value }) => (
+            {stats.map(({ label, value }) => (
               <div key={label} className="text-center p-4 rounded-lg" style={{ backgroundColor: "#1E2240" }}>
                 <div className="text-xl font-bold text-white">{value}</div>
                 <div className="text-xs text-slate-400 mt-1">{label}</div>
@@ -271,11 +313,9 @@ export default function CriticalThinkingTest({
           </div>
 
           <div className="space-y-3 mb-8 text-sm text-slate-300">
-            <p>- Read each question carefully before selecting your answer.</p>
-            <p>- You can navigate freely between questions and change your answers.</p>
-            <p>- Unanswered questions count as incorrect - attempt every question.</p>
-            <p>- The test auto-submits when the timer reaches zero.</p>
-            <p>- Ensure a stable internet connection before beginning.</p>
+            {activeInstructions.map((line, i) => (
+              <p key={i}>- {line}</p>
+            ))}
           </div>
 
           <button
@@ -283,7 +323,7 @@ export default function CriticalThinkingTest({
             className="w-full py-3 rounded-lg font-semibold text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: "#1D4ED8" }}
           >
-            Begin Test
+            {s.beginTest}
           </button>
         </div>
       </div>
@@ -295,7 +335,7 @@ export default function CriticalThinkingTest({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Scoring your answers...</p>
+          <p className="text-slate-400">{s.scoringAnswers}</p>
         </div>
       </div>
     );
@@ -314,35 +354,28 @@ export default function CriticalThinkingTest({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="mb-3 text-2xl font-semibold text-white">Assessment Submitted</h1>
-          <p className="mb-2 leading-relaxed text-slate-300">
-            Your assessment has been submitted successfully.
-          </p>
-          <p className="text-sm leading-relaxed text-slate-500">
-            Your responses are saved and ready for review by the organization.
-          </p>
+          <h1 className="mb-3 text-2xl font-semibold text-white">{s.submittedTitle}</h1>
+          <p className="mb-2 leading-relaxed text-slate-300">{s.submittedMessage}</p>
+          <p className="text-sm leading-relaxed text-slate-500">{s.submittedSub}</p>
           <div className="mt-8 rounded-lg border border-[#1E2240] bg-[#07080F] p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Status</p>
-            <p className="mt-1 text-sm font-medium text-emerald-300">Submitted securely</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{s.status}</p>
+            <p className="mt-1 text-sm font-medium text-emerald-300">{s.submittedSecurely}</p>
           </div>
-          <p className="mt-6 text-xs text-slate-600">You may now close this window.</p>
+          <p className="mt-6 text-xs text-slate-600">{s.closeWindow}</p>
         </div>
       </div>
     );
   }
 
-  const question = CT_QUESTIONS[current];
-
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <div className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: "#0D1020", borderColor: "#1E2240" }}>
         <div className="flex items-center gap-3">
           <span className="text-sm font-medium text-white">Critical Thinking Test</span>
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-400">{answered}/{CT_QUESTIONS.length} answered</span>
+          <span className="text-sm text-slate-400">{s.answeredOf(answered, CT_QUESTIONS.length)}</span>
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${timeWarning ? "bg-red-500/10 text-red-400" : "text-white"}`} style={!timeWarning ? { backgroundColor: "#1E2240" } : {}}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -352,16 +385,14 @@ export default function CriticalThinkingTest({
         </div>
       </div>
 
-      {/* Progress bar */}
       <div className="h-1 w-full" style={{ backgroundColor: "#1E2240" }}>
         <div className="h-1 transition-all duration-300" style={{ width: `${progress}%`, backgroundColor: "#1D4ED8" }} />
       </div>
 
-      {/* Question */}
       <div className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
         <div className="mb-6">
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-            Question {current + 1} of {CT_QUESTIONS.length}
+            {s.questionOf(current + 1, CT_QUESTIONS.length)}
           </span>
           <h2 className="text-lg font-semibold text-white mt-2 leading-relaxed">{question.text}</h2>
         </div>
@@ -399,7 +430,7 @@ export default function CriticalThinkingTest({
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Previous
+            {s.previous}
           </button>
 
           {current < CT_QUESTIONS.length - 1 ? (
@@ -408,18 +439,18 @@ export default function CriticalThinkingTest({
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
               style={{ backgroundColor: "#1D4ED8", color: "#fff" }}
             >
-              Next
+              {s.next}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
           ) : (
             <button
-              onClick={() => submitAnswers(answers)}
+              onClick={() => submitAnswers(answersRef.current)}
               className="flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-opacity hover:opacity-90"
               style={{ backgroundColor: "#10b981", color: "#fff" }}
             >
-              Submit Test
+              {s.submitTest}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -428,7 +459,6 @@ export default function CriticalThinkingTest({
         </div>
       </div>
 
-      {/* Question grid nav */}
       <div className="border-t px-6 py-4" style={{ backgroundColor: "#0D1020", borderColor: "#1E2240" }}>
         <div className="flex flex-wrap gap-1.5 max-w-3xl mx-auto">
           {CT_QUESTIONS.map((_, i) => (

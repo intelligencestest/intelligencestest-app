@@ -57,6 +57,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "User has no company" }, { status: 400 });
   }
 
+  // Look up company language for the invite link
+  const { data: company } = await admin
+    .from("companies")
+    .select("language")
+    .eq("id", userProfile.company_id)
+    .single();
+  const lang = company?.language && ["en", "es"].includes(company.language) ? company.language : "en";
+
   const token = randomUUID();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
 
@@ -95,7 +103,8 @@ export async function POST(request: NextRequest) {
   }
 
   const testPath = testPaths[assessment_type] ?? "critical-thinking";
-  const testUrl = `/test/${testPath}?token=${candidate.token}`;
+  const langParam = lang !== "en" ? `&lang=${lang}` : "";
+  const testUrl = `/test/${testPath}?token=${candidate.token}${langParam}`;
 
   return NextResponse.json({ candidate_id: candidate.id, test_url: testUrl });
 }

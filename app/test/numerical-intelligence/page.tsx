@@ -6,6 +6,7 @@ import {
   NUMERICAL_QUESTIONS,
   scoreNumerical,
 } from "@/lib/questions/numerical-intelligence";
+import { NUMERICAL_QUESTIONS_ES } from "@/lib/questions/es/numerical-intelligence";
 
 const questions: RunnerQuestion[] = NUMERICAL_QUESTIONS.map((question) => ({
   id: question.id,
@@ -17,7 +18,7 @@ const questions: RunnerQuestion[] = NUMERICAL_QUESTIONS.map((question) => ({
 export default function NumericalIntelligenceTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -42,6 +43,13 @@ export default function NumericalIntelligenceTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Elija la mejor respuesta para cada pregunta de razonamiento numérico.",
+        "Use papel borrador o calculadora solo si su organización lo permite.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={NUMERICAL_QUESTIONS_ES}
       submittingText="Scoring your numerical intelligence test..."
       scoreAnswers={(answers) => {
         const scored = scoreNumerical(answers);

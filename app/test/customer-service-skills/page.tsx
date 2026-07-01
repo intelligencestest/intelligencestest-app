@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { CSERV_QUESTIONS, CSERV_DURATION_SECONDS, scoreCServ } from "@/lib/questions/customer-service-skills";
+import { CSERV_QUESTIONS_ES } from "@/lib/questions/es/customer-service-skills";
 
 const questions: RunnerQuestion[] = CSERV_QUESTIONS.map((q) => ({
   id: q.id,
@@ -13,7 +14,7 @@ const questions: RunnerQuestion[] = CSERV_QUESTIONS.map((q) => ({
 export default function CustomerServiceSkillsTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -38,6 +39,13 @@ export default function CustomerServiceSkillsTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Lea cada escenario de atención al cliente y seleccione la respuesta más efectiva.",
+        "Elija la respuesta que refleje las mejores prácticas de atención al cliente.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={CSERV_QUESTIONS_ES}
       submittingText="Scoring your customer service skills test..."
       scoreAnswers={(answers) => {
         const scored = scoreCServ(answers);

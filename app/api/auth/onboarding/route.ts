@@ -9,10 +9,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { company_name, industry } = await request.json();
+  const { company_name, industry, language } = await request.json();
   if (!company_name || !industry) {
     return NextResponse.json({ error: "Company name and industry are required" }, { status: 400 });
   }
+  const lang = ["en", "es"].includes(language) ? language : "en";
 
   const admin = createAdminClient();
 
@@ -26,7 +27,7 @@ export async function POST(request: NextRequest) {
   if (userRow?.company_id) {
     await admin
       .from("companies")
-      .update({ name: company_name, industry, onboarding_completed: true })
+      .update({ name: company_name, industry, language: lang, onboarding_completed: true })
       .eq("id", userRow.company_id);
     return NextResponse.json({ success: true });
   }
@@ -38,6 +39,7 @@ export async function POST(request: NextRequest) {
       name: company_name,
       email: user.email!,
       industry,
+      language: lang,
       onboarding_completed: true,
     })
     .select("id")

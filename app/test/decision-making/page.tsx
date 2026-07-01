@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { DM_QUESTIONS, DM_DURATION_SECONDS, scoreDM } from "@/lib/questions/decision-making";
+import { DM_QUESTIONS_ES } from "@/lib/questions/es/decision-making";
 
 const questions: RunnerQuestion[] = DM_QUESTIONS.map((q) => ({
   id: q.id,
@@ -13,7 +14,7 @@ const questions: RunnerQuestion[] = DM_QUESTIONS.map((q) => ({
 export default function DecisionMakingTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -38,6 +39,13 @@ export default function DecisionMakingTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Lea cada escenario y seleccione la respuesta de toma de decisiones más efectiva.",
+        "Elija la respuesta que refleje un análisis sólido, buen criterio y conciencia del riesgo.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={DM_QUESTIONS_ES}
       submittingText="Scoring your decision making test..."
       scoreAnswers={(answers) => {
         const scored = scoreDM(answers);

@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { EI_DIMENSIONS, EI_DURATION_SECONDS, EI_QUESTIONS, scoreEI } from "@/lib/questions/emotional-intelligence";
+import { EI_QUESTIONS_ES } from "@/lib/questions/es/emotional-intelligence";
 
 const dimensionClassNames = EI_DIMENSIONS.reduce<Record<string, string>>((acc, dimension) => {
   acc[dimension.label] = dimension.className;
@@ -19,7 +20,7 @@ const questions: RunnerQuestion[] = EI_QUESTIONS.map((question) => ({
 export default function EmotionalIntelligenceTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -44,6 +45,13 @@ export default function EmotionalIntelligenceTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Califique cada afirmación del 1 (Muy en desacuerdo) al 5 (Muy de acuerdo).",
+        "Responda con honestidad según su comportamiento habitual, no el ideal.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={EI_QUESTIONS_ES}
       submittingText="Saving your emotional intelligence results..."
       scoreAnswers={(answers) => {
         const scored = scoreEI(answers);

@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { AR_QUESTIONS, AR_DURATION_SECONDS, scoreAR } from "@/lib/questions/abstract-reasoning";
+import { AR_QUESTIONS_ES } from "@/lib/questions/es/abstract-reasoning";
 
 const questions: RunnerQuestion[] = AR_QUESTIONS.map((q) => ({
   id: q.id,
@@ -13,7 +14,7 @@ const questions: RunnerQuestion[] = AR_QUESTIONS.map((q) => ({
 export default function AbstractReasoningTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -38,6 +39,13 @@ export default function AbstractReasoningTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Identifique patrones, secuencias y relaciones en cada pregunta.",
+        "Seleccione la opción que mejor complete o continúe cada patrón.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={AR_QUESTIONS_ES}
       submittingText="Scoring your abstract reasoning test..."
       scoreAnswers={(answers) => {
         const scored = scoreAR(answers);

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -16,6 +18,7 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const router = useRouter();
+  const auth = useTranslations("auth");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,6 +62,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#07080F] text-slate-100">
+      <div className="fixed right-4 top-4 z-50">
+        <LanguageSwitcher showLabel={false} />
+      </div>
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
@@ -126,11 +132,11 @@ export default function LoginPage() {
 
             <div className="premium-card rounded-2xl p-6 shadow-2xl sm:p-8">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold tracking-tight text-white">Welcome back</h2>
+                <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("welcomeBack")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  No account yet?{" "}
+                  {auth("noAccountYet")}{" "}
                   <Link href="/signup" className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
-                    Create one free
+                    {auth("createOneFree")}
                   </Link>
                 </p>
               </div>
@@ -150,12 +156,12 @@ export default function LoginPage() {
                 ) : (
                   <GoogleIcon />
                 )}
-                Continue with Google
+                {auth("continueWithGoogle")}
               </button>
 
               <div className="mb-5 flex items-center gap-3">
                 <span className="h-px flex-1 bg-[#1E2240]" />
-                <span className="text-xs text-slate-600">or sign in with email</span>
+                <span className="text-xs text-slate-600">{auth("orSignInWithEmail")}</span>
                 <span className="h-px flex-1 bg-[#1E2240]" />
               </div>
 
@@ -170,7 +176,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-300">Email address</label>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">{auth("emailAddress")}</label>
                   <div className="relative">
                     <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5" />
@@ -187,9 +193,9 @@ export default function LoginPage() {
 
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <label className="text-sm font-medium text-slate-300">Password</label>
+                    <label className="text-sm font-medium text-slate-300">{auth("password")}</label>
                     <Link href="/forgot-password" className="text-xs text-slate-500 hover:text-[#6B9FFF] transition-colors">
-                      Forgot password?
+                      {auth("forgotPassword")}
                     </Link>
                   </div>
                   <div className="relative">
@@ -217,10 +223,10 @@ export default function LoginPage() {
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
-                      Signing in...
+                      {auth("signingIn")}
                     </>
                   ) : (
-                    "Sign in"
+                    auth("signIn")
                   )}
                 </button>
               </form>

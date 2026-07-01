@@ -7,6 +7,7 @@ import {
   SJT_QUESTIONS,
   scoreSJT,
 } from "@/lib/questions/situational-judgment";
+import { SJT_QUESTIONS_ES } from "@/lib/questions/es/situational-judgment";
 
 const dimensionClassNames = SJT_DIMENSIONS.reduce<Record<string, string>>((acc, dimension) => {
   acc[dimension.label] = dimension.className;
@@ -25,7 +26,7 @@ const questions: RunnerQuestion[] = SJT_QUESTIONS.map((question) => ({
 export default function SituationalJudgmentTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -51,6 +52,13 @@ export default function SituationalJudgmentTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Elija la respuesta que muestre el mejor criterio laboral en cada escenario.",
+        "Algunas opciones pueden ser razonables; seleccione la respuesta más sólida en conjunto.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={SJT_QUESTIONS_ES}
       submittingText="Scoring your situational judgment test..."
       scoreAnswers={(answers) => {
         const scored = scoreSJT(answers);

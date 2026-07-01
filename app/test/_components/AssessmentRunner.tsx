@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 
 type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "error";
 
@@ -31,6 +32,8 @@ interface LikertQuestion {
 
 export type RunnerQuestion = ChoiceQuestion | LikertQuestion;
 
+export type EsQuestionMap = Record<number, { text: string; options?: readonly string[] }>;
+
 export interface ScoreResult {
   score: number;
   rawAnswers: unknown;
@@ -42,7 +45,7 @@ export interface ScoreResult {
 }
 
 interface AssessmentRunnerProps {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
   assessmentName: string;
   shortName: string;
   categoryLabel: string;
@@ -52,20 +55,14 @@ interface AssessmentRunnerProps {
   questions: RunnerQuestion[];
   questionTypeLabel: string;
   instructions: string[];
+  instructionsEs?: string[];
   details?: Array<{ label: string; value: string }>;
   dimensionSummary?: Array<{ label: string; description: string; className: string }>;
   submittingText: string;
   autoAdvanceLikert?: boolean;
+  esQuestions?: EsQuestionMap;
   scoreAnswers: (answers: (number | null)[]) => ScoreResult;
 }
-
-const LIKERT_LABELS = [
-  "Strongly Disagree",
-  "Disagree",
-  "Neutral",
-  "Agree",
-  "Strongly Agree",
-];
 
 function formatTime(seconds: number) {
   const minutes = Math.floor(seconds / 60);
@@ -84,12 +81,15 @@ export default function AssessmentRunner({
   questions,
   questionTypeLabel,
   instructions,
+  instructionsEs,
   details,
   dimensionSummary,
   submittingText,
   autoAdvanceLikert = true,
+  esQuestions,
   scoreAnswers,
 }: AssessmentRunnerProps) {
+  const [locale, setLocale] = useState<Locale>("en");
   const [token, setToken] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("validating");
@@ -107,8 +107,27 @@ export default function AssessmentRunner({
   const answersRef = useRef<(number | null)[]>(Array(questions.length).fill(null));
   const submittedRef = useRef(false);
 
+  const s = UI_STRINGS[locale];
+
+  const localizedQuestions: RunnerQuestion[] =
+    locale === "es" && esQuestions
+      ? questions.map((q) => {
+          const esQ = esQuestions[q.id];
+          if (!esQ) return q;
+          if (q.kind === "choice" && esQ.options) {
+            return { ...q, text: esQ.text, options: [...esQ.options] };
+          }
+          return { ...q, text: esQ.text };
+        })
+      : questions;
+
   useEffect(() => {
     Promise.resolve(searchParams).then((params) => {
+      const rawLang = params.lang;
+      const resolvedLocale: Locale = rawLang === "es" ? "es" : "en";
+      setLocale(resolvedLocale);
+      const strings = UI_STRINGS[resolvedLocale];
+
       const t = params.token ?? null;
       const p = params.project ?? null;
 
@@ -120,7 +139,7 @@ export default function AssessmentRunner({
 
       setToken(t);
       if (!t) {
-        setErrorMsg("No invitation token provided. Please use the link from your invitation email.");
+        setErrorMsg(strings.noToken);
         setPhase("error");
         return;
       }
@@ -137,7 +156,7 @@ export default function AssessmentRunner({
           }
         })
         .catch(() => {
-          setErrorMsg("Failed to validate your invitation. Please try again.");
+          setErrorMsg(strings.validateFailed);
           setPhase("error");
         });
     });
@@ -168,7 +187,7 @@ export default function AssessmentRunner({
       const data = await res.json();
 
       if (!res.ok || data.error) {
-        setRegError(data.error ?? "Failed to register. Please try again.");
+        setRegError(data.error ?? s.registerError);
       } else {
         setToken(data.token);
         setCandidate({
@@ -181,7 +200,7 @@ export default function AssessmentRunner({
         setPhase("ready");
       }
     } catch {
-      setRegError("Network error. Please try again.");
+      setRegError(s.networkError);
     }
 
     setRegistering(false);
@@ -207,7 +226,7 @@ export default function AssessmentRunner({
     answersRef.current = next;
     setAnswers(next);
 
-    if (questions[current].kind === "likert" && autoAdvanceLikert && current < questions.length - 1) {
+    if (localizedQuestions[current].kind === "likert" && autoAdvanceLikert && current < localizedQuestions.length - 1) {
       setTimeout(() => {
         setCurrent((c) => (c === current ? c + 1 : c));
       }, 250);
@@ -215,7 +234,7 @@ export default function AssessmentRunner({
   }
 
   function navigate(dir: 1 | -1) {
-    setCurrent((c) => Math.max(0, Math.min(questions.length - 1, c + dir)));
+    setCurrent((c) => Math.max(0, Math.min(localizedQuestions.length - 1, c + dir)));
   }
 
   async function submitAnswers(finalAnswers: (number | null)[]) {
@@ -244,21 +263,39 @@ export default function AssessmentRunner({
   }
 
   const answered = answers.filter((answer) => answer !== null).length;
-  const progress = ((current + 1) / questions.length) * 100;
+  const progress = ((current + 1) / localizedQuestions.length) * 100;
   const timeWarning = secondsLeft < 180;
-  const question = questions[current];
-  const stats = details ?? [
-    { label: "Questions", value: `${questions.length}` },
+  const question = localizedQuestions[current];
+
+  const rawStats = details ?? [
+    { label: "Questions", value: `${localizedQuestions.length}` },
     { label: "Time Limit", value: `${Math.round(durationSeconds / 60)} min` },
     { label: "Question Type", value: questionTypeLabel },
   ];
+  const stats = rawStats.map(({ label, value }) => {
+    const lc = label.toLowerCase();
+    return {
+      label:
+        lc === "questions" ? s.questions :
+        lc === "time limit" ? s.timeLimit :
+        lc === "question type" ? s.questionType :
+        label,
+      value:
+        value === "Multiple Choice" ? s.multipleChoice :
+        value === "Likert Scale" ? s.likertScale :
+        value,
+    };
+  });
+
+  const activeInstructions = locale === "es" && instructionsEs ? instructionsEs : instructions;
+  const likertLabels = [...s.likert];
 
   if (phase === "validating") {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-          <p className="text-slate-400">Validating your invitation...</p>
+          <p className="text-slate-400">{s.validating}</p>
         </div>
       </div>
     );
@@ -273,7 +310,7 @@ export default function AssessmentRunner({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="mb-2 text-xl font-semibold text-white">Unable to start test</h2>
+          <h2 className="mb-2 text-xl font-semibold text-white">{s.errorHeading}</h2>
           <p className="text-slate-400">{errorMsg}</p>
         </div>
       </div>
@@ -289,7 +326,7 @@ export default function AssessmentRunner({
               {categoryLabel}
             </div>
             <h1 className="mb-2 text-2xl font-bold text-white">{assessmentName}</h1>
-            <p className="text-sm text-slate-400">Enter your details to begin the assessment.</p>
+            <p className="text-sm text-slate-400">{s.registerHeading}</p>
           </div>
 
           {regError && (
@@ -300,7 +337,7 @@ export default function AssessmentRunner({
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">Full Name</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-300">{s.nameLabel}</label>
               <input
                 required
                 value={regName}
@@ -310,7 +347,7 @@ export default function AssessmentRunner({
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">Email Address</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-300">{s.emailLabel}</label>
               <input
                 required
                 type="email"
@@ -332,9 +369,9 @@ export default function AssessmentRunner({
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
                   </svg>
-                  Setting up...
+                  {s.settingUp}
                 </>
-              ) : "Continue to Assessment"}
+              ) : s.continueButton}
             </button>
           </form>
         </div>
@@ -352,7 +389,7 @@ export default function AssessmentRunner({
             </div>
             <h1 className="mb-2 text-3xl font-bold text-white">{assessmentName}</h1>
             <p className="text-slate-400">
-              Welcome, <span className="font-medium text-white">{candidate?.full_name}</span>
+              {s.welcomePrefix}<span className="font-medium text-white">{candidate?.full_name}</span>
             </p>
           </div>
 
@@ -367,7 +404,7 @@ export default function AssessmentRunner({
 
           {dimensionSummary && (
             <div className="mb-6 rounded-lg bg-[#1E2240] p-4">
-              <p className="mb-3 text-sm font-medium text-white">This test measures:</p>
+              <p className="mb-3 text-sm font-medium text-white">{s.thisMeasures}</p>
               <div className="grid gap-2 text-sm sm:grid-cols-2">
                 {dimensionSummary.map((dimension) => (
                   <div key={dimension.label} className="flex items-start gap-2">
@@ -380,8 +417,8 @@ export default function AssessmentRunner({
           )}
 
           <div className="mb-8 space-y-2 text-sm text-slate-300">
-            {instructions.map((instruction) => (
-              <p key={instruction}>- {instruction}</p>
+            {activeInstructions.map((instruction, i) => (
+              <p key={i}>- {instruction}</p>
             ))}
           </div>
 
@@ -390,7 +427,7 @@ export default function AssessmentRunner({
             className="w-full cursor-pointer rounded-lg py-3 font-semibold text-white transition-opacity hover:opacity-90"
             style={{ backgroundColor: "#1D4ED8" }}
           >
-            Begin Assessment
+            {s.beginButton}
           </button>
         </div>
       </div>
@@ -421,11 +458,9 @@ export default function AssessmentRunner({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="mb-3 text-2xl font-semibold text-white">Assessment Submitted</h1>
-          <p className="mb-2 leading-relaxed text-slate-300">Your assessment has been submitted successfully.</p>
-          <p className="text-sm leading-relaxed text-slate-500">
-            Your responses are saved and ready for review by the organization.
-          </p>
+          <h1 className="mb-3 text-2xl font-semibold text-white">{s.submittedTitle}</h1>
+          <p className="mb-2 leading-relaxed text-slate-300">{s.submittedMessage}</p>
+          <p className="text-sm leading-relaxed text-slate-500">{s.submittedSub}</p>
           {result?.completionMetric && (
             <div className="mt-6 rounded-lg border border-[#1E2240] bg-[#07080F] p-4">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{result.completionMetric.label}</p>
@@ -435,10 +470,10 @@ export default function AssessmentRunner({
             </div>
           )}
           <div className="mt-6 rounded-lg border border-[#1E2240] bg-[#07080F] p-4">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Status</p>
-            <p className="mt-1 text-sm font-medium text-emerald-300">Submitted securely</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{s.status}</p>
+            <p className="mt-1 text-sm font-medium text-emerald-300">{s.submittedSecurely}</p>
           </div>
-          <p className="mt-6 text-xs text-slate-600">You may now close this window.</p>
+          <p className="mt-6 text-xs text-slate-600">{s.closeWindow}</p>
         </div>
       </div>
     );
@@ -452,7 +487,7 @@ export default function AssessmentRunner({
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-slate-400">{answered}/{questions.length} answered</span>
+          <span className="text-sm text-slate-400">{s.answeredOf(answered, localizedQuestions.length)}</span>
           <div
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-sm font-bold ${timeWarning ? "bg-red-500/10 text-red-400" : "bg-[#1E2240] text-white"}`}
           >
@@ -472,7 +507,7 @@ export default function AssessmentRunner({
         <div className="mb-6">
           <div className="mb-3 flex flex-wrap items-center gap-2">
             <span className="text-xs font-medium uppercase tracking-wider text-slate-400">
-              Question {current + 1} of {questions.length}
+              {s.questionOf(current + 1, localizedQuestions.length)}
             </span>
             {question.groupLabel && (
               <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${question.groupClassName ?? "bg-slate-500/10 text-slate-300"}`}>
@@ -484,7 +519,7 @@ export default function AssessmentRunner({
         </div>
 
         <div className="mb-8 space-y-3">
-          {(question.kind === "likert" ? LIKERT_LABELS : question.options).map((option, index) => {
+          {(question.kind === "likert" ? likertLabels : question.options).map((option, index) => {
             const value = question.kind === "likert" ? index + 1 : index;
             const selected = answers[current] === value;
             return (
@@ -522,16 +557,16 @@ export default function AssessmentRunner({
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Previous
+            {s.previous}
           </button>
 
-          {current < questions.length - 1 ? (
+          {current < localizedQuestions.length - 1 ? (
             <button
               onClick={() => navigate(1)}
               className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
               style={{ backgroundColor: accentColor }}
             >
-              Next
+              {s.next}
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -541,7 +576,7 @@ export default function AssessmentRunner({
               onClick={() => submitAnswers(answersRef.current)}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-500 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
-              Submit Assessment
+              {s.submitButton}
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -552,7 +587,7 @@ export default function AssessmentRunner({
 
       <div className="border-t border-[#1E2240] bg-[#0D1020] px-6 py-4">
         <div className="mx-auto flex max-w-3xl flex-wrap gap-1.5">
-          {questions.map((_, index) => (
+          {localizedQuestions.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrent(index)}

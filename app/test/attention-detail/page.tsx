@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { AD_QUESTIONS, AD_DURATION_SECONDS, scoreAD } from "@/lib/questions/attention-detail";
+import { AD_QUESTIONS_ES } from "@/lib/questions/es/attention-detail";
 
 const questions: RunnerQuestion[] = AD_QUESTIONS.map((q) => ({
   id: q.id,
@@ -13,7 +14,7 @@ const questions: RunnerQuestion[] = AD_QUESTIONS.map((q) => ({
 export default function AttentionDetailTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -38,6 +39,13 @@ export default function AttentionDetailTest({
         "Choose the most accurate answer from the four options.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Lea cada pregunta con atención — las pequeñas diferencias importan.",
+        "Busque errores de escritura, inconsistencias de datos y referencias incorrectas.",
+        "Elija la respuesta más precisa entre las cuatro opciones.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={AD_QUESTIONS_ES}
       submittingText="Scoring your attention to detail test..."
       scoreAnswers={(answers) => {
         const scored = scoreAD(answers);

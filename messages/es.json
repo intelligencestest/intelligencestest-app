@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "dashboard": "Panel",
+    "projects": "Proyectos",
+    "candidates": "Candidatos",
+    "assessments": "Evaluaciones",
+    "reports": "Informes",
+    "settings": "Configuración"
+  },
+  "actions": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "back": "Volver",
+    "submit": "Enviar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "close": "Cerrar",
+    "confirm": "Confirmar",
+    "create": "Crear",
+    "invite": "Invitar",
+    "export": "Exportar"
+  },
+  "status": {
+    "loading": "Cargando...",
+    "saving": "Guardando...",
+    "success": "Éxito",
+    "error": "Algo salió mal",
+    "pending": "Pendiente",
+    "completed": "Completado",
+    "active": "Activo",
+    "inactive": "Inactivo"
+  },
+  "auth": {
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "signOut": "Cerrar sesión",
+    "forgotPassword": "¿Olvidó su contraseña?",
+    "createAccount": "Crear cuenta",
+    "alreadyHaveAccount": "¿Ya tiene una cuenta?",
+    "continueWithGoogle": "Continuar con Google",
+    "orSignInWithEmail": "o iniciar sesión con correo",
+    "orSignUpWithEmail": "o registrarse con correo",
+    "emailAddress": "Correo electrónico",
+    "workEmail": "Correo laboral",
+    "fullName": "Nombre completo",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "welcomeBack": "Bienvenido/a",
+    "noAccountYet": "¿Sin cuenta aún?",
+    "createOneFree": "Cree una gratis",
+    "creatingAccount": "Creando cuenta...",
+    "signingIn": "Iniciando sesión...",
+    "signingOut": "Cerrando sesión..."
+  },
+  "dashboard": {
+    "overview": "Resumen",
+    "recentActivity": "Actividad reciente",
+    "totalCandidates": "Total de candidatos",
+    "activeProjects": "Proyectos activos",
+    "completedTests": "Pruebas completadas",
+    "averageScore": "Puntuación promedio"
+  },
+  "projects": {
+    "newProject": "Nuevo proyecto",
+    "projectName": "Nombre del proyecto",
+    "noProjects": "Sin proyectos aún",
+    "createFirst": "Cree su primer proyecto"
+  },
+  "candidates": {
+    "fullName": "Nombre completo",
+    "email": "Correo electrónico",
+    "status": "Estado",
+    "score": "Puntuación",
+    "completedAt": "Completado el",
+    "noCandidates": "Sin candidatos aún",
+    "inviteFirst": "Invite a su primer candidato"
+  },
+  "onboarding": {
+    "step2": "Paso 2 de 3 — Configuración de empresa",
+    "step3": "Paso 3 de 3 — Preferencia de idioma",
+    "tellUsAbout": "Cuéntenos sobre su empresa",
+    "tailorPlatform": "Esto nos ayuda a adaptar la plataforma a su contexto de selección.",
+    "companyName": "Nombre de la empresa",
+    "industry": "Industria",
+    "language": "Idioma de evaluación",
+    "languageDescription": "Seleccione el idioma predeterminado para las evaluaciones de candidatos.",
+    "continueToDashboard": "Continuar al panel →",
+    "saving": "Guardando..."
+  },
+  "language": {
+    "english": "English",
+    "spanish": "Español",
+    "switcher": "Idioma"
+  },
+  "settings": {
+    "title": "Configuración",
+    "description": "Gestione su cuenta y las preferencias de la plataforma.",
+    "saved": "La configuración se guardó correctamente.",
+    "languageTitle": "Idioma del espacio de trabajo",
+    "languageDescription": "Elija el idioma del panel y el idioma predeterminado para las invitaciones de candidatos.",
+    "dashboardLanguage": "Idioma del panel",
+    "candidateLanguage": "Idioma de invitación",
+    "languageNote": "El español está optimizado para equipos de LATAM y los textos largos se adaptan en todo el panel.",
+    "saveLanguage": "Guardar preferencia de idioma",
+    "savingLanguage": "Guardando idioma...",
+    "languageSaved": "Preferencia de idioma guardada.",
+    "languageError": "No se pudo guardar la preferencia de idioma. Intente de nuevo."
+  }
+}

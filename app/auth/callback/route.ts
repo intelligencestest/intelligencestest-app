@@ -61,6 +61,19 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     const destination = userRow?.company_id ? next : "/onboarding";
+
+    // Set lang cookie so next-intl uses the company's configured language
+    if (userRow?.company_id) {
+      const { data: company } = await admin
+        .from("companies")
+        .select("language")
+        .eq("id", userRow.company_id)
+        .single();
+      if (company?.language) {
+        response.cookies.set("lang", company.language, { path: "/", sameSite: "lax" });
+      }
+    }
+
     response.headers.set("Location", new URL(destination, origin).toString());
     return response;
 

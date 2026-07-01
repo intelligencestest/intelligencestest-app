@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { ST_QUESTIONS, ST_DURATION_SECONDS, ST_DIMENSIONS, scoreST } from "@/lib/questions/stress-tolerance";
+import { ST_QUESTIONS_ES } from "@/lib/questions/es/stress-tolerance";
 
 const dimensionClassNames = ST_DIMENSIONS.reduce<Record<string, string>>((acc, d) => {
   acc[d.label] = d.className;
@@ -19,7 +20,7 @@ const questions: RunnerQuestion[] = ST_QUESTIONS.map((q) => ({
 export default function StressToleranceTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -44,6 +45,13 @@ export default function StressToleranceTest({
         "Your results are not shown after completion; they are reviewed by the hiring team.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Califique cada afirmación del 1 (Muy en desacuerdo) al 5 (Muy de acuerdo).",
+        "Responda según cómo se comporta realmente bajo presión, no cómo le gustaría hacerlo.",
+        "Sus resultados no se muestran al finalizar; los revisa el equipo de selección.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={ST_QUESTIONS_ES}
       submittingText="Saving your stress tolerance profile..."
       scoreAnswers={(answers) => {
         const scored = scoreST(answers);

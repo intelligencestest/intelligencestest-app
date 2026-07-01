@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { TM_QUESTIONS, TM_DURATION_SECONDS, scoreTM } from "@/lib/questions/time-management";
+import { TM_QUESTIONS_ES } from "@/lib/questions/es/time-management";
 
 const questions: RunnerQuestion[] = TM_QUESTIONS.map((q) => ({
   id: q.id,
@@ -13,7 +14,7 @@ const questions: RunnerQuestion[] = TM_QUESTIONS.map((q) => ({
 export default function TimeManagementTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -38,6 +39,13 @@ export default function TimeManagementTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Lea cada escenario laboral y seleccione la respuesta más efectiva.",
+        "Elija la respuesta que refleje las mejores prácticas de gestión del tiempo y prioridades.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={TM_QUESTIONS_ES}
       submittingText="Scoring your time management test..."
       scoreAnswers={(answers) => {
         const scored = scoreTM(answers);

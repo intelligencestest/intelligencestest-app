@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { WS_QUESTIONS, WS_DURATION_SECONDS, WS_DIMENSIONS, scoreWS } from "@/lib/questions/work-style";
+import { WS_QUESTIONS_ES } from "@/lib/questions/es/work-style";
 
 const dimensionClassNames = WS_DIMENSIONS.reduce<Record<string, string>>((acc, d) => {
   acc[d.label] = d.className;
@@ -19,7 +20,7 @@ const questions: RunnerQuestion[] = WS_QUESTIONS.map((q) => ({
 export default function WorkStyleTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -44,6 +45,13 @@ export default function WorkStyleTest({
         "Your results are not shown after completion; they are reviewed by the hiring team.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Califique cada afirmación del 1 (Muy en desacuerdo) al 5 (Muy de acuerdo).",
+        "Responda según su comportamiento laboral habitual, no el ideal.",
+        "Sus resultados no se muestran al finalizar; los revisa el equipo de selección.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={WS_QUESTIONS_ES}
       submittingText="Saving your work style profile..."
       scoreAnswers={(answers) => {
         const scored = scoreWS(answers);

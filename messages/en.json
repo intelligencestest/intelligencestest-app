@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "candidates": "Candidates",
+    "assessments": "Assessments",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "back": "Back",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "confirm": "Confirm",
+    "create": "Create",
+    "invite": "Invite",
+    "export": "Export"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "success": "Success",
+    "error": "Something went wrong",
+    "pending": "Pending",
+    "completed": "Completed",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "forgotPassword": "Forgot password?",
+    "createAccount": "Create account",
+    "alreadyHaveAccount": "Already have an account?",
+    "continueWithGoogle": "Continue with Google",
+    "orSignInWithEmail": "or sign in with email",
+    "orSignUpWithEmail": "or sign up with email",
+    "emailAddress": "Email address",
+    "workEmail": "Work email",
+    "fullName": "Full name",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "welcomeBack": "Welcome back",
+    "noAccountYet": "No account yet?",
+    "createOneFree": "Create one free",
+    "creatingAccount": "Creating account...",
+    "signingIn": "Signing in...",
+    "signingOut": "Signing out..."
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "recentActivity": "Recent Activity",
+    "totalCandidates": "Total Candidates",
+    "activeProjects": "Active Projects",
+    "completedTests": "Completed Tests",
+    "averageScore": "Average Score"
+  },
+  "projects": {
+    "newProject": "New Project",
+    "projectName": "Project Name",
+    "noProjects": "No projects yet",
+    "createFirst": "Create your first project"
+  },
+  "candidates": {
+    "fullName": "Full Name",
+    "email": "Email",
+    "status": "Status",
+    "score": "Score",
+    "completedAt": "Completed At",
+    "noCandidates": "No candidates yet",
+    "inviteFirst": "Invite your first candidate"
+  },
+  "onboarding": {
+    "step2": "Step 2 of 3 — Company setup",
+    "step3": "Step 3 of 3 — Language preference",
+    "tellUsAbout": "Tell us about your company",
+    "tailorPlatform": "This helps us tailor the platform to your hiring context.",
+    "companyName": "Company name",
+    "industry": "Industry",
+    "language": "Assessment language",
+    "languageDescription": "Select the default language for candidate assessments.",
+    "continueToDashboard": "Continue to dashboard →",
+    "saving": "Saving..."
+  },
+  "language": {
+    "english": "English",
+    "spanish": "Español",
+    "switcher": "Language"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your account and platform preferences.",
+    "saved": "Settings saved successfully.",
+    "languageTitle": "Workspace Language",
+    "languageDescription": "Choose the dashboard language and the default language used for candidate invitations.",
+    "dashboardLanguage": "Dashboard language",
+    "candidateLanguage": "Candidate invite language",
+    "languageNote": "Spanish is optimized for LATAM teams and longer labels are supported across the dashboard.",
+    "saveLanguage": "Save language preference",
+    "savingLanguage": "Saving language...",
+    "languageSaved": "Language preference saved.",
+    "languageError": "Could not save the language preference. Please try again."
+  }
+}

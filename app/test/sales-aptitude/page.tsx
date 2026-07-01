@@ -2,6 +2,7 @@
 
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { SA_QUESTIONS, SA_DURATION_SECONDS, scoreSA } from "@/lib/questions/sales-aptitude";
+import { SA_QUESTIONS_ES } from "@/lib/questions/es/sales-aptitude";
 
 const questions: RunnerQuestion[] = SA_QUESTIONS.map((q) => ({
   id: q.id,
@@ -13,7 +14,7 @@ const questions: RunnerQuestion[] = SA_QUESTIONS.map((q) => ({
 export default function SalesAptitudeTest({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; project?: string }>;
+  searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
   return (
     <AssessmentRunner
@@ -38,6 +39,13 @@ export default function SalesAptitudeTest({
         "Your score is not shown after completion; results are saved for review.",
         "The test auto-submits when the timer reaches zero.",
       ]}
+      instructionsEs={[
+        "Lea cada escenario de ventas y seleccione la respuesta más efectiva.",
+        "Elija la respuesta que refleje las mejores prácticas de ventas.",
+        "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
+        "La prueba se envía automáticamente cuando el temporizador llega a cero.",
+      ]}
+      esQuestions={SA_QUESTIONS_ES}
       submittingText="Scoring your sales aptitude test..."
       scoreAnswers={(answers) => {
         const scored = scoreSA(answers);
