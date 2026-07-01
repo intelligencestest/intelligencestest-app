@@ -17,33 +17,6 @@ const avatarColors = [
   "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
 ];
 
-const activeAssessmentOptions = [
-  { name: "Critical Thinking Test", route: "critical-thinking", label: "Critical Thinking Test (25 min)" },
-  { name: "Numerical Intelligence Test", route: "numerical-intelligence", label: "Numerical Intelligence Test (20 min)" },
-  { name: "Personality Type Test", route: "personality-type", label: "Personality Type Test (20 min)" },
-  { name: "Situational Judgment Test", route: "situational-judgment", label: "Situational Judgment Test (20 min)" },
-  { name: "Emotional Intelligence Test", route: "emotional-intelligence", label: "Emotional Intelligence Test (20 min)" },
-  { name: "Leadership Styles Test", route: "leadership-styles", label: "Leadership Styles Test (15 min)" },
-  { name: "Adversity Quotient (AQ) Test", route: "aq", label: "AQ Test - Adversity Quotient (20 min)" },
-  { name: "Attention to Detail Test", route: "attention-detail", label: "Attention to Detail Test (20 min)" },
-  { name: "Verbal Reasoning Test", route: "verbal-reasoning", label: "Verbal Reasoning Test (20 min)" },
-  { name: "Abstract Reasoning Test", route: "abstract-reasoning", label: "Abstract Reasoning Test (20 min)" },
-  { name: "Mechanical Reasoning Test", route: "mechanical-reasoning", label: "Mechanical Reasoning Test (25 min)" },
-  { name: "Communication Skills Test", route: "communication-skills", label: "Communication Skills Test (20 min)" },
-  { name: "Problem Solving Test", route: "problem-solving", label: "Problem Solving Test (25 min)" },
-  { name: "Work Style Assessment", route: "work-style", label: "Work Style Assessment (20 min)" },
-  { name: "Sales Aptitude Test", route: "sales-aptitude", label: "Sales Aptitude Test (20 min)" },
-  { name: "Customer Service Skills Test", route: "customer-service-skills", label: "Customer Service Skills Test (20 min)" },
-  { name: "Teamwork & Collaboration Test", route: "teamwork-collaboration", label: "Teamwork & Collaboration Test (20 min)" },
-  { name: "Time Management Test", route: "time-management", label: "Time Management Test (20 min)" },
-  { name: "Stress Tolerance Test", route: "stress-tolerance", label: "Stress Tolerance Test (15 min)" },
-  { name: "Integrity & Ethics Test", route: "integrity-ethics", label: "Integrity & Ethics Test (20 min)" },
-  { name: "Decision Making Test", route: "decision-making", label: "Decision Making Test (20 min)" },
-  { name: "Learning Agility Test", route: "learning-agility", label: "Learning Agility Test (20 min)" },
-] as const;
-
-type SharedAssessmentRoute = (typeof activeAssessmentOptions)[number]["route"];
-
 interface Candidate {
   id: string;
   full_name: string;
@@ -60,116 +33,146 @@ interface Project {
   status: string;
 }
 
-interface ProjectAssessment {
-  name: string;
-  route: string;
-  label: string;
-}
-
 interface Props {
   initialCandidates: Candidate[];
   projects: Project[];
   companyId: string;
-  projectAssessments: Record<string, ProjectAssessment[]>;
+  projectAssessments: Record<string, { name: string; route: string; label: string }[]>;
 }
 
-interface BulkResult {
-  email: string;
-  name: string;
-  url: string | null;
-  error: string | null;
-}
+type LoadingMode = "link" | "email" | null;
+type InviteSuccess = { type: "link"; url: string } | { type: "email"; to: string };
 
-function nameFromEmail(email: string): string {
-  return email
-    .split("@")[0]
-    .replace(/[._-]/g, " ")
-    .split(" ")
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ") || email;
-}
-
-function CopyButton({ text, onCopied }: { text: string; onCopied?: () => void }) {
+function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
-  const copy = () => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(true);
-      onCopied?.();
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
   return (
     <button
-      onClick={copy}
-      aria-label="Copy invitation link"
-      className="inline-flex flex-shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#1D4ED8]/40 px-3 py-1.5 text-xs font-medium text-[#A9C2FF] transition-colors hover:bg-[#1D4ED8]/10"
+      onClick={() => {
+        navigator.clipboard.writeText(text).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        });
+      }}
+      aria-label="Copy link"
+      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#1D4ED8]/40 px-3 py-1.5 text-xs font-medium text-[#A9C2FF] transition-colors hover:bg-[#1D4ED8]/10"
     >
       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
       </svg>
-      {copied ? "Copied" : "Copy link"}
+      {copied ? "Copied!" : "Copy"}
     </button>
   );
 }
 
-export default function CandidatesClient({ initialCandidates, projects, companyId, projectAssessments }: Props) {
+export default function CandidatesClient({ initialCandidates, projects, projectAssessments }: Props) {
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [projectFilter, setProjectFilter] = useState("all");
-  const [showModal, setShowModal] = useState(false);
-  const [inviteMode, setInviteMode] = useState<"single" | "bulk" | "shared">("single");
 
-  // Single invite state
-  const [singleForm, setSingleForm] = useState<{
-    full_name: string;
-    email: string;
-    project_id: string;
-    assessment_type: string;
-  }>({
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({
     full_name: "",
     email: "",
     project_id: projects[0]?.id ?? "",
-    assessment_type: activeAssessmentOptions[0].name,
+    assessment_type: "",
   });
-  const [singleInviting, setSingleInviting] = useState(false);
-  const [singleError, setSingleError] = useState("");
-  const [singleResult, setSingleResult] = useState<{ test_url: string; full_name: string } | null>(null);
+  const [loadingMode, setLoadingMode] = useState<LoadingMode>(null);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState<InviteSuccess | null>(null);
 
-  // Bulk invite state
-  const [bulkEmails, setBulkEmails] = useState("");
-  const [bulkProjectId, setBulkProjectId] = useState(projects[0]?.id ?? "");
-  const [bulkAssessment, setBulkAssessment] = useState<string>(activeAssessmentOptions[0].name);
-  const [bulkInviting, setBulkInviting] = useState(false);
-  const [bulkResults, setBulkResults] = useState<BulkResult[] | null>(null);
-  const [bulkError, setBulkError] = useState("");
-  const [copyToast, setCopyToast] = useState("");
-
-  // Shared link state
-  const [sharedProjectId, setSharedProjectId] = useState(projects[0]?.id ?? "");
-  const [sharedAssessment, setSharedAssessment] = useState<SharedAssessmentRoute>(activeAssessmentOptions[0].route);
-
-  // Derive available assessments from project selection
-  const singleAssessments = projectAssessments[singleForm.project_id] ?? [];
-  const bulkAssessments = projectAssessments[bulkProjectId] ?? [];
-  const sharedAssessments = projectAssessments[sharedProjectId] ?? [];
-
-  // Reset assessment selection when project changes
+  // Sync first assessment when project changes
   useEffect(() => {
-    const opts = projectAssessments[singleForm.project_id] ?? [];
-    if (opts.length > 0) setSingleForm((f) => ({ ...f, assessment_type: opts[0].name }));
-  }, [singleForm.project_id]); // eslint-disable-line react-hooks/exhaustive-deps
+    const opts = projectAssessments[form.project_id] ?? [];
+    setForm((f) => ({ ...f, assessment_type: opts[0]?.name ?? "" }));
+  }, [form.project_id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Escape key closes modal
   useEffect(() => {
-    const opts = projectAssessments[bulkProjectId] ?? [];
-    if (opts.length > 0) setBulkAssessment(opts[0].name);
-  }, [bulkProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!showModal) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") closeModal(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [showModal]);
 
-  useEffect(() => {
-    const opts = projectAssessments[sharedProjectId] ?? [];
-    if (opts.length > 0) setSharedAssessment(opts[0].route as SharedAssessmentRoute);
-  }, [sharedProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const currentAssessments = projectAssessments[form.project_id] ?? [];
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSuccess(null);
+    setError("");
+    setLoadingMode(null);
+    const firstProject = projects[0]?.id ?? "";
+    const firstAssessment = (projectAssessments[firstProject] ?? [])[0]?.name ?? "";
+    setForm({ full_name: "", email: "", project_id: firstProject, assessment_type: firstAssessment });
+  };
+
+  const resetForm = () => {
+    setSuccess(null);
+    setError("");
+    const firstAssessment = (projectAssessments[form.project_id] ?? [])[0]?.name ?? "";
+    setForm((f) => ({ ...f, full_name: "", email: "", assessment_type: firstAssessment }));
+  };
+
+  const handleInvite = async (mode: "link" | "email") => {
+    setError("");
+
+    if (mode === "email") {
+      if (!form.email || !form.email.includes("@")) {
+        setError("A valid email address is required to send an invite.");
+        return;
+      }
+    }
+
+    if (!form.project_id) { setError("Select a project first."); return; }
+    if (!form.assessment_type) { setError("No assessments are linked to this project."); return; }
+
+    setLoadingMode(mode);
+    try {
+      const res = await fetch("/api/candidates/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: form.full_name,
+          email: form.email,
+          project_id: form.project_id,
+          assessment_type: form.assessment_type,
+          delivery_method: mode,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error ?? "Failed to generate invite");
+      } else {
+        const project = projects.find((p) => p.id === form.project_id) ?? null;
+        setCandidates((prev) => [
+          {
+            id: data.candidate_id,
+            full_name: form.full_name || "Anonymous",
+            email: form.email || "",
+            status: "invited",
+            created_at: new Date().toISOString(),
+            token: null,
+            hiring_projects: project,
+          },
+          ...prev,
+        ]);
+
+        if (mode === "link") {
+          const url = `${window.location.origin}${data.test_url}`;
+          await navigator.clipboard.writeText(url).catch(() => {});
+          setSuccess({ type: "link", url });
+        } else {
+          setSuccess({ type: "email", to: form.email });
+        }
+      }
+    } catch {
+      setError("Network error. Please try again.");
+    }
+    setLoadingMode(null);
+  };
 
   const filtered = candidates.filter((c) => {
     const matchSearch =
@@ -180,116 +183,6 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
     const matchProject = projectFilter === "all" || c.hiring_projects?.id === projectFilter;
     return matchSearch && matchStatus && matchProject;
   });
-
-  const showCopyToast = () => {
-    setCopyToast("Invitation link copied");
-    window.setTimeout(() => setCopyToast(""), 2200);
-  };
-
-  const handleSingleInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSingleError("");
-    setSingleInviting(true);
-    try {
-      const res = await fetch("/api/candidates/invite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(singleForm),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setSingleError(data.error ?? "Failed to invite candidate");
-      } else {
-        const fullUrl = `${window.location.origin}${data.test_url}`;
-        setSingleResult({ test_url: fullUrl, full_name: singleForm.full_name });
-        setCandidates((prev) => [
-          {
-            id: data.candidate_id,
-            full_name: singleForm.full_name,
-            email: singleForm.email,
-            status: "invited",
-            created_at: new Date().toISOString(),
-            token: null,
-            hiring_projects: projects.find((p) => p.id === singleForm.project_id) ?? null,
-          },
-          ...prev,
-        ]);
-      }
-    } catch {
-      setSingleError("Network error. Please try again.");
-    }
-    setSingleInviting(false);
-  };
-
-  const handleBulkInvite = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setBulkError("");
-    const emails = bulkEmails
-      .split(/[\n,]+/)
-      .map((e) => e.trim())
-      .filter(Boolean);
-
-    if (emails.length === 0) {
-      setBulkError("Enter at least one email address.");
-      return;
-    }
-    if (emails.length > 50) {
-      setBulkError("Maximum 50 emails per bulk invite.");
-      return;
-    }
-
-    setBulkInviting(true);
-    const results: BulkResult[] = [];
-
-    for (const email of emails) {
-      const name = nameFromEmail(email);
-      try {
-        const res = await fetch("/api/candidates/invite", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ full_name: name, email, project_id: bulkProjectId, assessment_type: bulkAssessment }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          results.push({ email, name, url: null, error: data.error ?? "Failed" });
-        } else {
-          const fullUrl = `${window.location.origin}${data.test_url}`;
-          results.push({ email, name, url: fullUrl, error: null });
-          setCandidates((prev) => [
-            {
-              id: data.candidate_id,
-              full_name: name,
-              email,
-              status: "invited",
-              created_at: new Date().toISOString(),
-              token: null,
-              hiring_projects: projects.find((p) => p.id === bulkProjectId) ?? null,
-            },
-            ...prev,
-          ]);
-        }
-      } catch {
-        results.push({ email, name, url: null, error: "Network error" });
-      }
-    }
-
-    setBulkResults(results);
-    setBulkInviting(false);
-  };
-
-  const closeModal = () => {
-    setShowModal(false);
-    setSingleResult(null);
-    setSingleError("");
-    setBulkResults(null);
-    setBulkError("");
-    setBulkEmails("");
-    setCopyToast("");
-    setSingleForm({ full_name: "", email: "", project_id: projects[0]?.id ?? "", assessment_type: activeAssessmentOptions[0].name });
-    setInviteMode("single");
-    setSharedProjectId(projects[0]?.id ?? "");
-    setSharedAssessment(activeAssessmentOptions[0].route);
-  };
 
   const counts = {
     invited: candidates.filter((c) => c.status === "invited").length,
@@ -302,6 +195,7 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
+      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
@@ -324,6 +218,7 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
         </button>
       </div>
 
+      {/* Status stats */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
           { key: "invited", label: "Invited", count: counts.invited },
@@ -343,6 +238,7 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
         })}
       </div>
 
+      {/* Filters */}
       <div className="premium-card rounded-xl p-4">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
@@ -379,6 +275,7 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
         </div>
       </div>
 
+      {/* Candidate table */}
       <div className="premium-card overflow-hidden rounded-xl">
         <div className="hidden grid-cols-12 gap-4 border-b border-[#1E2240] px-6 py-3 text-xs font-medium uppercase tracking-wider text-slate-500 md:grid">
           <div className="col-span-5">Candidate</div>
@@ -399,18 +296,17 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
             {filtered.map((candidate, i) => {
               const cfg = statusConfig[candidate.status] ?? statusConfig.invited;
               const avatarClass = avatarColors[i % avatarColors.length];
-              const initials = candidate.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+              const name = candidate.full_name?.trim() || "Anonymous";
+              const initials = name === "Anonymous" ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
               return (
                 <div key={candidate.id} className="grid gap-4 px-4 py-4 transition-colors hover:bg-[#1E2240]/30 md:grid-cols-12 md:px-6 md:items-center group">
                   <div className="flex min-w-0 items-center gap-3 md:col-span-5">
                     <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-semibold flex-shrink-0 ${avatarClass}`}>
-                      {initials || "?"}
+                      {initials}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-white transition-colors group-hover:text-[#8CB1FF]">
-                        {candidate.full_name}
-                      </p>
-                      <p className="truncate text-xs text-slate-500">{candidate.email}</p>
+                      <p className="truncate text-sm font-medium text-white transition-colors group-hover:text-[#8CB1FF]">{name}</p>
+                      <p className="truncate text-xs text-slate-500">{candidate.email || "—"}</p>
                     </div>
                   </div>
                   <div className="min-w-0 md:col-span-4">
@@ -441,318 +337,190 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
         </div>
       </div>
 
+      {/* Invite modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm">
-          {copyToast && (
-            <div className="fixed right-4 top-4 z-[60] flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-[#0D1020] px-4 py-3 text-sm font-medium text-emerald-300 shadow-2xl shadow-black/30">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-              </svg>
-              {copyToast}
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm"
+          onClick={closeModal}
+        >
+          <div
+            className="premium-card w-full max-w-md rounded-2xl p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="mb-5 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-white">Invite Candidate</h3>
+                <p className="mt-0.5 text-xs text-slate-500">Generate a secure, 7-day assessment link.</p>
+              </div>
+              <button
+                onClick={closeModal}
+                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-          )}
-          <div className="premium-card w-full max-w-lg rounded-2xl p-6 shadow-2xl">
 
-            {/* Single: success state */}
-            {inviteMode === "single" && singleResult && (
-              <>
-                <div className="text-center mb-6">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-emerald-500/25 bg-emerald-500/10 shadow-lg shadow-emerald-950/20">
-                    <svg className="w-6 h-6 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                    </svg>
+            {/* Success state */}
+            {success ? (
+              <div className="space-y-4">
+                {success.type === "link" ? (
+                  <>
+                    <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
+                        <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-emerald-300">Link copied to clipboard</p>
+                        <p className="text-xs text-slate-500">Valid for 7 days · share with your candidate</p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
+                      <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Invite link</p>
+                      <div className="flex items-center gap-2">
+                        <p className="flex-1 break-all font-mono text-xs text-blue-300">{success.url}</p>
+                        <CopyButton text={success.url} />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
+                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
+                      </svg>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-emerald-300">Email sent</p>
+                      <p className="truncate text-xs text-slate-500">{success.to}</p>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Invitation created</h3>
-                  <p className="text-slate-400 text-sm">Share this secure assessment link with {singleResult.full_name}.</p>
-                </div>
-                <div className="mb-4 rounded-2xl border border-[#1E2240] bg-[#07080F] p-4">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <span className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Secure link</span>
-                    <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-300">Ready</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <p className="flex-1 break-all font-mono text-xs text-blue-300">{singleResult.test_url}</p>
-                    <CopyButton text={singleResult.test_url} onCopied={showCopyToast} />
-                  </div>
-                </div>
-                <button onClick={closeModal} className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white">
-                  Done
+                )}
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
+                >
+                  Invite another
                 </button>
-              </>
-            )}
+              </div>
+            ) : (
+              /* Form state */
+              <div className="space-y-4">
+                {error && (
+                  <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                    {error}
+                  </div>
+                )}
 
-            {/* Bulk: results state */}
-            {inviteMode === "bulk" && bulkResults && (
-              <>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Invitations sent</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      {bulkResults.filter((r) => r.url).length} of {bulkResults.length} successful
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    Candidate name
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                  </label>
+                  <input
+                    value={form.full_name}
+                    onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
+                    placeholder="Jane Smith"
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    Email address
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">(required for Send Email)</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                    placeholder="jane@example.com"
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">Project</label>
+                  {projects.length === 0 ? (
+                    <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
+                      No projects yet — <a href="/projects/new" className="text-[#8CB1FF] hover:underline">create one first</a>
                     </p>
-                  </div>
-                  <button onClick={closeModal} className="cursor-pointer rounded-lg p-1 text-slate-500 hover:bg-[#1E2240] hover:text-white">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                  {bulkResults.map((r) => (
-                    <div key={r.email} className={`rounded-xl border p-3 ${r.url ? "border-emerald-500/20 bg-emerald-500/5" : "border-red-500/20 bg-red-500/5"}`}>
-                      <div className="flex items-center justify-between gap-2 mb-1">
-                        <p className="text-sm font-medium text-white truncate">{r.email}</p>
-                        {r.url ? (
-                          <span className="text-xs text-emerald-400 flex-shrink-0">Invited</span>
-                        ) : (
-                          <span className="text-xs text-red-400 flex-shrink-0">{r.error}</span>
-                        )}
-                      </div>
-                      {r.url && (
-                        <div className="flex items-center gap-2">
-                          <p className="flex-1 truncate font-mono text-[10px] text-slate-500">{r.url}</p>
-                          <CopyButton text={r.url} onCopied={showCopyToast} />
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <button onClick={closeModal} className="mt-4 w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white">
-                  Done
-                </button>
-              </>
-            )}
-
-            {/* Form state (single or bulk) */}
-            {!singleResult && !bulkResults && (
-              <>
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Invite Candidate</h3>
-                    <p className="mt-1 text-xs text-slate-500">Generate a secure, time-limited assessment link.</p>
-                  </div>
-                  <button onClick={closeModal} className="cursor-pointer rounded-lg p-1 text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white">
-                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Mode toggle */}
-                <div className="flex gap-1 rounded-xl border border-[#1E2240] bg-[#07080F] p-1 mb-5">
-                  {([
-                    { id: "single", label: "Single" },
-                    { id: "bulk", label: "Bulk" },
-                    { id: "shared", label: "Shared link" },
-                  ] as const).map((mode) => (
-                    <button
-                      key={mode.id}
-                      onClick={() => { setInviteMode(mode.id); setSingleError(""); setBulkError(""); }}
-                      className={`flex-1 cursor-pointer rounded-lg py-2 text-xs font-medium transition-colors ${
-                        inviteMode === mode.id
-                          ? "bg-[#1D4ED8] text-white"
-                          : "text-slate-400 hover:text-white"
-                      }`}
+                  ) : (
+                    <select
+                      value={form.project_id}
+                      onChange={(e) => setForm((f) => ({ ...f, project_id: e.target.value }))}
+                      className={selectClass}
                     >
-                      {mode.label}
-                    </button>
-                  ))}
+                      {projects.map((p) => (
+                        <option key={p.id} value={p.id}>{p.name}</option>
+                      ))}
+                    </select>
+                  )}
                 </div>
 
-                {inviteMode === "single" && (
-                  <>
-                    {singleError && (
-                      <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
-                        {singleError}
-                      </div>
-                    )}
-                    <form onSubmit={handleSingleInvite} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Full Name</label>
-                        <input
-                          required
-                          value={singleForm.full_name}
-                          onChange={(e) => setSingleForm((f) => ({ ...f, full_name: e.target.value }))}
-                          placeholder="Jane Smith"
-                          className={inputClass}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Email Address</label>
-                        <input
-                          required
-                          type="email"
-                          value={singleForm.email}
-                          onChange={(e) => setSingleForm((f) => ({ ...f, email: e.target.value }))}
-                          placeholder="jane@example.com"
-                          className={inputClass}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Project</label>
-                        <select
-                          required
-                          value={singleForm.project_id}
-                          onChange={(e) => setSingleForm((f) => ({ ...f, project_id: e.target.value }))}
-                          className={selectClass}
-                        >
-                          {projects.length === 0 && <option value="">No projects yet</option>}
-                          {projects.map((p) => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
-                        {singleAssessments.length === 0 ? (
-                          <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
-                            {singleForm.project_id ? "No assessments linked to this project" : "Select a project first"}
-                          </p>
-                        ) : (
-                          <select
-                            value={singleForm.assessment_type}
-                            onChange={(e) => setSingleForm((f) => ({ ...f, assessment_type: e.target.value }))}
-                            className={selectClass}
-                          >
-                            {singleAssessments.map((a) => (
-                              <option key={a.name} value={a.name}>{a.label}</option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-                      <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={closeModal} className="flex-1 cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white">
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={singleInviting || projects.length === 0}
-                          className="flex-1 cursor-pointer rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                          {singleInviting ? (
-                            <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" /></svg> Inviting...</>
-                          ) : "Generate Link"}
-                        </button>
-                      </div>
-                    </form>
-                  </>
-                )}
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">Assessment</label>
+                  {currentAssessments.length === 0 ? (
+                    <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
+                      {form.project_id ? "No assessments linked to this project" : "Select a project first"}
+                    </p>
+                  ) : (
+                    <select
+                      value={form.assessment_type}
+                      onChange={(e) => setForm((f) => ({ ...f, assessment_type: e.target.value }))}
+                      className={selectClass}
+                    >
+                      {currentAssessments.map((a) => (
+                        <option key={a.name} value={a.name}>{a.label}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
 
-                {inviteMode === "shared" && (() => {
-                  const sharedUrl = typeof window !== "undefined"
-                    ? `${window.location.origin}/test/${sharedAssessment}?project=${sharedProjectId}`
-                    : `/test/${sharedAssessment}?project=${sharedProjectId}`;
-                  return (
-                    <div className="space-y-4">
-                      <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
-                        <p className="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-1">How it works</p>
-                        <p className="text-sm text-slate-400 leading-relaxed">
-                          Share one link with multiple candidates. Each person enters their name and email, then starts the test immediately. No individual invites needed.
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Project</label>
-                        <select value={sharedProjectId} onChange={(e) => setSharedProjectId(e.target.value)} className={selectClass}>
-                          {projects.length === 0 && <option value="">No projects yet</option>}
-                          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
-                        {sharedAssessments.length === 0 ? (
-                          <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
-                            {sharedProjectId ? "No assessments linked to this project" : "Select a project first"}
-                          </p>
-                        ) : (
-                          <select
-                            value={sharedAssessment}
-                            onChange={(e) => setSharedAssessment(e.target.value as SharedAssessmentRoute)}
-                            className={selectClass}
-                          >
-                            {sharedAssessments.map((a) => (
-                              <option key={a.route} value={a.route}>{a.label}</option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Your shareable link</label>
-                        <div className="flex items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
-                          <p className="flex-1 break-all font-mono text-xs text-blue-300">{sharedUrl}</p>
-                          <CopyButton text={sharedUrl} onCopied={showCopyToast} />
-                        </div>
-                      </div>
-                      <button type="button" onClick={closeModal} className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white">
-                        Done
-                      </button>
-                    </div>
-                  );
-                })()}
-
-                {inviteMode === "bulk" && (
-                  <>
-                    {bulkError && (
-                      <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
-                        {bulkError}
-                      </div>
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  <button
+                    type="button"
+                    disabled={loadingMode !== null || projects.length === 0 || currentAssessments.length === 0}
+                    onClick={() => handleInvite("link")}
+                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#1E2240] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {loadingMode === "link" ? (
+                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                      </svg>
                     )}
-                    <form onSubmit={handleBulkInvite} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">
-                          Email addresses
-                          <span className="ml-2 text-xs text-slate-500 font-normal">comma or newline separated - max 50</span>
-                        </label>
-                        <textarea
-                          required
-                          rows={5}
-                          value={bulkEmails}
-                          onChange={(e) => setBulkEmails(e.target.value)}
-                          placeholder={"alice@company.com\nbob@company.com, carol@company.com"}
-                          className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 resize-none"
-                        />
-                        <p className="mt-1 text-xs text-slate-600">
-                          {bulkEmails.split(/[\n,]+/).filter((e) => e.trim()).length} email{bulkEmails.split(/[\n,]+/).filter((e) => e.trim()).length !== 1 ? "s" : ""} entered
-                        </p>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Project</label>
-                        <select value={bulkProjectId} onChange={(e) => setBulkProjectId(e.target.value)} className={selectClass}>
-                          {projects.length === 0 && <option value="">No projects yet</option>}
-                          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
-                        {bulkAssessments.length === 0 ? (
-                          <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
-                            {bulkProjectId ? "No assessments linked to this project" : "Select a project first"}
-                          </p>
-                        ) : (
-                          <select value={bulkAssessment} onChange={(e) => setBulkAssessment(e.target.value)} className={selectClass}>
-                            {bulkAssessments.map((a) => (
-                              <option key={a.name} value={a.name}>{a.label}</option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
-                      <div className="flex gap-3 pt-2">
-                        <button type="button" onClick={closeModal} className="flex-1 cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white">
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          disabled={bulkInviting || projects.length === 0}
-                          className="flex-1 cursor-pointer rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:opacity-50 flex items-center justify-center gap-2"
-                        >
-                          {bulkInviting ? (
-                            <><svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" /></svg> Inviting...</>
-                          ) : "Send All Invitations"}
-                        </button>
-                      </div>
-                    </form>
-                  </>
-                )}
-              </>
+                    {loadingMode === "link" ? "Copying…" : "Copy Link"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={loadingMode !== null || projects.length === 0 || currentAssessments.length === 0}
+                    onClick={() => handleInvite("email")}
+                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {loadingMode === "email" ? (
+                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                      </svg>
+                    ) : (
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
+                      </svg>
+                    )}
+                    {loadingMode === "email" ? "Sending…" : "Send Email"}
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         </div>
