@@ -65,6 +65,32 @@ export async function POST(request: NextRequest) {
     .single();
   const lang = company?.language && ["en", "es"].includes(company.language) ? company.language : "en";
 
+  // Validate the assessment is in this project before creating any records
+  if (!assessment_type) {
+    return NextResponse.json({ error: "Assessment type is required" }, { status: 400 });
+  }
+
+  const { data: assessment } = await admin
+    .from("assessments")
+    .select("id")
+    .eq("name", assessment_type)
+    .single();
+
+  if (!assessment) {
+    return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
+  }
+
+  const { data: linked } = await admin
+    .from("project_assessments")
+    .select("assessment_id")
+    .eq("project_id", project_id)
+    .eq("assessment_id", assessment.id)
+    .maybeSingle();
+
+  if (!linked) {
+    return NextResponse.json({ error: "This assessment is not part of the selected project" }, { status: 403 });
+  }
+
   const token = randomUUID();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
 
@@ -84,22 +110,6 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     return NextResponse.json({ error: "Failed to create candidate" }, { status: 500 });
-  }
-
-  // Ensure the project has the correct assessment linked
-  if (assessment_type) {
-    const { data: assessment } = await admin
-      .from("assessments")
-      .select("id")
-      .eq("name", assessment_type)
-      .single();
-
-    if (assessment) {
-      await admin.from("project_assessments").upsert({
-        project_id,
-        assessment_id: assessment.id,
-      });
-    }
   }
 
   const testPath = testPaths[assessment_type] ?? "critical-thinking";

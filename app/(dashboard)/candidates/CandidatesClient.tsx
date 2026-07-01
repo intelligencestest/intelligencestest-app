@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const statusConfig: Record<string, { label: string; class: string; dot: string; text: string }> = {
   invited: { label: "Invited", class: "bg-amber-500/10 text-amber-300 border-amber-500/25", dot: "bg-amber-400", text: "text-amber-300" },
@@ -60,10 +60,17 @@ interface Project {
   status: string;
 }
 
+interface ProjectAssessment {
+  name: string;
+  route: string;
+  label: string;
+}
+
 interface Props {
   initialCandidates: Candidate[];
   projects: Project[];
   companyId: string;
+  projectAssessments: Record<string, ProjectAssessment[]>;
 }
 
 interface BulkResult {
@@ -106,7 +113,7 @@ function CopyButton({ text, onCopied }: { text: string; onCopied?: () => void })
   );
 }
 
-export default function CandidatesClient({ initialCandidates, projects, companyId }: Props) {
+export default function CandidatesClient({ initialCandidates, projects, companyId, projectAssessments }: Props) {
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -142,6 +149,27 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
   // Shared link state
   const [sharedProjectId, setSharedProjectId] = useState(projects[0]?.id ?? "");
   const [sharedAssessment, setSharedAssessment] = useState<SharedAssessmentRoute>(activeAssessmentOptions[0].route);
+
+  // Derive available assessments from project selection
+  const singleAssessments = projectAssessments[singleForm.project_id] ?? [];
+  const bulkAssessments = projectAssessments[bulkProjectId] ?? [];
+  const sharedAssessments = projectAssessments[sharedProjectId] ?? [];
+
+  // Reset assessment selection when project changes
+  useEffect(() => {
+    const opts = projectAssessments[singleForm.project_id] ?? [];
+    if (opts.length > 0) setSingleForm((f) => ({ ...f, assessment_type: opts[0].name }));
+  }, [singleForm.project_id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const opts = projectAssessments[bulkProjectId] ?? [];
+    if (opts.length > 0) setBulkAssessment(opts[0].name);
+  }, [bulkProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    const opts = projectAssessments[sharedProjectId] ?? [];
+    if (opts.length > 0) setSharedAssessment(opts[0].route as SharedAssessmentRoute);
+  }, [sharedProjectId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const filtered = candidates.filter((c) => {
     const matchSearch =
@@ -576,17 +604,21 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
-                        <select
-                          value={singleForm.assessment_type}
-                          onChange={(e) => setSingleForm((f) => ({ ...f, assessment_type: e.target.value }))}
-                          className={selectClass}
-                        >
-                          {activeAssessmentOptions.map((assessment) => (
-                            <option key={assessment.name} value={assessment.name}>
-                              {assessment.label}
-                            </option>
-                          ))}
-                        </select>
+                        {singleAssessments.length === 0 ? (
+                          <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
+                            {singleForm.project_id ? "No assessments linked to this project" : "Select a project first"}
+                          </p>
+                        ) : (
+                          <select
+                            value={singleForm.assessment_type}
+                            onChange={(e) => setSingleForm((f) => ({ ...f, assessment_type: e.target.value }))}
+                            className={selectClass}
+                          >
+                            {singleAssessments.map((a) => (
+                              <option key={a.name} value={a.name}>{a.label}</option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                       <div className="flex gap-3 pt-2">
                         <button type="button" onClick={closeModal} className="flex-1 cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white">
@@ -627,17 +659,21 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
-                        <select
-                          value={sharedAssessment}
-                          onChange={(e) => setSharedAssessment(e.target.value as SharedAssessmentRoute)}
-                          className={selectClass}
-                        >
-                          {activeAssessmentOptions.map((assessment) => (
-                            <option key={assessment.route} value={assessment.route}>
-                              {assessment.label}
-                            </option>
-                          ))}
-                        </select>
+                        {sharedAssessments.length === 0 ? (
+                          <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
+                            {sharedProjectId ? "No assessments linked to this project" : "Select a project first"}
+                          </p>
+                        ) : (
+                          <select
+                            value={sharedAssessment}
+                            onChange={(e) => setSharedAssessment(e.target.value as SharedAssessmentRoute)}
+                            className={selectClass}
+                          >
+                            {sharedAssessments.map((a) => (
+                              <option key={a.route} value={a.route}>{a.label}</option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Your shareable link</label>
@@ -687,13 +723,17 @@ export default function CandidatesClient({ initialCandidates, projects, companyI
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Assessment</label>
-                        <select value={bulkAssessment} onChange={(e) => setBulkAssessment(e.target.value)} className={selectClass}>
-                          {activeAssessmentOptions.map((assessment) => (
-                            <option key={assessment.name} value={assessment.name}>
-                              {assessment.label}
-                            </option>
-                          ))}
-                        </select>
+                        {bulkAssessments.length === 0 ? (
+                          <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
+                            {bulkProjectId ? "No assessments linked to this project" : "Select a project first"}
+                          </p>
+                        ) : (
+                          <select value={bulkAssessment} onChange={(e) => setBulkAssessment(e.target.value)} className={selectClass}>
+                            {bulkAssessments.map((a) => (
+                              <option key={a.name} value={a.name}>{a.label}</option>
+                            ))}
+                          </select>
+                        )}
                       </div>
                       <div className="flex gap-3 pt-2">
                         <button type="button" onClick={closeModal} className="flex-1 cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white">

@@ -2,6 +2,31 @@ import { createAdminClient } from "@/lib/supabase-server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import CandidatesClient from "./CandidatesClient";
 
+const TEST_ROUTES: Record<string, string> = {
+  "Critical Thinking Test": "critical-thinking",
+  "Adversity Quotient (AQ) Test": "aq",
+  "Emotional Intelligence Test": "emotional-intelligence",
+  "Leadership Styles Test": "leadership-styles",
+  "Numerical Intelligence Test": "numerical-intelligence",
+  "Personality Type Test": "personality-type",
+  "Situational Judgment Test": "situational-judgment",
+  "Attention to Detail Test": "attention-detail",
+  "Verbal Reasoning Test": "verbal-reasoning",
+  "Abstract Reasoning Test": "abstract-reasoning",
+  "Mechanical Reasoning Test": "mechanical-reasoning",
+  "Communication Skills Test": "communication-skills",
+  "Problem Solving Test": "problem-solving",
+  "Work Style Assessment": "work-style",
+  "Sales Aptitude Test": "sales-aptitude",
+  "Customer Service Skills Test": "customer-service-skills",
+  "Teamwork & Collaboration Test": "teamwork-collaboration",
+  "Time Management Test": "time-management",
+  "Stress Tolerance Test": "stress-tolerance",
+  "Integrity & Ethics Test": "integrity-ethics",
+  "Decision Making Test": "decision-making",
+  "Learning Agility Test": "learning-agility",
+};
+
 export default async function CandidatesPage() {
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -24,11 +49,41 @@ export default async function CandidatesPage() {
       .order("name"),
   ]);
 
+  const projectIds = projects?.map((p) => p.id) ?? [];
+
+  type PaRow = {
+    project_id: string;
+    assessments: { id: string; name: string; duration_minutes: number | null } | null;
+  };
+
+  let projectAssessments: Record<string, { name: string; route: string; label: string }[]> = {};
+
+  if (projectIds.length > 0) {
+    const { data: paRows } = await admin
+      .from("project_assessments")
+      .select("project_id, assessments(id, name, duration_minutes)")
+      .in("project_id", projectIds)
+      .returns<PaRow[]>();
+
+    projectAssessments = (paRows ?? []).reduce<Record<string, { name: string; route: string; label: string }[]>>(
+      (acc, row) => {
+        const a = row.assessments;
+        if (!a) return acc;
+        const route = TEST_ROUTES[a.name] ?? a.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+        const label = `${a.name}${a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}`;
+        acc[row.project_id] = [...(acc[row.project_id] ?? []), { name: a.name, route, label }];
+        return acc;
+      },
+      {}
+    );
+  }
+
   return (
     <CandidatesClient
       initialCandidates={candidates ?? []}
       projects={projects ?? []}
       companyId={companyId}
+      projectAssessments={projectAssessments}
     />
   );
 }

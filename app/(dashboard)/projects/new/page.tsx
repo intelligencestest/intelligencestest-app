@@ -235,7 +235,7 @@ export default function NewProjectPage() {
       setError(data.error ?? "Failed to create project");
       return;
     }
-    router.push("/projects");
+    router.push(`/projects/${data.project_id}`);
   };
 
   return (

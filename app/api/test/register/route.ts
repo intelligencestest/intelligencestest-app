@@ -41,6 +41,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Verify the requested assessment is actually in this project before creating any records
+  const { data: assessment } = await admin
+    .from("assessments")
+    .select("id")
+    .eq("name", assessment_name)
+    .single();
+
+  if (!assessment) {
+    return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
+  }
+
+  const { data: linked } = await admin
+    .from("project_assessments")
+    .select("assessment_id")
+    .eq("project_id", project_id)
+    .eq("assessment_id", assessment.id)
+    .maybeSingle();
+
+  if (!linked) {
+    return NextResponse.json({ error: "This assessment is not part of the project" }, { status: 403 });
+  }
+
   const token = randomUUID();
   const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString(); // 48 hrs
 
@@ -60,20 +82,6 @@ export async function POST(request: NextRequest) {
 
   if (insertError || !candidate) {
     return NextResponse.json({ error: "Failed to register. Please try again." }, { status: 500 });
-  }
-
-  // Ensure the project has the assessment linked
-  const { data: assessment } = await admin
-    .from("assessments")
-    .select("id")
-    .eq("name", assessment_name)
-    .single();
-
-  if (assessment) {
-    await admin.from("project_assessments").upsert({
-      project_id,
-      assessment_id: assessment.id,
-    });
   }
 
   return NextResponse.json({
