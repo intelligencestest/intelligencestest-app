@@ -32,6 +32,19 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+type PaRow = {
+  assessment_id: string;
+  assessments: { id: string; name: string; duration_minutes: number | null; question_count: number | null }[];
+};
+
+type CandidateRow = {
+  id: string;
+  full_name: string;
+  status: string;
+  created_at: string;
+  results: { id: string; score: number; completed_at: string }[];
+};
+
 export default async function ProjectDetailPage({ params }: PageProps) {
   const { id } = await params;
 
@@ -42,7 +55,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const { data: profile } = await admin.from("users").select("company_id").eq("id", user!.id).single();
   const companyId = profile?.company_id;
 
-  const [{ data: project }, { data: paRows }, { data: candidateRows }] = await Promise.all([
+  const [{ data: project }, { data: paRows }, { data: candidateRows }, { data: libraryRows }] = await Promise.all([
     admin
       .from("hiring_projects")
       .select("id, name, status, description, deadline, created_at")
@@ -55,16 +68,18 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       .eq("project_id", id),
     admin
       .from("candidates")
-      .select("id, status")
-      .eq("project_id", id),
+      .select("id, full_name, status, created_at, results(id, score, completed_at)")
+      .eq("project_id", id)
+      .order("created_at", { ascending: false })
+      .returns<CandidateRow[]>(),
+    admin
+      .from("assessments")
+      .select("id, name, category, duration_minutes, question_count, status")
+      .eq("status", "active")
+      .order("name"),
   ]);
 
   if (!project) notFound();
-
-  type PaRow = {
-    assessment_id: string;
-    assessments: { id: string; name: string; duration_minutes: number | null; question_count: number | null }[];
-  };
 
   const assessments = ((paRows ?? []) as PaRow[])
     .map((row) => {
@@ -80,18 +95,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     })
     .filter((a): a is NonNullable<typeof a> => a !== null);
 
-  const candidates = candidateRows ?? [];
-  const counts = {
-    total: candidates.length,
-    invited: candidates.filter((c) => c.status !== "completed").length,
-    completed: candidates.filter((c) => c.status === "completed").length,
-  };
+  const candidates = (candidateRows ?? []).map((c) => ({
+    ...c,
+    results: c.results ?? [],
+  }));
 
   return (
     <div>
       <nav className="mb-6 flex items-center gap-2 text-sm">
         <Link href="/projects" className="text-slate-500 transition-colors hover:text-slate-300">
-          Hiring Projects
+          Projects
         </Link>
         <svg className="h-3 w-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -102,7 +115,8 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       <ProjectDetailClient
         project={project}
         assessments={assessments}
-        candidateCounts={counts}
+        candidates={candidates}
+        allAssessments={libraryRows ?? []}
       />
     </div>
   );

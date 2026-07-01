@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
   const { full_name, email, project_id, assessment_type } = body;
 
-  if (!full_name || !email || !project_id) {
+  if (!project_id) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -99,8 +99,8 @@ export async function POST(request: NextRequest) {
     .insert({
       company_id: userProfile.company_id,
       project_id,
-      full_name,
-      email,
+      full_name: (full_name ?? "").trim(),
+      email: (email ?? "").toLowerCase().trim(),
       status: "invited",
       token,
       token_expires_at: expiresAt,

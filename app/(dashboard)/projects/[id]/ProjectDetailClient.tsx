@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 interface Assessment {
   id: string;
@@ -8,6 +10,22 @@ interface Assessment {
   route: string;
   duration_minutes: number | null;
   question_count: number | null;
+}
+
+interface LibraryAssessment {
+  id: string;
+  name: string;
+  category: string;
+  duration_minutes: number | null;
+  question_count: number | null;
+}
+
+interface ProjectCandidate {
+  id: string;
+  full_name: string;
+  status: string;
+  created_at: string;
+  results: { id: string; score: number; completed_at: string }[];
 }
 
 interface Props {
@@ -20,7 +38,8 @@ interface Props {
     created_at: string;
   };
   assessments: Assessment[];
-  candidateCounts: { total: number; completed: number; invited: number };
+  candidates: ProjectCandidate[];
+  allAssessments: LibraryAssessment[];
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -44,129 +63,179 @@ function CopyButton({ text }: { text: string }) {
   );
 }
 
-const statusConfig: Record<string, { label: string; class: string; dot: string }> = {
+const projectStatusConfig: Record<string, { label: string; class: string; dot: string }> = {
   active: { label: "Active", class: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300", dot: "bg-emerald-400" },
   draft: { label: "Draft", class: "border-slate-500/25 bg-slate-500/10 text-slate-300", dot: "bg-slate-400" },
   archived: { label: "Archived", class: "border-amber-500/25 bg-amber-500/10 text-amber-300", dot: "bg-amber-400" },
 };
 
-export default function ProjectDetailClient({ project, assessments, candidateCounts }: Props) {
-  const [form, setForm] = useState({
-    full_name: "",
-    email: "",
-    assessment_id: assessments[0]?.id ?? "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [result, setResult] = useState<{ url: string; name: string } | null>(null);
+const candidateStatusConfig: Record<string, { label: string; class: string }> = {
+  invited: { label: "Invited", class: "border-amber-500/25 bg-amber-500/10 text-amber-300" },
+  started: { label: "Started", class: "border-blue-500/25 bg-blue-500/10 text-blue-300" },
+  completed: { label: "Completed", class: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300" },
+};
 
-  const selectedAssessment = assessments.find((a) => a.id === form.assessment_id);
+const avatarColors = [
+  "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  "bg-violet-500/20 text-violet-300 border-violet-500/30",
+  "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  "bg-amber-500/20 text-amber-300 border-amber-500/30",
+  "bg-pink-500/20 text-pink-300 border-pink-500/30",
+  "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+];
+
+export default function ProjectDetailClient({ project, assessments, candidates, allAssessments }: Props) {
+  const router = useRouter();
+
+  // Invite state
+  const [inviteForm, setInviteForm] = useState({ full_name: "", assessment_id: assessments[0]?.id ?? "" });
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState("");
+  const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+
+  // Add assessment state
+  const [addOpen, setAddOpen] = useState(false);
+  const [addingId, setAddingId] = useState<string | null>(null);
+
+  // Sync invite form assessment when assessments prop changes (after router.refresh)
+  useEffect(() => {
+    setInviteForm((f) => ({
+      ...f,
+      assessment_id: f.assessment_id || (assessments[0]?.id ?? ""),
+    }));
+  }, [assessments]);
+
+  useEffect(() => {
+    if (!addOpen) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setAddOpen(false); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [addOpen]);
+
+  const linkedIds = new Set(assessments.map((a) => a.id));
+
+  const handleAddAssessment = async (assessmentId: string) => {
+    setAddingId(assessmentId);
+    try {
+      const res = await fetch(`/api/projects/${project.id}/assessments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessment_id: assessmentId }),
+      });
+      if (res.ok) {
+        router.refresh();
+        setTimeout(() => setAddOpen(false), 400);
+      }
+    } catch {}
+    setAddingId(null);
+  };
 
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    if (!selectedAssessment) return;
-    setLoading(true);
+    setInviteError("");
+    const selected = assessments.find((a) => a.id === inviteForm.assessment_id);
+    if (!selected) return;
+    setInviteLoading(true);
 
     try {
       const res = await fetch("/api/candidates/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          full_name: form.full_name,
-          email: form.email,
+          full_name: inviteForm.full_name,
           project_id: project.id,
-          assessment_type: selectedAssessment.name,
+          assessment_type: selected.name,
         }),
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "Failed to generate invite link");
+        setInviteError(data.error ?? "Failed to generate invite link");
       } else {
-        setResult({
-          url: `${window.location.origin}${data.test_url}`,
-          name: form.full_name,
-        });
+        const url = `${window.location.origin}${data.test_url}`;
+        await navigator.clipboard.writeText(url).catch(() => {});
+        setInviteUrl(url);
+        router.refresh();
       }
     } catch {
-      setError("Network error. Please try again.");
+      setInviteError("Network error. Please try again.");
     }
-    setLoading(false);
+    setInviteLoading(false);
   };
 
-  const resetForm = () => {
-    setResult(null);
-    setError("");
-    setForm({ full_name: "", email: "", assessment_id: assessments[0]?.id ?? "" });
+  const resetInvite = () => {
+    setInviteUrl(null);
+    setInviteError("");
+    setInviteForm({ full_name: "", assessment_id: assessments[0]?.id ?? "" });
   };
 
-  const cfg = statusConfig[project.status] ?? statusConfig.draft;
-  const progress = candidateCounts.total > 0
-    ? Math.round((candidateCounts.completed / candidateCounts.total) * 100)
-    : 0;
+  const cfg = projectStatusConfig[project.status] ?? projectStatusConfig.draft;
+  const completed = candidates.filter((c) => c.status === "completed").length;
+  const progress = candidates.length > 0 ? Math.round((completed / candidates.length) * 100) : 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-300">
-            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-            Project created
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${cfg.class}">
+            <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+            <span className={cfg.class.split(" ").find((c) => c.startsWith("text-")) ?? "text-slate-300"}>{cfg.label}</span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">{project.name}</h1>
           {project.description && (
             <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{project.description}</p>
           )}
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
-              <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-              {cfg.label}
-            </span>
-            <span className="text-xs text-slate-600">
-              Created {new Date(project.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-            </span>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+            <span>Created {new Date(project.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
             {project.deadline && (
-              <span className="text-xs text-slate-600">
-                Deadline {new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-              </span>
+              <span>· Deadline {new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
             )}
           </div>
         </div>
+        <Link
+          href={`/reports?project=${project.id}`}
+          className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240] hover:text-blue-200"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 10a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 0v10m0-10a2 2 0 0 1 2 2h2a2 2 0 0 1 2-2V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2" />
+          </svg>
+          View report
+        </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: "Invited", value: candidateCounts.invited, color: "text-amber-300" },
-          { label: "Completed", value: candidateCounts.completed, color: "text-emerald-300" },
-          { label: "Progress", value: `${progress}%`, color: "text-blue-300" },
-        ].map((stat) => (
-          <div key={stat.label} className="premium-card rounded-xl p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider font-medium">{stat.label}</p>
-            <p className={`mt-1.5 text-2xl font-semibold tracking-tight ${stat.color}`}>{stat.value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
-        {/* Assessments */}
+      {/* Battery + Invite panel */}
+      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
+        {/* Assessment battery */}
         <div className="premium-card rounded-xl p-5">
           <div className="mb-4 flex items-center justify-between border-b border-[#1E2240] pb-4">
             <div>
               <h2 className="text-base font-semibold text-white">Assessment battery</h2>
-              <p className="mt-0.5 text-xs text-slate-500">{assessments.length} test{assessments.length !== 1 ? "s" : ""} included in this project</p>
+              <p className="mt-0.5 text-xs text-slate-500">
+                {assessments.length} test{assessments.length !== 1 ? "s" : ""} · {assessments.reduce((s, a) => s + (a.duration_minutes ?? 0), 0)} min total
+              </p>
             </div>
-            <span className="rounded-full border border-[#1E2240] bg-[#07080F] px-2.5 py-1 text-xs font-medium text-slate-400">
-              {assessments.reduce((s, a) => s + (a.duration_minutes ?? 0), 0)} min total
-            </span>
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#1D4ED8]/40 px-3 py-1.5 text-xs font-medium text-[#8CB1FF] transition-colors hover:bg-[#1D4ED8]/15"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
+              </svg>
+              Add
+            </button>
           </div>
 
           {assessments.length === 0 ? (
             <div className="rounded-xl border border-dashed border-[#1E2240] py-10 text-center">
-              <p className="text-sm text-slate-500">No assessments linked to this project.</p>
+              <p className="mb-3 text-sm text-slate-500">No assessments linked yet.</p>
+              <button
+                type="button"
+                onClick={() => setAddOpen(true)}
+                className="text-xs text-[#8CB1FF] transition-colors hover:text-blue-200"
+              >
+                Add your first assessment →
+              </button>
             </div>
           ) : (
             <div className="space-y-2">
@@ -200,7 +269,7 @@ export default function ProjectDetailClient({ project, assessments, candidateCou
             <p className="mt-0.5 text-xs text-slate-500">Create a secure, time-limited invite for one candidate.</p>
           </div>
 
-          {result ? (
+          {inviteUrl ? (
             <div className="space-y-4">
               <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
@@ -208,23 +277,21 @@ export default function ProjectDetailClient({ project, assessments, candidateCou
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                   </svg>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-medium text-emerald-300">Link ready for {result.name}</p>
-                  <p className="text-xs text-slate-500">Valid for 7 days</p>
+                <div>
+                  <p className="text-sm font-medium text-emerald-300">Link copied to clipboard</p>
+                  <p className="text-xs text-slate-500">Valid for 7 days · share with your candidate</p>
                 </div>
               </div>
-
               <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
                 <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Invite link</p>
                 <div className="flex items-center gap-2">
-                  <p className="flex-1 break-all font-mono text-xs text-blue-300">{result.url}</p>
-                  <CopyButton text={result.url} />
+                  <p className="flex-1 break-all font-mono text-xs text-blue-300">{inviteUrl}</p>
+                  <CopyButton text={inviteUrl} />
                 </div>
               </div>
-
               <button
                 type="button"
-                onClick={resetForm}
+                onClick={resetInvite}
                 className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
               >
                 Generate another link
@@ -232,47 +299,31 @@ export default function ProjectDetailClient({ project, assessments, candidateCou
             </div>
           ) : (
             <form onSubmit={handleInvite} className="space-y-4">
-              {error && (
+              {inviteError && (
                 <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
-                  {error}
+                  {inviteError}
                 </div>
               )}
-
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Candidate name <span className="text-red-400">*</span>
+                  Candidate name
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
                 </label>
                 <input
-                  required
-                  value={form.full_name}
-                  onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
+                  value={inviteForm.full_name}
+                  onChange={(e) => setInviteForm((f) => ({ ...f, full_name: e.target.value }))}
                   placeholder="Jane Smith"
                   className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                 />
               </div>
-
-              <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Email address <span className="text-red-400">*</span>
-                </label>
-                <input
-                  required
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="jane@example.com"
-                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
-                />
-              </div>
-
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">Assessment</label>
                 {assessments.length === 0 ? (
                   <p className="text-sm text-slate-500">No assessments in this project.</p>
                 ) : (
                   <select
-                    value={form.assessment_id}
-                    onChange={(e) => setForm((f) => ({ ...f, assessment_id: e.target.value }))}
+                    value={inviteForm.assessment_id}
+                    onChange={(e) => setInviteForm((f) => ({ ...f, assessment_id: e.target.value }))}
                     className="w-full cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-300 outline-none transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                   >
                     {assessments.map((a) => (
@@ -283,13 +334,12 @@ export default function ProjectDetailClient({ project, assessments, candidateCou
                   </select>
                 )}
               </div>
-
               <button
                 type="submit"
-                disabled={loading || assessments.length === 0}
+                disabled={inviteLoading || assessments.length === 0}
                 className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? (
+                {inviteLoading ? (
                   <>
                     <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -310,6 +360,137 @@ export default function ProjectDetailClient({ project, assessments, candidateCou
           )}
         </div>
       </div>
+
+      {/* Candidates */}
+      <div className="premium-card rounded-xl">
+        <div className="flex items-center justify-between border-b border-[#1E2240] px-5 py-4">
+          <div>
+            <h2 className="text-base font-semibold text-white">Candidates</h2>
+            <p className="mt-0.5 text-xs text-slate-500">
+              {candidates.length} total · {completed} completed · {progress}% completion
+            </p>
+          </div>
+        </div>
+
+        {candidates.length === 0 ? (
+          <div className="py-16 text-center">
+            <svg className="mx-auto mb-3 h-10 w-10 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87" />
+            </svg>
+            <p className="text-sm font-medium text-slate-400">No candidates yet</p>
+            <p className="mt-1 text-xs text-slate-600">Generate an invite link above to add your first candidate.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[#1E2240]">
+            {candidates.map((candidate, i) => {
+              const sc = candidateStatusConfig[candidate.status] ?? candidateStatusConfig.invited;
+              const displayName = candidate.full_name?.trim() || "Anonymous";
+              const initials = displayName === "Anonymous"
+                ? "?"
+                : displayName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
+              const avatarClass = avatarColors[i % avatarColors.length];
+              const score = candidate.results[0]?.score ?? null;
+              const scoreColor = score === null ? "" : score >= 80 ? "text-emerald-300" : score >= 60 ? "text-amber-300" : "text-red-300";
+              return (
+                <div key={candidate.id} className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30">
+                  <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${avatarClass}`}>
+                    {initials}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium text-slate-200">{displayName}</p>
+                    <p className="mt-0.5 text-xs text-slate-600">
+                      {new Date(candidate.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </p>
+                  </div>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${sc.class}`}>
+                    {sc.label}
+                  </span>
+                  {score !== null && (
+                    <span className={`w-10 shrink-0 text-right text-sm font-bold ${scoreColor}`}>{score}</span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Add assessment modal */}
+      {addOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 pt-16 backdrop-blur-sm"
+          onClick={() => setAddOpen(false)}
+        >
+          <div
+            className="premium-card mb-8 w-full max-w-xl rounded-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-5 flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-white">Add assessment</h2>
+                <p className="mt-0.5 text-xs text-slate-500">Select a test to add to this project's battery.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setAddOpen(false)}
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="max-h-[60vh] space-y-1.5 overflow-y-auto">
+              {allAssessments.map((a) => {
+                const linked = linkedIds.has(a.id);
+                return (
+                  <div
+                    key={a.id}
+                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${linked ? "border-emerald-500/20 bg-emerald-500/5" : "border-[#1E2240] bg-[#07080F]/55"}`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className={`truncate text-sm font-medium ${linked ? "text-emerald-300" : "text-slate-200"}`}>{a.name}</p>
+                      <p className="mt-0.5 text-xs text-slate-500">
+                        {a.category} · {a.duration_minutes ?? "-"} min · {a.question_count ?? "-"} Q
+                      </p>
+                    </div>
+                    {linked ? (
+                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-emerald-400">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Added
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled={addingId === a.id}
+                        onClick={() => handleAddAssessment(a.id)}
+                        className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {addingId === a.id ? (
+                          <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                          </svg>
+                        ) : (
+                          <>
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 5v14m7-7H5" />
+                            </svg>
+                            Add
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

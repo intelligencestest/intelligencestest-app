@@ -243,7 +243,7 @@ export default function NewProjectPage() {
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm">
         <Link href="/projects" className="text-slate-500 hover:text-slate-300 transition-colors">
-          Hiring Projects
+          Projects
         </Link>
         <svg className="w-3 h-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -252,7 +252,7 @@ export default function NewProjectPage() {
       </nav>
 
       <div>
-        <h1 className="text-2xl font-bold text-white">Create Hiring Project</h1>
+        <h1 className="text-2xl font-bold text-white">Create Project</h1>
         <p className="text-slate-500 text-sm mt-1">Set up a new assessment project for your open role.</p>
       </div>
 

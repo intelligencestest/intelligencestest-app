@@ -174,7 +174,7 @@ export default function SettingsPage() {
           { key: "candidateCompleted", label: "Candidate completes assessment", desc: "Get notified when a candidate finishes their assessment" },
           { key: "candidateInvited", label: "Candidate accepts invitation", desc: "Notification when a candidate opens their invitation link" },
           { key: "reportReady", label: "Report is ready", desc: "Alert when a project report is generated and ready to review" },
-          { key: "weeklyDigest", label: "Weekly digest", desc: "A summary of all hiring activity sent every Monday" },
+          { key: "weeklyDigest", label: "Weekly digest", desc: "A summary of all assessment activity sent every Monday" },
         ].map((item) => (
           <div key={item.key} className="flex items-start justify-between gap-4 py-3 border-b border-[#1E2240] last:border-0 last:pb-0">
             <div>

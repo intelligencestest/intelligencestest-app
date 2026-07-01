@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
 
@@ -117,6 +118,41 @@ export default async function DashboardPage() {
         </div>
       </div>
 
+      {(activeProjects ?? 0) === 0 ? (
+        <div className="premium-card rounded-2xl p-8">
+          <div className="mb-8 text-center">
+            <h2 className="text-xl font-semibold text-white">Get started</h2>
+            <p className="mt-2 text-sm text-slate-400">Follow these steps to run your first assessment project.</p>
+          </div>
+          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+            {[
+              { step: "1", title: "Create a project", desc: "Organize candidates by role, team, or use case." },
+              { step: "2", title: "Select assessments", desc: "Pick from 22 tests in the library and add them to your project." },
+              { step: "3", title: "Invite candidates", desc: "Share a secure link — no email required." },
+            ].map((item) => (
+              <div key={item.step} className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-5">
+                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#1D4ED8]/40 bg-[#1D4ED8]/15 text-xs font-semibold text-[#8CB1FF]">
+                  {item.step}
+                </div>
+                <h3 className="text-sm font-semibold text-white">{item.title}</h3>
+                <p className="mt-1.5 text-xs leading-relaxed text-slate-500">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <div className="text-center">
+            <Link
+              href="/projects/new"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(29,78,216,0.22)] transition-colors hover:bg-[#1e40af]"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create your first project
+            </Link>
+          </div>
+        </div>
+      ) : (
+      <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {statsCards.map((card, index) => (
           <div
@@ -249,6 +285,8 @@ export default async function DashboardPage() {
           </div>
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

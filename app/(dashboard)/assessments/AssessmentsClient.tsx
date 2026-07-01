@@ -482,12 +482,20 @@ function groupAssessments(assessments: Assessment[]) {
     });
 }
 
-export default function AssessmentsClient({ assessments }: { assessments: Assessment[] }) {
+interface Project {
+  id: string;
+  name: string;
+}
+
+export default function AssessmentsClient({ assessments, projects }: { assessments: Assessment[]; projects: Project[] }) {
   const t = useTranslations("assessments");
   const locale = useLocale();
   const es = locale === "es";
 
   const [preview, setPreview] = useState<Assessment | null>(null);
+  const [projectPickerFor, setProjectPickerFor] = useState<string | null>(null);
+  const [addingToProject, setAddingToProject] = useState<string | null>(null);
+  const [justAdded, setJustAdded] = useState<string | null>(null);
 
   useEffect(() => {
     if (!preview) return;
@@ -495,6 +503,33 @@ export default function AssessmentsClient({ assessments }: { assessments: Assess
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [preview]);
+
+  useEffect(() => {
+    if (!projectPickerFor) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setProjectPickerFor(null); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [projectPickerFor]);
+
+  const addToProject = async (projectId: string) => {
+    if (!projectPickerFor) return;
+    setAddingToProject(projectId);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/assessments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assessment_id: projectPickerFor }),
+      });
+      if (res.ok) {
+        setJustAdded(projectId);
+        setTimeout(() => {
+          setJustAdded(null);
+          setProjectPickerFor(null);
+        }, 1200);
+      }
+    } catch {}
+    setAddingToProject(null);
+  };
 
   const grouped = useMemo(() => groupAssessments(assessments), [assessments]);
   const activeCount = assessments.filter(isActive).length;
@@ -627,16 +662,16 @@ export default function AssessmentsClient({ assessments }: { assessments: Assess
 
                     <div className="mt-4 border-t border-[#1E2240] pt-4">
                       {active ? (
-                        <Link
-                          href={`/projects/new?assessment=${assessment.id}`}
-                          onClick={(event) => event.stopPropagation()}
+                        <button
+                          type="button"
+                          onClick={(event) => { event.stopPropagation(); setProjectPickerFor(assessment.id); }}
                           className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/25 transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/50 focus:ring-offset-2 focus:ring-offset-[#0D1020]"
                         >
                           {t("addToProject")}
                           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
                           </svg>
-                        </Link>
+                        </button>
                       ) : (
                         <span className="inline-flex w-full items-center justify-center rounded-xl border border-slate-500/20 bg-slate-500/10 px-4 py-2.5 text-sm font-semibold text-slate-400">
                           {t("comingSoon")}
@@ -710,21 +745,97 @@ export default function AssessmentsClient({ assessments }: { assessments: Assess
                 {t("close")}
               </button>
               {isActive(preview) ? (
-                <Link
-                  href={`/projects/new?assessment=${preview.id}`}
+                <button
+                  type="button"
+                  onClick={() => { setPreview(null); setProjectPickerFor(preview.id); }}
                   className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
                 >
                   {t("addToProject")}
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
                   </svg>
-                </Link>
+                </button>
               ) : (
                 <span className="inline-flex items-center justify-center rounded-xl border border-slate-500/20 bg-slate-500/10 px-4 py-2.5 text-sm font-semibold text-slate-400">
                   {t("comingSoon")}
                 </span>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Project picker modal */}
+      {projectPickerFor && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setProjectPickerFor(null)}
+        >
+          <div
+            className="w-full max-w-sm rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-white">Add to project</h2>
+              <button
+                type="button"
+                onClick={() => setProjectPickerFor(null)}
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {projects.length === 0 ? (
+              <div className="py-4 text-center">
+                <p className="mb-4 text-sm text-slate-500">No active projects yet.</p>
+                <Link
+                  href={`/projects/new?assessment=${projectPickerFor}`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                >
+                  Create new project
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-1.5">
+                {projects.map((project) => (
+                  <button
+                    key={project.id}
+                    type="button"
+                    disabled={addingToProject === project.id || justAdded === project.id}
+                    onClick={() => addToProject(project.id)}
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[#1E2240] bg-[#07080F]/55 px-4 py-3 text-left transition-colors hover:bg-[#1E2240]/60 disabled:cursor-not-allowed"
+                  >
+                    <span className="truncate text-sm text-slate-300">{project.name}</span>
+                    {justAdded === project.id ? (
+                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-emerald-300">
+                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Added
+                      </span>
+                    ) : addingToProject === project.id ? (
+                      <svg className="h-4 w-4 shrink-0 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                      </svg>
+                    ) : (
+                      <span className="shrink-0 text-xs font-medium text-[#8CB1FF]">Add →</span>
+                    )}
+                  </button>
+                ))}
+                <div className="border-t border-[#1E2240] pt-2">
+                  <Link
+                    href={`/projects/new?assessment=${projectPickerFor}`}
+                    className="block px-1 py-1 text-xs text-slate-500 transition-colors hover:text-slate-300"
+                  >
+                    + Create new project
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
