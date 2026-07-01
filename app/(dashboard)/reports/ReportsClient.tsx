@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { scoreAQ } from "@/lib/questions/aq";
 import { scoreResults } from "@/lib/questions/critical-thinking";
 import type { CTPDFData, AQPDFData } from "@/lib/pdf";
+import type { ComprehensiveReportData } from "@/lib/report-pdf";
 
 interface Project {
   id: string;
@@ -16,6 +17,7 @@ interface Result {
   id: string;
   score: number;
   completed_at: string;
+  candidate_id: string | null;
   candidates: { full_name: string; email: string } | null;
   assessments: { name: string } | null;
 }
@@ -52,28 +54,18 @@ function DownloadPDFButton({ result }: { result: Result }) {
         const rawAnswers: (number | null)[] = Array.isArray(data.raw_answers) ? data.raw_answers : [];
         const scored = scoreAQ(rawAnswers);
         const pdfData: AQPDFData = {
-          candidateName,
-          assessmentName,
-          date,
-          score: scored.total,
-          control: scored.control,
-          ownership: scored.ownership,
-          reach: scored.reach,
-          endurance: scored.endurance,
-          interpretation: scored.interpretation,
-          description: scored.description,
+          candidateName, assessmentName, date,
+          score: scored.total, control: scored.control, ownership: scored.ownership,
+          reach: scored.reach, endurance: scored.endurance,
+          interpretation: scored.interpretation, description: scored.description,
         };
         downloadAQPDF(pdfData);
       } else {
         const rawAnswers: (number | null)[] = Array.isArray(data.raw_answers) ? data.raw_answers : [];
         const scored = scoreResults(rawAnswers);
         const pdfData: CTPDFData = {
-          candidateName,
-          assessmentName,
-          date,
-          score: scored.percentage,
-          correct: scored.correct,
-          total: scored.total,
+          candidateName, assessmentName, date,
+          score: scored.percentage, correct: scored.correct, total: scored.total,
           interpretation: scored.interpretation,
         };
         downloadCTPDF(pdfData);
@@ -88,7 +80,7 @@ function DownloadPDFButton({ result }: { result: Result }) {
     <button
       onClick={handleDownload}
       disabled={loading}
-      title="Download PDF report"
+      title="Download single-assessment PDF"
       className="flex-shrink-0 cursor-pointer rounded-lg border border-[#1E2240] p-1.5 text-slate-500 transition-colors hover:border-[#1D4ED8]/40 hover:text-[#8CB1FF] disabled:opacity-50"
     >
       {loading ? (
@@ -109,18 +101,42 @@ export default function ReportsClient({
   projects,
   initialResults,
   selectedProjectId,
+  companyName,
 }: {
   projects: Project[];
   initialResults: Result[];
   selectedProjectId: string | null;
+  companyName: string;
 }) {
   const router = useRouter();
+  const [fullReportLoading, setFullReportLoading] = useState<string | null>(null);
 
   const results = initialResults;
   const avgScore = results.length
     ? Math.round(results.reduce((s, r) => s + r.score, 0) / results.length)
     : 0;
   const topScore = results[0]?.score ?? 0;
+
+  // Group results by candidate for the Full Report feature
+  const candidateGroups = useMemo(() => {
+    const map = new Map<string, { name: string; email: string; results: Result[] }>();
+    results.forEach(r => {
+      const key = r.candidate_id ?? r.candidates?.email ?? r.candidates?.full_name ?? "unknown";
+      const existing = map.get(key) ?? {
+        name: r.candidates?.full_name ?? "Unknown",
+        email: r.candidates?.email ?? "",
+        results: [],
+      };
+      existing.results.push(r);
+      map.set(key, existing);
+    });
+    // Sort by avg score descending
+    return [...map.entries()].sort((a, b) => {
+      const avgA = a[1].results.reduce((s, r) => s + r.score, 0) / a[1].results.length;
+      const avgB = b[1].results.reduce((s, r) => s + r.score, 0) / b[1].results.length;
+      return avgB - avgA;
+    });
+  }, [results]);
 
   const scoreBands = [
     { label: "90-100", color: "bg-emerald-500" },
@@ -131,6 +147,37 @@ export default function ReportsClient({
 
   function selectProject(id: string) {
     router.push(`/reports?project=${id}`);
+  }
+
+  async function handleFullReport(candidateKey: string) {
+    setFullReportLoading(candidateKey);
+    try {
+      const group = candidateGroups.find(([k]) => k === candidateKey)?.[1];
+      if (!group) return;
+
+      const selectedProject = projects.find(p => p.id === selectedProjectId);
+      const { downloadComprehensiveReport } = await import("@/lib/report-pdf");
+
+      const reportData: ComprehensiveReportData = {
+        candidateName: group.name,
+        candidateEmail: group.email,
+        companyName,
+        projectName: selectedProject?.name ?? "Assessment Project",
+        reportDate: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+        reportId: `RPT-${candidateKey.slice(0, 8).toUpperCase()}`,
+        assessments: group.results.map(r => ({
+          name: r.assessments?.name ?? "Assessment",
+          score: r.score,
+          completedAt: r.completed_at,
+        })),
+      };
+
+      downloadComprehensiveReport(reportData);
+    } catch {
+      alert("Could not generate the comprehensive report. Please try again.");
+    } finally {
+      setFullReportLoading(null);
+    }
   }
 
   return (
@@ -291,6 +338,75 @@ export default function ReportsClient({
               </div>
             </div>
           </div>
+
+          {/* Per-Candidate Full Reports */}
+          {candidateGroups.length > 0 && (
+            <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl overflow-hidden">
+              <div className="px-6 py-4 border-b border-[#1E2240] flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-semibold text-white">Comprehensive Candidate Reports</h2>
+                  <p className="text-xs text-slate-500 mt-0.5">15-page PDF report per candidate across all their completed assessments</p>
+                </div>
+                <span className="text-xs bg-blue-400/10 text-blue-400 border border-blue-400/20 px-2.5 py-1 rounded-full">
+                  {candidateGroups.length} candidate{candidateGroups.length !== 1 ? "s" : ""}
+                </span>
+              </div>
+              <div className="divide-y divide-[#1E2240]">
+                {candidateGroups.map(([candidateKey, group]) => {
+                  const groupAvg = Math.round(group.results.reduce((s, r) => s + r.score, 0) / group.results.length);
+                  const avgColor = groupAvg >= 80 ? "text-emerald-400" : groupAvg >= 60 ? "text-amber-400" : "text-red-400";
+                  const initials = group.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+                  const isLoading = fullReportLoading === candidateKey;
+                  return (
+                    <div key={candidateKey} className="px-6 py-4 hover:bg-[#1E2240]/20 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-full bg-[#1D4ED8]/20 border border-[#1D4ED8]/30 flex items-center justify-center text-sm font-semibold text-blue-400 flex-shrink-0">
+                          {initials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white">{group.name}</p>
+                          <p className="text-xs text-slate-500 truncate">{group.email || "No email"}</p>
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {group.results.map(r => (
+                              <span key={r.id} className="text-xs bg-[#1E2240] text-slate-400 px-2 py-0.5 rounded">
+                                {r.assessments?.name?.replace(" Test", "").replace(" Assessment", "") ?? "?"} · {r.score}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0 mr-4">
+                          <p className={`text-2xl font-bold ${avgColor}`}>{groupAvg}</p>
+                          <p className="text-xs text-slate-500">avg score</p>
+                        </div>
+                        <button
+                          onClick={() => handleFullReport(candidateKey)}
+                          disabled={isLoading}
+                          className="flex-shrink-0 flex items-center gap-2 cursor-pointer rounded-lg bg-[#1D4ED8]/10 border border-[#1D4ED8]/30 px-3 py-2 text-xs font-medium text-[#8CB1FF] transition-colors hover:bg-[#1D4ED8]/20 hover:border-[#1D4ED8]/50 disabled:opacity-50"
+                        >
+                          {isLoading ? (
+                            <>
+                              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
+                              </svg>
+                              Generating…
+                            </>
+                          ) : (
+                            <>
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Full Report
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

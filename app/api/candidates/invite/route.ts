@@ -29,32 +29,244 @@ const testPaths: Record<string, string> = {
   "Learning Agility Test": "learning-agility",
 };
 
-function buildInviteEmail(opts: {
+type InviteEmailLocale = "en" | "es";
+
+interface InviteEmailOptions {
   candidateName: string | null;
   companyName: string;
+  assessmentName: string;
+  durationMinutes: number | null;
+  questionCount: number | null;
   testUrl: string;
-}): string {
-  const greeting = opts.candidateName ? `Hi ${opts.candidateName},` : "Hi there,";
-  return `<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background-color:#07080F;font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">
-  <div style="max-width:520px;margin:48px auto;padding:40px;background-color:#0D1020;border:1px solid #1E2240;border-radius:16px">
-    <p style="margin:0 0 32px;font-size:13px;font-weight:600;color:#8CB1FF;letter-spacing:0.05em;text-transform:uppercase">${opts.companyName}</p>
-    <h1 style="margin:0 0 12px;font-size:22px;font-weight:600;color:#FFFFFF;line-height:1.3">${greeting}</h1>
-    <p style="margin:0 0 28px;font-size:15px;color:#94A3B8;line-height:1.65">
-      You've been invited to complete an online assessment. Find a quiet space and set aside uninterrupted time before you start — once begun, the timer cannot be paused.
-    </p>
-    <a href="${opts.testUrl}" style="display:inline-block;background-color:#1D4ED8;color:#FFFFFF;font-size:15px;font-weight:600;padding:14px 28px;border-radius:12px;text-decoration:none;letter-spacing:0.01em">
-      Start your assessment &rarr;
-    </a>
-    <p style="margin:28px 0 0;font-size:12px;color:#475569;line-height:1.6">
-      This link expires in <strong style="color:#64748B">7 days</strong>. If you weren't expecting this invitation, you can safely ignore this email.
-    </p>
-    <hr style="border:none;border-top:1px solid #1E2240;margin:24px 0">
-    <p style="margin:0;font-size:11px;color:#334155">Sent by ${opts.companyName} via IntelligencesTest</p>
-  </div>
-</body>
+  locale: InviteEmailLocale;
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function inviteCopy(locale: InviteEmailLocale) {
+  if (locale === "es") {
+    return {
+      subject: (companyName: string) => `${companyName} - Invitación a evaluación`,
+      preheader: (companyName: string) => `${companyName} le ha invitado a completar una evaluación online.`,
+      greeting: (name: string | null) => (name ? `Hola ${name},` : "Hola,"),
+      title: (companyName: string) => `${companyName} le ha invitado a completar una evaluación`,
+      intro:
+        "Esta evaluación ayuda al equipo a conocer mejor sus fortalezas y su forma de resolver situaciones de trabajo. Busque un lugar tranquilo antes de comenzar.",
+      whatToExpect: "Qué esperar",
+      assessment: "Evaluación",
+      time: "Tiempo estimado",
+      questions: "Preguntas",
+      minutes: (minutes: number) => `${minutes} min`,
+      unknown: "Se indicará al iniciar",
+      cta: "Comenzar evaluación",
+      expiryTitle: "Enlace válido por 7 días",
+      expiry:
+        "Por seguridad, este enlace caduca en 7 días. Si no esperaba esta invitación, puede ignorar este correo.",
+      fallback: "Si el botón no funciona, copie y pegue este enlace en su navegador:",
+      footerIntro: (companyName: string) => `Este correo fue enviado porque ${companyName} le invitó a completar una evaluación.`,
+      support: "Soporte: support@intelligencestest.com | Preferencias de correo: gestionadas por la organización que invita.",
+      powered: "Powered by IntelligencesTest",
+    };
+  }
+
+  return {
+    subject: (companyName: string) => `${companyName} - Assessment invitation`,
+    preheader: (companyName: string) => `${companyName} has invited you to complete an online assessment.`,
+    greeting: (name: string | null) => (name ? `Hi ${name},` : "Hi there,"),
+    title: (companyName: string) => `${companyName} has invited you to complete an assessment`,
+    intro:
+      "This assessment helps the team understand your strengths and how you approach work-related situations. Please find a quiet place before you begin.",
+    whatToExpect: "What to expect",
+    assessment: "Assessment",
+    time: "Estimated time",
+    questions: "Questions",
+    minutes: (minutes: number) => `${minutes} min`,
+    unknown: "Shown when you start",
+    cta: "Start Assessment",
+    expiryTitle: "Link valid for 7 days",
+    expiry:
+      "For your security, this link expires in 7 days. If you were not expecting this invitation, you can safely ignore this email.",
+    fallback: "If the button does not work, copy and paste this link into your browser:",
+    footerIntro: (companyName: string) => `This email was sent because ${companyName} invited you to complete an assessment.`,
+    support: "Support: support@intelligencestest.com | Email preferences: managed by the inviting organization.",
+    powered: "Powered by IntelligencesTest",
+  };
+}
+
+function buildInviteSubject(opts: { companyName: string; locale: InviteEmailLocale }) {
+  return inviteCopy(opts.locale).subject(opts.companyName);
+}
+
+function buildInviteEmailText(opts: InviteEmailOptions): string {
+  const copy = inviteCopy(opts.locale);
+  const candidateName = opts.candidateName?.trim() || null;
+  const duration = opts.durationMinutes ? copy.minutes(opts.durationMinutes) : copy.unknown;
+  const questions = opts.questionCount ? `${opts.questionCount}` : copy.unknown;
+
+  return [
+    copy.greeting(candidateName),
+    "",
+    copy.title(opts.companyName),
+    "",
+    copy.intro,
+    "",
+    `${copy.assessment}: ${opts.assessmentName}`,
+    `${copy.time}: ${duration}`,
+    `${copy.questions}: ${questions}`,
+    "",
+    `${copy.cta}: ${opts.testUrl}`,
+    "",
+    copy.expiryTitle,
+    copy.expiry,
+    "",
+    copy.footerIntro(opts.companyName),
+    copy.support,
+    copy.powered,
+  ].join("\n");
+}
+
+function buildInviteEmail(opts: InviteEmailOptions): string {
+  const copy = inviteCopy(opts.locale);
+  const candidateName = opts.candidateName?.trim() || null;
+  const safeCompanyName = escapeHtml(opts.companyName);
+  const safeAssessmentName = escapeHtml(opts.assessmentName);
+  const safeGreeting = escapeHtml(copy.greeting(candidateName));
+  const safeTitle = escapeHtml(copy.title(opts.companyName));
+  const safeIntro = escapeHtml(copy.intro);
+  const safeUrl = escapeHtml(opts.testUrl);
+  const duration = opts.durationMinutes ? copy.minutes(opts.durationMinutes) : copy.unknown;
+  const questions = opts.questionCount ? `${opts.questionCount}` : copy.unknown;
+
+  return `<!doctype html>
+<html lang="${opts.locale}">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>${escapeHtml(copy.subject(opts.companyName))}</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#07080F;color:#E2E8F0;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;-webkit-text-size-adjust:100%;text-size-adjust:100%;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;font-size:1px;line-height:1px;">
+      ${escapeHtml(copy.preheader(opts.companyName))}
+    </div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background-color:#07080F;border-collapse:collapse;">
+      <tr>
+        <td align="center" style="padding:28px 12px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;border-collapse:collapse;">
+            <tr>
+              <td style="padding:0 0 14px 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td width="42" height="42" align="center" valign="middle" style="width:42px;height:42px;background-color:#1D4ED8;border:1px solid #6B9FFF;border-radius:12px;color:#FFFFFF;font-size:14px;line-height:42px;font-weight:700;letter-spacing:0.02em;">
+                      IT
+                    </td>
+                    <td style="padding-left:12px;">
+                      <div style="font-size:16px;line-height:20px;font-weight:700;color:#FFFFFF;">IntelligencesTest</div>
+                      <div style="font-size:12px;line-height:16px;color:#64748B;">Human Assessment Platform</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="background-color:#0D1020;border:1px solid #1E2240;border-radius:18px;overflow:hidden;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:28px 24px 10px 24px;">
+                      <div style="display:inline-block;margin:0 0 18px 0;padding:7px 10px;border:1px solid #1E2240;border-radius:999px;background-color:#07080F;color:#9BB8FF;font-size:12px;line-height:14px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">
+                        ${safeCompanyName}
+                      </div>
+                      <h1 style="margin:0 0 10px 0;color:#FFFFFF;font-size:26px;line-height:33px;font-weight:700;letter-spacing:-0.01em;">${safeGreeting}</h1>
+                      <p style="margin:0;color:#CBD5E1;font-size:17px;line-height:27px;font-weight:600;">${safeTitle}</p>
+                      <p style="margin:14px 0 0 0;color:#94A3B8;font-size:15px;line-height:25px;">${safeIntro}</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:18px 24px 0 24px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:#07080F;border:1px solid #1E2240;border-radius:14px;">
+                        <tr>
+                          <td colspan="2" style="padding:18px 18px 8px 18px;color:#FFFFFF;font-size:13px;line-height:18px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">
+                            ${escapeHtml(copy.whatToExpect)}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td valign="top" style="padding:10px 18px 10px 18px;width:38%;color:#64748B;font-size:12px;line-height:18px;border-bottom:1px solid #1E2240;">
+                            ${escapeHtml(copy.assessment)}
+                          </td>
+                          <td valign="top" style="padding:10px 18px 10px 18px;color:#FFFFFF;font-size:14px;line-height:20px;font-weight:700;border-bottom:1px solid #1E2240;">
+                            ${safeAssessmentName}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td valign="top" style="padding:10px 18px;width:38%;color:#64748B;font-size:12px;line-height:18px;border-bottom:1px solid #1E2240;">
+                            ${escapeHtml(copy.time)}
+                          </td>
+                          <td valign="top" style="padding:10px 18px;color:#FFFFFF;font-size:14px;line-height:20px;font-weight:700;border-bottom:1px solid #1E2240;">
+                            ${escapeHtml(duration)}
+                          </td>
+                        </tr>
+                        <tr>
+                          <td valign="top" style="padding:10px 18px 18px 18px;width:38%;color:#64748B;font-size:12px;line-height:18px;">
+                            ${escapeHtml(copy.questions)}
+                          </td>
+                          <td valign="top" style="padding:10px 18px 18px 18px;color:#FFFFFF;font-size:14px;line-height:20px;font-weight:700;">
+                            ${escapeHtml(questions)}
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="center" style="padding:26px 24px 8px 24px;">
+                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                        <tr>
+                          <td align="center" bgcolor="#1D4ED8" style="border-radius:12px;background-color:#1D4ED8;">
+                            <a href="${safeUrl}" target="_blank" style="display:inline-block;padding:15px 28px;color:#FFFFFF;background-color:#1D4ED8;border:1px solid #1D4ED8;border-radius:12px;font-size:15px;line-height:18px;font-weight:700;text-decoration:none;">
+                              ${escapeHtml(copy.cta)}
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:16px 24px 24px 24px;">
+                      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;background-color:#11182B;border:1px solid #24305A;border-radius:14px;">
+                        <tr>
+                          <td style="padding:16px 18px;">
+                            <div style="color:#BFDBFE;font-size:13px;line-height:18px;font-weight:700;">${escapeHtml(copy.expiryTitle)}</div>
+                            <div style="margin-top:6px;color:#94A3B8;font-size:13px;line-height:21px;">${escapeHtml(copy.expiry)}</div>
+                          </td>
+                        </tr>
+                      </table>
+                      <p style="margin:18px 0 0 0;color:#64748B;font-size:12px;line-height:19px;">${escapeHtml(copy.fallback)}</p>
+                      <p style="margin:6px 0 0 0;word-break:break-all;color:#8CB1FF;font-size:12px;line-height:18px;">
+                        <a href="${safeUrl}" target="_blank" style="color:#8CB1FF;text-decoration:underline;">${safeUrl}</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 8px 0 8px;text-align:center;">
+                <p style="margin:0;color:#64748B;font-size:12px;line-height:19px;">${escapeHtml(copy.footerIntro(opts.companyName))}</p>
+                <p style="margin:8px 0 0 0;color:#475569;font-size:11px;line-height:18px;">${escapeHtml(copy.support)}</p>
+                <p style="margin:10px 0 0 0;color:#334155;font-size:11px;line-height:16px;">${escapeHtml(copy.powered)}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>`;
 }
 
@@ -107,7 +319,7 @@ export async function POST(request: NextRequest) {
 
   const { data: assessment } = await admin
     .from("assessments")
-    .select("id")
+    .select("id, name, duration_minutes, question_count")
     .eq("name", assessment_type)
     .single();
 
@@ -155,26 +367,25 @@ export async function POST(request: NextRequest) {
     const origin = new URL(request.url).origin;
     const absoluteUrl = `${origin}${testUrl}`;
     const toAddress = email.toLowerCase().trim();
-
-    console.log("[invite/email] sending", {
-      from: process.env.RESEND_FROM_EMAIL ?? "(RESEND_FROM_EMAIL not set)",
-      to: toAddress,
-      apiKeyPresent: !!process.env.RESEND_API_KEY,
-      apiKeyPrefix: process.env.RESEND_API_KEY?.slice(0, 8) ?? "(none)",
-      subject: `${companyName} — Your assessment invitation`,
+    const emailLocale: InviteEmailLocale = lang === "es" ? "es" : "en";
+    const emailOptions: InviteEmailOptions = {
+      candidateName: full_name?.trim() || null,
+      companyName,
+      assessmentName: assessment.name ?? assessment_type,
+      durationMinutes: assessment.duration_minutes ?? null,
+      questionCount: assessment.question_count ?? null,
       testUrl: absoluteUrl,
-    });
+      locale: emailLocale,
+    };
+    const subject = buildInviteSubject({ companyName, locale: emailLocale });
 
     const resend = new Resend(process.env.RESEND_API_KEY);
     const resendResult = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
       to: toAddress,
-      subject: `${companyName} — Your assessment invitation`,
-      html: buildInviteEmail({
-        candidateName: full_name?.trim() || null,
-        companyName,
-        testUrl: absoluteUrl,
-      }),
+      subject,
+      html: buildInviteEmail(emailOptions),
+      text: buildInviteEmailText(emailOptions),
     });
 
     console.log("[invite/email] Resend response", JSON.stringify(resendResult));

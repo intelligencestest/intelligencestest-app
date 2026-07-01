@@ -1,4 +1,5 @@
 import Sidebar from "@/components/Sidebar";
+import DashboardHeader from "@/components/DashboardHeader";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
 
@@ -31,7 +32,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="flex h-screen overflow-hidden bg-[#07080F]">
       <Sidebar userEmail={userEmail} userName={userName} activeAssessmentCount={activeAssessmentCount} />
       <main className="flex-1 overflow-y-auto">
-        <div className="min-h-full p-4 pt-6 sm:p-6 lg:p-8">{children}</div>
+        <DashboardHeader />
+        <div className="min-h-full p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   );
