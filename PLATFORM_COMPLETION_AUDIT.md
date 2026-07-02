@@ -16,6 +16,8 @@ Scope: infrastructure and customer-facing polish outside the dashboard, recruite
 - Added `/admin` internal workspace management with search, company status/plan, active users, projects, assessments used, create/edit/disable/delete workspace, and reset admin password actions.
 - Added admin workspace fields migration: `supabase/migrations/020_admin_workspace_fields.sql`.
 - Added a Spanish-first welcome/workspace activation email variant for admin-created workspaces.
+- Improved Settings so company name, industry, logo URL, recruiter name, password reset, notifications, language, and billing placeholder are presented in one production-ready area.
+- Added `/api/settings/profile` for real company/profile/logo saving.
 
 ## Requires deployment/configuration
 
@@ -54,6 +56,7 @@ Observed from code audit only:
 - Production build passed after the public/contact/legal changes.
 - TypeScript passed after the admin panel/API changes.
 - Production build passed after the admin panel/API changes.
+- Production build passed after the Settings profile/API changes.
 - Placeholder link scan for public/auth pages found and fixed login/signup legal placeholders.
 - Remaining report `alert()` findings are documented and intentionally left untouched.
 
