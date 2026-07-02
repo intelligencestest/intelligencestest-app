@@ -3,7 +3,10 @@ import ProjectsClient from "./ProjectsClient";
 
 type PaRow = {
   project_id: string;
-  assessments: { id: string; name: string; duration_minutes: number | null }[];
+  assessments:
+    | { id: string; name: string; duration_minutes: number | null }
+    | { id: string; name: string; duration_minutes: number | null }[]
+    | null;
 };
 
 export default async function ProjectsPage() {
@@ -38,7 +41,7 @@ export default async function ProjectsPage() {
       .returns<PaRow[]>();
 
     projectAssessments = (paRows ?? []).reduce<typeof projectAssessments>((acc, row) => {
-      const a = row.assessments[0];
+      const a = Array.isArray(row.assessments) ? row.assessments[0] : row.assessments;
       if (!a) return acc;
       acc[row.project_id] = [
         ...(acc[row.project_id] ?? []),

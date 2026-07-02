@@ -44,7 +44,10 @@ export async function POST(
   if (existing) return NextResponse.json({ ok: true, already_linked: true });
 
   const { error } = await admin.from("project_assessments").insert({ project_id, assessment_id });
-  if (error) return NextResponse.json({ error: "Failed to link assessment" }, { status: 500 });
+  if (error) {
+    console.error("[projects/assessments] link FAILED:", error);
+    return NextResponse.json({ error: error.message || "Failed to link assessment" }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true });
 }

@@ -107,6 +107,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
   // Add assessment state
   const [addOpen, setAddOpen] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [addError, setAddError] = useState("");
 
   // Edit project state
   const [editOpen, setEditOpen] = useState(false);
@@ -172,17 +173,23 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
 
   const handleAddAssessment = async (assessmentId: string) => {
     setAddingId(assessmentId);
+    setAddError("");
     try {
       const res = await fetch(`/api/projects/${project.id}/assessments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ assessment_id: assessmentId }),
       });
+      const data = await res.json();
       if (res.ok) {
         router.refresh();
         setTimeout(() => setAddOpen(false), 400);
+      } else {
+        setAddError(data.error ?? "Failed to add assessment. Please try again.");
       }
-    } catch {}
+    } catch {
+      setAddError("Network error. Please try again.");
+    }
     setAddingId(null);
   };
 
@@ -673,6 +680,12 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 </svg>
               </button>
             </div>
+
+            {addError && (
+              <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                {addError}
+              </div>
+            )}
 
             <div className="max-h-[60vh] space-y-1.5 overflow-y-auto">
               {allAssessments.map((a) => {

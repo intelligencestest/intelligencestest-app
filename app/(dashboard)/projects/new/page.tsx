@@ -190,17 +190,7 @@ export default function NewProjectPage() {
 
   function applyTemplate(templateId: string) {
     setSelectedTemplate(templateId);
-    const template = ROLE_TEMPLATES.find((t) => t.id === templateId);
-    if (!template || template.keywords.length === 0) {
-      setSelectedAssessments([]);
-      return;
-    }
-    const matched = activeAssessments
-      .filter((a) =>
-        template.keywords.some((kw) => a.name.toLowerCase().includes(kw.toLowerCase()))
-      )
-      .map((a) => a.id);
-    setSelectedAssessments(matched);
+    setSelectedAssessments([]);
   }
 
   const toggleAssessment = (id: string) => {
@@ -218,6 +208,10 @@ export default function NewProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (selectedAssessments.length === 0) {
+      setError("Select at least one assessment before creating the project.");
+      return;
+    }
     setSaving(true);
     const res = await fetch("/api/projects", {
       method: "POST",
@@ -304,7 +298,7 @@ export default function NewProjectPage() {
           <div className="mb-5 border-b border-[#1E2240] pb-4">
             <h2 className="text-base font-semibold text-white">Choose a Role Template</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Start with a recommended assessment battery or build a custom selection.
+              Optional guide only. Tests are never selected automatically.
             </p>
           </div>
 
@@ -404,7 +398,7 @@ export default function NewProjectPage() {
               <p className="text-xs text-slate-400">
                 <span className="font-medium text-slate-300">{activeTemplate.role}</span>
                 {activeTemplate.id !== "custom"
-                  ? " template applied — assessments pre-selected below. Add or remove as needed."
+                  ? " guide selected — choose assessments below manually."
                   : " — choose any combination of assessments below."}
               </p>
             </div>
@@ -422,7 +416,7 @@ export default function NewProjectPage() {
               </h2>
               <p className="text-xs text-slate-500 mt-1">
                 {selectedTemplate
-                  ? "Adjust the pre-selected tests or add more from other categories."
+                  ? "Choose the tests candidates will complete. Nothing is selected automatically."
                   : "Choose the active tests candidates will complete for this project."}
               </p>
             </div>

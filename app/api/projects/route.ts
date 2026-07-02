@@ -51,8 +51,11 @@ export async function POST(request: NextRequest) {
     );
     if (linkError) {
       console.error("[projects/create] assessment link FAILED:", linkError);
-      // Project was created — return the project_id with a warning so the client can still navigate
-      return NextResponse.json({ project_id: project.id, assessment_link_error: linkError.message });
+      await admin.from("hiring_projects").delete().eq("id", project.id);
+      return NextResponse.json(
+        { error: `Failed to link selected assessments: ${linkError.message}` },
+        { status: 500 }
+      );
     }
     console.log("[projects/create] assessment link OK, count:", assessment_ids.length);
   } else {

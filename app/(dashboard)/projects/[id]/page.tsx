@@ -34,7 +34,10 @@ interface PageProps {
 
 type PaRow = {
   assessment_id: string;
-  assessments: { id: string; name: string; duration_minutes: number | null; question_count: number | null }[];
+  assessments:
+    | { id: string; name: string; duration_minutes: number | null; question_count: number | null }
+    | { id: string; name: string; duration_minutes: number | null; question_count: number | null }[]
+    | null;
 };
 
 type CandidateRow = {
@@ -83,7 +86,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   const assessments = ((paRows ?? []) as PaRow[])
     .map((row) => {
-      const a = row.assessments[0];
+      const a = Array.isArray(row.assessments) ? row.assessments[0] : row.assessments;
       if (!a) return null;
       return {
         id: a.id,
