@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 import {
@@ -322,15 +321,7 @@ export default function AssessmentRunner({
           </div>
           <h2 className="mb-2 text-xl font-semibold text-white">{s.errorHeading}</h2>
           <p className="mb-6 text-slate-400">{errorMsg}</p>
-          <Link
-            href="/assessments"
-            className="inline-flex items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:border-[#2d3a70] hover:text-white"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 12H5m7-7-7 7 7 7" />
-            </svg>
-            {locale === "es" ? "Volver a la biblioteca" : "Back to library"}
-          </Link>
+          <p className="text-xs leading-relaxed text-slate-500">{s.candidateSupport}</p>
         </div>
       </div>
     );

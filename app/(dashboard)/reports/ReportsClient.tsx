@@ -144,7 +144,7 @@ export default function ReportsClient({
         distribution: "Distribución de puntuaciones",
         noData: "Aún no hay datos",
         comprehensive: "Informes completos de candidatos",
-        comprehensiveSubtitle: "Informe PDF de 15 páginas por candidato con todas sus evaluaciones completadas",
+        comprehensiveSubtitle: "Informe PDF por candidato con solo sus evaluaciones completadas",
         candidates: (count: number) => `${count} candidato${count === 1 ? "" : "s"}`,
         noEmail: "Sin correo",
         avgScore: "promedio",
@@ -178,7 +178,7 @@ export default function ReportsClient({
         distribution: "Score Distribution",
         noData: "No data yet",
         comprehensive: "Comprehensive Candidate Reports",
-        comprehensiveSubtitle: "15-page PDF report per candidate across all their completed assessments",
+        comprehensiveSubtitle: "PDF report per candidate across only their completed assessments",
         candidates: (count: number) => `${count} candidate${count !== 1 ? "s" : ""}`,
         noEmail: "No email",
         avgScore: "avg score",
@@ -247,6 +247,7 @@ export default function ReportsClient({
           score: r.score,
           completedAt: r.completed_at,
         })),
+        locale: es ? "es" : "en",
       };
 
       downloadComprehensiveReport(reportData);

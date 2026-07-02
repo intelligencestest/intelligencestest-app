@@ -1,9 +1,12 @@
 import { jsPDF } from "jspdf";
+import { assessmentName, assessmentShort } from "@/lib/i18n/assessment-terms";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const PW = 210, PH = 297, M = 18, CW = PW - M * 2;
 const HDR_H = 14, FTR_Y = 283;
 const CT = HDR_H + 4; // content top Y
+let reportPageTotal = 1;
+let activeReportLocale: "en" | "es" = "es";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 export interface AssessmentScore {
@@ -20,6 +23,7 @@ export interface ComprehensiveReportData {
   reportDate: string;
   reportId: string;
   assessments: AssessmentScore[];
+  locale?: "en" | "es";
 }
 
 type Tier = "high" | "mid" | "low";
@@ -45,6 +49,208 @@ interface CompetencyItem extends AssessmentScore {
   t: Tier;
 }
 
+type ReportCopy = {
+  assessmentAverage: string;
+  assessmentAvg: string;
+  assessmentReport: string;
+  assessmentScope: string;
+  assessmentScopeBody: string;
+  authorizedSignoff: string;
+  candidateEmail: string;
+  category: string;
+  completed: string;
+  completedAssessments: (count: number) => string;
+  competencyDashboard: string;
+  competencyProfileSummary: string;
+  confidence: (count: number) => string;
+  confidenceLevel: string;
+  confidential: string;
+  confidentialBar: string;
+  confidentialFooter: string;
+  company: string;
+  developmentAreas: string;
+  evidenceTiers: string;
+  evidenceTiersBody: string;
+  finalSummary: string;
+  followUpFocus: string;
+  headerReportId: string;
+  hiringInsights: string;
+  importantLimitations: string;
+  importantLimitationsBody: string;
+  insufficientStrengths: string;
+  interviewGuide: string;
+  interviewGuideSubtitle: string;
+  methodology: string;
+  notProvided: string;
+  noDevelopmentAreas: (name: string) => string;
+  noRisks: string;
+  positiveReviewDefault: string;
+  project: string;
+  reportDate: string;
+  reportGenerated: string;
+  reportId: string;
+  riskFactors: string;
+  score: string;
+  scoreBreakdown: string;
+  scoreRangeReference: string;
+  scoreTiers: string;
+  scoreTiersBody: string;
+  scoring: string;
+  scoringBody: string;
+  signature: string;
+  strengthsProfile: string;
+  tier: string;
+  topStrengths: string;
+  workplaceImplication: string;
+  keyBehaviors: string;
+  coachingRecommendation: string;
+};
+
+const REPORT_COPY: Record<"en" | "es", ReportCopy> = {
+  es: {
+    assessmentAverage: "Promedio de evaluaciones",
+    assessmentAvg: "PROMEDIO",
+    assessmentReport: "INFORME DE EVALUACION DEL CANDIDATO",
+    assessmentScope: "Alcance del informe",
+    assessmentScopeBody: "Este informe incluye únicamente evaluaciones con resultados completados y guardados para este candidato. Se excluyen evaluaciones no asignadas, incompletas o no relacionadas.",
+    authorizedSignoff: "Firma del revisor autorizado",
+    candidateEmail: "Correo del candidato",
+    category: "Categoria",
+    completed: "Completada",
+    completedAssessments: (count) => `${count} evaluacion${count === 1 ? "" : "es"}`,
+    competencyDashboard: "Panel de competencias",
+    competencyProfileSummary: "Resumen del perfil de competencias",
+    confidence: (count) => count >= 6 ? "Alta" : count >= 3 ? "Moderada" : "Baja",
+    confidenceLevel: "Nivel de confianza",
+    confidential: "CONFIDENCIAL",
+    confidentialBar: "CONFIDENCIAL - SOLO PARA PERSONAL AUTORIZADO",
+    confidentialFooter: "Este informe es confidencial. Solo para personal autorizado. Generado por Intelligences Test.",
+    company: "Empresa",
+    developmentAreas: "Areas de desarrollo",
+    evidenceTiers: "Niveles de evidencia",
+    evidenceTiersBody: "Evidencia solida (85+): resultados fuertes en las evaluaciones completadas. Evidencia positiva (70-84): perfil solido. Evidencia mixta (55-69): requiere revision dirigida. Evidencia de cautela (40-54): varios puntos a explorar. Soporte limitado (<40): evidencia debil segun los datos completados.",
+    finalSummary: "Resumen final de evaluacion",
+    followUpFocus: "Foco de revision posterior",
+    headerReportId: "ID del informe",
+    hiringInsights: "Lectura para seleccion",
+    importantLimitations: "Limitaciones importantes",
+    importantLimitationsBody: "Los datos de evaluacion son una entrada entre muchas en una decision de contratacion. Este informe debe revisarse junto con entrevistas estructuradas, referencias, pruebas de trabajo y otros datos relevantes. Las puntuaciones no garantizan desempeno laboral y no deben ser la unica base para una decision de empleo.",
+    insufficientStrengths: "No hay datos suficientes para determinar un perfil de fortalezas. Se requieren mas evaluaciones completadas.",
+    interviewGuide: "Guia de entrevista",
+    interviewGuideSubtitle: "Preguntas conductuales orientadas a cada competencia evaluada.",
+    methodology: "Metodologia e interpretacion",
+    notProvided: "No proporcionado",
+    noDevelopmentAreas: (name) => `${name} obtuvo resultados solidos en las competencias evaluadas. No se identifican areas criticas de desarrollo en las evaluaciones completadas.`,
+    noRisks: "No se identifican factores de riesgo significativos. Todas las evaluaciones completadas estan por encima del umbral de cautela.",
+    positiveReviewDefault: "Use una entrevista estructurada para validar el perfil de evaluacion antes de tomar una decision final.",
+    project: "Proyecto",
+    reportDate: "Fecha del informe",
+    reportGenerated: "Informe generado",
+    reportId: "ID del informe",
+    riskFactors: "Factores de riesgo a explorar",
+    score: "Puntuacion",
+    scoreBreakdown: "Desglose de puntuacion por competencia",
+    scoreRangeReference: "Referencia de rangos de puntuacion",
+    scoreTiers: "Rangos de puntuacion",
+    scoreTiersBody: "Alto (80-100): fortaleza observable. Sobre el promedio (65-79): competencia solida. En desarrollo (50-64): base adecuada que puede fortalecerse. Requiere foco (0-49): brecha que requiere revision estructurada y apoyo de desarrollo.",
+    scoring: "Puntuacion",
+    scoringBody: "Las puntuaciones se reportan en una escala estandarizada de 0 a 100. En evaluaciones de habilidad con respuestas correctas, representan desempeno porcentual. En evaluaciones conductuales o de personalidad, resumen el modelo de puntuacion configurado para el instrumento.",
+    signature: "Firma: __________________________   Fecha: ______________",
+    strengthsProfile: "Perfil de fortalezas",
+    tier: "Nivel",
+    topStrengths: "Fortalezas principales",
+    workplaceImplication: "Implicacion laboral",
+    keyBehaviors: "Conductas observables",
+    coachingRecommendation: "Recomendacion de desarrollo",
+  },
+  en: {
+    assessmentAverage: "Assessment average",
+    assessmentAvg: "ASSESSMENT AVG",
+    assessmentReport: "CANDIDATE ASSESSMENT REPORT",
+    assessmentScope: "Assessment Scope",
+    assessmentScopeBody: "This report includes only assessments with saved completed results for this candidate. Unassigned, unfinished, or unrelated assessments are excluded from the report.",
+    authorizedSignoff: "Authorized Reviewer Signoff",
+    candidateEmail: "Candidate Email",
+    category: "Category",
+    completed: "Completed",
+    completedAssessments: (count) => `${count} assessment${count !== 1 ? "s" : ""}`,
+    competencyDashboard: "Competency Dashboard",
+    competencyProfileSummary: "Competency Profile Summary",
+    confidence: (count) => count >= 6 ? "High" : count >= 3 ? "Moderate" : "Low",
+    confidenceLevel: "Confidence Level",
+    confidential: "CONFIDENTIAL",
+    confidentialBar: "CONFIDENTIAL - FOR AUTHORIZED PERSONNEL ONLY",
+    confidentialFooter: "This report is confidential. For authorized personnel only. Generated by Intelligences Test.",
+    company: "Company",
+    developmentAreas: "Development Areas",
+    evidenceTiers: "Evidence Tiers",
+    evidenceTiersBody: "Strong Assessment Evidence (85+): strong scores across completed assessments. Positive Assessment Evidence (70-84): solid assessment profile. Mixed Assessment Evidence (55-69): requires targeted review. Cautionary Assessment Evidence (40-54): several concerns to explore. Limited Assessment Support (<40): weak support from the completed assessment data.",
+    finalSummary: "Final Assessment Summary",
+    followUpFocus: "Follow-up Review Focus",
+    headerReportId: "Report ID",
+    hiringInsights: "Hiring Insights",
+    importantLimitations: "Important Limitations",
+    importantLimitationsBody: "Assessment data is one input among many in a hiring decision. This report should be reviewed alongside structured interviews, reference checks, work sample tests, and other relevant data. Assessment scores do not guarantee job performance and should not be the sole basis for any employment decision.",
+    insufficientStrengths: "Insufficient data to determine strength profile. More assessments required.",
+    interviewGuide: "Interview Question Guide",
+    interviewGuideSubtitle: "Behavioral questions targeting each assessed competency, tailored to score tier.",
+    methodology: "Methodology & Interpretation Guide",
+    notProvided: "Not provided",
+    noDevelopmentAreas: (name) => `${name} achieved strong scores across all assessed competencies. No significant development areas identified.`,
+    noRisks: "No significant risk factors identified. All completed assessments scored above the caution threshold.",
+    positiveReviewDefault: "Use a structured interview to validate the assessment profile before making a final decision.",
+    project: "Project",
+    reportDate: "Report Date",
+    reportGenerated: "Report Generated",
+    reportId: "Report ID",
+    riskFactors: "Risk Factors To Explore",
+    score: "Score",
+    scoreBreakdown: "Score Breakdown By Competency",
+    scoreRangeReference: "Score Range Reference",
+    scoreTiers: "Score Tiers",
+    scoreTiersBody: "High (80-100): A demonstrable strength with observable workplace impact. Above Average (65-79): Solid competency that can be leveraged immediately. Developing (50-64): Adequate foundation; targeted development may build this area. Needs Focus (0-49): A meaningful gap requiring structured review and development support.",
+    scoring: "Scoring",
+    scoringBody: "Scores are reported on a standardized 0-100 scale. For ability assessments with correct answers, scores represent percentage performance. For behavioral and personality assessments, scores summarize the instrument's configured scoring model.",
+    signature: "Signature: __________________________   Date: ______________",
+    strengthsProfile: "Strengths Profile",
+    tier: "Tier",
+    topStrengths: "Top Strengths",
+    workplaceImplication: "Workplace Implication",
+    keyBehaviors: "Key Observed Behaviors",
+    coachingRecommendation: "Coaching Recommendation",
+  },
+};
+
+function localeOf(data: ComprehensiveReportData): "en" | "es" {
+  return data.locale === "en" ? "en" : "es";
+}
+
+function copyOf(data: ComprehensiveReportData): ReportCopy {
+  return REPORT_COPY[localeOf(data)];
+}
+
+function displayAssessmentName(name: string, locale: "en" | "es", short = false): string {
+  if (locale === "es") return short ? assessmentShort(name, BANK[name]?.label ?? name, "es") : assessmentName(name, "es");
+  return short ? BANK[name]?.label ?? name : name;
+}
+
+function categoryDisplay(category: string, locale: "en" | "es"): string {
+  if (locale === "en") return category;
+  const labels: Record<string, string> = {
+    Cognitive: "Capacidad cognitiva",
+    Personality: "Perfil de personalidad",
+    EQ: "Inteligencia emocional y conductual",
+    Interpersonal: "Habilidades interpersonales",
+    Professional: "Competencias profesionales",
+  };
+  return labels[category] ?? category;
+}
+
+function tierDisplay(t: Tier, locale: "en" | "es"): string {
+  if (locale === "en") return t.charAt(0).toUpperCase() + t.slice(1);
+  return t === "high" ? "Alto" : t === "mid" ? "Medio" : "Bajo";
+}
+
 // ─── Score utilities ─────────────────────────────────────────────────────────
 function tier(score: number): Tier {
   return score >= 75 ? "high" : score >= 55 ? "mid" : "low";
@@ -57,32 +263,41 @@ function scoreRGB(score: number): [number, number, number] {
   return [239, 68, 68];
 }
 
-function recTier(avg: number, firstName: string): RecResult {
-  if (avg >= 85) return { label: "Strong Hire", rgb: [16, 185, 129], narrative: `${firstName} achieved exceptional scores across all assessed competencies. The data strongly supports advancing this candidate to the final evaluation stage. Their cognitive and behavioral profile aligns closely with high performers in comparable roles.` };
-  if (avg >= 70) return { label: "Hire", rgb: [59, 130, 246], narrative: `${firstName} demonstrates solid competency across the assessed areas. The overall profile indicates a capable candidate who is likely to perform well with appropriate onboarding support. Recommend proceeding to structured interview.` };
-  if (avg >= 55) return { label: "Consider", rgb: [245, 158, 11], narrative: `${firstName} shows moderate competency with some areas requiring development. Consider this candidate if the role allows for coaching and growth time. A structured interview focusing on lower-scoring competencies is recommended.` };
-  if (avg >= 40) return { label: "Caution", rgb: [249, 115, 22], narrative: `${firstName} scored below the recommended threshold in several key competencies. There are development gaps that may impact performance in this role. Proceed with caution and conduct a thorough skills-based interview.` };
-  return { label: "Not Recommended", rgb: [239, 68, 68], narrative: `${firstName}'s assessment scores indicate significant gaps across core competencies required for this role. Based on the assessment data, this candidate is not recommended for advancement at this time.` };
+function recTier(avg: number, firstName: string, locale: "en" | "es"): RecResult {
+  if (locale === "es") {
+    if (avg >= 85) return { label: "Evidencia solida", rgb: [16, 185, 129], narrative: `${firstName} obtuvo resultados excelentes en las evaluaciones completadas. La evidencia disponible respalda avanzar con una revision estructurada y una entrevista enfocada en los requisitos especificos del rol.` };
+    if (avg >= 70) return { label: "Evidencia positiva", rgb: [59, 130, 246], narrative: `${firstName} muestra un perfil solido en las evaluaciones completadas. Los resultados respaldan continuar con la revision, usando preguntas de entrevista dirigidas a las areas de menor puntuacion.` };
+    if (avg >= 55) return { label: "Evidencia mixta", rgb: [245, 158, 11], narrative: `${firstName} presenta un perfil mixto. Algunas areas son prometedoras y otras requieren validacion adicional mediante entrevista estructurada y evidencia del contexto laboral.` };
+    if (avg >= 40) return { label: "Evidencia de cautela", rgb: [249, 115, 22], narrative: `${firstName} obtuvo puntuaciones por debajo del nivel preferido en varias evaluaciones completadas. Use estos resultados como senal para una revision mas profunda antes de tomar una decision.` };
+    return { label: "Soporte limitado", rgb: [239, 68, 68], narrative: `Las puntuaciones completadas de ${firstName} muestran brechas relevantes. Este informe no respalda avanzar basandose solo en la evidencia de evaluacion; la decision final debe incorporar todos los insumos de seleccion relevantes.` };
+  }
+  if (avg >= 85) return { label: "Strong Assessment Evidence", rgb: [16, 185, 129], narrative: `${firstName} achieved exceptional scores across the completed assessments. The available evidence supports moving forward with a structured review and interview focused on role-specific requirements.` };
+  if (avg >= 70) return { label: "Positive Assessment Evidence", rgb: [59, 130, 246], narrative: `${firstName} demonstrates solid competency across the completed assessments. The profile supports continued consideration, with interview questions targeted to the lower-scoring areas.` };
+  if (avg >= 55) return { label: "Mixed Assessment Evidence", rgb: [245, 158, 11], narrative: `${firstName} shows a mixed assessment profile. Some areas are promising, while others require closer review through structured interview evidence and work-context validation.` };
+  if (avg >= 40) return { label: "Cautionary Assessment Evidence", rgb: [249, 115, 22], narrative: `${firstName} scored below preferred levels on several completed assessments. Treat this as a signal for deeper structured review before making any hiring decision.` };
+  return { label: "Limited Assessment Support", rgb: [239, 68, 68], narrative: `${firstName}'s completed assessment scores show material gaps. This report does not support advancement based on assessment evidence alone, but final decisions should include all relevant hiring inputs.` };
 }
 
 // ─── Drawing primitives ──────────────────────────────────────────────────────
 function phdr(doc: jsPDF, name: string, rid: string) {
-  doc.setFillColor(248, 250, 252);
+  const copy = REPORT_COPY[activeReportLocale];
+  doc.setFillColor(7, 8, 15);
   doc.rect(0, 0, PW, HDR_H, "F");
-  doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.3);
+  doc.setDrawColor(29, 78, 216); doc.setLineWidth(0.4);
   doc.line(0, HDR_H, PW, HDR_H);
-  doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 41, 59);
+  doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
   doc.text(name.length > 32 ? name.slice(0, 31) + "…" : name, M, 9);
-  doc.setFont("helvetica", "normal"); doc.setTextColor(148, 163, 184);
-  doc.text(`Report ID: ${rid}`, M + 95, 9);
-  doc.text("CONFIDENTIAL", PW - M, 9, { align: "right" });
+  doc.setFont("helvetica", "normal"); doc.setTextColor(140, 177, 255);
+  doc.text(`${copy.headerReportId}: ${rid}`, M + 95, 9);
+  doc.text(copy.confidential, PW - M, 9, { align: "right" });
 }
 
-function pftr(doc: jsPDF, pg: number, total: number) {
+function pftr(doc: jsPDF, pg: number, total = reportPageTotal) {
+  const copy = REPORT_COPY[activeReportLocale];
   doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.3);
   doc.line(M, FTR_Y, PW - M, FTR_Y);
   doc.setFontSize(6.5); doc.setFont("helvetica", "normal"); doc.setTextColor(148, 163, 184);
-  doc.text("This report is confidential. For authorized personnel only. Generated by Intelligences Test.", M, FTR_Y + 5);
+  doc.text(copy.confidentialFooter, M, FTR_Y + 5);
   doc.text(`${pg} / ${total}`, PW - M, FTR_Y + 5, { align: "right" });
 }
 
@@ -129,7 +344,7 @@ function gauge(doc: jsPDF, cx: number, cy: number, radius: number, score: number
   doc.setFontSize(7); doc.setFont("helvetica", "normal"); doc.setTextColor(148, 163, 184);
   doc.text("/100", cx, cy + 3, { align: "center" });
   doc.setFontSize(7); doc.setTextColor(100, 116, 139);
-  doc.text("OVERALL SCORE", cx, cy + 9, { align: "center" });
+  doc.text(activeReportLocale === "es" ? "PROMEDIO" : "ASSESSMENT AVERAGE", cx, cy + 9, { align: "center" });
   doc.setFontSize(6.5); doc.setTextColor(148, 163, 184);
   doc.text("0", cx - radius - 2, cy + 1.5, { align: "right" });
   doc.text("50", cx, cy - radius - 3, { align: "center" });
@@ -192,7 +407,9 @@ function bullets(doc: jsPDF, items: string[], x: number, y: number, maxW: number
 }
 
 function tierBadge(doc: jsPDF, x: number, y: number, t: Tier) {
-  const configs = { high: { rgb: [16, 185, 129] as [number, number, number], label: "HIGH" }, mid: { rgb: [245, 158, 11] as [number, number, number], label: "MID" }, low: { rgb: [239, 68, 68] as [number, number, number], label: "LOW" } };
+  const configs = activeReportLocale === "es"
+    ? { high: { rgb: [16, 185, 129] as [number, number, number], label: "ALTO" }, mid: { rgb: [245, 158, 11] as [number, number, number], label: "MED" }, low: { rgb: [239, 68, 68] as [number, number, number], label: "BAJO" } }
+    : { high: { rgb: [16, 185, 129] as [number, number, number], label: "HIGH" }, mid: { rgb: [245, 158, 11] as [number, number, number], label: "MID" }, low: { rgb: [239, 68, 68] as [number, number, number], label: "LOW" } };
   const { rgb, label } = configs[t];
   doc.setFillColor(...rgb);
   doc.rect(x, y - 3.5, 12, 5, "F");
@@ -409,7 +626,7 @@ const BANK: Record<string, Phrases> = {
     bh: ["Identifies customer pain points before pitching any solution", "Handles objections with curiosity and exploration rather than defensiveness", "Maintains consistent pipeline hygiene and disciplined follow-up habits"],
     bm: ["Builds authentic rapport with customers effectively", "Growing confidence and competence in consultative selling approach", "Pipeline consistency and strategic targeting are areas for development"],
     bl: ["Leads with product features rather than genuinely listening to customer needs", "Uncomfortable with objections and the natural rejection that comes with sales", "Benefits from structured scripts, regular role-play practice, and sales coaching"],
-    coaching: "Shadow high performers on customer calls. Practice the SPIN Selling or Challenger Sale model. Role-play objection handling weekly with an experienced sales coach or colleague.",
+    coaching: "Shadow experienced sales representatives on customer calls. Practice the SPIN Selling or Challenger Sale model. Role-play objection handling weekly with an experienced sales coach or colleague.",
     questions: ["Tell me about a time you converted a skeptical prospect into a customer. What was your approach?", "Describe a significant sales loss. What did you learn from it and what would you do differently?", "How do you manage your pipeline and prioritize which opportunities to pursue when resources are limited?"],
   },
   "Customer Service Skills Test": {
@@ -517,18 +734,61 @@ function getCategory(name: string): string {
   return BANK[name]?.category ?? "Professional";
 }
 
+function phraseFor(c: CompetencyItem, locale: "en" | "es"): Phrases | undefined {
+  if (locale === "en") return c.phrases;
+
+  const label = displayAssessmentName(c.name, locale, true);
+  const category = getCategory(c.name) as Phrases["category"];
+  return {
+    label,
+    category,
+    h: `El resultado muestra una fortaleza clara en ${label}. La evidencia disponible sugiere buen dominio de esta competencia dentro de las evaluaciones completadas.`,
+    m: `El resultado muestra una base adecuada en ${label}. Conviene validar esta competencia con ejemplos concretos durante la entrevista estructurada.`,
+    l: `El resultado indica que ${label} requiere revision adicional. Esta area deberia explorarse con preguntas conductuales, evidencia laboral y apoyo de desarrollo si la persona avanza.`,
+    wh: `Puede aportar valor en tareas relacionadas con ${label}, especialmente si la entrevista confirma que el resultado se refleja en situaciones laborales reales.`,
+    wm: `Puede desempenarse de forma adecuada en contextos relacionados con ${label}, con claridad de expectativas y seguimiento durante el inicio del rol.`,
+    wl: `Puede requerir estructura, acompanamiento y revision frecuente en tareas donde ${label} sea critica para el puesto.`,
+    bh: [
+      `Muestra evidencia positiva en ${label}.`,
+      "Tiende a responder mejor cuando los criterios de exito estan claros.",
+      "Puede convertir esta fortaleza en impacto si el contexto del rol la exige.",
+    ],
+    bm: [
+      `Muestra una base funcional en ${label}.`,
+      "Puede beneficiarse de retroalimentacion y ejemplos especificos.",
+      "La entrevista debe confirmar consistencia en situaciones reales de trabajo.",
+    ],
+    bl: [
+      `El resultado bajo en ${label} merece exploracion adicional.`,
+      "Puede necesitar procesos claros, practica y acompanamiento.",
+      "No debe interpretarse de forma aislada sin entrevista y evidencia complementaria.",
+    ],
+    coaching: `Profundice en ${label} durante la entrevista. Solicite ejemplos especificos, decisiones tomadas, resultados obtenidos y aprendizaje posterior.`,
+    questions: [
+      `Cuente una situacion laboral donde ${label} haya sido importante. ¿Que hizo y cual fue el resultado?`,
+      `Describa un momento en el que recibio retroalimentacion relacionada con ${label}. ¿Como respondio?`,
+      `Si este rol exige ${label} bajo presion, ¿que habitos o metodos usaria para mantener un buen desempeno?`,
+    ],
+  };
+}
+
+function competencyLabel(c: CompetencyItem, locale: "en" | "es"): string {
+  return locale === "es" ? displayAssessmentName(c.name, locale, true) : BANK[c.name]?.label ?? c.name;
+}
+
 // ─── Page 1 — Cover ──────────────────────────────────────────────────────────
 function p1Cover(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: RecResult) {
+  const copy = copyOf(data);
   doc.setFillColor(7, 8, 15);
   doc.rect(0, 0, PW, 128, "F");
   doc.setFillColor(20, 24, 48);
   doc.rect(0, 128, PW, PH - 128, "F");
 
   doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(140, 177, 255);
-  doc.text("INTELLIGENCES TEST PLATFORM", M, 20);
+  doc.text(localeOf(data) === "es" ? "PLATAFORMA INTELLIGENCES TEST" : "INTELLIGENCES TEST PLATFORM", M, 20);
 
   doc.setFontSize(11); doc.setFont("helvetica", "normal"); doc.setTextColor(100, 116, 139);
-  doc.text("COMPREHENSIVE CANDIDATE ASSESSMENT REPORT", M, 31);
+  doc.text(copy.assessmentReport, M, 31);
 
   doc.setDrawColor(29, 78, 216); doc.setLineWidth(1.5);
   doc.line(M, 35, M + 36, 35); doc.setLineWidth(0.4);
@@ -539,7 +799,7 @@ function p1Cover(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: Re
   doc.text(safeName, M, 55);
 
   doc.setFontSize(8.5); doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
-  doc.text(data.candidateEmail || "Email not provided", M, 65);
+  doc.text(data.candidateEmail || copy.notProvided, M, 65);
   doc.text(data.projectName, M, 73);
 
   // Score box (top right)
@@ -549,7 +809,7 @@ function p1Cover(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: Re
   doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
   doc.text(`${avg}`, PW - M - 19, 49, { align: "center" });
   doc.setFontSize(6.5); doc.setFont("helvetica", "normal");
-  doc.text("OVERALL SCORE", PW - M - 19, 55, { align: "center" });
+  doc.text(copy.assessmentAvg, PW - M - 19, 55, { align: "center" });
 
   doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(sr, sg, sb);
   doc.text(rec.label.toUpperCase(), PW - M - 19, 66, { align: "center" });
@@ -561,12 +821,12 @@ function p1Cover(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: Re
   doc.rect(M, 100, CW, 82, "S");
 
   const rows: [string, string][] = [
-    ["Company", data.companyName],
-    ["Project", data.projectName.length > 38 ? data.projectName.slice(0, 37) + "…" : data.projectName],
-    ["Report Date", data.reportDate],
-    ["Report ID", data.reportId],
-    ["Assessments Completed", `${data.assessments.length} assessment${data.assessments.length !== 1 ? "s" : ""}`],
-    ["Candidate Email", data.candidateEmail || "Not provided"],
+    [copy.company, data.companyName],
+    [copy.project, data.projectName.length > 38 ? data.projectName.slice(0, 37) + "…" : data.projectName],
+    [copy.reportDate, data.reportDate],
+    [copy.reportId, data.reportId],
+    [localeOf(data) === "es" ? "Evaluaciones completadas" : "Assessments Completed", copy.completedAssessments(data.assessments.length)],
+    [copy.candidateEmail, data.candidateEmail || copy.notProvided],
   ];
   rows.forEach(([lbl, val], i) => {
     const ry = 112 + i * 12;
@@ -580,19 +840,21 @@ function p1Cover(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: Re
   doc.setFillColor(239, 68, 68);
   doc.rect(0, 265, PW, 8, "F");
   doc.setFontSize(7); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
-  doc.text("CONFIDENTIAL — FOR AUTHORIZED PERSONNEL ONLY", PW / 2, 270, { align: "center" });
+  doc.text(copy.confidentialBar, PW / 2, 270, { align: "center" });
   doc.setFontSize(6.5); doc.setFont("helvetica", "normal"); doc.setTextColor(148, 163, 184);
-  doc.text("This report contains proprietary assessment data. Distribution is restricted to authorized personnel only.", M, 283);
+  doc.text(localeOf(data) === "es" ? "Este informe contiene datos confidenciales de evaluacion. Su distribucion esta restringida a personal autorizado." : "This report contains proprietary assessment data. Distribution is restricted to authorized personnel only.", M, 283);
   doc.text("Intelligences Test  ·  intelligencestest.com", PW - M, 283, { align: "right" });
 }
 
 // ─── Page 2 — Executive Summary ──────────────────────────────────────────────
-function p2Executive(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: RecResult, comps: CompetencyItem[]) {
+function p2Executive(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: RecResult, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
 
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Executive Summary", M, y); y += 12;
+  doc.text(locale === "es" ? "Resumen ejecutivo" : "Executive Summary", M, y); y += 12;
 
   // Overall score row
   const [sr, sg, sb] = rec.rgb;
@@ -601,7 +863,7 @@ function p2Executive(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec
   doc.setFontSize(26); doc.setFont("helvetica", "bold"); doc.setTextColor(sr, sg, sb);
   doc.text(`${avg}`, M + 10, y + 15);
   doc.setFontSize(8.5); doc.setFont("helvetica", "normal"); doc.setTextColor(100, 116, 139);
-  doc.text("/100 Overall Average", M + 10 + doc.getTextWidth(`${avg}`) + 2, y + 15);
+  doc.text(`/100 ${locale === "es" ? "promedio de evaluaciones completadas" : "average of completed assessments"}`, M + 10 + doc.getTextWidth(`${avg}`) + 2, y + 15);
   doc.setFillColor(sr, sg, sb);
   doc.rect(PW - M - 45, y + 5, 45, 13, "F");
   doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
@@ -609,23 +871,23 @@ function p2Executive(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec
   y += 28;
 
   // Assessments count + confidence
-  const confidence = comps.length >= 6 ? "High" : comps.length >= 3 ? "Moderate" : "Low";
   doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.setTextColor(100, 116, 139);
-  doc.text(`${comps.length} assessment${comps.length !== 1 ? "s" : ""} completed  ·  Confidence Level: ${confidence}  ·  Report Generated: ${data.reportDate}`, M, y); y += 10;
+  doc.text(`${copy.completedAssessments(comps.length)}  ·  ${copy.confidenceLevel}: ${copy.confidence(comps.length)}  ·  ${copy.reportGenerated}: ${data.reportDate}`, M, y); y += 10;
 
   const sorted = [...comps].sort((a, b) => b.score - a.score);
   const strengths = sorted.slice(0, Math.min(4, sorted.length));
   const devAreas = sorted.slice(-Math.min(3, sorted.length)).reverse().filter(c => c.score < 70);
 
-  y = secHead(doc, "TOP STRENGTHS", y);
+  y = secHead(doc, copy.topStrengths.toUpperCase(), y);
   strengths.forEach(c => {
+    const p = phraseFor(c, locale);
     const [cr, cg, cb] = scoreRGB(c.score);
     doc.setFillColor(cr, cg, cb);
     doc.circle(M + 1.5, y - 1.3, 0.9, "F");
     doc.setFontSize(8.5); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 41, 59);
-    doc.text(`${BANK[c.name]?.label ?? c.name} (${c.score})`, M + 5, y);
+    doc.text(`${competencyLabel(c, locale)} (${c.score})`, M + 5, y);
     doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
-    const phrase = c.phrases ? c.phrases[c.t === "high" ? "h" : c.t === "mid" ? "m" : "l"] : "";
+    const phrase = p ? p[c.t === "high" ? "h" : c.t === "mid" ? "m" : "l"] : "";
     const lines = doc.splitTextToSize(phrase.split(".")[0] + ".", CW - 5) as string[];
     doc.text(lines, M + 5, y + 4);
     y += lines.length * 3.8 + 7;
@@ -633,14 +895,15 @@ function p2Executive(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec
 
   if (devAreas.length > 0) {
     y += 2;
-    y = secHead(doc, "DEVELOPMENT AREAS", y);
+    y = secHead(doc, copy.developmentAreas.toUpperCase(), y);
     devAreas.forEach(c => {
+      const p = phraseFor(c, locale);
       doc.setFillColor(245, 158, 11);
       doc.circle(M + 1.5, y - 1.3, 0.9, "F");
       doc.setFontSize(8.5); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 41, 59);
-      doc.text(`${BANK[c.name]?.label ?? c.name} (${c.score})`, M + 5, y);
+      doc.text(`${competencyLabel(c, locale)} (${c.score})`, M + 5, y);
       doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
-      const phrase = c.phrases ? c.phrases[c.t === "high" ? "h" : c.t === "mid" ? "m" : "l"] : "";
+      const phrase = p ? p[c.t === "high" ? "h" : c.t === "mid" ? "m" : "l"] : "";
       const lines = doc.splitTextToSize(phrase.split(".")[0] + ".", CW - 5) as string[];
       doc.text(lines, M + 5, y + 4);
       y += lines.length * 3.8 + 7;
@@ -648,19 +911,21 @@ function p2Executive(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec
   }
 
   y += 4;
-  y = secHead(doc, "SUMMARY NARRATIVE", y);
+  y = secHead(doc, locale === "es" ? "LECTURA GENERAL" : "SUMMARY NARRATIVE", y);
   ww(doc, rec.narrative, M, y, CW, 8.5, "normal", [30, 41, 59]);
 
-  pftr(doc, 2, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 3 — Competency Dashboard ───────────────────────────────────────────
-function p3Dashboard(doc: jsPDF, data: ComprehensiveReportData, avg: number, comps: CompetencyItem[]) {
+function p3Dashboard(doc: jsPDF, data: ComprehensiveReportData, avg: number, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
 
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Competency Dashboard", M, y); y += 10;
+  doc.text(copy.competencyDashboard, M, y); y += 10;
 
   // Gauge (right side)
   const gaugeCX = PW - M - 30, gaugeCY = y + 30, gaugeR = 26;
@@ -668,10 +933,10 @@ function p3Dashboard(doc: jsPDF, data: ComprehensiveReportData, avg: number, com
 
   // Left: score color legend
   const legend = [
-    { rgb: [16, 185, 129] as [number, number, number], label: "80–100 · High (Strength)" },
-    { rgb: [59, 130, 246] as [number, number, number], label: "65–79 · Above Average" },
-    { rgb: [245, 158, 11] as [number, number, number], label: "50–64 · Developing" },
-    { rgb: [239, 68, 68] as [number, number, number], label: "Below 50 · Needs Focus" },
+    { rgb: [16, 185, 129] as [number, number, number], label: locale === "es" ? "80-100 · Alto (fortaleza)" : "80-100 · High (Strength)" },
+    { rgb: [59, 130, 246] as [number, number, number], label: locale === "es" ? "65-79 · Sobre el promedio" : "65-79 · Above Average" },
+    { rgb: [245, 158, 11] as [number, number, number], label: locale === "es" ? "50-64 · En desarrollo" : "50-64 · Developing" },
+    { rgb: [239, 68, 68] as [number, number, number], label: locale === "es" ? "Menos de 50 · Requiere foco" : "Below 50 · Needs Focus" },
   ];
   let ly = y + 10;
   legend.forEach(({ rgb, label }) => {
@@ -684,42 +949,41 @@ function p3Dashboard(doc: jsPDF, data: ComprehensiveReportData, avg: number, com
   y = gaugeCY + gaugeR + 14;
 
   if (comps.length >= 3) {
-    const radarData = comps.slice(0, Math.min(8, comps.length)).map(c => ({ label: BANK[c.name]?.label ?? c.name, score: c.score }));
+    const radarData = comps.slice(0, Math.min(8, comps.length)).map(c => ({ label: competencyLabel(c, locale), score: c.score }));
     const rcx = PW / 2, rcy = y + 35, rr = 30;
     radar(doc, rcx, rcy, rr, radarData);
     y = rcy + rr + 18;
   }
 
-  y = secHead(doc, "SCORE BREAKDOWN BY COMPETENCY", y);
+  y = secHead(doc, copy.scoreBreakdown.toUpperCase(), y);
 
   const barW = CW - 20;
   comps.forEach(c => {
     if (y > 270) return;
-    hBar(doc, M, y + 2, barW, c.score, BANK[c.name]?.label ?? c.name);
+    hBar(doc, M, y + 2, barW, c.score, competencyLabel(c, locale));
     tierBadge(doc, M + barW + 8, y + 5, c.t);
     y += 13;
   });
 
-  pftr(doc, 3, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Category page helper ────────────────────────────────────────────────────
 function categoryPage(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[], category: string, pageTitle: string, pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
 
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
   doc.text(pageTitle, M, y); y += 8;
   doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.setTextColor(100, 116, 139);
-  doc.text(`Category: ${category}`, M, y); y += 10;
+  doc.text(`${copy.category}: ${categoryDisplay(category, locale)}`, M, y); y += 10;
 
   const catComps = comps.filter(c => getCategory(c.name) === category);
 
   if (catComps.length === 0) {
-    doc.setFillColor(248, 250, 252); doc.rect(M, y, CW, 20, "F");
-    doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(148, 163, 184);
-    doc.text("No assessments in this category were completed.", M + 5, y + 12);
-    pftr(doc, pageNum, 15);
+    pftr(doc, pageNum);
     return;
   }
 
@@ -731,7 +995,7 @@ function categoryPage(doc: jsPDF, data: ComprehensiveReportData, comps: Competen
     // Assessment name + score
     doc.setFillColor(248, 250, 252); doc.rect(M, y, CW, 8, "F");
     doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-    doc.text(c.name, M + 3, y + 5.5);
+    doc.text(displayAssessmentName(c.name, locale), M + 3, y + 5.5);
     doc.setFont("helvetica", "bold"); doc.setTextColor(cr, cg, cb);
     doc.text(`${c.score}`, PW - M - 3, y + 5.5, { align: "right" });
     y += 10;
@@ -743,73 +1007,53 @@ function categoryPage(doc: jsPDF, data: ComprehensiveReportData, comps: Competen
     if (!p) { y += 5; return; }
 
     // Summary phrase
+    const pLocalized = phraseFor(c, locale);
     const summaryKey = c.t === "high" ? "h" : c.t === "mid" ? "m" : "l";
-    y = ww(doc, p[summaryKey], M, y, CW, 8.5, "normal", [30, 41, 59]);
+    y = ww(doc, (pLocalized ?? p)[summaryKey], M, y, CW, 8.5, "normal", [30, 41, 59]);
     y += 3;
 
     // Workplace implication
     const wKey = c.t === "high" ? "wh" : c.t === "mid" ? "wm" : "wl";
     doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(100, 116, 139);
-    doc.text("WORKPLACE IMPLICATION", M, y); y += 4;
-    y = ww(doc, p[wKey], M, y, CW, 8, "normal", [71, 85, 105]);
+    doc.text(copy.workplaceImplication.toUpperCase(), M, y); y += 4;
+    y = ww(doc, (pLocalized ?? p)[wKey], M, y, CW, 8, "normal", [71, 85, 105]);
     y += 3;
 
     // Key behaviors
     const bKey = c.t === "high" ? "bh" : c.t === "mid" ? "bm" : "bl";
     doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(100, 116, 139);
-    doc.text("KEY OBSERVED BEHAVIORS", M, y); y += 4;
-    y = bullets(doc, p[bKey], M, y, CW);
+    doc.text(copy.keyBehaviors.toUpperCase(), M, y); y += 4;
+    y = bullets(doc, (pLocalized ?? p)[bKey], M, y, CW);
 
     doc.setDrawColor(241, 245, 249); doc.setLineWidth(0.5);
     doc.line(M, y, PW - M, y); y += 7;
   });
 
-  pftr(doc, pageNum, 15);
-}
-
-// ─── Page 7 — Job Fit (stub) ─────────────────────────────────────────────────
-function p7JobFit(doc: jsPDF, data: ComprehensiveReportData) {
-  phdr(doc, data.candidateName, data.reportId);
-  let y = CT + 2;
-  doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Job Fit Analysis", M, y); y += 12;
-
-  doc.setFillColor(254, 252, 232); doc.rect(M, y, CW, 20, "F");
-  doc.setDrawColor(245, 158, 11); doc.setLineWidth(0.5); doc.rect(M, y, CW, 20, "S");
-  doc.setFontSize(8.5); doc.setFont("helvetica", "bold"); doc.setTextColor(92, 62, 0);
-  doc.text("Phase 2 Feature — Role Benchmarking", M + 5, y + 8);
-  doc.setFont("helvetica", "normal"); doc.setTextColor(120, 88, 10);
-  doc.text("Job Fit scoring requires role-level competency benchmarks, currently in development.", M + 5, y + 15);
-  y += 28;
-
-  y = secHead(doc, "CANDIDATE COMPETENCY PROFILE OVERVIEW", y);
-  doc.setFontSize(8.5); doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
-  const text = `When role benchmarks are available, this page will compare ${data.candidateName}'s individual competency scores against the minimum, target, and exceptional benchmarks for the specific role. This enables a precise fit score — going beyond overall average to surface which specific role-critical competencies are strong, aligned, or at risk.`;
-  ww(doc, text, M, y, CW);
-
-  pftr(doc, 7, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 8 — Strengths ──────────────────────────────────────────────────────
-function p8Strengths(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[]) {
+function p8Strengths(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Strengths Profile", M, y); y += 12;
+  doc.text(copy.strengthsProfile, M, y); y += 12;
 
   const highs = [...comps].sort((a, b) => b.score - a.score).filter(c => c.score >= 60).slice(0, 6);
   if (highs.length === 0) {
     doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(148, 163, 184);
-    doc.text("Insufficient data to determine strength profile. More assessments required.", M, y);
-    pftr(doc, 8, 15); return;
+    doc.text(copy.insufficientStrengths, M, y);
+    pftr(doc, pageNum); return;
   }
 
   highs.forEach(c => {
     if (y > 265) return;
-    const p = c.phrases;
+    const p = phraseFor(c, locale);
     const [cr, cg, cb] = scoreRGB(c.score);
     doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-    doc.text(`${BANK[c.name]?.label ?? c.name}`, M, y);
+    doc.text(competencyLabel(c, locale), M, y);
     doc.setTextColor(cr, cg, cb);
     doc.text(`${c.score}`, PW - M, y, { align: "right" });
     y += 5;
@@ -821,28 +1065,30 @@ function p8Strengths(doc: jsPDF, data: ComprehensiveReportData, comps: Competenc
     doc.setDrawColor(241, 245, 249); doc.setLineWidth(0.4); doc.line(M, y, PW - M, y); y += 8;
   });
 
-  pftr(doc, 8, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 9 — Development Areas ──────────────────────────────────────────────
-function p9Development(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[]) {
+function p9Development(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Development Areas", M, y); y += 12;
+  doc.text(copy.developmentAreas, M, y); y += 12;
 
   const lows = [...comps].sort((a, b) => a.score - b.score).filter(c => c.score < 75).slice(0, 6);
   if (lows.length === 0) {
     doc.setFontSize(9); doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
-    doc.text(`${data.candidateName.split(" ")[0]} achieved strong scores across all assessed competencies. No significant development areas identified.`, M, y);
-    pftr(doc, 9, 15); return;
+    doc.text(copy.noDevelopmentAreas(data.candidateName.split(" ")[0] || data.candidateName), M, y);
+    pftr(doc, pageNum); return;
   }
 
   lows.forEach(c => {
     if (y > 265) return;
-    const p = c.phrases;
+    const p = phraseFor(c, locale);
     doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-    doc.text(`${BANK[c.name]?.label ?? c.name}`, M, y);
+    doc.text(competencyLabel(c, locale), M, y);
     const [cr, cg, cb] = scoreRGB(c.score);
     doc.setTextColor(cr, cg, cb);
     doc.text(`${c.score}`, PW - M, y, { align: "right" });
@@ -850,56 +1096,59 @@ function p9Development(doc: jsPDF, data: ComprehensiveReportData, comps: Compete
     hBar(doc, M, y, CW - 10, c.score); y += 8;
     if (p) {
       doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(100, 116, 139);
-      doc.text("COACHING RECOMMENDATION", M, y); y += 5;
+      doc.text(copy.coachingRecommendation.toUpperCase(), M, y); y += 5;
       y = ww(doc, p.coaching, M, y, CW, 8.5, "normal", [30, 41, 59]);
     }
     doc.setDrawColor(241, 245, 249); doc.setLineWidth(0.4); doc.line(M, y, PW - M, y); y += 8;
   });
 
-  pftr(doc, 9, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 10 — Hiring Insights ───────────────────────────────────────────────
-function p10Hiring(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: RecResult, comps: CompetencyItem[]) {
+function p10Hiring(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: RecResult, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Hiring Insights", M, y); y += 12;
+  doc.text(copy.hiringInsights, M, y); y += 12;
 
   const [sr, sg, sb] = rec.rgb;
   doc.setFillColor(sr, sg, sb);
   doc.rect(M, y, CW, 14, "F");
   doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
-  doc.text(`Recommendation: ${rec.label}`, M + 5, y + 9);
+  doc.text(`${locale === "es" ? "Evidencia de evaluacion" : "Assessment evidence"}: ${rec.label}`, M + 5, y + 9);
   doc.setFontSize(8); doc.setFont("helvetica", "normal");
-  doc.text(`Overall Score: ${avg} / 100`, PW - M - 5, y + 9, { align: "right" });
+  doc.text(`${copy.assessmentAverage}: ${avg} / 100`, PW - M - 5, y + 9, { align: "right" });
   y += 20;
 
   y = ww(doc, rec.narrative, M, y, CW, 8.5, "normal", [30, 41, 59]);
   y += 8;
 
-  y = secHead(doc, "RISK FACTORS TO EXPLORE", y);
+  y = secHead(doc, copy.riskFactors.toUpperCase(), y);
   const risks = comps.filter(c => c.score < 60);
   if (risks.length === 0) {
-    y = ww(doc, "No significant risk factors identified. All completed assessments scored above the caution threshold.", M, y, CW, 8.5, "italic", [71, 85, 105]);
+    y = ww(doc, copy.noRisks, M, y, CW, 8.5, "italic", [71, 85, 105]);
   } else {
     risks.forEach(c => {
+      const p = phraseFor(c, locale);
       if (y > 272) return;
       const [cr, cg, cb] = scoreRGB(c.score);
       doc.setFillColor(cr, cg, cb);
       doc.circle(M + 1.5, y - 1.3, 0.9, "F");
       doc.setFontSize(8.5); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-      doc.text(`${BANK[c.name]?.label ?? c.name} (${c.score})`, M + 5, y);
+      doc.text(`${competencyLabel(c, locale)} (${c.score})`, M + 5, y);
       doc.setFont("helvetica", "normal"); doc.setTextColor(71, 85, 105);
       const wKey = c.t === "high" ? "wh" : c.t === "mid" ? "wm" : "wl";
-      const wl = doc.splitTextToSize(c.phrases ? c.phrases[wKey] : "", CW - 5) as string[];
+      const wl = doc.splitTextToSize(p ? p[wKey] : "", CW - 5) as string[];
       doc.text(wl, M + 5, y + 4);
       y += wl.length * 3.7 + 8;
     });
   }
 
   y += 4;
-  y = secHead(doc, "ONBOARDING RECOMMENDATIONS", y);
+  y = secHead(doc, copy.followUpFocus.toUpperCase(), y);
   const catCounts: Record<string, { total: number; avgScore: number }> = {};
   comps.forEach(c => {
     const cat = getCategory(c.name);
@@ -910,34 +1159,38 @@ function p10Hiring(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: 
   const suggestions: string[] = [];
   Object.entries(catCounts).forEach(([cat, { total, avgScore }]) => {
     const catAvg = Math.round(avgScore / total);
-    if (catAvg < 60) suggestions.push(`Prioritize ${cat.toLowerCase()} skill development through structured onboarding.`);
-    else if (catAvg >= 80) suggestions.push(`Leverage strong ${cat.toLowerCase()} skills early — assign tasks that utilize this strength from day one.`);
+    const catLabel = categoryDisplay(cat, locale).toLowerCase();
+    if (catAvg < 60) suggestions.push(locale === "es" ? `Explore evidencia de ${catLabel} en una entrevista estructurada y solicite ejemplos concretos de trabajo previo.` : `Explore ${catLabel} evidence in a structured interview and request concrete examples from prior work.`);
+    else if (catAvg >= 80) suggestions.push(locale === "es" ? `Valide la senal fuerte en ${catLabel} con preguntas especificas del rol o muestras de trabajo.` : `Validate the strong ${catLabel} signal with role-specific interview questions or work samples.`);
   });
-  if (suggestions.length === 0) suggestions.push("Standard onboarding program is appropriate. Assign a buddy or mentor for the first 30 days.");
+  if (suggestions.length === 0) suggestions.push(copy.positiveReviewDefault);
   bullets(doc, suggestions, M, y, CW);
 
-  pftr(doc, 10, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 11 — Interview Guide ───────────────────────────────────────────────
-function p11Interview(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[]) {
+function p11Interview(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Interview Question Guide", M, y); y += 8;
+  doc.text(copy.interviewGuide, M, y); y += 8;
   doc.setFontSize(8); doc.setFont("helvetica", "normal"); doc.setTextColor(100, 116, 139);
-  doc.text("Behavioral questions targeting each assessed competency, tailored to score tier.", M, y); y += 10;
+  doc.text(copy.interviewGuideSubtitle, M, y); y += 10;
 
   const priority = [...comps].sort((a, b) => a.score - b.score);
   priority.slice(0, Math.min(5, priority.length)).forEach(c => {
-    if (y > 265 || !c.phrases) return;
+    const p = phraseFor(c, locale);
+    if (y > 265 || !p) return;
     const [cr, cg, cb] = scoreRGB(c.score);
     doc.setFillColor(cr, cg, cb);
     doc.rect(M, y, 3, 8, "F");
     doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-    doc.text(`${BANK[c.name]?.label ?? c.name}  ·  Score: ${c.score}`, M + 6, y + 6);
+    doc.text(`${competencyLabel(c, locale)}  ·  ${copy.score}: ${c.score}`, M + 6, y + 6);
     y += 11;
-    c.phrases.questions.forEach((q, qi) => {
+    p.questions.forEach((q, qi) => {
       if (y > 272) return;
       doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(100, 116, 139);
       doc.text(`Q${qi + 1}`, M, y + 3.5);
@@ -949,62 +1202,20 @@ function p11Interview(doc: jsPDF, data: ComprehensiveReportData, comps: Competen
     doc.setDrawColor(241, 245, 249); doc.setLineWidth(0.4); doc.line(M, y, PW - M, y); y += 7;
   });
 
-  pftr(doc, 11, 15);
-}
-
-// ─── Page 12 — Development Plan ──────────────────────────────────────────────
-function p12DevPlan(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[]) {
-  phdr(doc, data.candidateName, data.reportId);
-  let y = CT + 2;
-  doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("90-Day Development Plan", M, y); y += 12;
-
-  const phases = [
-    { label: "Days 1–30: Foundation", color: [59, 130, 246] as [number, number, number] },
-    { label: "Days 31–60: Acceleration", color: [245, 158, 11] as [number, number, number] },
-    { label: "Days 61–90: Integration", color: [16, 185, 129] as [number, number, number] },
-  ];
-
-  const devComps = comps.filter(c => c.score < 75).sort((a, b) => a.score - b.score);
-  const strengthComps = comps.filter(c => c.score >= 75).sort((a, b) => b.score - a.score);
-
-  phases.forEach(({ label, color }, pi) => {
-    if (y > 260) return;
-    doc.setFillColor(...color); doc.rect(M, y, 3, 8, "F");
-    doc.setFontSize(9); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-    doc.text(label, M + 6, y + 6); y += 12;
-
-    const phaseItems: string[] = [];
-    if (pi === 0) {
-      if (devComps[0]) phaseItems.push(`Focus on ${BANK[devComps[0].name]?.label ?? devComps[0].name}: ${devComps[0].phrases?.coaching ?? "Seek structured coaching and development resources."}`);
-      if (devComps[1]) phaseItems.push(`Begin structured practice in ${BANK[devComps[1].name]?.label ?? devComps[1].name} with weekly check-ins.`);
-      phaseItems.push("Complete role-specific onboarding and establish baseline performance targets.");
-    } else if (pi === 1) {
-      if (devComps[2]) phaseItems.push(`Address ${BANK[devComps[2].name]?.label ?? devComps[2].name} development through targeted assignments.`);
-      if (strengthComps[0]) phaseItems.push(`Leverage ${BANK[strengthComps[0].name]?.label ?? strengthComps[0].name} strength through visible team contributions.`);
-      phaseItems.push("Mid-point performance review with line manager — adjust development focus based on observed progress.");
-    } else {
-      phaseItems.push("Apply all developed skills in a complex cross-functional project or stretch assignment.");
-      if (strengthComps[1]) phaseItems.push(`Take on a mentoring or leading role in ${BANK[strengthComps[1].name]?.label ?? strengthComps[1].name}-related work.`);
-      phaseItems.push("90-day review: assess progress against development goals and set 6-month targets.");
-    }
-
-    y = bullets(doc, phaseItems, M, y, CW);
-    y += 5;
-  });
-
-  pftr(doc, 12, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 13 — Assessment Details ────────────────────────────────────────────
-function p13Details(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[]) {
+function p13Details(doc: jsPDF, data: ComprehensiveReportData, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Assessment Details", M, y); y += 12;
+  doc.text(locale === "es" ? "Detalle de evaluaciones" : "Assessment Details", M, y); y += 12;
 
   const colW = [CW * 0.42, CW * 0.15, CW * 0.15, CW * 0.14, CW * 0.14];
-  const headers = ["Assessment", "Score", "Tier", "Category", "Completed"];
+  const headers = [locale === "es" ? "Evaluacion" : "Assessment", copy.score, copy.tier, copy.category, copy.completed];
   doc.setFillColor(248, 250, 252); doc.rect(M, y, CW, 8, "F");
   doc.setFontSize(7.5); doc.setFont("helvetica", "bold"); doc.setTextColor(71, 85, 105);
   let cx = M;
@@ -1016,11 +1227,11 @@ function p13Details(doc: jsPDF, data: ComprehensiveReportData, comps: Competency
     if (ci % 2 === 0) { doc.setFillColor(248, 250, 252); doc.rect(M, y, CW, 8, "F"); }
     const [cr, cg, cb] = scoreRGB(c.score);
     const vals = [
-      c.name.length > 28 ? c.name.slice(0, 27) + "…" : c.name,
+      displayAssessmentName(c.name, locale).length > 28 ? displayAssessmentName(c.name, locale).slice(0, 27) + "…" : displayAssessmentName(c.name, locale),
       `${c.score}`,
-      c.t.charAt(0).toUpperCase() + c.t.slice(1),
-      getCategory(c.name),
-      new Date(c.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+      tierDisplay(c.t, locale),
+      categoryDisplay(getCategory(c.name), locale),
+      new Date(c.completedAt).toLocaleDateString(locale === "es" ? "es-ES" : "en-US", { month: "short", day: "numeric", year: "numeric" }),
     ];
     doc.setFontSize(7.5); doc.setFont("helvetica", "normal"); doc.setTextColor(30, 41, 59);
     cx = M;
@@ -1035,12 +1246,12 @@ function p13Details(doc: jsPDF, data: ComprehensiveReportData, comps: Competency
 
   y += 8;
   doc.setFontSize(8.5); doc.setFont("helvetica", "bold"); doc.setTextColor(100, 116, 139);
-  doc.text("SCORE RANGE REFERENCE", M, y); y += 6;
+  doc.text(copy.scoreRangeReference.toUpperCase(), M, y); y += 6;
   const ranges = [
-    [16, 185, 129, "80–100 — High (Strength)"],
-    [59, 130, 246, "65–79 — Above Average"],
-    [245, 158, 11, "50–64 — Developing"],
-    [239, 68, 68, "0–49 — Needs Focus"],
+    [16, 185, 129, locale === "es" ? "80-100 - Alto (fortaleza)" : "80-100 - High (Strength)"],
+    [59, 130, 246, locale === "es" ? "65-79 - Sobre el promedio" : "65-79 - Above Average"],
+    [245, 158, 11, locale === "es" ? "50-64 - En desarrollo" : "50-64 - Developing"],
+    [239, 68, 68, locale === "es" ? "0-49 - Requiere foco" : "0-49 - Needs Focus"],
   ] as [number, number, number, string][];
   ranges.forEach(([r, g, b, lbl]) => {
     doc.setFillColor(r, g, b); doc.rect(M, y, 3, 3, "F");
@@ -1048,23 +1259,24 @@ function p13Details(doc: jsPDF, data: ComprehensiveReportData, comps: Competency
     doc.text(lbl, M + 5, y + 2.5); y += 7;
   });
 
-  pftr(doc, 13, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 14 — Methodology ───────────────────────────────────────────────────
-function p14Method(doc: jsPDF, data: ComprehensiveReportData) {
+function p14Method(doc: jsPDF, data: ComprehensiveReportData, pageNum: number) {
+  const copy = copyOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Methodology & Interpretation Guide", M, y); y += 12;
+  doc.text(copy.methodology, M, y); y += 12;
 
   const sections: [string, string][] = [
-    ["Assessment Design", "Each assessment within the Intelligences Test Platform is designed using validated psychometric principles. Items are calibrated to measure specific cognitive, behavioral, and personality constructs using a combination of forced-choice, situational, and ability-based question formats."],
-    ["Scoring", "Scores are reported on a standardized 0–100 scale. For assessments with a fixed number of items (e.g., Critical Thinking, Numerical Reasoning), scores represent the percentage of correct responses. For behavioral and personality assessments, scores represent profile alignment with high-performance benchmarks."],
-    ["Score Tiers", "High (80–100): A demonstrable strength with observable workplace impact. Above Average (65–79): Solid competency that can be leveraged immediately. Developing (50–64): Adequate foundation; targeted development will build this area. Needs Focus (0–49): A meaningful gap requiring structured development before the role demands this competency at full capacity."],
-    ["Recommendation Tiers", "Strong Hire (≥85): Exceptional profile — proceed confidently. Hire (70–84): Strong candidate — proceed to interview. Consider (55–69): Moderate fit — targeted interview recommended. Caution (40–54): Significant gaps — proceed carefully. Not Recommended (<40): Material gaps identified — not recommended for this role at this time."],
-    ["Confidence Level", "Confidence reflects the breadth of the assessment battery completed. High confidence: 6+ assessments. Moderate confidence: 3–5 assessments. Low confidence: 1–2 assessments. Scores from a narrow battery should be interpreted as partial indicators rather than complete profiles."],
-    ["Important Limitations", "Assessment data is one input among many in a hiring decision. This report should be reviewed alongside structured interviews, reference checks, work sample tests, and other relevant data. Assessment scores do not guarantee job performance and should not be the sole basis for any employment decision."],
+    [copy.assessmentScope, copy.assessmentScopeBody],
+    [copy.scoring, copy.scoringBody],
+    [copy.scoreTiers, copy.scoreTiersBody],
+    [copy.evidenceTiers, copy.evidenceTiersBody],
+    [copy.confidenceLevel, localeOf(data) === "es" ? "La confianza refleja la amplitud de la bateria completada. Alta: 6+ evaluaciones. Moderada: 3-5 evaluaciones. Baja: 1-2 evaluaciones. Una bateria reducida debe interpretarse como indicadores parciales, no como un perfil completo." : "Confidence reflects the breadth of the assessment battery completed. High confidence: 6+ assessments. Moderate confidence: 3-5 assessments. Low confidence: 1-2 assessments. Scores from a narrow battery should be interpreted as partial indicators rather than complete profiles."],
+    [copy.importantLimitations, copy.importantLimitationsBody],
   ];
 
   sections.forEach(([title, content]) => {
@@ -1075,15 +1287,17 @@ function p14Method(doc: jsPDF, data: ComprehensiveReportData) {
     y += 7;
   });
 
-  pftr(doc, 14, 15);
+  pftr(doc, pageNum);
 }
 
 // ─── Page 15 — Final Recommendation ─────────────────────────────────────────
-function p15Final(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: RecResult, comps: CompetencyItem[]) {
+function p15Final(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: RecResult, comps: CompetencyItem[], pageNum: number) {
+  const copy = copyOf(data);
+  const locale = localeOf(data);
   phdr(doc, data.candidateName, data.reportId);
   let y = CT + 2;
   doc.setFontSize(14); doc.setFont("helvetica", "bold"); doc.setTextColor(15, 23, 42);
-  doc.text("Final Recommendation", M, y); y += 12;
+  doc.text(copy.finalSummary, M, y); y += 12;
 
   // Large recommendation box
   const [sr, sg, sb] = rec.rgb;
@@ -1092,14 +1306,14 @@ function p15Final(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: R
   doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.setTextColor(255, 255, 255);
   doc.text(rec.label.toUpperCase(), M + CW / 2, y + 14, { align: "center" });
   doc.setFontSize(10); doc.setFont("helvetica", "normal");
-  doc.text(`Overall Score: ${avg} / 100  ·  Assessments: ${comps.length}  ·  ${data.reportDate}`, M + CW / 2, y + 23, { align: "center" });
+  doc.text(`${copy.assessmentAverage}: ${avg} / 100  ·  ${locale === "es" ? "Evaluaciones" : "Assessments"}: ${comps.length}  ·  ${data.reportDate}`, M + CW / 2, y + 23, { align: "center" });
   y += 36;
 
   y = ww(doc, rec.narrative, M, y, CW, 9, "normal", [15, 23, 42]);
   y += 10;
 
   // Competency summary bars
-  y = secHead(doc, "COMPETENCY PROFILE SUMMARY", y);
+  y = secHead(doc, copy.competencyProfileSummary.toUpperCase(), y);
   const sorted = [...comps].sort((a, b) => b.score - a.score);
   const halfLen = Math.ceil(sorted.length / 2);
   const col1 = sorted.slice(0, halfLen);
@@ -1107,12 +1321,12 @@ function p15Final(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: R
   const colW2 = (CW - 8) / 2;
   const startY = y;
   col1.forEach(c => {
-    hBar(doc, M, y + 2, colW2 - 10, c.score, BANK[c.name]?.label ?? c.name);
+    hBar(doc, M, y + 2, colW2 - 10, c.score, competencyLabel(c, locale));
     y += 11;
   });
   y = startY;
   col2.forEach(c => {
-    hBar(doc, M + colW2 + 8, y + 2, colW2 - 10, c.score, BANK[c.name]?.label ?? c.name);
+    hBar(doc, M + colW2 + 8, y + 2, colW2 - 10, c.score, competencyLabel(c, locale));
     y += 11;
   });
   y += Math.max(col1.length, col2.length) * 11 - Math.min(col1.length, col2.length) * 11 + 15;
@@ -1121,74 +1335,87 @@ function p15Final(doc: jsPDF, data: ComprehensiveReportData, avg: number, rec: R
   doc.setFillColor(248, 250, 252); doc.rect(M, y, CW, 28, "F");
   doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.3); doc.rect(M, y, CW, 28, "S");
   doc.setFontSize(8.5); doc.setFont("helvetica", "bold"); doc.setTextColor(30, 41, 59);
-  doc.text("Authorized Reviewer Signoff", M + 5, y + 9);
+  doc.text(copy.authorizedSignoff, M + 5, y + 9);
   doc.setFont("helvetica", "normal"); doc.setTextColor(148, 163, 184);
-  doc.text("Reviewer Name: ___________________________________", M + 5, y + 18);
-  doc.text("Signature: __________________________   Date: ______________", M + 5, y + 25);
+  doc.text(locale === "es" ? "Nombre del revisor: ___________________________________" : "Reviewer Name: ___________________________________", M + 5, y + 18);
+  doc.text(copy.signature, M + 5, y + 25);
 
-  pftr(doc, 15, 15);
+  pftr(doc, pageNum);
+}
+
+const CATEGORY_SECTIONS = ["Cognitive", "Personality", "EQ", "Interpersonal", "Professional"] as const;
+
+function normalizeAssessments(assessments: AssessmentScore[]): AssessmentScore[] {
+  const seen = new Set<string>();
+  return assessments
+    .filter((assessment) => assessment.name && Number.isFinite(assessment.score))
+    .map((assessment) => ({
+      ...assessment,
+      score: Math.max(0, Math.min(100, Math.round(assessment.score))),
+    }))
+    .filter((assessment) => {
+      const key = `${assessment.name}:${assessment.completedAt}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 }
 
 // ─── Main export ─────────────────────────────────────────────────────────────
 export function downloadComprehensiveReport(data: ComprehensiveReportData): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  activeReportLocale = localeOf(data);
+  const completedAssessments = normalizeAssessments(data.assessments);
+  const reportData: ComprehensiveReportData = { ...data, locale: activeReportLocale, assessments: completedAssessments };
 
-  const avg = data.assessments.length
-    ? Math.round(data.assessments.reduce((s, a) => s + a.score, 0) / data.assessments.length)
+  const avg = completedAssessments.length
+    ? Math.round(completedAssessments.reduce((s, a) => s + a.score, 0) / completedAssessments.length)
     : 0;
-  const rec = recTier(avg, data.candidateName.split(" ")[0] || data.candidateName);
+  const rec = recTier(avg, reportData.candidateName.split(" ")[0] || reportData.candidateName, activeReportLocale);
 
-  const comps: CompetencyItem[] = data.assessments.map(a => ({
+  const comps: CompetencyItem[] = completedAssessments.map(a => ({
     ...a,
     phrases: BANK[a.name],
     t: tier(a.score),
   }));
+  const activeCategories = CATEGORY_SECTIONS.filter((category) => comps.some(c => getCategory(c.name) === category));
+  reportPageTotal = 3 + activeCategories.length + 7;
 
   // Page 1 — Cover (no header/footer)
-  p1Cover(doc, data, avg, rec);
+  p1Cover(doc, reportData, avg, rec);
 
   // Page 2 — Executive Summary
-  doc.addPage(); p2Executive(doc, data, avg, rec, comps);
+  let pageNum = 2;
+  doc.addPage(); p2Executive(doc, reportData, avg, rec, comps, pageNum++);
 
   // Page 3 — Competency Dashboard
-  doc.addPage(); p3Dashboard(doc, data, avg, comps);
+  doc.addPage(); p3Dashboard(doc, reportData, avg, comps, pageNum++);
 
-  // Page 4 — Cognitive
-  doc.addPage(); categoryPage(doc, data, comps, "Cognitive", "Cognitive Ability", 4);
-
-  // Page 5 — Personality
-  doc.addPage(); categoryPage(doc, data, comps, "Personality", "Personality Profile", 5);
-
-  // Page 6 — EQ / Behavioral
-  doc.addPage(); categoryPage(doc, data, comps, "EQ", "Emotional & Behavioral Intelligence", 6);
-
-  // Page 7 — Job Fit stub
-  doc.addPage(); p7JobFit(doc, data);
+  activeCategories.forEach((category) => {
+    doc.addPage(); categoryPage(doc, reportData, comps, category, categoryDisplay(category, activeReportLocale), pageNum++);
+  });
 
   // Page 8 — Strengths
-  doc.addPage(); p8Strengths(doc, data, comps);
+  doc.addPage(); p8Strengths(doc, reportData, comps, pageNum++);
 
   // Page 9 — Development Areas
-  doc.addPage(); p9Development(doc, data, comps);
+  doc.addPage(); p9Development(doc, reportData, comps, pageNum++);
 
   // Page 10 — Hiring Insights
-  doc.addPage(); p10Hiring(doc, data, avg, rec, comps);
+  doc.addPage(); p10Hiring(doc, reportData, avg, rec, comps, pageNum++);
 
   // Page 11 — Interview Guide
-  doc.addPage(); p11Interview(doc, data, comps);
-
-  // Page 12 — Development Plan
-  doc.addPage(); p12DevPlan(doc, data, comps);
+  doc.addPage(); p11Interview(doc, reportData, comps, pageNum++);
 
   // Page 13 — Assessment Details
-  doc.addPage(); p13Details(doc, data, comps);
+  doc.addPage(); p13Details(doc, reportData, comps, pageNum++);
 
   // Page 14 — Methodology
-  doc.addPage(); p14Method(doc, data);
+  doc.addPage(); p14Method(doc, reportData, pageNum++);
 
   // Page 15 — Final Recommendation
-  doc.addPage(); p15Final(doc, data, avg, rec, comps);
+  doc.addPage(); p15Final(doc, reportData, avg, rec, comps, pageNum++);
 
-  const safeName = data.candidateName.replace(/[^a-zA-Z0-9]+/g, "_");
-  doc.save(`${safeName}_Comprehensive_Report_${data.reportId}.pdf`);
+  const safeName = reportData.candidateName.replace(/[^a-zA-Z0-9]+/g, "_");
+  doc.save(`${safeName}_Assessment_Report_${reportData.reportId}.pdf`);
 }

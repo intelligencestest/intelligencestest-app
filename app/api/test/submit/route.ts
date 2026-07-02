@@ -41,6 +41,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
   }
 
+  const { data: projectAssessments } = await supabase
+    .from("project_assessments")
+    .select("assessment_id")
+    .eq("project_id", candidate.project_id);
+
+  const assignedAssessmentIds = new Set((projectAssessments ?? []).map((row) => row.assessment_id));
+  if (assignedAssessmentIds.size > 0 && !assignedAssessmentIds.has(assessment.id)) {
+    return NextResponse.json({ error: "Assessment is not assigned to this candidate" }, { status: 403 });
+  }
+
+  const { data: existingResult } = await supabase
+    .from("results")
+    .select("id")
+    .eq("candidate_id", candidate.id)
+    .eq("assessment_id", assessment.id)
+    .maybeSingle();
+
+  if (existingResult) {
+    return NextResponse.json({ error: "Assessment already submitted" }, { status: 409 });
+  }
+
   // Save the result
   const { error: resultError } = await supabase.from("results").insert({
     company_id: candidate.company_id,
@@ -56,11 +77,33 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to save result" }, { status: 500 });
   }
 
-  // Update candidate status + pipeline stage
+  const { data: completedResults } = await supabase
+    .from("results")
+    .select("assessment_id")
+    .eq("candidate_id", candidate.id)
+    .eq("project_id", candidate.project_id);
+
+  const completedAssessmentIds = new Set((completedResults ?? []).map((row) => row.assessment_id));
+  const hasAssignmentList = assignedAssessmentIds.size > 0;
+  const allAssignedAssessmentsComplete = hasAssignmentList
+    ? [...assignedAssessmentIds].every((id) => completedAssessmentIds.has(id))
+    : true;
+
+  // Update candidate status + pipeline stage only when the assigned battery is complete.
   await supabase
     .from("candidates")
-    .update({ status: "completed", pipeline_stage: "completed", stage_changed_at: new Date().toISOString() })
+    .update({
+      status: allAssignedAssessmentsComplete ? "completed" : "started",
+      pipeline_stage: allAssignedAssessmentsComplete ? "completed" : "started",
+      stage_changed_at: new Date().toISOString(),
+    })
     .eq("id", candidate.id);
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({
+    success: true,
+    all_assessments_completed: allAssignedAssessmentsComplete,
+    remaining_assessment_count: hasAssignmentList
+      ? Math.max(assignedAssessmentIds.size - completedAssessmentIds.size, 0)
+      : 0,
+  });
 }

@@ -36,6 +36,7 @@ export default function ExportPdfButton(props: ExportPdfButtonProps) {
         }),
         reportId: `RPT-${props.candidateId.slice(0, 8).toUpperCase()}`,
         assessments: props.assessments,
+        locale: locale === "en" ? "en" : "es",
       };
       downloadComprehensiveReport(data);
     } catch {
