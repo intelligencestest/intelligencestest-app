@@ -15,6 +15,14 @@ const SEVERITY = {
 
 type Severity = keyof typeof SEVERITY;
 
+// Stage colors mirror the candidate status chips used across the app.
+const STAGE = {
+  completed: "bg-emerald-400",
+  started: "bg-blue-400",
+  invited: "bg-amber-400",
+  expired: "bg-slate-600",
+} as const;
+
 type CandidateRow = {
   id: string;
   full_name: string;
@@ -33,6 +41,24 @@ type ResultRow = {
   candidates: { full_name: string } | null;
   assessments: { name: string } | null;
 };
+
+function median(xs: number[]): number | null {
+  if (xs.length === 0) return null;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
+}
+
+function relativeTime(ts: number, nowMs: number, locale: string): string {
+  const rtf = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
+  const mins = Math.round((ts - nowMs) / 60000);
+  if (Math.abs(mins) < 60) return rtf.format(mins, "minute");
+  const hours = Math.round(mins / 60);
+  if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
+  const days = Math.round(hours / 24);
+  if (Math.abs(days) <= 7) return rtf.format(days, "day");
+  return new Date(ts).toLocaleDateString(locale, { month: "short", day: "numeric" });
+}
 
 function AttnIcon({ kind }: { kind: string }) {
   const paths: Record<string, string> = {
@@ -75,6 +101,7 @@ export default async function DashboardPage() {
     { count: resultsThisWeek },
     { count: resultsPrevWeek },
     { data: recentCompletions },
+    { data: projectScores },
   ] = await Promise.all([
     admin
       .from("candidates")
@@ -110,6 +137,11 @@ export default async function DashboardPage() {
       .eq("company_id", companyId)
       .gte("completed_at", weekAgo)
       .returns<{ candidate_id: string }[]>(),
+    admin
+      .from("results")
+      .select("project_id, score")
+      .eq("company_id", companyId)
+      .returns<{ project_id: string; score: number }[]>(),
   ]);
 
   const all = candidates ?? [];
@@ -130,26 +162,40 @@ export default async function DashboardPage() {
   );
   const toReview = new Set((recentCompletions ?? []).map((r) => r.candidate_id)).size;
 
-  const perProject = all.reduce<Record<string, { total: number; completed: number }>>((acc, c) => {
-    const bucket = (acc[c.project_id] ??= { total: 0, completed: 0 });
+  const perProject = all.reduce<
+    Record<string, { total: number; completed: number; started: number; invitedOpen: number; expired: number }>
+  >((acc, c) => {
+    const bucket = (acc[c.project_id] ??= { total: 0, completed: 0, started: 0, invitedOpen: 0, expired: 0 });
     bucket.total += 1;
     if (c.status === "completed") bucket.completed += 1;
+    else if (c.status === "started") bucket.started += 1;
+    else if (c.status === "invited") {
+      if (isExpired(c)) bucket.expired += 1;
+      else bucket.invitedOpen += 1;
+    }
+    return acc;
+  }, {});
+
+  const scoresByProject = (projectScores ?? []).reduce<Record<string, number[]>>((acc, r) => {
+    (acc[r.project_id] ??= []).push(r.score);
     return acc;
   }, {});
 
   const projectStats = activeProjects.map((p) => {
-    const stats = perProject[p.id] ?? { total: 0, completed: 0 };
+    const stats = perProject[p.id] ?? { total: 0, completed: 0, started: 0, invitedOpen: 0, expired: 0 };
     const pct = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
-    const daysLeft = p.deadline
-      ? Math.ceil((new Date(p.deadline).getTime() - nowMs) / DAY)
-      : null;
+    const daysLeft = p.deadline ? Math.ceil((new Date(p.deadline).getTime() - nowMs) / DAY) : null;
     const atRisk =
       stats.total > 0 && daysLeft !== null && (daysLeft < 0 || (daysLeft <= 7 && pct < 70));
-    return { ...p, ...stats, pct, daysLeft, atRisk };
+    const scores = scoresByProject[p.id] ?? [];
+    return { ...p, ...stats, pct, daysLeft, atRisk, medianScore: scores.length >= 3 ? median(scores) : null };
   });
   const atRiskProjects = projectStats
     .filter((p) => p.atRisk)
     .sort((a, b) => (a.daysLeft ?? 0) - (b.daysLeft ?? 0));
+  const sortedProjects = [...projectStats].sort(
+    (a, b) => (b.atRisk ? 1 : 0) - (a.atRisk ? 1 : 0) || (a.daysLeft ?? 9999) - (b.daysLeft ?? 9999)
+  );
 
   type AttnRow = {
     key: string;
@@ -257,22 +303,24 @@ export default async function DashboardPage() {
 
   (recentResults ?? []).forEach((r, i) => {
     if (!r.candidates || !r.assessments) return;
+    const ts = new Date(r.completed_at).getTime();
     activity.push({
       key: `r-${r.completed_at}-${i}`,
       message: t("activityCompleted", { name: r.candidates.full_name, assessment: r.assessments.name, score: r.score }),
-      time: new Date(r.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
-      href: "/reports", kind: "completed", ts: new Date(r.completed_at).getTime(),
+      time: relativeTime(ts, nowMs, dateLocale),
+      href: "/reports", kind: "completed", ts,
     });
   });
   [...all]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 8)
     .forEach((c) => {
+      const ts = new Date(c.created_at).getTime();
       activity.push({
         key: `c-${c.id}`,
         message: t("activityInvited", { name: c.full_name || t("unknown"), project: c.hiring_projects?.name ?? t("aProject") }),
-        time: new Date(c.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" }),
-        href: "/candidates", kind: "invited", ts: new Date(c.created_at).getTime(),
+        time: relativeTime(ts, nowMs, dateLocale),
+        href: "/candidates", kind: "invited", ts,
       });
     });
   activity.sort((a, b) => b.ts - a.ts);
@@ -425,47 +473,178 @@ export default async function DashboardPage() {
             ))}
           </section>
 
-          {/* Zone 6 — Recent activity */}
-          <section id="activity" className="premium-card overflow-hidden rounded-xl">
-            <div className="border-b border-[#1E2240] px-5 py-3.5">
-              <h2 className="text-sm font-semibold text-white">{t("activity")}</h2>
-            </div>
-            {activity.length === 0 ? (
-              <div className="px-6 py-12 text-center text-sm text-slate-400">{t("activityEmpty")}</div>
-            ) : (
-              <div className="divide-y divide-[#1E2240]">
-                {activity.slice(0, 8).map((item) => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className="flex items-start gap-4 px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30"
-                  >
-                    <span
-                      className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${
-                        item.kind === "completed"
-                          ? "bg-[#0ca30c]/10 text-[#3fbf3f] ring-[#0ca30c]/25"
-                          : "bg-[#3987e5]/10 text-[#6da7ec] ring-[#3987e5]/25"
-                      }`}
-                    >
-                      {item.kind === "completed" ? (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                      ) : (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5" />
-                        </svg>
-                      )}
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm leading-snug text-slate-300">{item.message}</span>
-                      <span className="mt-1 block text-xs text-slate-400">{item.time}</span>
-                    </span>
+          {/* Zone 4 — Active projects + Zone 6 — Activity rail */}
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:items-start">
+            <section className="space-y-4 xl:col-span-2">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-white">{t("activeProjectsTitle")}</h2>
+                {sortedProjects.length > 4 && (
+                  <Link href="/projects" className="text-[13px] font-medium text-[#8CB1FF] hover:underline">
+                    {t("viewAllProjects", { count: sortedProjects.length })} →
                   </Link>
-                ))}
+                )}
               </div>
-            )}
-          </section>
+
+              {sortedProjects.length === 0 ? (
+                <div className="premium-card rounded-xl p-8 text-center">
+                  <p className="text-sm font-medium text-slate-200">{t("noActiveProjects")}</p>
+                  <p className="mt-1 text-[13px] text-slate-400">{t("noActiveProjectsBody")}</p>
+                  <Link
+                    href="/projects/new"
+                    className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+                  >
+                    {t("newProject")}
+                  </Link>
+                </div>
+              ) : (
+                sortedProjects.slice(0, 4).map((p) => {
+                  const deadlineLabel =
+                    p.daysLeft === null
+                      ? t("deadlineNone")
+                      : p.daysLeft < 0
+                        ? t("deadlineOverdue", { days: Math.abs(p.daysLeft) })
+                        : p.daysLeft <= 14
+                          ? t("deadlineDays", { days: p.daysLeft })
+                          : t("deadlineDue", {
+                              date: new Date(p.deadline!).toLocaleDateString(dateLocale, { day: "numeric", month: "short" }),
+                            });
+                  const deadlineTone =
+                    p.daysLeft !== null && p.daysLeft < 0
+                      ? "text-[#ec835a]"
+                      : p.daysLeft !== null && p.daysLeft <= 7
+                        ? "text-[#fab219]"
+                        : "text-slate-400";
+                  const segments = [
+                    { key: "completed", count: p.completed, cls: STAGE.completed, label: t("stageCompleted"), status: "completed" },
+                    { key: "started", count: p.started, cls: STAGE.started, label: t("stageStarted"), status: "started" },
+                    { key: "invited", count: p.invitedOpen, cls: STAGE.invited, label: t("stageInvited"), status: "invited" },
+                    { key: "expired", count: p.expired, cls: STAGE.expired, label: t("stageExpired"), status: "invited" },
+                  ].filter((s) => s.count > 0);
+
+                  return (
+                    <article key={p.id} className="premium-card premium-card-hover rounded-xl p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <Link
+                            href={`/projects/${p.id}`}
+                            className="block truncate text-[15px] font-semibold text-white transition-colors hover:text-[#AFC7FF]"
+                          >
+                            {p.name}
+                          </Link>
+                          <p className={`mt-0.5 text-[13px] ${deadlineTone}`}>{deadlineLabel}</p>
+                        </div>
+                        {p.atRisk && (
+                          <span className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full bg-[#ec835a]/10 px-2.5 py-1 text-xs font-medium text-[#ec835a] ring-1 ring-[#ec835a]/25">
+                            <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M4.5 19.5h15L12 4.5l-7.5 15Z" />
+                            </svg>
+                            {t("atRiskBadge")}
+                          </span>
+                        )}
+                      </div>
+
+                      {p.total > 0 ? (
+                        <>
+                          <div
+                            className="mt-4 flex h-2.5 w-full gap-[3px]"
+                            role="img"
+                            aria-label={segments.map((s) => `${s.count} ${s.label}`).join(", ")}
+                          >
+                            {segments.map((s) => (
+                              <div
+                                key={s.key}
+                                className={`h-2.5 rounded-full ${s.cls}`}
+                                style={{ width: `${(s.count / p.total) * 100}%`, minWidth: "8px" }}
+                              />
+                            ))}
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5">
+                            {segments.map((s) => (
+                              <Link
+                                key={s.key}
+                                href={`/candidates?project=${p.id}&status=${s.status}`}
+                                className="inline-flex items-center gap-1.5 text-[13px] text-slate-400 transition-colors hover:text-slate-200"
+                              >
+                                <span className={`h-2 w-2 rounded-full ${s.cls}`} aria-hidden="true" />
+                                <span className="font-semibold text-slate-200">{s.count}</span> {s.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="mt-4 text-[13px] text-slate-400">{t("noCandidatesInProject")}</p>
+                      )}
+
+                      <div className="mt-4 flex items-center justify-between border-t border-[#1E2240] pt-3.5">
+                        <div className="flex items-center gap-3 text-[13px] text-slate-400">
+                          {p.total > 0 && <span>{t("completionShort", { pct: p.pct })}</span>}
+                          {p.medianScore !== null && (
+                            <>
+                              <span aria-hidden="true">·</span>
+                              <span>{t("medianScore", { score: p.medianScore })}</span>
+                            </>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <Link
+                            href={`/candidates?invite=1&project=${p.id}`}
+                            className="text-[13px] font-medium text-slate-300 transition-colors hover:text-white"
+                          >
+                            {t("inviteShort")}
+                          </Link>
+                          <Link href={`/projects/${p.id}`} className="text-[13px] font-medium text-[#8CB1FF] hover:underline">
+                            {t("openProject")} →
+                          </Link>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })
+              )}
+            </section>
+
+            {/* Zone 6 — Recent activity (rail) */}
+            <section id="activity" className="premium-card overflow-hidden rounded-xl">
+              <div className="border-b border-[#1E2240] px-4 py-3.5">
+                <h2 className="text-sm font-semibold text-white">{t("activity")}</h2>
+              </div>
+              {activity.length === 0 ? (
+                <div className="px-5 py-10 text-center text-[13px] text-slate-400">{t("activityEmpty")}</div>
+              ) : (
+                <div className="divide-y divide-[#1E2240]">
+                  {activity.slice(0, 8).map((item) => (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[#1E2240]/30"
+                    >
+                      <span
+                        className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${
+                          item.kind === "completed"
+                            ? "bg-[#0ca30c]/10 text-[#3fbf3f] ring-[#0ca30c]/25"
+                            : "bg-[#3987e5]/10 text-[#6da7ec] ring-[#3987e5]/25"
+                        }`}
+                      >
+                        {item.kind === "completed" ? (
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                          </svg>
+                        ) : (
+                          <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5" />
+                          </svg>
+                        )}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[13px] leading-snug text-slate-300">{item.message}</span>
+                        <span className="mt-0.5 block text-xs text-slate-400">{item.time}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </section>
+          </div>
         </>
       )}
     </div>

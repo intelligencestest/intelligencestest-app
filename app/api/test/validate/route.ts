@@ -45,6 +45,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "You have already completed this assessment" }, { status: 409 });
   }
 
+  // Opening a valid test link moves the candidate from invited to started.
+  if (candidate.status === "invited") {
+    await supabase
+      .from("candidates")
+      .update({ status: "started" })
+      .eq("id", candidate.id)
+      .eq("status", "invited");
+  }
+
   const { data: projectAssessments } = await supabase
     .from("project_assessments")
     .select("assessment_id, assessments(id, name, duration_minutes, question_count)")

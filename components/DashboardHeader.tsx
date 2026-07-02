@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function DashboardHeader() {
   const router = useRouter();
@@ -16,7 +17,8 @@ export default function DashboardHeader() {
   };
 
   return (
-    <div className="sticky top-0 z-20 flex h-11 items-center justify-end border-b border-[#1E2240] bg-[#07080F]/95 px-6 backdrop-blur-sm">
+    <div className="sticky top-0 z-20 flex h-12 items-center justify-end gap-3 border-b border-[#1E2240] bg-[#07080F]/95 px-6 backdrop-blur-sm">
+      <LanguageSwitcher showLabel={false} className="!shadow-none" />
       <button
         type="button"
         onClick={handleRefresh}

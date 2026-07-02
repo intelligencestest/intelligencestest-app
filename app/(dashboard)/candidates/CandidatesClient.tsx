@@ -194,7 +194,10 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
     if (status && ["invited", "started", "completed"].includes(status)) setStatusFilter(status);
     const project = params.get("project");
     if (project) setProjectFilter(project);
-    if (params.get("invite") === "1") setShowModal(true);
+    if (params.get("invite") === "1") {
+      if (project) setForm((f) => ({ ...f, project_id: project }));
+      setShowModal(true);
+    }
   }, []);
 
   const currentAssessments = projectAssessments[form.project_id] ?? [];
