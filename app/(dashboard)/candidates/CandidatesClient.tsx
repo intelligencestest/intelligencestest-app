@@ -187,6 +187,16 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
     return () => document.removeEventListener("keydown", handler);
   }, [showModal]);
 
+  // Deep links from the dashboard: ?status=, ?project=, ?invite=1
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get("status");
+    if (status && ["invited", "started", "completed"].includes(status)) setStatusFilter(status);
+    const project = params.get("project");
+    if (project) setProjectFilter(project);
+    if (params.get("invite") === "1") setShowModal(true);
+  }, []);
+
   const currentAssessments = projectAssessments[form.project_id] ?? [];
 
   const closeModal = () => {

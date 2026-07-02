@@ -1,367 +1,472 @@
 import Link from "next/link";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
-import { createAdminClient } from "@/lib/supabase-server";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
+import MorningGreeting from "./MorningGreeting";
+
+const DAY = 24 * 60 * 60 * 1000;
+
+// Status colors: fixed semantic palette (icon + label always accompany color).
+const SEVERITY = {
+  critical: { text: "text-[#e05252]", bg: "bg-[#d03b3b]/10", ring: "ring-[#d03b3b]/25" },
+  warning: { text: "text-[#fab219]", bg: "bg-[#fab219]/10", ring: "ring-[#fab219]/25" },
+  serious: { text: "text-[#ec835a]", bg: "bg-[#ec835a]/10", ring: "ring-[#ec835a]/25" },
+  info: { text: "text-[#6da7ec]", bg: "bg-[#3987e5]/10", ring: "ring-[#3987e5]/25" },
+} as const;
+
+type Severity = keyof typeof SEVERITY;
+
+type CandidateRow = {
+  id: string;
+  full_name: string;
+  status: string;
+  created_at: string;
+  token_expires_at: string | null;
+  project_id: string;
+  hiring_projects: { id: string; name: string } | null;
+};
+
+type ProjectRow = { id: string; name: string; status: string; deadline: string | null };
+
+type ResultRow = {
+  score: number;
+  completed_at: string;
+  candidates: { full_name: string } | null;
+  assessments: { name: string } | null;
+};
+
+function AttnIcon({ kind }: { kind: string }) {
+  const paths: Record<string, string> = {
+    review: "M9 12h6m-6 4h6M9 8h6m-9 12h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z",
+    expiring: "M12 8v4l2.5 2.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+    expired: "M9.75 9.75l4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+    stalled: "M10 9v6m4-6v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
+    project: "M3 21v-4m0 0V5a2 2 0 0 1 2-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 0 0-2 2Z",
+  };
+  return (
+    <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={paths[kind]} />
+    </svg>
+  );
+}
 
 export default async function DashboardPage() {
   const locale = await getLocale();
-  const es = locale === "es";
+  const t = await getTranslations("dashboard");
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   const admin = createAdminClient();
 
   const { data: profile } = await admin
     .from("users")
-    .select("company_id")
+    .select("company_id, full_name")
     .eq("id", user!.id)
     .single();
   const companyId = profile?.company_id;
+  const firstName = profile?.full_name?.split(" ")[0];
+
+  const nowMs = Date.now();
+  const weekAgo = new Date(nowMs - 7 * DAY).toISOString();
+  const twoWeeksAgo = new Date(nowMs - 14 * DAY).toISOString();
 
   const [
-    { count: totalCandidates },
-    { count: activeProjects },
-    { count: completedAssessments },
-    { data: scores },
-    { data: recentCandidates },
+    { data: candidates },
+    { data: projects },
     { data: recentResults },
+    { count: resultsThisWeek },
+    { count: resultsPrevWeek },
+    { data: recentCompletions },
   ] = await Promise.all([
-    admin.from("candidates").select("*", { count: "exact", head: true }).eq("company_id", companyId),
-    admin.from("hiring_projects").select("*", { count: "exact", head: true }).eq("company_id", companyId).eq("status", "active"),
-    admin.from("results").select("*", { count: "exact", head: true }).eq("company_id", companyId),
-    admin.from("results").select("score").eq("company_id", companyId),
-    admin.from("candidates").select("id, full_name, status, created_at, hiring_projects(name)").eq("company_id", companyId).order("created_at", { ascending: false }).limit(4).returns<{ id: string; full_name: string; status: string; created_at: string; hiring_projects: { name: string } | null }[]>(),
-    admin.from("results").select("score, completed_at, candidates(full_name), assessments(name)").eq("company_id", companyId).order("completed_at", { ascending: false }).limit(4).returns<{ score: number; completed_at: string; candidates: { full_name: string } | null; assessments: { name: string } | null }[]>(),
+    admin
+      .from("candidates")
+      .select("id, full_name, status, created_at, token_expires_at, project_id, hiring_projects(id, name)")
+      .eq("company_id", companyId)
+      .returns<CandidateRow[]>(),
+    admin
+      .from("hiring_projects")
+      .select("id, name, status, deadline")
+      .eq("company_id", companyId)
+      .returns<ProjectRow[]>(),
+    admin
+      .from("results")
+      .select("score, completed_at, candidates(full_name), assessments(name)")
+      .eq("company_id", companyId)
+      .order("completed_at", { ascending: false })
+      .limit(8)
+      .returns<ResultRow[]>(),
+    admin
+      .from("results")
+      .select("*", { count: "exact", head: true })
+      .eq("company_id", companyId)
+      .gte("completed_at", weekAgo),
+    admin
+      .from("results")
+      .select("*", { count: "exact", head: true })
+      .eq("company_id", companyId)
+      .gte("completed_at", twoWeeksAgo)
+      .lt("completed_at", weekAgo),
+    admin
+      .from("results")
+      .select("candidate_id")
+      .eq("company_id", companyId)
+      .gte("completed_at", weekAgo)
+      .returns<{ candidate_id: string }[]>(),
   ]);
 
-  const scoreTotal = scores?.length ?? 0;
-  const avgScore = scoreTotal && scores
-    ? Math.round(scores.reduce((sum: number, result: { score: number }) => sum + result.score, 0) / scoreTotal)
-    : 0;
-  const completionRate = totalCandidates ? Math.min(100, Math.round(((completedAssessments ?? 0) / totalCandidates) * 100)) : 0;
-  const dateLocale = es ? "es-ES" : "en-US";
+  const all = candidates ?? [];
+  const activeProjects = (projects ?? []).filter((p) => p.status === "active");
+  const dateLocale = locale === "es" ? "es-ES" : "en-US";
 
-  const copy = es
-    ? {
-        liveWorkspace: "Espacio de trabajo activo",
-        title: "Resumen del espacio de trabajo",
-        subtitle: "Vista en tiempo real de proyectos, participantes, resultados y actividad de evaluaciones en su organización.",
-        completionSignal: "Señal de finalización",
-        completed: "completadas",
-        participantRecords: "registros de participantes",
-        stats: {
-          participants: ["Participantes", "Registros totales del espacio"],
-          activeProjects: ["Proyectos activos", "Flujos de trabajo abiertos"],
-          completed: ["Completadas", "Evaluaciones enviadas"],
-          averageScore: ["Puntuación promedio", "Referencia general"],
-        },
-        startedTitle: "Comenzar",
-        startedBody: "Siga estos pasos para ejecutar su primer proyecto de evaluación.",
-        steps: [
-          { step: "1", title: "Crear un proyecto", desc: "Organice candidatos por rol, equipo o caso de uso." },
-          { step: "2", title: "Seleccionar evaluaciones", desc: "Elija pruebas de la biblioteca y agréguelas al proyecto." },
-          { step: "3", title: "Invitar candidatos", desc: "Comparta un enlace seguro, sin necesidad de crear cuentas." },
-        ],
-        firstProject: "Crear primer proyecto",
-        activityStream: "Actividad reciente",
-        latestUpdates: "Últimas actualizaciones",
-        noActivity: "Aún no hay actividad. Agregue participantes o complete una evaluación para ver novedades aquí.",
-        scoreBands: "Bandas de puntuación",
-        noResults: "Aún no hay resultados",
-        high: "Alta",
-        medium: "Media",
-        low: "Baja",
-        projectFlow: "Flujo del proyecto",
-        added: "Agregados",
-        topResults: "Mejores resultados",
-        unknown: "Sin nombre",
-        projectFallback: "un proyecto",
-        completedMessage: (name: string, assessment: string, score: number) => `${name} completó ${assessment} con una puntuación de ${score}`,
-        invitedMessage: (name: string, project: string) => `${name} fue agregado/a a ${project}`,
-      }
-    : {
-        liveWorkspace: "Live workspace",
-        title: "Workspace Overview",
-        subtitle: "A real-time view of projects, participants, results, and assessment activity across your organization.",
-        completionSignal: "Completion Signal",
-        completed: "completed",
-        participantRecords: "participant records",
-        stats: {
-          participants: ["Participants", "Total records in workspace"],
-          activeProjects: ["Active Projects", "Open workstreams"],
-          completed: ["Completed", "Submitted assessments"],
-          averageScore: ["Average Score", "Overall benchmark"],
-        },
-        startedTitle: "Get started",
-        startedBody: "Follow these steps to run your first assessment project.",
-        steps: [
-          { step: "1", title: "Create a project", desc: "Organize candidates by role, team, or use case." },
-          { step: "2", title: "Select assessments", desc: "Pick tests from the library and add them to your project." },
-          { step: "3", title: "Invite candidates", desc: "Share a secure link, no account required." },
-        ],
-        firstProject: "Create your first project",
-        activityStream: "Activity Stream",
-        latestUpdates: "Latest updates",
-        noActivity: "No activity yet. Add participants or complete an assessment to populate this feed.",
-        scoreBands: "Score Bands",
-        noResults: "No results yet",
-        high: "High",
-        medium: "Medium",
-        low: "Low",
-        projectFlow: "Project Flow",
-        added: "Added",
-        topResults: "Top Results",
-        unknown: "Unknown",
-        projectFallback: "a project",
-        completedMessage: (name: string, assessment: string, score: number) => `${name} completed ${assessment} with a score of ${score}`,
-        invitedMessage: (name: string, project: string) => `${name} was added to ${project}`,
-      };
+  // ---- Queues (Needs Attention) -------------------------------------------
+  const isExpired = (c: CandidateRow) =>
+    c.token_expires_at !== null && new Date(c.token_expires_at).getTime() < nowMs;
 
-  const statsCards = [
-    { label: copy.stats.participants[0], value: totalCandidates ?? 0, icon: "participants", color: "text-blue-300", bg: "bg-blue-400/10", ring: "ring-blue-400/20", helper: copy.stats.participants[1] },
-    { label: copy.stats.activeProjects[0], value: activeProjects ?? 0, icon: "projects", color: "text-violet-300", bg: "bg-violet-400/10", ring: "ring-violet-400/20", helper: copy.stats.activeProjects[1] },
-    { label: copy.stats.completed[0], value: completedAssessments ?? 0, icon: "completed", color: "text-emerald-300", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20", helper: copy.stats.completed[1] },
-    { label: copy.stats.averageScore[0], value: avgScore ? `${avgScore}%` : "-", icon: "score", color: "text-amber-300", bg: "bg-amber-400/10", ring: "ring-amber-400/20", helper: copy.stats.averageScore[1] },
+  const openInvites = all.filter((c) => c.status === "invited" && !isExpired(c));
+  const expiring = openInvites.filter(
+    (c) => c.token_expires_at !== null && new Date(c.token_expires_at).getTime() - nowMs <= 2 * DAY
+  );
+  const expired = all.filter((c) => c.status === "invited" && isExpired(c));
+  const stalled = openInvites.filter(
+    (c) => nowMs - new Date(c.created_at).getTime() > 7 * DAY && !expiring.includes(c)
+  );
+  const toReview = new Set((recentCompletions ?? []).map((r) => r.candidate_id)).size;
+
+  const perProject = all.reduce<Record<string, { total: number; completed: number }>>((acc, c) => {
+    const bucket = (acc[c.project_id] ??= { total: 0, completed: 0 });
+    bucket.total += 1;
+    if (c.status === "completed") bucket.completed += 1;
+    return acc;
+  }, {});
+
+  const projectStats = activeProjects.map((p) => {
+    const stats = perProject[p.id] ?? { total: 0, completed: 0 };
+    const pct = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    const daysLeft = p.deadline
+      ? Math.ceil((new Date(p.deadline).getTime() - nowMs) / DAY)
+      : null;
+    const atRisk =
+      stats.total > 0 && daysLeft !== null && (daysLeft < 0 || (daysLeft <= 7 && pct < 70));
+    return { ...p, ...stats, pct, daysLeft, atRisk };
+  });
+  const atRiskProjects = projectStats
+    .filter((p) => p.atRisk)
+    .sort((a, b) => (a.daysLeft ?? 0) - (b.daysLeft ?? 0));
+
+  type AttnRow = {
+    key: string;
+    severity: Severity;
+    icon: string;
+    text: string;
+    hint: string;
+    action: string;
+    href: string;
+  };
+
+  const attention: AttnRow[] = [];
+  if (toReview > 0)
+    attention.push({
+      key: "review", severity: "critical", icon: "review",
+      text: t("attnReview", { count: toReview }),
+      hint: t("attnReviewHint"), action: t("attnReviewAction"), href: "/reports",
+    });
+  if (expiring.length > 0)
+    attention.push({
+      key: "expiring", severity: "warning", icon: "expiring",
+      text: t("attnExpiring", { count: expiring.length }),
+      hint: t("attnExpiringHint"), action: t("attnExpiringAction"), href: "/candidates?status=invited",
+    });
+  atRiskProjects.slice(0, 2).forEach((p) =>
+    attention.push({
+      key: `project-${p.id}`, severity: "serious", icon: "project",
+      text:
+        p.daysLeft !== null && p.daysLeft < 0
+          ? t("attnProjectOverdue", { name: p.name, pct: p.pct })
+          : t("attnProjectAtRisk", { name: p.name, pct: p.pct, days: Math.max(p.daysLeft ?? 0, 0) }),
+      hint: "", action: t("attnProjectAction"), href: `/projects/${p.id}`,
+    })
+  );
+  if (expired.length > 0)
+    attention.push({
+      key: "expired", severity: "serious", icon: "expired",
+      text: t("attnExpired", { count: expired.length }),
+      hint: t("attnExpiredHint"), action: t("attnExpiredAction"), href: "/candidates?status=invited",
+    });
+  if (stalled.length > 0)
+    attention.push({
+      key: "stalled", severity: "info", icon: "stalled",
+      text: t("attnStalled", { count: stalled.length }),
+      hint: t("attnStalledHint"), action: t("attnStalledAction"), href: "/candidates?status=invited",
+    });
+
+  // ---- Morning brief summary ----------------------------------------------
+  const briefParts: string[] = [];
+  if (toReview > 0) briefParts.push(t("briefReview", { count: toReview }));
+  if (expiring.length > 0) briefParts.push(t("briefExpiring", { count: expiring.length }));
+  if (atRiskProjects.length > 0) briefParts.push(t("briefAtRisk", { count: atRiskProjects.length }));
+
+  // ---- Health metrics -------------------------------------------------------
+  const cohort = all.filter((c) => nowMs - new Date(c.created_at).getTime() <= 30 * DAY);
+  const prevCohort = all.filter((c) => {
+    const age = nowMs - new Date(c.created_at).getTime();
+    return age > 30 * DAY && age <= 60 * DAY;
+  });
+  const rate = (list: CandidateRow[]) =>
+    list.length > 0
+      ? Math.round((list.filter((c) => c.status === "completed").length / list.length) * 100)
+      : null;
+  const completionRate = rate(cohort);
+  const prevRate = rate(prevCohort);
+  const rateDelta = completionRate !== null && prevRate !== null ? completionRate - prevRate : null;
+
+  const weekCount = resultsThisWeek ?? 0;
+  const weekDelta = weekCount - (resultsPrevWeek ?? 0);
+  const pipeline = all.filter((c) => (c.status === "invited" && !isExpired(c)) || c.status === "started").length;
+  const onTrack = projectStats.filter((p) => !p.atRisk).length;
+
+  type Kpi = {
+    key: string; label: string; value: string; sub: string; action: string; href: string;
+    delta?: { value: number; label: string; goodWhenUp: boolean };
+  };
+  const kpis: Kpi[] = [
+    {
+      key: "completion", label: t("kpiCompletionRate"),
+      value: completionRate !== null ? `${completionRate}%` : "—",
+      sub: t("kpiCompletionRateSub"), action: t("kpiCompletionRateAction"),
+      href: "/candidates?status=invited",
+      delta: rateDelta !== null ? { value: rateDelta, label: `${rateDelta > 0 ? "+" : ""}${rateDelta} pp`, goodWhenUp: true } : undefined,
+    },
+    {
+      key: "results", label: t("kpiResultsWeek"), value: `${weekCount}`,
+      sub: t("kpiResultsWeekSub"), action: t("kpiResultsWeekAction"), href: "/reports",
+      delta: { value: weekDelta, label: `${weekDelta > 0 ? "+" : ""}${weekDelta}`, goodWhenUp: true },
+    },
+    {
+      key: "pipeline", label: t("kpiPipeline"), value: `${pipeline}`,
+      sub: t("kpiPipelineSub"), action: t("kpiPipelineAction"), href: "/candidates",
+    },
+    {
+      key: "ontrack", label: t("kpiOnTrack"),
+      value: activeProjects.length > 0 ? `${onTrack}/${activeProjects.length}` : "—",
+      sub: t("kpiOnTrackSub", { total: activeProjects.length }),
+      action: t("kpiOnTrackAction"), href: "/projects",
+    },
   ];
 
-  type Activity = { key: string; message: string; time: string; type: "completed" | "invited"; timestamp: number };
+  // ---- Activity -------------------------------------------------------------
+  type Activity = { key: string; message: string; time: string; href: string; kind: "completed" | "invited"; ts: number };
   const activity: Activity[] = [];
 
-  recentResults?.forEach((result) => {
-    const candidate = result.candidates;
-    const assessment = result.assessments;
-    if (candidate && assessment) {
-      activity.push({
-        key: `r-${result.completed_at}`,
-        message: copy.completedMessage(candidate.full_name, assessment.name, result.score),
-        time: new Date(result.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
-        type: "completed",
-        timestamp: new Date(result.completed_at).getTime(),
-      });
-    }
+  (recentResults ?? []).forEach((r, i) => {
+    if (!r.candidates || !r.assessments) return;
+    activity.push({
+      key: `r-${r.completed_at}-${i}`,
+      message: t("activityCompleted", { name: r.candidates.full_name, assessment: r.assessments.name, score: r.score }),
+      time: new Date(r.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+      href: "/reports", kind: "completed", ts: new Date(r.completed_at).getTime(),
+    });
   });
-
-  recentCandidates?.forEach((candidate) => {
-    const project = candidate.hiring_projects;
-    if (candidate.status === "invited") {
+  [...all]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 8)
+    .forEach((c) => {
       activity.push({
-        key: `c-${candidate.id}`,
-        message: copy.invitedMessage(candidate.full_name, project?.name ?? copy.projectFallback),
-        time: new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" }),
-        type: "invited",
-        timestamp: new Date(candidate.created_at).getTime(),
+        key: `c-${c.id}`,
+        message: t("activityInvited", { name: c.full_name || t("unknown"), project: c.hiring_projects?.name ?? t("aProject") }),
+        time: new Date(c.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" }),
+        href: "/candidates", kind: "invited", ts: new Date(c.created_at).getTime(),
       });
-    }
-  });
-  activity.sort((a, b) => b.timestamp - a.timestamp);
+    });
+  activity.sort((a, b) => b.ts - a.ts);
 
-  const scoreGroups = [
-    { label: copy.high, range: "80-100", color: "bg-emerald-500", text: "text-emerald-300", count: scores?.filter((s: { score: number }) => s.score >= 80).length ?? 0 },
-    { label: copy.medium, range: "60-79", color: "bg-amber-500", text: "text-amber-300", count: scores?.filter((s: { score: number }) => s.score >= 60 && s.score < 80).length ?? 0 },
-    { label: copy.low, range: "0-59", color: "bg-red-500", text: "text-red-300", count: scores?.filter((s: { score: number }) => s.score < 60).length ?? 0 },
-  ];
-
-  const invited = recentCandidates?.filter((candidate) => candidate.status === "invited").length ?? 0;
-  const completed = completedAssessments ?? 0;
+  const emptyWorkspace = all.length === 0 && (projects ?? []).length === 0;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      <div className="premium-card relative overflow-hidden rounded-2xl p-6 sm:p-7">
-        <div className="absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_70%_20%,rgba(29,78,216,0.24),transparent_42%)]" />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#07080F]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-soft-pulse" />
-              {copy.liveWorkspace}
-            </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.title}</h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              {copy.subtitle}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-4 rounded-2xl border border-[#1E2240] bg-[#07080F]/70 p-4">
-            <div
-              className="flex h-20 w-20 items-center justify-center rounded-full"
-              style={{ background: `conic-gradient(#1D4ED8 ${completionRate * 3.6}deg, #1E2240 0deg)` }}
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0D1020] text-sm font-semibold text-white">
-                {completionRate}%
-              </div>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wider text-slate-500">{copy.completionSignal}</p>
-              <p className="mt-1 text-sm font-semibold text-white">{completed} {copy.completed}</p>
-              <p className="mt-1 text-xs text-slate-600">{totalCandidates ?? 0} {copy.participantRecords}</p>
-            </div>
-          </div>
+    <div className="mx-auto max-w-6xl space-y-6 animate-fade-up">
+      {/* Zone 1 — Morning brief */}
+      <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <MorningGreeting firstName={firstName} />
+          <p className="mt-2 text-sm text-slate-400">
+            {briefParts.length > 0 ? (
+              <a href="#attention" className="transition-colors hover:text-slate-200">
+                {briefParts.join(" · ")}
+              </a>
+            ) : (
+              t("briefAllClear")
+            )}
+          </p>
         </div>
-      </div>
+        {!emptyWorkspace && (
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/projects/new"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#1E2240] px-4 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:border-[#2d3a70] hover:text-white"
+            >
+              {t("newProject")}
+            </Link>
+            <Link
+              href="/candidates?invite=1"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              {t("inviteCandidate")}
+            </Link>
+          </div>
+        )}
+      </header>
 
-      {(activeProjects ?? 0) === 0 ? (
+      {emptyWorkspace ? (
+        /* First-run: guided setup */
         <div className="premium-card rounded-2xl p-8">
           <div className="mb-8 text-center">
-            <h2 className="text-xl font-semibold text-white">{copy.startedTitle}</h2>
-            <p className="mt-2 text-sm text-slate-400">{copy.startedBody}</p>
+            <h2 className="text-xl font-semibold text-white">{t("startedTitle")}</h2>
+            <p className="mt-2 text-sm text-slate-400">{t("startedBody")}</p>
           </div>
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {copy.steps.map((item) => (
-              <div key={item.step} className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-5">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-5">
                 <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#1D4ED8]/40 bg-[#1D4ED8]/15 text-xs font-semibold text-[#8CB1FF]">
-                  {item.step}
+                  {n}
                 </div>
-                <h3 className="text-sm font-semibold text-white">{item.title}</h3>
-                <p className="mt-1.5 text-xs leading-relaxed text-slate-500">{item.desc}</p>
+                <h3 className="text-sm font-semibold text-white">{t(`step${n}Title`)}</h3>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-slate-400">{t(`step${n}Desc`)}</p>
               </div>
             ))}
           </div>
           <div className="text-center">
             <Link
               href="/projects/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(29,78,216,0.22)] transition-colors hover:bg-[#1e40af]"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              {copy.firstProject}
+              {t("firstProject")}
             </Link>
           </div>
         </div>
       ) : (
-      <>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {statsCards.map((card, index) => (
-          <div
-            key={card.label}
-            className="premium-card premium-card-hover relative overflow-hidden rounded-xl p-5 animate-fade-up"
-            style={{ animationDelay: `${index * 70}ms` }}
-          >
-            <div className={`absolute inset-x-0 top-0 h-px ${card.bg}`} />
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{card.label}</p>
-                <p className="mt-2 text-3xl font-semibold tracking-tight text-white">{card.value}</p>
-                <p className="mt-2 text-xs text-slate-600">{card.helper}</p>
-              </div>
-              <div className={`${card.bg} ${card.color} ${card.ring} rounded-xl p-2.5 ring-1`}>
-                {card.icon === "participants" && (
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87" /></svg>
-                )}
-                {card.icon === "projects" && (
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Zm0 0V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" /></svg>
-                )}
-                {card.icon === "completed" && (
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                )}
-                {card.icon === "score" && (
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 7h8m0 0v8m0-8-8 8-4-4-6 6" /></svg>
-                )}
-              </div>
+        <>
+          {/* Zone 2 — Needs attention */}
+          <section id="attention" className="premium-card overflow-hidden rounded-xl">
+            <div className="flex items-center justify-between border-b border-[#1E2240] px-5 py-3.5">
+              <h2 className="text-sm font-semibold text-white">{t("needsAttention")}</h2>
+              {attention.length > 0 && (
+                <span className="rounded-full border border-[#1E2240] px-2.5 py-0.5 text-xs font-medium text-slate-400">
+                  {attention.length}
+                </span>
+              )}
             </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="premium-card overflow-hidden rounded-xl xl:col-span-2">
-          <div className="flex items-center justify-between border-b border-[#1E2240] px-6 py-4">
-            <h2 className="text-base font-semibold text-white">{copy.activityStream}</h2>
-            <span className="rounded-full border border-[#1E2240] px-2.5 py-1 text-xs text-slate-500">{copy.latestUpdates}</span>
-          </div>
-          {activity.length === 0 ? (
-            <div className="px-6 py-12 text-center text-sm text-slate-600">
-              {copy.noActivity}
-            </div>
-          ) : (
-            <div className="divide-y divide-[#1E2240]">
-              {activity.slice(0, 6).map((item) => (
-                <div key={item.key} className="flex items-start gap-4 px-6 py-4 transition-colors hover:bg-[#1E2240]/30">
-                  <div className={`mt-0.5 flex-shrink-0 rounded-xl p-2 ring-1 ${item.type === "completed" ? "bg-emerald-400/10 text-emerald-300 ring-emerald-400/20" : "bg-blue-400/10 text-blue-300 ring-blue-400/20"}`}>
-                    {item.type === "completed" ? (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
-                    ) : (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9" /></svg>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm leading-snug text-slate-300">{item.message}</p>
-                    <p className="mt-1 text-xs text-slate-600">{item.time}</p>
-                  </div>
+            {attention.length === 0 ? (
+              <div className="px-6 py-10 text-center">
+                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#0ca30c]/10 ring-1 ring-[#0ca30c]/25">
+                  <svg className="h-5 w-5 text-[#3fbf3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <div className="premium-card rounded-xl p-5">
-            <h3 className="mb-4 text-sm font-semibold text-white">{copy.scoreBands}</h3>
-            {scoreTotal === 0 ? (
-              <p className="py-4 text-center text-xs text-slate-600">{copy.noResults}</p>
+                <p className="text-sm font-medium text-slate-200">{t("allClearTitle")}</p>
+                <p className="mt-1 text-[13px] text-slate-400">{t("allClearBody")}</p>
+                <a href="#activity" className="mt-3 inline-block text-[13px] font-medium text-[#8CB1FF] hover:underline">
+                  {t("allClearAction")} ↓
+                </a>
+              </div>
             ) : (
-              <div className="space-y-4">
-                {scoreGroups.map((group) => {
-                  const pct = Math.round((group.count / Math.max(scoreTotal, 1)) * 100);
+              <div className="divide-y divide-[#1E2240]">
+                {attention.map((row) => {
+                  const sev = SEVERITY[row.severity];
                   return (
-                    <div key={group.label}>
-                      <div className="mb-1.5 flex items-center justify-between text-xs">
-                        <span className={`font-medium ${group.text}`}>{group.label}</span>
-                        <span className="text-slate-500">{group.count} / {scoreTotal}</span>
-                      </div>
-                      <div className="h-2 overflow-hidden rounded-full bg-[#1E2240]">
-                        <div className={`h-2 rounded-full ${group.color} transition-all duration-500`} style={{ width: `${pct}%` }} />
-                      </div>
-                      <p className="mt-1 text-xs text-slate-600">{group.range}</p>
-                    </div>
+                    <Link
+                      key={row.key}
+                      href={row.href}
+                      className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30"
+                    >
+                      <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${sev.bg} ${sev.text} ${sev.ring}`}>
+                        <AttnIcon kind={row.icon} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium text-slate-200">{row.text}</span>
+                        {row.hint && <span className="mt-0.5 block text-[13px] text-slate-400">{row.hint}</span>}
+                      </span>
+                      <span className="flex-shrink-0 whitespace-nowrap text-[13px] font-medium text-[#8CB1FF] group-hover:underline">
+                        {row.action} →
+                      </span>
+                    </Link>
                   );
                 })}
               </div>
             )}
-          </div>
+          </section>
 
-          <div className="premium-card rounded-xl p-5">
-            <h3 className="mb-4 text-sm font-semibold text-white">{copy.projectFlow}</h3>
-            <div className="space-y-3">
-              {[
-                { label: copy.added, count: invited, color: "bg-blue-400" },
-                { label: copy.completed, count: completed, color: "bg-emerald-500" },
-              ].map((stage) => (
-                <div key={stage.label} className="flex items-center gap-3">
-                  <div className={`h-2 w-2 rounded-full ${stage.color}`} />
-                  <span className="flex-1 text-sm text-slate-400">{stage.label}</span>
-                  <span className="text-sm font-semibold text-white">{stage.count}</span>
+          {/* Zone 3 — Health strip */}
+          <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {kpis.map((kpi) => (
+              <Link
+                key={kpi.key}
+                href={kpi.href}
+                className="premium-card premium-card-hover flex flex-col rounded-xl p-5"
+              >
+                <p className="text-[13px] font-medium text-slate-400">{kpi.label}</p>
+                <div className="mt-2 flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold tracking-tight text-white">{kpi.value}</span>
+                  {kpi.delta && kpi.delta.value !== 0 && (
+                    <span
+                      className={`text-[13px] font-medium ${
+                        kpi.delta.value > 0 === kpi.delta.goodWhenUp ? "text-[#3fbf3f]" : "text-[#f28b8b]"
+                      }`}
+                    >
+                      {kpi.delta.value > 0 ? "▲" : "▼"} {kpi.delta.label}
+                    </span>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
+                <p className="mt-1 text-[13px] text-slate-400">{kpi.sub}</p>
+                <p className="mt-3 text-[13px] font-medium text-[#8CB1FF]">{kpi.action} →</p>
+              </Link>
+            ))}
+          </section>
 
-          <div className="premium-card rounded-xl p-5">
-            <h3 className="mb-4 text-sm font-semibold text-white">{copy.topResults}</h3>
-            {!recentResults || recentResults.length === 0 ? (
-              <p className="py-2 text-center text-xs text-slate-600">{copy.noResults}</p>
+          {/* Zone 6 — Recent activity */}
+          <section id="activity" className="premium-card overflow-hidden rounded-xl">
+            <div className="border-b border-[#1E2240] px-5 py-3.5">
+              <h2 className="text-sm font-semibold text-white">{t("activity")}</h2>
+            </div>
+            {activity.length === 0 ? (
+              <div className="px-6 py-12 text-center text-sm text-slate-400">{t("activityEmpty")}</div>
             ) : (
-              <div className="space-y-3">
-                {recentResults.slice(0, 3).map((result, index) => {
-                  const candidate = result.candidates;
-                  const initials = candidate?.full_name?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase() ?? "??";
-                  const color = result.score >= 80 ? "text-emerald-300" : result.score >= 60 ? "text-amber-300" : "text-red-300";
-                  return (
-                    <div key={`${result.completed_at}-${index}`} className="flex items-center gap-3">
-                      <span className="w-4 text-xs text-slate-600">{index + 1}</span>
-                      <div className="flex h-7 w-7 items-center justify-center rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/20 text-xs font-medium text-[#9BB8FF]">
-                        {initials}
-                      </div>
-                      <span className="flex-1 truncate text-sm text-slate-300">{candidate?.full_name ?? copy.unknown}</span>
-                      <span className={`text-sm font-bold ${color}`}>{result.score}</span>
-                    </div>
-                  );
-                })}
+              <div className="divide-y divide-[#1E2240]">
+                {activity.slice(0, 8).map((item) => (
+                  <Link
+                    key={item.key}
+                    href={item.href}
+                    className="flex items-start gap-4 px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30"
+                  >
+                    <span
+                      className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${
+                        item.kind === "completed"
+                          ? "bg-[#0ca30c]/10 text-[#3fbf3f] ring-[#0ca30c]/25"
+                          : "bg-[#3987e5]/10 text-[#6da7ec] ring-[#3987e5]/25"
+                      }`}
+                    >
+                      {item.kind === "completed" ? (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                      ) : (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5" />
+                        </svg>
+                      )}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm leading-snug text-slate-300">{item.message}</span>
+                      <span className="mt-1 block text-xs text-slate-400">{item.time}</span>
+                    </span>
+                  </Link>
+                ))}
               </div>
             )}
-          </div>
-        </div>
-      </div>
-      </>
+          </section>
+        </>
       )}
     </div>
   );
