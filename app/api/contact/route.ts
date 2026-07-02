@@ -18,6 +18,8 @@ type ContactPayload = {
 };
 
 const BUSINESS_EMAIL = process.env.CONTACT_TO_EMAIL || process.env.BUSINESS_EMAIL || "contact@intelligencestest.com";
+const APP_URL = "https://app.intelligencestest.com";
+const LOGO_URL = `${APP_URL}/intelligencestest-email-logo.png`;
 
 function clean(value: unknown) {
   return typeof value === "string" ? value.trim().slice(0, 2000) : "";
@@ -69,6 +71,7 @@ function buildText(payload: NormalizedPayload) {
 
 function buildHtml(payload: NormalizedPayload) {
   const title = payload.kind === "demo" ? "Nueva solicitud de demo" : "Nuevo mensaje de contacto";
+  const preheader = `${payload.company} envió ${payload.kind === "demo" ? "una solicitud de demo" : "un mensaje de contacto"}.`;
   const rows = [
     ["Nombre", payload.name],
     ["Email", payload.email],
@@ -85,15 +88,31 @@ function buildHtml(payload: NormalizedPayload) {
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="x-apple-disable-message-reformatting" />
     <title>${escapeHtml(title)}</title>
   </head>
   <body style="margin:0;padding:0;background:#07080F;color:#E2E8F0;font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;">
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;font-size:1px;line-height:1px;">
+      ${escapeHtml(preheader)}
+    </div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#07080F;border-collapse:collapse;">
       <tr>
         <td align="center" style="padding:24px 12px;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;border-collapse:collapse;">
             <tr>
-              <td style="padding:0 0 16px 0;color:#FFFFFF;font-size:18px;font-weight:700;">IntelligencesTest</td>
+              <td style="padding:0 0 16px 0;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td width="48" height="48" align="center" valign="middle" style="width:48px;height:48px;">
+                      <img src="${LOGO_URL}" width="48" height="48" alt="IntelligencesTest" style="display:block;width:48px;height:48px;border:0;outline:none;text-decoration:none;border-radius:12px;" />
+                    </td>
+                    <td style="padding-left:13px;">
+                      <div style="font-size:17px;line-height:21px;font-weight:700;color:#FFFFFF;">IntelligencesTest</div>
+                      <div style="font-size:12px;line-height:16px;color:#64748B;">Plataforma de evaluación humana</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
             </tr>
             <tr>
               <td style="background:#0D1020;border:1px solid #1E2240;border-radius:8px;overflow:hidden;">
