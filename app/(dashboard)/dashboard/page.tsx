@@ -133,10 +133,10 @@ export default async function DashboardPage() {
       .lt("completed_at", weekAgo),
     admin
       .from("results")
-      .select("candidate_id")
+      .select("candidate_id, project_id")
       .eq("company_id", companyId)
       .gte("completed_at", weekAgo)
-      .returns<{ candidate_id: string }[]>(),
+      .returns<{ candidate_id: string; project_id: string }[]>(),
     admin
       .from("results")
       .select("project_id, score")
@@ -161,6 +161,10 @@ export default async function DashboardPage() {
     (c) => nowMs - new Date(c.created_at).getTime() > 7 * DAY && !expiring.includes(c)
   );
   const toReview = new Set((recentCompletions ?? []).map((r) => r.candidate_id)).size;
+  // When everything to review sits in one project, land directly on its ranking.
+  const reviewProjectIds = new Set((recentCompletions ?? []).map((r) => r.project_id));
+  const reviewHref =
+    reviewProjectIds.size === 1 ? `/reports?project=${[...reviewProjectIds][0]}` : "/reports";
 
   const perProject = all.reduce<
     Record<string, { total: number; completed: number; started: number; invitedOpen: number; expired: number }>
@@ -212,7 +216,7 @@ export default async function DashboardPage() {
     attention.push({
       key: "review", severity: "critical", icon: "review",
       text: t("attnReview", { count: toReview }),
-      hint: t("attnReviewHint"), action: t("attnReviewAction"), href: "/reports",
+      hint: t("attnReviewHint"), action: t("attnReviewAction"), href: reviewHref,
     });
   if (expiring.length > 0)
     attention.push({
@@ -463,7 +467,7 @@ export default async function DashboardPage() {
                         kpi.delta.value > 0 === kpi.delta.goodWhenUp ? "text-[#3fbf3f]" : "text-[#f28b8b]"
                       }`}
                     >
-                      {kpi.delta.value > 0 ? "▲" : "▼"} {kpi.delta.label}
+                      <span aria-hidden="true">{kpi.delta.value > 0 ? "▲" : "▼"}</span> {kpi.delta.label}
                     </span>
                   )}
                 </div>
@@ -554,7 +558,7 @@ export default async function DashboardPage() {
                               <div
                                 key={s.key}
                                 className={`h-2.5 rounded-full ${s.cls}`}
-                                style={{ width: `${(s.count / p.total) * 100}%`, minWidth: "8px" }}
+                                style={{ flexGrow: s.count, flexBasis: 0, minWidth: "8px" }}
                               />
                             ))}
                           </div>
