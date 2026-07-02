@@ -2,10 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { createClient } from "@/lib/supabase";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const flow = useTranslations("authFlow");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
@@ -16,11 +19,11 @@ export default function ResetPasswordPage() {
     setError("");
 
     if (password !== confirm) {
-      setError("Passwords do not match");
+      setError(flow("passwordsDoNotMatch"));
       return;
     }
     if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError(flow("passwordTooShort"));
       return;
     }
 
@@ -30,7 +33,7 @@ export default function ResetPasswordPage() {
     setLoading(false);
 
     if (updateError) {
-      setError(updateError.message);
+      setError(updateError.message || flow("passwordUpdateError"));
       return;
     }
 
@@ -40,6 +43,9 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen bg-[#07080F] text-slate-100 flex items-center justify-center p-4">
+      <div className="fixed right-4 top-4 z-50">
+        <LanguageSwitcher showLabel={false} />
+      </div>
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
@@ -51,8 +57,8 @@ export default function ResetPasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-white">Set a new password</h1>
-            <p className="mt-1 text-sm text-slate-500">Choose a strong password for your account.</p>
+            <h1 className="text-xl font-semibold text-white">{flow("setNewPasswordTitle")}</h1>
+            <p className="mt-1 text-sm text-slate-500">{flow("setNewPasswordDescription")}</p>
           </div>
 
           {error && (
@@ -63,24 +69,24 @@ export default function ResetPasswordPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">New password</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-300">{flow("newPassword")}</label>
               <input
                 required
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min. 8 characters"
+                placeholder={flow("passwordMinPlaceholder")}
                 className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">Confirm new password</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-300">{flow("confirmNewPassword")}</label>
               <input
                 required
                 type="password"
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                placeholder="Repeat password"
+                placeholder={flow("passwordRepeatPlaceholder")}
                 className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
               />
             </div>
@@ -95,10 +101,10 @@ export default function ResetPasswordPage() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                   </svg>
-                  Updating...
+                  {flow("updating")}
                 </>
               ) : (
-                "Update password"
+                flow("updatePassword")
               )}
             </button>
           </form>

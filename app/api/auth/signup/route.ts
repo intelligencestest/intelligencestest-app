@@ -1,5 +1,8 @@
 import { createAdminClient } from "@/lib/supabase-server";
+import { sendAuthEmail } from "@/lib/auth-email";
 import { NextRequest, NextResponse } from "next/server";
+
+const APP_URL = "https://app.intelligencestest.com";
 
 export async function POST(request: NextRequest) {
   const { email, password, full_name, company_name, language } = await request.json();
@@ -12,6 +15,7 @@ export async function POST(request: NextRequest) {
   }
 
   const lang = ["en", "es"].includes(language) ? language : "en";
+  const normalizedEmail = email.toLowerCase().trim();
 
   const admin = createAdminClient();
 
@@ -19,7 +23,7 @@ export async function POST(request: NextRequest) {
   const { data: existing } = await admin
     .from("users")
     .select("id")
-    .eq("email", email.toLowerCase())
+    .eq("email", normalizedEmail)
     .maybeSingle();
 
   if (existing) {
@@ -29,7 +33,7 @@ export async function POST(request: NextRequest) {
   // 1. Create company
   const { data: company, error: companyError } = await admin
     .from("companies")
-    .insert({ name: company_name, email: email.toLowerCase(), language: lang })
+    .insert({ name: company_name, email: normalizedEmail, language: lang })
     .select("id")
     .single();
 
@@ -37,35 +41,56 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create company" }, { status: 500 });
   }
 
-  // 2. Create auth user — email_confirm:false sends a confirmation email
-  const { data: authData, error: authError } = await admin.auth.admin.createUser({
-    email: email.toLowerCase(),
+  // 2. Generate Supabase signup link, then send it through Resend.
+  // The Admin API creates the auth user here but does not rely on Supabase's built-in email delivery.
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: "signup",
+    email: normalizedEmail,
     password,
-    email_confirm: false,
-    user_metadata: { full_name, company_id: company.id },
+    options: {
+      data: { full_name, company_id: company.id },
+      redirectTo: `${APP_URL}/auth/callback?next=/dashboard`,
+    },
   });
 
-  if (authError || !authData.user) {
+  if (linkError || !linkData?.user || !linkData.properties?.action_link) {
     await admin.from("companies").delete().eq("id", company.id);
     return NextResponse.json(
-      { error: authError?.message ?? "Failed to create account" },
+      { error: linkError?.message ?? "Failed to create account" },
       { status: 400 }
     );
   }
 
   // 3. Create users row linking auth user → company
   const { error: userRowError } = await admin.from("users").insert({
-    id: authData.user.id,
+    id: linkData.user.id,
     company_id: company.id,
     full_name,
-    email: email.toLowerCase(),
+    email: normalizedEmail,
     role: "admin",
   });
 
   if (userRowError) {
-    await admin.auth.admin.deleteUser(authData.user.id);
+    await admin.auth.admin.deleteUser(linkData.user.id);
     await admin.from("companies").delete().eq("id", company.id);
     return NextResponse.json({ error: "Failed to link account" }, { status: 500 });
+  }
+
+  const emailResult = await sendAuthEmail({
+    kind: "confirmation",
+    locale: lang,
+    to: normalizedEmail,
+    name: full_name,
+    actionUrl: linkData.properties.action_link,
+  });
+
+  if (emailResult.error) {
+    await admin.auth.admin.deleteUser(linkData.user.id);
+    await admin.from("companies").delete().eq("id", company.id);
+    return NextResponse.json(
+      { error: `Failed to send confirmation email: ${emailResult.error.message}` },
+      { status: 502 }
+    );
   }
 
   return NextResponse.json({ success: true });

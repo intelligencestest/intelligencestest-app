@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const LANGS = [
@@ -19,14 +18,13 @@ const LANGS = [
 ] as const;
 
 export default function SelectLanguagePage() {
-  const router = useRouter();
   const [picking, setPicking] = useState<"en" | "es" | null>(null);
 
   function pick(lang: "en" | "es") {
     if (picking) return;
     setPicking(lang);
-    document.cookie = `lang=${lang}; path=/; samesite=lax`;
-    router.push("/signup");
+    document.cookie = `lang=${lang}; path=/; max-age=31536000; samesite=lax`;
+    window.location.assign("/signup");
   }
 
   return (
@@ -54,7 +52,7 @@ export default function SelectLanguagePage() {
             <h1 className="text-xl font-semibold text-white">
               Choose your language
               <span className="mx-2 text-slate-600">/</span>
-              Elige tu idioma
+              Elija su idioma
             </h1>
             <p className="mt-2 text-sm text-slate-500">
               This will be your default for the dashboard.

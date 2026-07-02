@@ -2,24 +2,48 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { createClient } from "@/lib/supabase";
+import { useLocale, useTranslations } from "next-intl";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function VerifyEmailPage() {
+  const locale = useLocale();
+  const flow = useTranslations("authFlow");
   const [resent, setResent] = useState(false);
   const [resending, setResending] = useState(false);
+  const [error, setError] = useState("");
 
   const handleResend = async () => {
     const email = new URLSearchParams(window.location.search).get("email");
-    if (!email) return;
+    setError("");
+    if (!email) {
+      setError(flow("missingEmailForResend"));
+      return;
+    }
     setResending(true);
-    const supabase = createClient();
-    await supabase.auth.resend({ type: "signup", email });
+    const res = await fetch("/api/auth/resend-confirmation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        language: locale === "es" ? "es" : "en",
+      }),
+    });
     setResending(false);
+
+    if (!res.ok) {
+      await res.json();
+      setError(flow("confirmationEmailError"));
+      return;
+    }
+
     setResent(true);
   };
 
   return (
     <div className="min-h-screen bg-[#07080F] text-slate-100 flex items-center justify-center p-4">
+      <div className="fixed right-4 top-4 z-50">
+        <LanguageSwitcher showLabel={false} />
+      </div>
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
@@ -32,33 +56,37 @@ export default function VerifyEmailPage() {
             </svg>
           </div>
 
-          <h1 className="text-xl font-semibold text-white">Check your inbox</h1>
+          <h1 className="text-xl font-semibold text-white">{flow("checkInboxTitle")}</h1>
           <p className="mt-2 text-sm text-slate-400 leading-relaxed">
-            We sent a confirmation link to your email address. Click the link to activate your account and access your dashboard.
+            {flow("confirmationSent")}
           </p>
 
           <div className="mt-6 rounded-xl border border-[#1E2240] bg-[#07080F] p-4 text-left space-y-1.5 text-xs text-slate-500">
-            <p className="font-medium text-slate-400">Didn&apos;t receive the email?</p>
-            <p>• Check your spam or junk folder</p>
-            <p>• Make sure you used your work email</p>
-            <p>• Confirmation emails can take up to 5 minutes</p>
+            <p className="font-medium text-slate-400">{flow("didntReceive")}</p>
+            <p>• {flow("checkSpam")}</p>
+            <p>• {flow("confirmWorkEmail")}</p>
+            <p>• {flow("emailDelay")}</p>
           </div>
 
+          {error && (
+            <p className="mt-5 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">{error}</p>
+          )}
+
           {resent ? (
-            <p className="mt-5 text-sm text-emerald-400">Confirmation email resent successfully.</p>
+            <p className="mt-5 text-sm text-emerald-400">{flow("confirmationResent")}</p>
           ) : (
             <button
               onClick={handleResend}
               disabled={resending}
               className="mt-5 text-sm text-[#6B9FFF] hover:text-[#93B8FF] transition-colors disabled:opacity-50"
             >
-              {resending ? "Resending..." : "Resend confirmation email"}
+              {resending ? flow("resending") : flow("resendConfirmation")}
             </button>
           )}
 
           <div className="mt-6 border-t border-[#1E2240] pt-5">
             <Link href="/login" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
-              ← Back to sign in
+              ← {flow("backToSignIn")}
             </Link>
           </div>
         </div>

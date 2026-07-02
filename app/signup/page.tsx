@@ -16,7 +16,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-const Logo = () => (
+const Logo = ({ subtitle }: { subtitle: string }) => (
   <div className="flex items-center gap-3">
     <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#5B7CFA]/30 bg-[#1D4ED8] shadow-[0_0_36px_rgba(29,78,216,0.38)]">
       <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +26,7 @@ const Logo = () => (
     </div>
     <div>
       <p className="text-sm font-semibold tracking-tight text-white">Intelligences Test</p>
-      <p className="text-xs text-slate-500">Assessment Platform</p>
+      <p className="text-xs text-slate-500">{subtitle}</p>
     </div>
   </div>
 );
@@ -35,6 +35,7 @@ export default function SignupPage() {
   const router = useRouter();
   const auth = useTranslations("auth");
   const onboarding = useTranslations("onboarding");
+  const flow = useTranslations("authFlow");
   const [form, setForm] = useState({
     company_name: "",
     full_name: "",
@@ -52,16 +53,24 @@ export default function SignupPage() {
       setForm((f) => ({ ...f, [key]: e.target.value })),
   });
 
+  const signupErrorMessage = (message?: string) => {
+    if (!message) return flow("failedCreateAccount");
+    const normalized = message.toLowerCase();
+    if (normalized.includes("already exists")) return flow("accountExists");
+    if (normalized.includes("confirmation email")) return flow("confirmationEmailError");
+    return flow("failedCreateAccount");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     if (form.password !== form.confirm_password) {
-      setError("Passwords do not match");
+      setError(flow("passwordsDoNotMatch"));
       return;
     }
     if (form.password.length < 8) {
-      setError("Password must be at least 8 characters");
+      setError(flow("passwordTooShort"));
       return;
     }
 
@@ -84,11 +93,11 @@ export default function SignupPage() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error ?? "Failed to create account");
+      setError(signupErrorMessage(data.error));
       return;
     }
 
-    router.push("/verify-email");
+    router.push(`/verify-email?email=${encodeURIComponent(form.email)}&lang=${language}`);
   };
 
   const handleGoogle = async () => {
@@ -114,20 +123,20 @@ export default function SignupPage() {
       <main className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_540px]">
         {/* Left panel */}
         <section className="hidden lg:flex flex-col justify-between border-r border-[#1E2240] px-10 py-8 xl:px-14">
-          <Logo />
+          <Logo subtitle={flow("brandSubtitle")} />
           <div className="max-w-xl">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Trusted by hiring teams
+              {flow("signupBadge")}
             </div>
             <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-white xl:text-5xl">
-              Start hiring with clearer signals.
+              {flow("signupHeroTitle")}
             </h1>
             <p className="mt-5 max-w-md text-sm leading-6 text-slate-400">
-              Invite candidates, run validated assessments, and make faster, fairer decisions — all from one focused dashboard.
+              {flow("signupHeroBody")}
             </p>
             <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">
-              {[["22+", "Assessments"], ["5 min", "Candidate setup"], ["100%", "Data isolated"]].map(([v, l]) => (
+              {[["22+", flow("assessmentsStat")], ["5 min", flow("candidateSetupStat")], ["100%", flow("dataIsolatedStat")]].map(([v, l]) => (
                 <div key={l} className="premium-card rounded-xl p-4">
                   <p className="text-xl font-semibold text-white">{v}</p>
                   <p className="mt-1 text-xs text-slate-500">{l}</p>
@@ -137,7 +146,7 @@ export default function SignupPage() {
           </div>
           <div className="flex items-center gap-3 text-xs text-slate-600">
             <span className="h-px w-10 bg-[#1E2240]" />
-            Built for assessment-led hiring decisions
+            {flow("builtFor")}
           </div>
         </section>
 
@@ -145,7 +154,7 @@ export default function SignupPage() {
         <section className="flex items-center justify-center px-4 py-10 sm:px-6 lg:px-10">
           <div className="w-full max-w-md">
             <div className="mb-7 flex items-center justify-center gap-3 lg:hidden">
-              <Logo />
+              <Logo subtitle={flow("brandSubtitle")} />
             </div>
 
             <div className="premium-card rounded-2xl p-6 shadow-2xl sm:p-8">
@@ -198,7 +207,7 @@ export default function SignupPage() {
                     <label className="mb-1.5 block text-xs font-medium text-slate-400">{onboarding("companyName")} <span className="text-red-400">*</span></label>
                     <input
                       required
-                      placeholder="Acme Corp"
+                      placeholder={flow("companyPlaceholder")}
                       {...field("company_name")}
                       className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
                     />
@@ -207,7 +216,7 @@ export default function SignupPage() {
                     <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("fullName")} <span className="text-red-400">*</span></label>
                     <input
                       required
-                      placeholder="Jane Smith"
+                      placeholder={flow("fullNamePlaceholder")}
                       {...field("full_name")}
                       className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
                     />
@@ -219,7 +228,7 @@ export default function SignupPage() {
                   <input
                     required
                     type="email"
-                    placeholder="jane@company.com"
+                    placeholder={flow("workEmailPlaceholder")}
                     {...field("email")}
                     className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
                   />
@@ -231,7 +240,7 @@ export default function SignupPage() {
                     <input
                       required
                       type="password"
-                      placeholder="Min. 8 characters"
+                      placeholder={flow("passwordMinPlaceholder")}
                       {...field("password")}
                       className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
                     />
@@ -241,7 +250,7 @@ export default function SignupPage() {
                     <input
                       required
                       type="password"
-                      placeholder="Repeat password"
+                      placeholder={flow("passwordRepeatPlaceholder")}
                       {...field("confirm_password")}
                       className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
                     />
@@ -268,10 +277,10 @@ export default function SignupPage() {
               </form>
 
               <p className="mt-5 text-center text-xs text-slate-600">
-                By signing up you agree to our{" "}
-                <Link href="#" className="text-slate-500 hover:text-slate-300 transition-colors">Terms</Link>
-                {" "}and{" "}
-                <Link href="#" className="text-slate-500 hover:text-slate-300 transition-colors">Privacy Policy</Link>
+                {flow("signupAgreement")}{" "}
+                <Link href="#" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("terms")}</Link>
+                {" "}{flow("and")}{" "}
+                <Link href="#" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("privacyPolicy")}</Link>
               </p>
             </div>
           </div>

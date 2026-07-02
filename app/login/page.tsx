@@ -19,6 +19,7 @@ const GoogleIcon = () => (
 export default function LoginPage() {
   const router = useRouter();
   const auth = useTranslations("auth");
+  const flow = useTranslations("authFlow");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +30,7 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
     if (!email || !password) {
-      setError("Please enter your email and password.");
+      setError(flow("enterEmailPassword"));
       return;
     }
     setLoading(true);
@@ -38,7 +39,9 @@ export default function LoginPage() {
     setLoading(false);
     if (authError) {
       if (authError.message.toLowerCase().includes("email not confirmed")) {
-        setError("Please confirm your email address before signing in. Check your inbox.");
+        setError(flow("emailNotConfirmed"));
+      } else if (authError.message.toLowerCase().includes("invalid login credentials")) {
+        setError(flow("invalidLogin"));
       } else {
         setError(authError.message);
       }
@@ -79,27 +82,27 @@ export default function LoginPage() {
             </div>
             <div>
               <p className="text-sm font-semibold tracking-tight text-white">Intelligences Test</p>
-              <p className="text-xs text-slate-500">Assessment Platform</p>
+              <p className="text-xs text-slate-500">{flow("brandSubtitle")}</p>
             </div>
           </div>
 
           <div className="max-w-xl animate-fade-up">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-soft-pulse" />
-              Secure assessment operations
+              {flow("loginBadge")}
             </div>
             <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-white xl:text-5xl">
-              Hire with clearer signals and cleaner workflows.
+              {flow("loginHeroTitle")}
             </h1>
             <p className="mt-5 max-w-md text-sm leading-6 text-slate-400">
-              Manage candidates, assessment links, results, and hiring projects from one focused dashboard.
+              {flow("loginHeroBody")}
             </p>
 
             <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">
               {[
-                ["22+", "Assessments"],
-                ["25m", "Timed sessions"],
-                ["100%", "Data isolated"],
+                ["22+", flow("assessmentsStat")],
+                ["25m", flow("timedSessionsStat")],
+                ["100%", flow("dataIsolatedStat")],
               ].map(([value, label]) => (
                 <div key={label} className="premium-card rounded-xl p-4">
                   <p className="text-xl font-semibold text-white">{value}</p>
@@ -111,7 +114,7 @@ export default function LoginPage() {
 
           <div className="flex items-center gap-3 text-xs text-slate-600">
             <span className="h-px w-10 bg-[#1E2240]" />
-            Built for assessment-led hiring decisions
+            {flow("builtFor")}
           </div>
         </section>
 
@@ -126,7 +129,7 @@ export default function LoginPage() {
               </div>
               <div>
                 <p className="text-sm font-semibold tracking-tight text-white">Intelligences Test</p>
-                <p className="text-xs text-slate-500">Assessment Platform</p>
+                <p className="text-xs text-slate-500">{flow("brandSubtitle")}</p>
               </div>
             </div>
 
@@ -185,7 +188,7 @@ export default function LoginPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="you@company.com"
+                      placeholder={flow("emailPlaceholder")}
                       className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                     />
                   </div>
@@ -206,7 +209,7 @@ export default function LoginPage() {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
+                      placeholder={flow("passwordEnterPlaceholder")}
                       className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                     />
                   </div>
@@ -233,17 +236,17 @@ export default function LoginPage() {
 
               <div className="mt-6 border-t border-[#1E2240] pt-5">
                 <div className="flex items-center justify-between text-xs text-slate-500">
-                  <span>Protected by Supabase Auth</span>
-                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-emerald-300">Secure</span>
+                  <span>{flow("protectedBy")}</span>
+                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-emerald-300">{flow("secure")}</span>
                 </div>
               </div>
             </div>
 
             <p className="mt-6 text-center text-xs text-slate-600">
-              By signing in, you agree to our{" "}
-              <Link href="#" className="text-slate-500 transition-colors hover:text-slate-300">Terms</Link>
-              {" "}and{" "}
-              <Link href="#" className="text-slate-500 transition-colors hover:text-slate-300">Privacy Policy</Link>
+              {flow("signinAgreement")}{" "}
+              <Link href="#" className="text-slate-500 transition-colors hover:text-slate-300">{flow("terms")}</Link>
+              {" "}{flow("and")}{" "}
+              <Link href="#" className="text-slate-500 transition-colors hover:text-slate-300">{flow("privacyPolicy")}</Link>
             </p>
           </div>
         </section>
