@@ -102,7 +102,13 @@ export function analyzeResult(assessmentName: string, rawAnswers: unknown): Evid
   }
 
   if (!detail.dimensions) {
-    const dimObj = isRecord(out.dimensions) ? out.dimensions : isRecord(out.styles) ? out.styles : null;
+    const dimObj = isRecord(out.dimensions)
+      ? out.dimensions
+      : isRecord(out.styles)
+        ? out.styles
+        : isRecord(out.counts)
+          ? out.counts
+          : null;
     if (dimObj) {
       const dims = Object.entries(dimObj)
         .filter((entry): entry is [string, number] => typeof entry[1] === "number")
@@ -113,6 +119,7 @@ export function analyzeResult(assessmentName: string, rawAnswers: unknown): Evid
 
   if (typeof out.interpretation === "string" && out.interpretation) detail.interpretation = out.interpretation;
   else if (typeof out.type === "string" && out.type) detail.interpretation = out.type;
+  else if (typeof out.dominantStyle === "string" && out.dominantStyle) detail.interpretation = out.dominantStyle;
   if (typeof out.description === "string" && out.description) detail.description = out.description;
 
   return Object.keys(detail).length > 0 ? detail : null;

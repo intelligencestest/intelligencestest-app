@@ -244,7 +244,7 @@ export default function AQTest({
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-4">
               {locale === "es" ? "Evaluación de Resiliencia" : "Resilience Assessment"}
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">Adversity Quotient (AQ) Test</h1>
+            <h1 className="text-2xl font-bold text-white mb-2">{locale === "es" ? "Prueba de Cociente de Adversidad (AQ)" : "Adversity Quotient (AQ) Test"}</h1>
             <p className="text-slate-400 text-sm">{s.registerHeading}</p>
           </div>
 
@@ -306,7 +306,7 @@ export default function AQTest({
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-4">
               {locale === "es" ? "Evaluación de Resiliencia" : "Resilience Assessment"}
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">Adversity Quotient (AQ) Test</h1>
+            <h1 className="text-3xl font-bold text-white mb-2">{locale === "es" ? "Prueba de Cociente de Adversidad (AQ)" : "Adversity Quotient (AQ) Test"}</h1>
             <p className="text-slate-400">{s.welcomePrefix}<span className="text-white font-medium">{candidate?.full_name}</span></p>
           </div>
 
@@ -411,7 +411,7 @@ export default function AQTest({
     <div className="min-h-screen flex flex-col">
       <div className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: "#0D1020", borderColor: "#1E2240" }}>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-white">AQ Assessment</span>
+          <span className="text-sm font-medium text-white">{locale === "es" ? "Evaluación AQ" : "AQ Assessment"}</span>
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">

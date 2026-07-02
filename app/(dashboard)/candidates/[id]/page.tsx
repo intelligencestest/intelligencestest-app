@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
 import { analyzeResult, type EvidenceDetail } from "@/lib/report-scoring";
+import { assessmentName as termName, categoryLabel as termCategory, dimensionLabel as termDimension } from "@/lib/i18n/assessment-terms";
 import ExportPdfButton from "./ExportPdfButton";
 
 // Stage chips mirror the candidate list styling.
@@ -125,12 +126,6 @@ export default async function CandidateReportPage({ params }: { params: Promise<
     detail: r.assessments ? analyzeResult(r.assessments.name, r.raw_answers) : (null as EvidenceDetail | null),
   }));
 
-  const aqLabel: Record<string, string> = {
-    control: t("aqControl"),
-    ownership: t("aqOwnership"),
-    reach: t("aqReach"),
-    endurance: t("aqEndurance"),
-  };
 
   // ---- Timeline -------------------------------------------------------------
   const timeline: { key: string; label: string; date: string; ts: number }[] = [
@@ -142,7 +137,7 @@ export default async function CandidateReportPage({ params }: { params: Promise<
     },
     ...myResults.map((r) => ({
       key: r.id,
-      label: t("eventCompleted", { assessment: r.assessments?.name ?? "—" }),
+      label: t("eventCompleted", { assessment: r.assessments ? termName(r.assessments.name, locale) : "—" }),
       date: new Date(r.completed_at).toLocaleDateString(dateLocale, { day: "numeric", month: "short", year: "numeric" }),
       ts: new Date(r.completed_at).getTime(),
     })),
@@ -233,9 +228,9 @@ export default async function CandidateReportPage({ params }: { params: Promise<
               <article key={result.id} className="premium-card rounded-xl p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <h3 className="truncate text-[15px] font-semibold text-white">{result.assessments?.name ?? "—"}</h3>
+                    <h3 className="truncate text-[15px] font-semibold text-white">{result.assessments ? termName(result.assessments.name, locale) : "—"}</h3>
                     <p className="mt-0.5 text-[13px] text-slate-400">
-                      {result.assessments?.category ? `${result.assessments.category} · ` : ""}
+                      {result.assessments?.category ? `${termCategory(result.assessments.category, locale)} · ` : ""}
                       {t("completedOn", {
                         date: new Date(result.completed_at).toLocaleDateString(dateLocale, { day: "numeric", month: "short" }),
                       })}
@@ -273,7 +268,7 @@ export default async function CandidateReportPage({ params }: { params: Promise<
                         return (
                           <div key={d.label}>
                             <div className="mb-1 flex items-center justify-between text-[13px]">
-                              <span className="text-slate-300">{aqLabel[d.label] ?? d.label}</span>
+                              <span className="text-slate-300">{termDimension(d.label, locale)}</span>
                               <span className="font-medium text-slate-200">
                                 {d.value}{d.max ? ` / ${d.max}` : ""}
                               </span>
@@ -302,8 +297,8 @@ export default async function CandidateReportPage({ params }: { params: Promise<
             <article key={pa.assessment_id} className="rounded-xl border border-dashed border-[#1E2240] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <h3 className="truncate text-[15px] font-medium text-slate-400">{pa.assessments?.name ?? "—"}</h3>
-                  {pa.assessments?.category && <p className="mt-0.5 text-[13px] text-slate-500">{pa.assessments.category}</p>}
+                  <h3 className="truncate text-[15px] font-medium text-slate-400">{pa.assessments ? termName(pa.assessments.name, locale) : "—"}</h3>
+                  {pa.assessments?.category && <p className="mt-0.5 text-[13px] text-slate-500">{termCategory(pa.assessments.category, locale)}</p>}
                 </div>
                 <span className="inline-flex flex-shrink-0 items-center rounded-full border border-[#1E2240] px-2.5 py-1 text-xs font-medium text-slate-400">
                   {t("pendingChip")}

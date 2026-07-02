@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
+import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 import MorningGreeting from "./MorningGreeting";
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -311,7 +312,7 @@ export default async function DashboardPage() {
     const ts = new Date(r.completed_at).getTime();
     activity.push({
       key: `r-${r.completed_at}-${i}`,
-      message: t("activityCompleted", { name: r.candidates.full_name, assessment: r.assessments.name, score: r.score }),
+      message: t("activityCompleted", { name: r.candidates.full_name, assessment: termName(r.assessments.name, locale), score: r.score }),
       time: relativeTime(ts, nowMs, dateLocale),
       href: r.candidate_id ? `/candidates/${r.candidate_id}` : "/reports", kind: "completed", ts,
     });

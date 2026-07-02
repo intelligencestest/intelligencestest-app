@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
+import {
+  assessmentName as i18nAssessmentName,
+  assessmentShort as i18nAssessmentShort,
+  categoryLabel as i18nCategoryLabel,
+} from "@/lib/i18n/assessment-terms";
 
 type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "error";
 
@@ -290,6 +295,10 @@ export default function AssessmentRunner({
 
   const activeInstructions = locale === "es" && instructionsEs ? instructionsEs : instructions;
   const likertLabels = [...s.likert];
+  // The API keeps the English name as its key; only the display localizes.
+  const displayName = i18nAssessmentName(assessmentName, locale);
+  const displayShort = i18nAssessmentShort(assessmentName, shortName, locale);
+  const displayCategory = i18nCategoryLabel(categoryLabel, locale);
 
   if (phase === "validating") {
     return (
@@ -333,9 +342,9 @@ export default function AssessmentRunner({
         <div className="w-full max-w-md rounded-xl border border-[#1E2240] bg-[#0D1020] p-8">
           <div className="mb-8 text-center">
             <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${categoryClassName}`}>
-              {categoryLabel}
+              {displayCategory}
             </div>
-            <h1 className="mb-2 text-2xl font-bold text-white">{assessmentName}</h1>
+            <h1 className="mb-2 text-2xl font-bold text-white">{displayName}</h1>
             <p className="text-sm text-slate-400">{s.registerHeading}</p>
           </div>
 
@@ -395,9 +404,9 @@ export default function AssessmentRunner({
         <div className="w-full max-w-2xl rounded-xl border border-[#1E2240] bg-[#0D1020] p-8">
           <div className="mb-6 text-center">
             <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${categoryClassName}`}>
-              {categoryLabel}
+              {displayCategory}
             </div>
-            <h1 className="mb-2 text-3xl font-bold text-white">{assessmentName}</h1>
+            <h1 className="mb-2 text-3xl font-bold text-white">{displayName}</h1>
             <p className="text-slate-400">
               {s.welcomePrefix}<span className="font-medium text-white">{candidate?.full_name}</span>
             </p>
@@ -493,7 +502,7 @@ export default function AssessmentRunner({
     <div className="flex min-h-screen flex-col">
       <div className="flex items-center justify-between border-b border-[#1E2240] bg-[#0D1020] px-6 py-4">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-white">{shortName}</span>
+          <span className="text-sm font-medium text-white">{displayShort}</span>
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">

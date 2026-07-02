@@ -1,5 +1,7 @@
+import { getLocale } from "next-intl/server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 import CandidatesClient from "./CandidatesClient";
 
 const TEST_ROUTES: Record<string, string> = {
@@ -28,6 +30,7 @@ const TEST_ROUTES: Record<string, string> = {
 };
 
 export default async function CandidatesPage() {
+  const locale = await getLocale();
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -70,7 +73,7 @@ export default async function CandidatesPage() {
         const a = row.assessments;
         if (!a) return acc;
         const route = TEST_ROUTES[a.name] ?? a.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-        const label = `${a.name}${a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}`;
+        const label = `${termName(a.name, locale)}${a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}`;
         acc[row.project_id] = [...(acc[row.project_id] ?? []), { name: a.name, route, label }];
         return acc;
       },

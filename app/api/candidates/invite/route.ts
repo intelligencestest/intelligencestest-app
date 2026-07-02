@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { toAppLocale } from "@/lib/i18n/locales";
+import { assessmentName as localizedAssessmentName } from "@/lib/i18n/assessment-terms";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
@@ -423,7 +424,7 @@ export async function POST(request: NextRequest) {
     const emailOptions: InviteEmailOptions = {
       candidateName: full_name?.trim() || null,
       companyName,
-      assessmentName: assessment.name ?? assessment_type,
+      assessmentName: localizedAssessmentName(assessment.name ?? assessment_type, lang),
       durationMinutes: assessment.duration_minutes ?? null,
       questionCount: assessment.question_count ?? null,
       testUrl: absoluteUrl,
