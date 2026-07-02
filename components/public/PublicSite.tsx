@@ -1,5 +1,4 @@
 import Link from "next/link";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import type { PublicCopy } from "@/lib/public-site-copy";
 
 function BrandMark() {
@@ -31,12 +30,11 @@ export function PublicHeader({ copy }: { copy: PublicCopy }) {
           <a href="/#faq" className="transition hover:text-white">{copy.nav.faq}</a>
           <Link href="/contact" className="transition hover:text-white">{copy.nav.contact}</Link>
         </nav>
-        <div className="flex items-center gap-2">
-          <LanguageSwitcher showLabel={false} />
-          <Link href="/login" className="hidden rounded-lg border border-[#1E2240] px-3 py-2 text-sm font-semibold text-slate-200 transition hover:border-[#1D4ED8]/70 sm:inline-flex">
+        <div className="flex items-center gap-2.5">
+          <Link href="/login" className="hidden rounded-lg border border-[#1E2240] px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:border-[#2d3a70] hover:text-white sm:inline-flex">
             {copy.nav.login}
           </Link>
-          <Link href="/demo" className="rounded-lg bg-[#1D4ED8] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#1e40af]">
+          <Link href="/signup" className="rounded-lg bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_0_24px_rgba(29,78,216,0.35)] transition hover:bg-[#1e40af]">
             {copy.nav.demo}
           </Link>
         </div>
@@ -56,10 +54,9 @@ export function PublicFooter({ copy }: { copy: PublicCopy }) {
         <div>
           <p className="text-sm font-semibold text-white">{copy.footer.product}</p>
           <ul className="mt-4 space-y-3 text-sm text-slate-400">
-            <li><Link href="/demo" className="hover:text-white">{copy.nav.demo}</Link></li>
-            <li><Link href="/contact" className="hover:text-white">{copy.nav.contact}</Link></li>
             <li><Link href="/signup" className="hover:text-white">{copy.nav.signup}</Link></li>
             <li><Link href="/login" className="hover:text-white">{copy.nav.login}</Link></li>
+            <li><Link href="/contact" className="hover:text-white">{copy.nav.contact}</Link></li>
           </ul>
         </div>
         <div>

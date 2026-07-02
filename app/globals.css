@@ -58,6 +58,28 @@ body {
   animation: fade-up 420ms ease both;
 }
 
+/* Premium surface: 1px gradient ring around a dark panel */
+.gradient-ring {
+  position: relative;
+  background:
+    linear-gradient(#0D1020, #0D1020) padding-box,
+    linear-gradient(135deg, rgba(107, 159, 255, 0.35), rgba(30, 34, 64, 0.9) 40%, rgba(29, 78, 216, 0.25)) border-box;
+  border: 1px solid transparent;
+}
+
+.hero-glow {
+  background:
+    radial-gradient(ellipse 65% 55% at 28% 18%, rgba(29, 78, 216, 0.22), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 78% 62%, rgba(124, 58, 237, 0.10), transparent 60%);
+}
+
+.headline-gradient {
+  background: linear-gradient(180deg, #ffffff 55%, #94a3b8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .animate-soft-pulse {
   animation: soft-pulse 2.8s ease-in-out infinite;
 }

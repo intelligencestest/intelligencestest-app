@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import {
   LANGUAGE_COOKIE,
   LANGUAGE_COOKIE_MAX_AGE,
@@ -136,9 +135,6 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-[#07080F] text-slate-100">
-      <div className="fixed right-4 top-4 z-50">
-        <LanguageSwitcher showLabel={false} />
-      </div>
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 

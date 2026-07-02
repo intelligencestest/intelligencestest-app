@@ -4,6 +4,20 @@ import { PublicFooter, PublicHeader, SignalBoard } from "@/components/public/Pub
 import { toAppLocale } from "@/lib/i18n/locales";
 import { getPublicCopy } from "@/lib/public-site-copy";
 
+function FeatureIcon({ index }: { index: string }) {
+  const paths: Record<string, string> = {
+    "01": "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
+    "02": "M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5",
+    "03": "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2Zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2",
+    "04": "M9 12h6m-6 4h6M9 8h6m-9 12h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z",
+  };
+  return (
+    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={paths[index] ?? paths["01"]} />
+    </svg>
+  );
+}
+
 export default async function Home() {
   const locale = toAppLocale(await getLocale());
   const copy = getPublicCopy(locale);
@@ -12,80 +26,116 @@ export default async function Home() {
     <main className="min-h-screen bg-[#07080F] text-slate-100">
       <PublicHeader copy={copy} />
 
+      {/* Hero */}
       <section className="relative overflow-hidden border-b border-[#1E2240]">
-        <div className="absolute inset-0 bg-[#07080F]" aria-hidden="true" />
-        <div className="absolute inset-y-10 right-[-120px] hidden w-[640px] opacity-55 lg:block" aria-hidden="true">
-          <SignalBoard copy={copy} />
-        </div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-[#07080F]/80" aria-hidden="true" />
-        <div className="relative mx-auto flex min-h-[78vh] max-w-7xl items-center px-5 py-20 sm:px-6 lg:px-8 lg:py-24">
-          <div className="max-w-3xl">
-            <p className="mb-5 inline-flex rounded-full border border-[#1E2240] bg-[#0D1020] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#8CB1FF]">
+        <div className="hero-glow absolute inset-0" aria-hidden="true" />
+        <div
+          className="absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage: "linear-gradient(rgba(30,34,64,0.55) 1px, transparent 1px), linear-gradient(90deg, rgba(30,34,64,0.55) 1px, transparent 1px)",
+            backgroundSize: "72px 72px",
+            maskImage: "radial-gradient(ellipse 70% 60% at 50% 0%, black 30%, transparent 75%)",
+            WebkitMaskImage: "radial-gradient(ellipse 70% 60% at 50% 0%, black 30%, transparent 75%)",
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
+          <div className="animate-fade-up">
+            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020]/80 px-3.5 py-1.5 text-xs font-medium text-[#9BB8FF]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#6B9FFF]" aria-hidden="true" />
               {copy.home.eyebrow}
             </p>
-            <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 className="headline-gradient max-w-2xl text-[2.6rem] font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
               {copy.home.heroTitle}
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-400">
               {copy.home.heroBody}
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/demo"
-                className="inline-flex items-center justify-center rounded-lg bg-[#1D4ED8] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#1e40af] focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/70"
-              >
-                {copy.home.primaryCta}
-              </Link>
+            <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href="/signup"
-                className="inline-flex items-center justify-center rounded-lg border border-[#1E2240] bg-[#0D1020] px-5 py-3 text-sm font-semibold text-slate-100 transition hover:border-[#1D4ED8]/70 focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/60"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(29,78,216,0.4)] transition hover:bg-[#1e40af] focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/70"
+              >
+                {copy.home.primaryCta}
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+              <Link
+                href="/#assessments"
+                className="inline-flex items-center justify-center rounded-xl border border-[#1E2240] bg-[#0D1020]/60 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-[#2d3a70] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/60"
               >
                 {copy.home.secondaryCta}
               </Link>
             </div>
-            <dl className="mt-10 grid max-w-2xl grid-cols-3 gap-3">
-              {copy.home.stats.map((stat) => (
-                <div key={stat.label} className="rounded-lg border border-[#1E2240] bg-[#0D1020]/88 p-4">
-                  <dt className="text-2xl font-semibold text-white">{stat.value}</dt>
-                  <dd className="mt-1 text-xs leading-5 text-slate-400">{stat.label}</dd>
+            <dl className="mt-12 flex max-w-xl divide-x divide-[#1E2240] border-t border-[#1E2240] pt-6">
+              {copy.home.stats.map((stat, i) => (
+                <div key={stat.label} className={i === 0 ? "pr-8" : "px-8"}>
+                  <dt className="text-2xl font-semibold tracking-tight text-white">{stat.value}</dt>
+                  <dd className="mt-1 text-[13px] leading-5 text-slate-400">{stat.label}</dd>
                 </div>
               ))}
             </dl>
           </div>
+          <div className="relative hidden lg:block" aria-hidden="false">
+            <div className="absolute -inset-10 rounded-[40px] bg-[radial-gradient(ellipse_at_center,rgba(29,78,216,0.16),transparent_65%)]" aria-hidden="true" />
+            <div className="gradient-ring relative rounded-2xl p-1.5">
+              <SignalBoard copy={copy} />
+            </div>
+          </div>
         </div>
       </section>
 
-      <section id="features" className="border-b border-[#1E2240] bg-[#0A0C16] py-16 sm:py-20">
+      {/* Features */}
+      <section id="features" className="scroll-mt-20 border-b border-[#1E2240] bg-[#0A0C16] py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#8CB1FF]">{copy.home.featuresEyebrow}</p>
+            <p className="text-[13px] font-semibold text-[#8CB1FF]">{copy.home.featuresEyebrow}</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.featuresTitle}</h2>
           </div>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {copy.home.features.map((feature) => (
-              <article key={feature.title} className="rounded-lg border border-[#1E2240] bg-[#0D1020] p-5">
-                <div className="mb-5 flex h-9 w-9 items-center justify-center rounded-lg border border-[#1D4ED8]/35 bg-[#1D4ED8]/12 text-sm font-semibold text-[#8CB1FF]">
-                  {feature.index}
+              <article
+                key={feature.title}
+                className="group relative overflow-hidden rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 transition-colors duration-200 hover:border-[#1D4ED8]/40"
+              >
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#1D4ED8]/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
+                <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 text-[#8CB1FF] ring-1 ring-inset ring-white/5">
+                  <FeatureIcon index={feature.index} />
                 </div>
-                <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-400">{feature.body}</p>
+                <h3 className="text-[17px] font-semibold text-white">{feature.title}</h3>
+                <p className="mt-2.5 text-sm leading-6 text-slate-400">{feature.body}</p>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="assessments" className="border-b border-[#1E2240] py-16 sm:py-20">
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#8CB1FF]">{copy.home.assessmentsEyebrow}</p>
+      {/* Assessments */}
+      <section id="assessments" className="scroll-mt-20 border-b border-[#1E2240] py-20 sm:py-28">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:px-8">
+          <div className="lg:sticky lg:top-24">
+            <p className="text-[13px] font-semibold text-[#8CB1FF]">{copy.home.assessmentsEyebrow}</p>
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.assessmentsTitle}</h2>
-            <p className="mt-4 text-base leading-7 text-slate-400">{copy.home.assessmentsBody}</p>
+            <p className="mt-5 text-base leading-7 text-slate-400">{copy.home.assessmentsBody}</p>
+            <Link
+              href="/signup"
+              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#8CB1FF] transition hover:text-white"
+            >
+              {copy.home.primaryCta}
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {copy.home.assessmentGroups.map((group) => (
-              <div key={group.title} className="rounded-lg border border-[#1E2240] bg-[#0D1020] p-5">
-                <p className="text-sm font-semibold text-white">{group.title}</p>
+              <div
+                key={group.title}
+                className="rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 transition-colors duration-200 hover:border-[#2d3a70]"
+              >
+                <div className="mb-3 h-1.5 w-8 rounded-full bg-gradient-to-r from-[#1D4ED8] to-[#6B9FFF]/40" aria-hidden="true" />
+                <p className="text-[15px] font-semibold text-white">{group.title}</p>
                 <p className="mt-2 text-sm leading-6 text-slate-400">{group.body}</p>
               </div>
             ))}
@@ -93,34 +143,60 @@ export default async function Home() {
         </div>
       </section>
 
-      <section id="faq" className="border-b border-[#1E2240] bg-[#0A0C16] py-16 sm:py-20">
-        <div className="mx-auto max-w-4xl px-5 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#8CB1FF]">{copy.home.faqEyebrow}</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.faqTitle}</h2>
-          <div className="mt-8 divide-y divide-[#1E2240] rounded-lg border border-[#1E2240] bg-[#0D1020]">
+      {/* FAQ */}
+      <section id="faq" className="scroll-mt-20 border-b border-[#1E2240] bg-[#0A0C16] py-20 sm:py-28">
+        <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <p className="text-[13px] font-semibold text-[#8CB1FF]">{copy.home.faqEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.faqTitle}</h2>
+          </div>
+          <div className="mt-10 space-y-3">
             {copy.home.faq.map((item) => (
-              <details key={item.question} className="group p-5 open:bg-[#11162A]">
-                <summary className="cursor-pointer list-none text-base font-semibold text-white focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/50">
+              <details key={item.question} className="group rounded-2xl border border-[#1E2240] bg-[#0D1020] px-6 py-5 open:border-[#2d3a70]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8CB1FF]/50 [&::-webkit-details-marker]:hidden">
                   {item.question}
+                  <svg
+                    className="h-4 w-4 flex-shrink-0 text-slate-500 transition-transform duration-200 group-open:rotate-180"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </summary>
-                <p className="mt-3 text-sm leading-6 text-slate-400">{item.answer}</p>
+                <p className="mt-3 pr-8 text-sm leading-7 text-slate-400">{item.answer}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="py-16 sm:py-20">
-        <div className="mx-auto max-w-5xl px-5 text-center sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.finalTitle}</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-400">{copy.home.finalBody}</p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link href="/demo" className="inline-flex items-center justify-center rounded-lg bg-[#1D4ED8] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1e40af]">
-              {copy.home.primaryCta}
-            </Link>
-            <Link href="/contact" className="inline-flex items-center justify-center rounded-lg border border-[#1E2240] bg-[#0D1020] px-5 py-3 text-sm font-semibold text-white hover:border-[#1D4ED8]/70">
-              {copy.nav.contact}
-            </Link>
+      {/* Final CTA */}
+      <section className="py-20 sm:py-28">
+        <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
+          <div className="gradient-ring relative overflow-hidden rounded-3xl px-6 py-16 text-center sm:px-16">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_-10%,rgba(29,78,216,0.28),transparent_70%)]" aria-hidden="true" />
+            <div className="relative">
+              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                {copy.home.finalTitle}
+              </h2>
+              <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-400">{copy.home.finalBody}</p>
+              <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(29,78,216,0.4)] transition hover:bg-[#1e40af]"
+                >
+                  {copy.home.primaryCta}
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
+                </Link>
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center justify-center rounded-xl border border-[#1E2240] bg-[#07080F]/60 px-6 py-3.5 text-sm font-semibold text-white transition hover:border-[#2d3a70]"
+                >
+                  {copy.nav.contact}
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

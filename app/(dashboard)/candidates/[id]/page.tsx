@@ -214,10 +214,11 @@ export default async function CandidateReportPage({
       </Link>
 
       {/* Identity + verdict */}
-      <header className="premium-card rounded-2xl p-6">
+      <header className="premium-card relative overflow-hidden rounded-2xl p-6 sm:p-7">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#1D4ED8]/60 to-transparent" aria-hidden="true" />
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
-            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-[#1D4ED8]/40 bg-[#1D4ED8]/15 text-lg font-semibold text-[#9BB8FF]">
+            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-[#1D4ED8]/40 bg-[#1D4ED8]/15 text-lg font-semibold text-[#9BB8FF] shadow-[0_0_24px_rgba(29,78,216,0.25)]">
               {initials}
             </div>
             <div className="min-w-0">
@@ -247,18 +248,22 @@ export default async function CandidateReportPage({
           </div>
           <div>
             <p className="text-[13px] font-medium text-slate-400">{t("rankLabel")}</p>
-            <p className="mt-1 text-4xl font-semibold tracking-tight text-white">
-              {rank ? (
-                t("rankInProject", { rank: rank.rank, total: rank.total })
-              ) : (
-                <span className="text-slate-500">—</span>
-              )}
-            </p>
+            {rank ? (
+              <p className="mt-1 flex items-baseline gap-2">
+                <span className="text-4xl font-semibold tracking-tight text-white">{t("rankValue", { rank: rank.rank })}</span>
+                <span className="text-[13px] text-slate-400">{t("rankOfTotal", { total: rank.total })}</span>
+              </p>
+            ) : (
+              <p className="mt-1 text-4xl font-semibold tracking-tight text-slate-500">—</p>
+            )}
           </div>
           <div>
             <p className="text-[13px] font-medium text-slate-400">{t("assessmentsLabel")}</p>
-            <p className="mt-1 text-4xl font-semibold tracking-tight text-white">
-              {t("assessmentsDone", { done: myResults.length, total: Math.max(totalAssigned, myResults.length) })}
+            <p className="mt-1 flex items-baseline gap-2">
+              <span className="text-4xl font-semibold tracking-tight text-white">
+                {myResults.length}/{Math.max(totalAssigned, myResults.length)}
+              </span>
+              <span className="text-[13px] text-slate-400">{t("doneSub")}</span>
             </p>
           </div>
         </div>

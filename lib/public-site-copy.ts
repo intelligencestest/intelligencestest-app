@@ -99,7 +99,7 @@ const es: PublicCopyInternal = {
     assessments: "Evaluaciones",
     faq: "FAQ",
     contact: "Contacto",
-    demo: "Solicitar demo",
+    demo: "Comenzar",
     login: "Ingresar",
     signup: "Crear cuenta",
   },
@@ -114,8 +114,8 @@ const es: PublicCopyInternal = {
     heroTitle: "Evaluaciones psicométricas para decisiones de selección más claras",
     heroBody:
       "Invite candidatos, combine pruebas cognitivas y conductuales, y revise resultados en un espacio de trabajo diseñado para agencias de reclutamiento, pymes, call centers y consultoras de RR. HH.",
-    primaryCta: "Solicitar demo",
-    secondaryCta: "Crear cuenta",
+    primaryCta: "Comenzar ahora",
+    secondaryCta: "Ver evaluaciones",
     stats: [
       { value: "22+", label: "evaluaciones activas" },
       { value: "ES/EN", label: "experiencia bilingüe" },
@@ -249,7 +249,7 @@ const en: PublicCopyInternal = {
     assessments: "Assessments",
     faq: "FAQ",
     contact: "Contact",
-    demo: "Request demo",
+    demo: "Get started",
     login: "Log in",
     signup: "Create account",
   },
@@ -264,8 +264,8 @@ const en: PublicCopyInternal = {
     heroTitle: "Psychometric assessments for clearer hiring decisions",
     heroBody:
       "Invite candidates, combine cognitive and behavioral tests, and review results in a workspace built for recruitment agencies, SMEs, call centers, and HR consulting firms.",
-    primaryCta: "Request demo",
-    secondaryCta: "Create account",
+    primaryCta: "Start now",
+    secondaryCta: "Explore assessments",
     stats: [
       { value: "22+", label: "active assessments" },
       { value: "ES/EN", label: "bilingual experience" },
