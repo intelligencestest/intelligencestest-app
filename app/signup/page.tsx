@@ -300,9 +300,9 @@ export default function SignupPage() {
 
               <p className="mt-5 text-center text-xs text-slate-600">
                 {flow("signupAgreement")}{" "}
-                <Link href="#" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("terms")}</Link>
+                <Link href="/terms" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("terms")}</Link>
                 {" "}{flow("and")}{" "}
-                <Link href="#" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("privacyPolicy")}</Link>
+                <Link href="/privacy" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("privacyPolicy")}</Link>
               </p>
             </div>
           </div>

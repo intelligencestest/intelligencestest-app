@@ -260,9 +260,9 @@ export default function LoginPage() {
 
             <p className="mt-6 text-center text-xs text-slate-600">
               {flow("signinAgreement")}{" "}
-              <Link href="#" className="text-slate-500 transition-colors hover:text-slate-300">{flow("terms")}</Link>
+              <Link href="/terms" className="text-slate-500 transition-colors hover:text-slate-300">{flow("terms")}</Link>
               {" "}{flow("and")}{" "}
-              <Link href="#" className="text-slate-500 transition-colors hover:text-slate-300">{flow("privacyPolicy")}</Link>
+              <Link href="/privacy" className="text-slate-500 transition-colors hover:text-slate-300">{flow("privacyPolicy")}</Link>
             </p>
           </div>
         </section>
