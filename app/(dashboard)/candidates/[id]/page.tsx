@@ -398,6 +398,20 @@ export default async function CandidateReportPage({
 
           <section className="premium-card rounded-xl p-5">
             <h2 className="mb-4 text-sm font-semibold text-white">{t("exportTitle")}</h2>
+            {myResults.length > 0 && (
+              <div className="mb-4">
+                <Link
+                  href={`/candidates/${candidate.id}/report`}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#1D4ED8]/40 bg-[#1D4ED8]/10 px-4 py-2.5 text-sm font-semibold text-[#9BB8FF] transition-colors hover:bg-[#1D4ED8]/20"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 12h6m-6 3h3.75M6.75 21h10.5a2.25 2.25 0 0 0 2.25-2.25V9.664c0-.597-.237-1.17-.659-1.591l-5.164-5.164A2.25 2.25 0 0 0 12.086 2.25H6.75A2.25 2.25 0 0 0 4.5 4.5v14.25A2.25 2.25 0 0 0 6.75 21Z" />
+                  </svg>
+                  {t("executiveReport")}
+                </Link>
+                <p className="mt-2 text-xs text-slate-400">{t("executiveReportNote")}</p>
+              </div>
+            )}
             <ExportPdfButton
               candidateName={name}
               candidateEmail={candidate.email || ""}

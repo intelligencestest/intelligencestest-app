@@ -229,6 +229,8 @@
     "eventInvited": "Invitación enviada",
     "eventCompleted": "Completó {assessment}",
     "exportTitle": "Exportar",
+    "executiveReport": "Ver informe ejecutivo",
+    "executiveReportNote": "Documento ejecutivo listo para imprimir o guardar como PDF.",
     "exportPdf": "Descargar informe PDF",
     "exportingPdf": "Generando…",
     "exportNote": "Informe PDF completo con todas las evaluaciones completadas.",
