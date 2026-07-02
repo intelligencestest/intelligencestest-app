@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { scoreAQ } from "@/lib/questions/aq";
 import { scoreResults } from "@/lib/questions/critical-thinking";
+import { PDF_SAFE_ASSESSMENTS } from "@/lib/report-scoring";
 import type { CTPDFData, AQPDFData } from "@/lib/pdf";
 import type { ComprehensiveReportData } from "@/lib/report-pdf";
 
@@ -193,12 +195,13 @@ export default function ReportsClient({
 
   // Group results by candidate for the Full Report feature
   const candidateGroups = useMemo(() => {
-    const map = new Map<string, { name: string; email: string; results: Result[] }>();
+    const map = new Map<string, { name: string; email: string; id: string | null; results: Result[] }>();
     results.forEach(r => {
       const key = r.candidate_id ?? r.candidates?.email ?? r.candidates?.full_name ?? "unknown";
       const existing = map.get(key) ?? {
         name: r.candidates?.full_name ?? copy.unknown,
         email: r.candidates?.email ?? "",
+        id: r.candidate_id ?? null,
         results: [],
       };
       existing.results.push(r);
@@ -340,7 +343,13 @@ export default function ReportsClient({
                             {initials}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-white truncate">{candidate?.full_name ?? copy.unknown}</p>
+                            {result.candidate_id ? (
+                              <Link href={`/candidates/${result.candidate_id}`} className="text-sm font-medium text-white truncate block hover:text-[#8CB1FF] transition-colors">
+                                {candidate?.full_name ?? copy.unknown}
+                              </Link>
+                            ) : (
+                              <p className="text-sm font-medium text-white truncate">{candidate?.full_name ?? copy.unknown}</p>
+                            )}
                             <p className="text-xs text-slate-500 truncate">{result.assessments?.name ?? copy.assessment}</p>
                           </div>
                           <div className="text-right flex-shrink-0">
@@ -349,7 +358,7 @@ export default function ReportsClient({
                               {new Date(result.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                             </p>
                           </div>
-                          <DownloadPDFButton result={result} />
+                          {PDF_SAFE_ASSESSMENTS.has(result.assessments?.name ?? "") && <DownloadPDFButton result={result} />}
                         </div>
                         <div className="mt-3 ml-[88px]">
                           <div className="w-full h-1.5 bg-[#1E2240] rounded-full overflow-hidden">
@@ -438,7 +447,13 @@ export default function ReportsClient({
                           {initials}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white">{group.name}</p>
+                          {group.id ? (
+                            <Link href={`/candidates/${group.id}`} className="text-sm font-medium text-white hover:text-[#8CB1FF] transition-colors">
+                              {group.name}
+                            </Link>
+                          ) : (
+                            <p className="text-sm font-medium text-white">{group.name}</p>
+                          )}
                           <p className="text-xs text-slate-500 truncate">{group.email || copy.noEmail}</p>
                           <div className="flex flex-wrap gap-1.5 mt-1.5">
                             {group.results.map(r => (

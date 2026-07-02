@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 
@@ -403,7 +404,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               const name = candidate.full_name?.trim() || copy.anonymous;
               const initials = name === copy.anonymous ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
               return (
-                <div key={candidate.id} className="grid gap-4 px-4 py-4 transition-colors hover:bg-[#1E2240]/30 md:grid-cols-12 md:px-6 md:items-center group">
+                <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="grid gap-4 px-4 py-4 transition-colors hover:bg-[#1E2240]/30 md:grid-cols-12 md:px-6 md:items-center group">
                   <div className="flex min-w-0 items-center gap-3 md:col-span-5">
                     <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-semibold flex-shrink-0 ${avatarClass}`}>
                       {initials}
@@ -430,7 +431,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                       {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

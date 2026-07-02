@@ -38,6 +38,7 @@ type ProjectRow = { id: string; name: string; status: string; deadline: string |
 type ResultRow = {
   score: number;
   completed_at: string;
+  candidate_id: string | null;
   candidates: { full_name: string } | null;
   assessments: { name: string } | null;
 };
@@ -115,7 +116,7 @@ export default async function DashboardPage() {
       .returns<ProjectRow[]>(),
     admin
       .from("results")
-      .select("score, completed_at, candidates(full_name), assessments(name)")
+      .select("score, completed_at, candidate_id, candidates(full_name), assessments(name)")
       .eq("company_id", companyId)
       .order("completed_at", { ascending: false })
       .limit(8)
@@ -312,7 +313,7 @@ export default async function DashboardPage() {
       key: `r-${r.completed_at}-${i}`,
       message: t("activityCompleted", { name: r.candidates.full_name, assessment: r.assessments.name, score: r.score }),
       time: relativeTime(ts, nowMs, dateLocale),
-      href: "/reports", kind: "completed", ts,
+      href: r.candidate_id ? `/candidates/${r.candidate_id}` : "/reports", kind: "completed", ts,
     });
   });
   [...all]
