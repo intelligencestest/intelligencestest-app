@@ -56,10 +56,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to save result" }, { status: 500 });
   }
 
-  // Update candidate status
+  // Update candidate status + pipeline stage
   await supabase
     .from("candidates")
-    .update({ status: "completed" })
+    .update({ status: "completed", pipeline_stage: "completed", stage_changed_at: new Date().toISOString() })
     .eq("id", candidate.id);
 
   return NextResponse.json({ success: true });

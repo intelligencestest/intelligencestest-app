@@ -5,12 +5,22 @@ import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-se
 import { analyzeResult, type EvidenceDetail } from "@/lib/report-scoring";
 import { assessmentName as termName, categoryLabel as termCategory, dimensionLabel as termDimension } from "@/lib/i18n/assessment-terms";
 import ExportPdfButton from "./ExportPdfButton";
+import DecisionBar from "./DecisionBar";
 
 // Stage chips mirror the candidate list styling.
 const STAGE_CHIP: Record<string, { class: string; dot: string }> = {
   invited: { class: "bg-amber-500/10 text-amber-300 border-amber-500/25", dot: "bg-amber-400" },
   started: { class: "bg-blue-500/10 text-blue-300 border-blue-500/25", dot: "bg-blue-400" },
   completed: { class: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400" },
+  reviewed: { class: "bg-violet-500/10 text-violet-300 border-violet-500/25", dot: "bg-violet-400" },
+  interview: { class: "bg-[#1D4ED8]/15 text-[#9BB8FF] border-[#1D4ED8]/35", dot: "bg-[#6B9FFF]" },
+  hired: { class: "bg-emerald-500/15 text-emerald-200 border-emerald-400/40", dot: "bg-emerald-300" },
+};
+
+const OUTCOME_CHIP: Record<string, { class: string; dot: string }> = {
+  rejected: { class: "bg-[#d03b3b]/10 text-[#f28b8b] border-[#d03b3b]/25", dot: "bg-[#e05252]" },
+  withdrawn: { class: "bg-[#1E2240]/60 text-slate-300 border-[#1E2240]", dot: "bg-slate-400" },
+  expired: { class: "bg-[#ec835a]/10 text-[#ec835a] border-[#ec835a]/25", dot: "bg-[#ec835a]" },
 };
 
 function band(score: number): "high" | "medium" | "low" {
@@ -32,8 +42,15 @@ type ResultRow = {
   assessments: { id: string; name: string; category: string | null } | null;
 };
 
-export default async function CandidateReportPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CandidateReportPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ ctx?: string }>;
+}) {
   const { id } = await params;
+  const { ctx } = await searchParams;
   const locale = await getLocale();
   const t = await getTranslations("report");
   const dateLocale = locale === "es" ? "es-ES" : "en-US";
@@ -51,12 +68,12 @@ export default async function CandidateReportPage({ params }: { params: Promise<
 
   const { data: candidate } = await admin
     .from("candidates")
-    .select("id, full_name, email, status, created_at, company_id, project_id, hiring_projects(id, name)")
+    .select("id, full_name, email, status, pipeline_stage, outcome, created_at, company_id, project_id, hiring_projects(id, name)")
     .eq("id", id)
     .eq("company_id", companyId)
     .returns<{
-      id: string; full_name: string; email: string; status: string; created_at: string;
-      company_id: string; project_id: string; hiring_projects: { id: string; name: string } | null;
+      id: string; full_name: string; email: string; status: string; pipeline_stage: string; outcome: string;
+      created_at: string; company_id: string; project_id: string; hiring_projects: { id: string; name: string } | null;
     }[]>()
     .maybeSingle();
 
@@ -89,9 +106,25 @@ export default async function CandidateReportPage({ params }: { params: Promise<
   const initials =
     name === t("anonymous") ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   const projectName = candidate.hiring_projects?.name ?? "—";
-  const stage = STAGE_CHIP[candidate.status] ?? STAGE_CHIP.invited;
-  const stageLabel =
-    candidate.status === "completed" ? t("statusCompleted") : candidate.status === "started" ? t("statusStarted") : t("statusInvited");
+  const stageKey = candidate.pipeline_stage ?? candidate.status;
+  const closed = candidate.outcome !== "pending";
+  const stage = closed
+    ? OUTCOME_CHIP[candidate.outcome] ?? OUTCOME_CHIP.withdrawn
+    : STAGE_CHIP[stageKey] ?? STAGE_CHIP.invited;
+  const stageLabels: Record<string, string> = {
+    invited: t("statusInvited"),
+    started: t("statusStarted"),
+    completed: t("statusCompleted"),
+    reviewed: t("statusReviewed"),
+    interview: t("statusInterview"),
+    hired: t("statusHired"),
+  };
+  const outcomeLabels: Record<string, string> = {
+    rejected: t("outcomeRejected"),
+    withdrawn: t("outcomeWithdrawn"),
+    expired: t("outcomeExpired"),
+  };
+  const stageLabel = closed ? outcomeLabels[candidate.outcome] ?? candidate.outcome : stageLabels[stageKey] ?? stageKey;
 
   // ---- Verdict numbers ------------------------------------------------------
   const overall = myResults.length
@@ -109,6 +142,31 @@ export default async function CandidateReportPage({ params }: { params: Promise<
   averages.sort((a, b) => b.avg - a.avg);
   const rankIndex = averages.findIndex((a) => a.cid === candidate.id);
   const rank = rankIndex >= 0 && averages.length >= 2 ? { rank: rankIndex + 1, total: averages.length } : null;
+
+  // ---- Queue context for prev/next navigation -------------------------------
+  let queueIds: string[];
+  let queueLabel: string;
+  if (ctx === "review") {
+    const { data: queue } = await admin
+      .from("candidates")
+      .select("id")
+      .eq("company_id", companyId)
+      .eq("pipeline_stage", "completed")
+      .eq("outcome", "pending")
+      .order("stage_changed_at", { ascending: true })
+      .returns<{ id: string }[]>();
+    queueIds = (queue ?? []).map((q) => q.id);
+    // A candidate reviewed moments ago drops out of the queue but stays navigable.
+    if (!queueIds.includes(candidate.id)) queueIds = [candidate.id, ...queueIds];
+    queueLabel = t("queueReviewLabel");
+  } else {
+    queueIds = averages.length > 0 ? averages.map((a) => a.cid) : [candidate.id];
+    queueLabel = t("queueProjectLabel");
+  }
+  const queueIdx = queueIds.indexOf(candidate.id);
+  const qs = ctx === "review" ? "?ctx=review" : "";
+  const prevHref = queueIdx > 0 ? `/candidates/${queueIds[queueIdx - 1]}${qs}` : null;
+  const nextHref = queueIdx >= 0 && queueIdx < queueIds.length - 1 ? `/candidates/${queueIds[queueIdx + 1]}${qs}` : null;
 
   // Per-assessment share of project results this score beats (needs >= 4 results).
   const beatsShare = (assessmentId: string, score: number): number | null => {
@@ -350,6 +408,18 @@ export default async function CandidateReportPage({ params }: { params: Promise<
           </section>
         </div>
       </div>
+
+      <DecisionBar
+        candidateId={candidate.id}
+        stage={stageKey}
+        outcome={candidate.outcome ?? "pending"}
+        prevHref={prevHref}
+        nextHref={nextHref}
+        position={queueIdx >= 0 ? queueIdx + 1 : null}
+        total={queueIdx >= 0 ? queueIds.length : null}
+        queueLabel={queueLabel}
+        advanceHref={nextHref}
+      />
     </div>
   );
 }

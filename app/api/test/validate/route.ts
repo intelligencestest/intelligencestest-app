@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
   if (candidate.status === "invited") {
     await supabase
       .from("candidates")
-      .update({ status: "started" })
+      .update({ status: "started", pipeline_stage: "started", stage_changed_at: new Date().toISOString() })
       .eq("id", candidate.id)
       .eq("status", "invited");
   }

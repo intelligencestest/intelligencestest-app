@@ -102,7 +102,7 @@ export default async function DashboardPage() {
     { data: recentResults },
     { count: resultsThisWeek },
     { count: resultsPrevWeek },
-    { data: recentCompletions },
+    { data: reviewQueue },
     { data: projectScores },
   ] = await Promise.all([
     admin
@@ -134,11 +134,13 @@ export default async function DashboardPage() {
       .gte("completed_at", twoWeeksAgo)
       .lt("completed_at", weekAgo),
     admin
-      .from("results")
-      .select("candidate_id, project_id")
+      .from("candidates")
+      .select("id")
       .eq("company_id", companyId)
-      .gte("completed_at", weekAgo)
-      .returns<{ candidate_id: string; project_id: string }[]>(),
+      .eq("pipeline_stage", "completed")
+      .eq("outcome", "pending")
+      .order("stage_changed_at", { ascending: true })
+      .returns<{ id: string }[]>(),
     admin
       .from("results")
       .select("project_id, score")
@@ -162,11 +164,9 @@ export default async function DashboardPage() {
   const stalled = openInvites.filter(
     (c) => nowMs - new Date(c.created_at).getTime() > 7 * DAY && !expiring.includes(c)
   );
-  const toReview = new Set((recentCompletions ?? []).map((r) => r.candidate_id)).size;
-  // When everything to review sits in one project, land directly on its ranking.
-  const reviewProjectIds = new Set((recentCompletions ?? []).map((r) => r.project_id));
-  const reviewHref =
-    reviewProjectIds.size === 1 ? `/reports?project=${[...reviewProjectIds][0]}` : "/reports";
+  // True burn-down queue: completed candidates whose review is still pending.
+  const toReview = (reviewQueue ?? []).length;
+  const reviewHref = reviewQueue?.[0] ? `/candidates/${reviewQueue[0].id}?ctx=review` : "/reports";
 
   const perProject = all.reduce<
     Record<string, { total: number; completed: number; started: number; invitedOpen: number; expired: number }>
