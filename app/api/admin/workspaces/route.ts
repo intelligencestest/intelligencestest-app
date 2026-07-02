@@ -1,0 +1,189 @@
+import { randomUUID } from "crypto";
+import { NextRequest, NextResponse } from "next/server";
+import { sendAuthEmail } from "@/lib/auth-email";
+import { toAppLocale } from "@/lib/i18n/locales";
+import { requireInternalAdminForApi } from "@/lib/internal-admin";
+
+const APP_URL = "https://app.intelligencestest.com";
+
+function clean(value: unknown, max = 500) {
+  return typeof value === "string" ? value.trim().slice(0, max) : "";
+}
+
+function isEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+export async function POST(request: NextRequest) {
+  const { admin } = await requireInternalAdminForApi();
+  if (!admin) return jsonError("Forbidden", 403);
+
+  const body = await request.json().catch(() => null);
+  const companyName = clean(body?.company_name);
+  const adminEmail = clean(body?.admin_email).toLowerCase();
+  const adminName = clean(body?.admin_name) || "Workspace Admin";
+  const plan = clean(body?.plan) || "standard";
+  const status = clean(body?.status) || "active";
+  const language = toAppLocale(body?.language);
+  const industry = clean(body?.industry);
+
+  if (!companyName || !isEmail(adminEmail)) {
+    return jsonError("Company name and a valid admin email are required.", 400);
+  }
+
+  const { data: existingUser } = await admin
+    .from("users")
+    .select("id")
+    .eq("email", adminEmail)
+    .maybeSingle();
+
+  if (existingUser) {
+    return jsonError("A user with this email already exists.", 409);
+  }
+
+  const { data: company, error: companyError } = await admin
+    .from("companies")
+    .insert({
+      name: companyName,
+      email: adminEmail,
+      language,
+      industry,
+      onboarding_completed: true,
+      plan,
+      status,
+      disabled_at: status === "disabled" ? new Date().toISOString() : null,
+      updated_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
+
+  if (companyError || !company) {
+    return jsonError(companyError?.message ?? "Could not create workspace.", 500);
+  }
+
+  const temporaryPassword = `${randomUUID()}Aa1!`;
+  const { data: createdUser, error: createUserError } = await admin.auth.admin.createUser({
+    email: adminEmail,
+    password: temporaryPassword,
+    email_confirm: true,
+    user_metadata: { full_name: adminName, company_id: company.id },
+  });
+
+  if (createUserError || !createdUser.user) {
+    await admin.from("companies").delete().eq("id", company.id);
+    return jsonError(createUserError?.message ?? "Could not create workspace admin.", 500);
+  }
+
+  const { error: userRowError } = await admin.from("users").insert({
+    id: createdUser.user.id,
+    company_id: company.id,
+    full_name: adminName,
+    email: adminEmail,
+    role: "admin",
+  });
+
+  if (userRowError) {
+    await admin.auth.admin.deleteUser(createdUser.user.id);
+    await admin.from("companies").delete().eq("id", company.id);
+    return jsonError(userRowError.message, 500);
+  }
+
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: "recovery",
+    email: adminEmail,
+    options: {
+      redirectTo: `${APP_URL}/auth/callback?next=/reset-password`,
+    },
+  });
+
+  if (linkError || !linkData?.properties?.action_link) {
+    return jsonError(linkError?.message ?? "Workspace created, but password setup link failed.", 502);
+  }
+
+  const emailResult = await sendAuthEmail({
+    kind: "welcome",
+    locale: language,
+    to: adminEmail,
+    name: adminName,
+    actionUrl: linkData.properties.action_link,
+  });
+
+  if (emailResult.error) {
+    return jsonError(`Workspace created, but welcome email failed: ${emailResult.error.message}`, 502);
+  }
+
+  return NextResponse.json({ ok: true, company_id: company.id });
+}
+
+export async function PATCH(request: NextRequest) {
+  const { admin } = await requireInternalAdminForApi();
+  if (!admin) return jsonError("Forbidden", 403);
+
+  const body = await request.json().catch(() => null);
+  const companyId = clean(body?.company_id);
+  const status = clean(body?.status);
+
+  if (!companyId) {
+    return jsonError("Company id is required.", 400);
+  }
+
+  const updates: Record<string, string | null | boolean> = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (typeof body?.company_name === "string") updates.name = clean(body.company_name);
+  if (typeof body?.email === "string") updates.email = clean(body.email).toLowerCase();
+  if (typeof body?.plan === "string") updates.plan = clean(body.plan);
+  if (typeof body?.language === "string") updates.language = toAppLocale(body.language);
+  if (typeof body?.industry === "string") updates.industry = clean(body.industry);
+  if (typeof body?.logo_url === "string") updates.logo_url = clean(body.logo_url, 1000);
+
+  if (status) {
+    updates.status = status === "disabled" ? "disabled" : "active";
+    updates.disabled_at = status === "disabled" ? new Date().toISOString() : null;
+  }
+
+  const { error } = await admin.from("companies").update(updates).eq("id", companyId);
+
+  if (error) {
+    return jsonError(error.message, 500);
+  }
+
+  return NextResponse.json({ ok: true });
+}
+
+export async function DELETE(request: NextRequest) {
+  const { admin } = await requireInternalAdminForApi();
+  if (!admin) return jsonError("Forbidden", 403);
+
+  const companyId = request.nextUrl.searchParams.get("company_id");
+  if (!companyId) return jsonError("Company id is required.", 400);
+
+  const { data: users } = await admin.from("users").select("id").eq("company_id", companyId);
+  const userIds = (users ?? []).map((user) => user.id).filter(Boolean);
+
+  const { data: projects } = await admin.from("hiring_projects").select("id").eq("company_id", companyId);
+  const projectIds = (projects ?? []).map((project) => project.id).filter(Boolean);
+
+  if (projectIds.length > 0) {
+    await admin.from("project_assessments").delete().in("project_id", projectIds);
+  }
+
+  await admin.from("results").delete().eq("company_id", companyId);
+  await admin.from("candidates").delete().eq("company_id", companyId);
+  await admin.from("hiring_projects").delete().eq("company_id", companyId);
+  await admin.from("users").delete().eq("company_id", companyId);
+  const { error } = await admin.from("companies").delete().eq("id", companyId);
+
+  if (error) {
+    return jsonError(error.message, 500);
+  }
+
+  await Promise.allSettled(userIds.map((userId) => admin.auth.admin.deleteUser(userId)));
+
+  return NextResponse.json({ ok: true });
+}

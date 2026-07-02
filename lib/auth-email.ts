@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 export type AuthEmailLocale = "en" | "es";
-export type AuthEmailKind = "confirmation" | "recovery";
+export type AuthEmailKind = "confirmation" | "recovery" | "welcome";
 
 const APP_URL = "https://app.intelligencestest.com";
 const LOGO_URL = `${APP_URL}/intelligencestest-email-logo.png`;
@@ -20,6 +20,46 @@ function toLocale(value: unknown): AuthEmailLocale {
 }
 
 function copy(kind: AuthEmailKind, locale: AuthEmailLocale) {
+  if (kind === "welcome") {
+    if (locale === "es") {
+      return {
+        subject: "Bienvenido/a a IntelligencesTest",
+        preheader: "Active su espacio de trabajo y cree su contraseña segura.",
+        greeting: (name?: string | null) => (name ? `Estimado/a ${name},` : "Estimado/a usuario/a,"),
+        title: "Su espacio de trabajo está listo",
+        intro:
+          "Hemos creado el espacio de trabajo de su empresa en IntelligencesTest. Use el botón de abajo para crear su contraseña segura y acceder al panel.",
+        cta: "Crear contraseña y acceder",
+        noticeTitle: "Acceso seguro",
+        notice:
+          "Por seguridad, este enlace puede caducar pronto. Si no esperaba esta invitación, contacte a la persona que administra la plataforma en su organización.",
+        fallback: "Si el botón no funciona, copie y pegue este enlace en su navegador:",
+        footer: "Soporte: support@intelligencestest.com",
+        powered: "Con tecnología de IntelligencesTest",
+        brandSubtitle: "Plataforma de evaluación humana",
+        logoAlt: "Logotipo de IntelligencesTest",
+      };
+    }
+
+    return {
+      subject: "Welcome to IntelligencesTest",
+      preheader: "Activate your workspace and create your secure password.",
+      greeting: (name?: string | null) => (name ? `Hi ${name},` : "Hi there,"),
+      title: "Your workspace is ready",
+      intro:
+        "Your company workspace has been created in IntelligencesTest. Use the button below to create your secure password and access the dashboard.",
+      cta: "Create password and sign in",
+      noticeTitle: "Secure access",
+      notice:
+        "For your security, this link may expire soon. If you were not expecting this invitation, contact the person who manages the platform at your organization.",
+      fallback: "If the button does not work, copy and paste this link into your browser:",
+      footer: "Support: support@intelligencestest.com",
+      powered: "Powered by IntelligencesTest",
+      brandSubtitle: "Human Assessment Platform",
+      logoAlt: "IntelligencesTest logo",
+    };
+  }
+
   if (kind === "recovery") {
     if (locale === "es") {
       return {
