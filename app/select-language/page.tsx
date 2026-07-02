@@ -1,19 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import {
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  LANGUAGE_OVERRIDE_COOKIE,
+  LANGUAGE_OVERRIDE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+} from "@/lib/i18n/locales";
 
 const LANGS = [
-  {
-    value: "en" as const,
-    label: "English",
-    sub: "Continue in English",
-    code: "EN",
-  },
   {
     value: "es" as const,
     label: "Español",
     sub: "Continuar en español",
     code: "ES",
+  },
+  {
+    value: "en" as const,
+    label: "English",
+    sub: "Continue in English",
+    code: "EN",
   },
 ] as const;
 
@@ -23,7 +30,10 @@ export default function SelectLanguagePage() {
   function pick(lang: "en" | "es") {
     if (picking) return;
     setPicking(lang);
-    document.cookie = `lang=${lang}; path=/; max-age=31536000; samesite=lax`;
+    document.cookie = `${LANGUAGE_COOKIE}=${lang}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+    document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
     window.location.assign("/signup");
   }
 

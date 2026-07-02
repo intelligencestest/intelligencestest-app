@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import {
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  LANGUAGE_OVERRIDE_COOKIE,
+  LANGUAGE_OVERRIDE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  toAppLocale,
+} from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -46,6 +54,14 @@ export default function LoginPage() {
         setError(authError.message);
       }
       return;
+    }
+    const hasLanguageOverride = window.localStorage.getItem(LANGUAGE_OVERRIDE_STORAGE_KEY) === "1";
+    if (hasLanguageOverride) {
+      const language = toAppLocale(window.localStorage.getItem(LANGUAGE_STORAGE_KEY));
+      document.cookie = `${LANGUAGE_COOKIE}=${language}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+      document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+    } else {
+      await fetch("/api/auth/session-language", { method: "POST" }).catch(() => null);
     }
     router.push("/dashboard");
     router.refresh();

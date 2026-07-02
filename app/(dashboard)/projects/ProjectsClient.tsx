@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Assessment {
   id: string;
@@ -40,6 +40,8 @@ const statusConfig: Record<string, { label: string; class: string; dot: string }
 
 export default function ProjectsClient({ projects, countsByProject, projectAssessments, activeCount, totalCandidates }: Props) {
   const t = useTranslations("projects");
+  const locale = useLocale();
+  const dateLocale = locale === "es" ? "es-ES" : "en-US";
 
   const [inviteProjectId, setInviteProjectId] = useState<string | null>(null);
   const [form, setForm] = useState({ full_name: "", email: "", assessment_id: "" });
@@ -109,7 +111,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Failed to generate invite");
+        setError(data.error ?? t("inviteError"));
       } else if (mode === "link") {
         const url = `${window.location.origin}${data.test_url}`;
         await navigator.clipboard.writeText(url).catch(() => {});
@@ -118,7 +120,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
         setSuccess({ type: "email", to: form.email });
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(t("networkError"));
     }
 
     setLoadingMode(null);
@@ -135,7 +137,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">{t("title")}</h1>
           <p className="text-slate-500 text-sm mt-1">
-            {activeCount} active project{activeCount !== 1 ? "s" : ""} · {totalCandidates} candidate{totalCandidates !== 1 ? "s" : ""} in motion
+            {t("summary", { activeCount, totalCandidates })}
           </p>
         </div>
         <Link
@@ -182,17 +184,17 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                       </h3>
                       <span className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                        {cfg.label}
+                        {t(project.status === "active" ? "statusActive" : project.status === "archived" ? "statusArchived" : "statusDraft")}
                       </span>
                     </div>
                     <p className="mt-2 text-xs text-slate-600">
-                      {t("createdPrefix")} {new Date(project.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {t("createdPrefix")} {new Date(project.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
                 </div>
 
                 <p className="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-2">
-                  {project.description ?? "No description provided."}
+                  {project.description ?? t("noDescription")}
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mb-4">
@@ -232,7 +234,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                 <div className="flex flex-col gap-3 border-t border-[#1E2240] pt-3 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
                   <span>
                     {project.deadline
-                      ? `${t("deadlinePrefix")} ${new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}`
+                      ? `${t("deadlinePrefix")} ${new Date(project.deadline).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}`
                       : t("noDeadline")}
                   </span>
                   <div className="flex items-center gap-4">
@@ -338,7 +340,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">
                     {t("candidateName")}
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">({t("optional")})</span>
                   </label>
                   <input
                     value={form.full_name}

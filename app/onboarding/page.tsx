@@ -3,6 +3,14 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  LANGUAGE_OVERRIDE_COOKIE,
+  LANGUAGE_OVERRIDE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  toAppLocale,
+} from "@/lib/i18n/locales";
 
 const INDUSTRIES = [
   "Recruitment Agency",
@@ -14,8 +22,8 @@ const INDUSTRIES = [
 ] as const;
 
 const LANGUAGES = [
-  { value: "en", labelKey: "english", code: "EN" },
   { value: "es", labelKey: "spanish", code: "ES" },
+  { value: "en", labelKey: "english", code: "EN" },
 ] as const;
 
 export default function OnboardingPage() {
@@ -23,7 +31,7 @@ export default function OnboardingPage() {
   const t = useTranslations("onboarding");
   const language = useTranslations("language");
   const locale = useLocale();
-  const [form, setForm] = useState({ company_name: "", industry: "", language: locale === "es" ? "es" : "en" });
+  const [form, setForm] = useState({ company_name: "", industry: "", language: toAppLocale(locale) });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,7 +40,7 @@ export default function OnboardingPage() {
     setError("");
 
     if (!form.company_name || !form.industry) {
-      setError("Please fill in all required fields");
+      setError(t("requiredFields"));
       return;
     }
 
@@ -46,12 +54,15 @@ export default function OnboardingPage() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error ?? "Something went wrong");
+      setError(data.error ?? t("genericError"));
       return;
     }
 
     // Set lang cookie client-side too so the next page immediately uses the right locale
-    document.cookie = `lang=${form.language}; path=/; samesite=lax`;
+    document.cookie = `${LANGUAGE_COOKIE}=${form.language}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+    document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, form.language);
+    window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
 
     router.push("/dashboard");
     router.refresh();

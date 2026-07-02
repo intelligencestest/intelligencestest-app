@@ -20,7 +20,8 @@
     "confirm": "Confirmar",
     "create": "Crear",
     "invite": "Invitar",
-    "export": "Exportar"
+    "export": "Exportar",
+    "refresh": "Actualizar"
   },
   "status": {
     "loading": "Cargando...",
@@ -127,6 +128,7 @@
     "title": "Proyectos",
     "badge": "Proyectos",
     "newProject": "Nuevo proyecto",
+    "summary": "{activeCount} proyectos activos · {totalCandidates} candidatos en curso",
     "projectName": "Nombre del proyecto",
     "noProjects": "Sin proyectos aún",
     "noProjectsDescription": "Cree su primer proyecto para comenzar.",
@@ -156,7 +158,14 @@
     "linkCopied": "¡Enlace copiado al portapapeles!",
     "linkValid": "Válido por 7 días",
     "inviteAnother": "Invitar a otro",
-    "noAssessmentsLinked": "No hay evaluaciones vinculadas a este proyecto."
+    "noAssessmentsLinked": "No hay evaluaciones vinculadas a este proyecto.",
+    "inviteError": "No se pudo generar la invitación",
+    "networkError": "Error de red. Intente de nuevo.",
+    "statusActive": "Activo",
+    "statusDraft": "Borrador",
+    "statusArchived": "Archivado",
+    "noDescription": "Sin descripción.",
+    "optional": "opcional"
   },
   "candidates": {
     "fullName": "Nombre completo",
@@ -177,10 +186,12 @@
     "language": "Idioma de evaluación",
     "languageDescription": "Seleccione el idioma predeterminado para las evaluaciones de candidatos.",
     "continueToDashboard": "Continuar al panel →",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "requiredFields": "Complete todos los campos obligatorios.",
+    "genericError": "Algo salió mal. Intente de nuevo."
   },
   "language": {
-    "english": "English",
+    "english": "Inglés",
     "spanish": "Español",
     "switcher": "Idioma"
   },

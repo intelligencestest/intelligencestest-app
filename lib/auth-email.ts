@@ -16,7 +16,7 @@ function escapeHtml(value: string) {
 }
 
 function toLocale(value: unknown): AuthEmailLocale {
-  return value === "es" ? "es" : "en";
+  return value === "en" ? "en" : "es";
 }
 
 function copy(kind: AuthEmailKind, locale: AuthEmailLocale) {

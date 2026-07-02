@@ -20,7 +20,7 @@ export default function CriticalThinkingTest({
 }: {
   searchParams: Promise<{ token?: string; project?: string; lang?: string }>;
 }) {
-  const [locale, setLocale] = useState<Locale>("en");
+  const [locale, setLocale] = useState<Locale>("es");
   const [token, setToken] = useState<string | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
   const [phase, setPhase] = useState<Phase>("validating");
@@ -44,7 +44,7 @@ export default function CriticalThinkingTest({
   useEffect(() => {
     searchParams.then((params) => {
       const rawLang = params.lang;
-      const resolvedLocale: Locale = rawLang === "es" ? "es" : "en";
+      const resolvedLocale: Locale = rawLang === "en" ? "en" : "es";
       setLocale(resolvedLocale);
       const strings = UI_STRINGS[resolvedLocale];
 

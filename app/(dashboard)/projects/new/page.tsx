@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -148,6 +149,94 @@ const ROLE_TEMPLATES: RoleTemplate[] = [
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const es = useLocale() === "es";
+  const copy = es
+    ? {
+        projects: "Proyectos",
+        newProject: "Nuevo proyecto",
+        createProject: "Crear proyecto",
+        subtitle: "Configure un nuevo proyecto de evaluación para su rol abierto.",
+        details: "Detalles del proyecto",
+        projectName: "Nombre del proyecto",
+        projectPlaceholder: "Ej. Ejecutivo/a de ventas senior — Q3 2026",
+        deadline: "Fecha límite de evaluación",
+        description: "Descripción",
+        descriptionPlaceholder: "Describa los requisitos del rol y lo que busca en los candidatos...",
+        roleTemplate: "Elegir una plantilla de rol",
+        roleHint: "Guía opcional. Las pruebas nunca se seleccionan automáticamente.",
+        tests: "pruebas",
+        manualSelection: "Selección manual",
+        guideSelected: "guía seleccionada; elija las evaluaciones manualmente abajo.",
+        customGuide: "elija cualquier combinación de evaluaciones abajo.",
+        assessmentsFor: (role: string) => `Evaluaciones — ${role}`,
+        selectAssessments: "Seleccionar evaluaciones",
+        chooseManual: "Elija las pruebas que completarán los candidatos. Nada se selecciona automáticamente.",
+        chooseActive: "Elija las pruebas activas que completarán los candidatos para este proyecto.",
+        selected: "seleccionadas",
+        loading: "Cargando evaluaciones...",
+        noneActive: "Aún no hay evaluaciones activas disponibles.",
+        questions: "preguntas",
+        cancel: "Cancelar",
+        creating: "Creando...",
+        selectOne: "Seleccione al menos una evaluación antes de crear el proyecto.",
+        failed: "No se pudo crear el proyecto",
+        roles: {
+          "sales-representative": { role: "Representante de ventas", description: "Persuasión, pensamiento crítico, comunicación y ajuste de personalidad para roles comerciales." },
+          "customer-service-agent": { role: "Agente de atención al cliente", description: "Empatía, resolución de problemas, manejo del estrés y atención al detalle." },
+          manager: { role: "Gerente", description: "Estilo de liderazgo, inteligencia emocional, pensamiento crítico y calidad de decisión." },
+          "software-developer": { role: "Desarrollador/a de software", description: "Razonamiento abstracto, resolución de problemas, atención al detalle y agilidad de aprendizaje." },
+          "hr-manager": { role: "Gerente de RR. HH.", description: "Inteligencia emocional, liderazgo, pensamiento crítico y comunicación." },
+          "call-center-agent": { role: "Agente de call center", description: "Atención al cliente, tolerancia al estrés, comunicación y gestión del tiempo." },
+          custom: { role: "Personalizado", description: "Seleccione evaluaciones manualmente para crear una batería adaptada al rol." },
+        } as Record<string, { role: string; description: string }>,
+        category: {
+          Cognitive: "Cognitivo",
+          Resilience: "Resiliencia",
+          Personality: "Personalidad",
+          Leadership: "Liderazgo",
+          "Workplace Judgment": "Juicio laboral",
+          Communication: "Comunicación",
+          Mechanical: "Mecánico",
+          "Work Style": "Estilo de trabajo",
+          Sales: "Ventas",
+          "Customer Service": "Atención al cliente",
+          Teamwork: "Trabajo en equipo",
+          Productivity: "Productividad",
+          Character: "Carácter",
+        } as Record<string, string>,
+      }
+    : {
+        projects: "Projects",
+        newProject: "New Project",
+        createProject: "Create Project",
+        subtitle: "Set up a new assessment project for your open role.",
+        details: "Project Details",
+        projectName: "Project Name",
+        projectPlaceholder: "e.g. Senior Sales Executive — Q3 2026",
+        deadline: "Assessment Deadline",
+        description: "Description",
+        descriptionPlaceholder: "Describe the role requirements and what you're looking for in candidates...",
+        roleTemplate: "Choose a Role Template",
+        roleHint: "Optional guide only. Tests are never selected automatically.",
+        tests: "tests",
+        manualSelection: "Manual selection",
+        guideSelected: "guide selected; choose assessments below manually.",
+        customGuide: "choose any combination of assessments below.",
+        assessmentsFor: (role: string) => `Assessments — ${role}`,
+        selectAssessments: "Select Assessments",
+        chooseManual: "Choose the tests candidates will complete. Nothing is selected automatically.",
+        chooseActive: "Choose the active tests candidates will complete for this project.",
+        selected: "selected",
+        loading: "Loading assessments...",
+        noneActive: "No active assessments are available yet.",
+        questions: "questions",
+        cancel: "Cancel",
+        creating: "Creating...",
+        selectOne: "Select at least one assessment before creating the project.",
+        failed: "Failed to create project",
+        roles: {} as Record<string, { role: string; description: string }>,
+        category: {} as Record<string, string>,
+      };
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [assessments, setAssessments] = useState<Assessment[]>([]);
@@ -209,7 +298,7 @@ export default function NewProjectPage() {
     e.preventDefault();
     setError("");
     if (selectedAssessments.length === 0) {
-      setError("Select at least one assessment before creating the project.");
+      setError(copy.selectOne);
       return;
     }
     setSaving(true);
@@ -226,7 +315,7 @@ export default function NewProjectPage() {
     const data = await res.json();
     setSaving(false);
     if (!res.ok) {
-      setError(data.error ?? "Failed to create project");
+      setError(data.error ?? copy.failed);
       return;
     }
     router.push(`/projects/${data.project_id}`);
@@ -237,17 +326,17 @@ export default function NewProjectPage() {
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm">
         <Link href="/projects" className="text-slate-500 hover:text-slate-300 transition-colors">
-          Projects
+          {copy.projects}
         </Link>
         <svg className="w-3 h-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
-        <span className="text-white font-medium">New Project</span>
+        <span className="text-white font-medium">{copy.newProject}</span>
       </nav>
 
       <div>
-        <h1 className="text-2xl font-bold text-white">Create Project</h1>
-        <p className="text-slate-500 text-sm mt-1">Set up a new assessment project for your open role.</p>
+        <h1 className="text-2xl font-bold text-white">{copy.createProject}</h1>
+        <p className="text-slate-500 text-sm mt-1">{copy.subtitle}</p>
       </div>
 
       {error && (
@@ -257,22 +346,22 @@ export default function NewProjectPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* ── Project Details ─────────────────────────────────────── */}
         <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-5">
-          <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3">Project Details</h2>
+          <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3">{copy.details}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                Project Name <span className="text-red-400">*</span>
+                {copy.projectName} <span className="text-red-400">*</span>
               </label>
               <input
                 required
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                placeholder="e.g. Senior Sales Executive — Q3 2026"
+                placeholder={copy.projectPlaceholder}
                 className="w-full px-4 py-3 rounded-lg bg-[#07080F] border border-[#1E2240] text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8] transition-colors text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Assessment Deadline</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">{copy.deadline}</label>
               <input
                 type="date"
                 value={form.deadline}
@@ -281,12 +370,12 @@ export default function NewProjectPage() {
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">Description</label>
+              <label className="block text-sm font-medium text-slate-300 mb-2">{copy.description}</label>
               <textarea
                 rows={3}
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                placeholder="Describe the role requirements and what you're looking for in candidates..."
+                placeholder={copy.descriptionPlaceholder}
                 className="w-full px-4 py-3 rounded-lg bg-[#07080F] border border-[#1E2240] text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[#1D4ED8] focus:ring-1 focus:ring-[#1D4ED8] transition-colors text-sm resize-none"
               />
             </div>
@@ -296,9 +385,9 @@ export default function NewProjectPage() {
         {/* ── Role Template ────────────────────────────────────────── */}
         <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
           <div className="mb-5 border-b border-[#1E2240] pb-4">
-            <h2 className="text-base font-semibold text-white">Choose a Role Template</h2>
+            <h2 className="text-base font-semibold text-white">{copy.roleTemplate}</h2>
             <p className="text-xs text-slate-500 mt-1">
-              Optional guide only. Tests are never selected automatically.
+              {copy.roleHint}
             </p>
           </div>
 
@@ -306,6 +395,7 @@ export default function NewProjectPage() {
             {ROLE_TEMPLATES.map((template) => {
               const isSelected = selectedTemplate === template.id;
               const isCustom = template.id === "custom";
+              const templateCopy = copy.roles[template.id] ?? { role: template.role, description: template.description };
               const matchedCount = template.keywords.length === 0
                 ? 0
                 : activeAssessments.filter((a) =>
@@ -353,10 +443,10 @@ export default function NewProjectPage() {
                   {/* Name + description */}
                   <div className="min-w-0 flex-1 pr-4">
                     <p className={`text-sm font-semibold ${isSelected ? "text-white" : "text-slate-200"}`}>
-                      {template.role}
+                      {templateCopy.role}
                     </p>
                     <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                      {template.description}
+                      {templateCopy.description}
                     </p>
                   </div>
 
@@ -367,7 +457,7 @@ export default function NewProjectPage() {
                         <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
                         </svg>
-                        {matchedCount} tests
+                        {matchedCount} {copy.tests}
                       </span>
                       <span className="inline-flex items-center gap-1 rounded-full border border-[#1E2240] bg-[#07080F] px-2 py-0.5 text-[10px] font-medium text-slate-400">
                         <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -383,7 +473,7 @@ export default function NewProjectPage() {
                       <svg className="h-3 w-3 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5v15m7.5-7.5h-15" />
                       </svg>
-                      <span className="text-[10px] font-medium text-slate-600">Manual selection</span>
+                      <span className="text-[10px] font-medium text-slate-600">{copy.manualSelection}</span>
                     </div>
                   )}
                 </button>
@@ -396,10 +486,10 @@ export default function NewProjectPage() {
             <div className="mt-4 flex items-center gap-2 rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-2">
               <span className={`h-1.5 w-1.5 rounded-full ${activeTemplate.dotClass}`} />
               <p className="text-xs text-slate-400">
-                <span className="font-medium text-slate-300">{activeTemplate.role}</span>
+                <span className="font-medium text-slate-300">{copy.roles[activeTemplate.id]?.role ?? activeTemplate.role}</span>
                 {activeTemplate.id !== "custom"
-                  ? " guide selected — choose assessments below manually."
-                  : " — choose any combination of assessments below."}
+                  ? ` ${copy.guideSelected}`
+                  : ` — ${copy.customGuide}`}
               </p>
             </div>
           )}
@@ -411,13 +501,13 @@ export default function NewProjectPage() {
             <div>
               <h2 className="text-base font-semibold text-white">
                 {activeTemplate && activeTemplate.id !== "custom"
-                  ? `Assessments — ${activeTemplate.role}`
-                  : "Select Assessments"}
+                  ? copy.assessmentsFor(copy.roles[activeTemplate.id]?.role ?? activeTemplate.role)
+                  : copy.selectAssessments}
               </h2>
               <p className="text-xs text-slate-500 mt-1">
                 {selectedTemplate
-                  ? "Choose the tests candidates will complete. Nothing is selected automatically."
-                  : "Choose the active tests candidates will complete for this project."}
+                  ? copy.chooseManual
+                  : copy.chooseActive}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -430,15 +520,15 @@ export default function NewProjectPage() {
                 </span>
               )}
               <span className="inline-flex w-fit items-center rounded-full border border-[#1E2240] bg-[#07080F] px-3 py-1 text-xs font-medium text-slate-400">
-                {selectedAssessments.length} selected
+                {selectedAssessments.length} {copy.selected}
               </span>
             </div>
           </div>
 
           {assessments.length === 0 ? (
-            <p className="text-slate-500 text-sm">Loading assessments...</p>
+            <p className="text-slate-500 text-sm">{copy.loading}</p>
           ) : groupedAssessments.length === 0 ? (
-            <p className="text-slate-500 text-sm">No active assessments are available yet.</p>
+            <p className="text-slate-500 text-sm">{copy.noneActive}</p>
           ) : (
             <div className="space-y-5">
               {groupedAssessments.map((group) => (
@@ -446,9 +536,9 @@ export default function NewProjectPage() {
                   <div className="flex items-center justify-between gap-3">
                     <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${categoryBorders[group.category] ?? "border-slate-500/20 bg-slate-500/10"} ${categoryColors[group.category] ?? "text-slate-400"}`}>
                       <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                      {group.category}
+                      {copy.category[group.category] ?? group.category}
                     </div>
-                    <span className="text-xs text-slate-600">{group.items.length} tests</span>
+                    <span className="text-xs text-slate-600">{group.items.length} {copy.tests}</span>
                   </div>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     {group.items.map((assessment) => {
@@ -471,7 +561,7 @@ export default function NewProjectPage() {
                           <span className="min-w-0 flex-1">
                             <span className="block text-sm font-medium text-white">{assessment.name}</span>
                             <span className="mt-1 block text-xs text-slate-500">
-                              {assessment.duration_minutes} min / {assessment.question_count} questions
+                              {assessment.duration_minutes} min / {assessment.question_count} {copy.questions}
                             </span>
                             {assessment.description && (
                               <span className="mt-2 line-clamp-2 block text-xs leading-relaxed text-slate-600">
@@ -495,7 +585,7 @@ export default function NewProjectPage() {
             href="/projects"
             className="px-5 py-2.5 rounded-lg border border-[#1E2240] text-slate-400 hover:text-slate-200 hover:border-[#2d3a70] text-sm font-medium transition-colors"
           >
-            Cancel
+            {copy.cancel}
           </Link>
           <button
             type="submit"
@@ -508,10 +598,10 @@ export default function NewProjectPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
-                Creating...
+                {copy.creating}
               </>
             ) : (
-              "Create Project"
+              copy.createProject
             )}
           </button>
         </div>

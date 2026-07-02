@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { toAppLocale } from "@/lib/i18n/locales";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
@@ -360,7 +361,7 @@ export async function POST(request: NextRequest) {
     .eq("id", userProfile.company_id)
     .single();
 
-  const lang = company?.language && ["en", "es"].includes(company.language) ? company.language : "en";
+  const lang = toAppLocale(company?.language);
   const companyName = company?.name ?? "Your Company";
 
   if (!assessment_type) {
@@ -410,7 +411,7 @@ export async function POST(request: NextRequest) {
   }
 
   const testPath = testPaths[assessment_type] ?? "critical-thinking";
-  const langParam = lang !== "en" ? `&lang=${lang}` : "";
+  const langParam = `&lang=${lang}`;
   const testUrl = `/test/${testPath}?token=${candidate.token}${langParam}`;
 
   if (delivery_method === "email") {

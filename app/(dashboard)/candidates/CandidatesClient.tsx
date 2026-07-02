@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 
 const statusConfig: Record<string, { label: string; class: string; dot: string; text: string }> = {
@@ -44,6 +45,7 @@ type LoadingMode = "link" | "email" | null;
 type InviteSuccess = { type: "link"; url: string } | { type: "email"; to: string };
 
 function CopyButton({ text }: { text: string }) {
+  const es = useLocale() === "es";
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -53,18 +55,107 @@ function CopyButton({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 2000);
         });
       }}
-      aria-label="Copy link"
+      aria-label={es ? "Copiar enlace" : "Copy link"}
       className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#1D4ED8]/40 px-3 py-1.5 text-xs font-medium text-[#A9C2FF] transition-colors hover:bg-[#1D4ED8]/10"
     >
       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
       </svg>
-      {copied ? "Copied!" : "Copy"}
+      {copied ? (es ? "Copiado" : "Copied!") : (es ? "Copiar" : "Copy")}
     </button>
   );
 }
 
 export default function CandidatesClient({ initialCandidates, projects, projectAssessments }: Props) {
+  const es = useLocale() === "es";
+  const dateLocale = es ? "es-ES" : "en-US";
+  const copy = es
+    ? {
+        roster: "Lista de candidatos",
+        title: "Candidatos",
+        across: (count: number) => `${count} candidato${count === 1 ? "" : "s"} en todos los proyectos`,
+        inviteCandidate: "Invitar candidato",
+        status: { invited: "Invitado", started: "Iniciado", completed: "Completado" } as Record<string, string>,
+        search: "Buscar por nombre o correo...",
+        allStatuses: "Todos los estados",
+        allProjects: "Todos los proyectos",
+        candidate: "Candidato",
+        project: "Proyecto",
+        statusHeader: "Estado",
+        invitedAt: "Invitado",
+        noCandidates: "Aún no hay candidatos. Haga clic en Invitar candidato para comenzar.",
+        noMatches: "Ningún candidato coincide con los filtros.",
+        anonymous: "Sin nombre",
+        unassigned: "Sin asignar",
+        showing: (shown: number, total: number) => `Mostrando ${shown} de ${total} candidatos`,
+        modalTitle: "Invitar candidato",
+        modalDescription: "Genere un enlace seguro de evaluación válido por 7 días.",
+        validEmail: "Se requiere un correo electrónico válido para enviar la invitación.",
+        selectProject: "Seleccione un proyecto primero.",
+        noLinked: "No hay evaluaciones vinculadas a este proyecto.",
+        failed: "No se pudo generar la invitación",
+        network: "Error de red. Intente de nuevo.",
+        copied: "Enlace copiado al portapapeles",
+        validShare: "Válido por 7 días, compártalo con el candidato",
+        inviteLink: "Enlace de invitación",
+        emailSent: "Correo enviado",
+        inviteAnother: "Invitar a otro",
+        candidateName: "Nombre del candidato",
+        optional: "opcional",
+        emailAddress: "Correo electrónico",
+        requiredEmail: "requerido para enviar correo",
+        noProjects: "Aún no hay proyectos",
+        createFirst: "crear uno primero",
+        assessment: "Evaluación",
+        selectProjectFirst: "Seleccione un proyecto primero",
+        copying: "Copiando...",
+        copyLink: "Copiar enlace",
+        sending: "Enviando...",
+        sendEmail: "Enviar correo",
+      }
+    : {
+        roster: "Candidate roster",
+        title: "Candidates",
+        across: (count: number) => `${count} candidate${count !== 1 ? "s" : ""} across all projects`,
+        inviteCandidate: "Invite Candidate",
+        status: { invited: "Invited", started: "Started", completed: "Completed" } as Record<string, string>,
+        search: "Search by name or email...",
+        allStatuses: "All Statuses",
+        allProjects: "All Projects",
+        candidate: "Candidate",
+        project: "Project",
+        statusHeader: "Status",
+        invitedAt: "Invited",
+        noCandidates: "No candidates yet. Click Invite Candidate to get started.",
+        noMatches: "No candidates match your filters.",
+        anonymous: "Anonymous",
+        unassigned: "Unassigned",
+        showing: (shown: number, total: number) => `Showing ${shown} of ${total} candidates`,
+        modalTitle: "Invite Candidate",
+        modalDescription: "Generate a secure, 7-day assessment link.",
+        validEmail: "A valid email address is required to send an invite.",
+        selectProject: "Select a project first.",
+        noLinked: "No assessments are linked to this project.",
+        failed: "Failed to generate invite",
+        network: "Network error. Please try again.",
+        copied: "Link copied to clipboard",
+        validShare: "Valid for 7 days, share with your candidate",
+        inviteLink: "Invite link",
+        emailSent: "Email sent",
+        inviteAnother: "Invite another",
+        candidateName: "Candidate name",
+        optional: "optional",
+        emailAddress: "Email address",
+        requiredEmail: "required for Send Email",
+        noProjects: "No projects yet",
+        createFirst: "create one first",
+        assessment: "Assessment",
+        selectProjectFirst: "Select a project first",
+        copying: "Copying...",
+        copyLink: "Copy Link",
+        sending: "Sending...",
+        sendEmail: "Send Email",
+      };
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -120,13 +211,13 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
 
     if (mode === "email") {
       if (!form.email || !form.email.includes("@")) {
-        setError("A valid email address is required to send an invite.");
+        setError(copy.validEmail);
         return;
       }
     }
 
-    if (!form.project_id) { setError("Select a project first."); return; }
-    if (!form.assessment_type) { setError("No assessments are linked to this project."); return; }
+    if (!form.project_id) { setError(copy.selectProject); return; }
+    if (!form.assessment_type) { setError(copy.noLinked); return; }
 
     setLoadingMode(mode);
     try {
@@ -144,13 +235,13 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error ?? "Failed to generate invite");
+        setError(data.error ?? copy.failed);
       } else {
         const project = projects.find((p) => p.id === form.project_id) ?? null;
         setCandidates((prev) => [
           {
             id: data.candidate_id,
-            full_name: form.full_name || "Anonymous",
+            full_name: form.full_name || copy.anonymous,
             email: form.email || "",
             status: "invited",
             created_at: new Date().toISOString(),
@@ -169,7 +260,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         }
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(copy.network);
     }
     setLoadingMode(null);
   };
@@ -200,11 +291,11 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
             <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-soft-pulse" />
-            Candidate roster
+            {copy.roster}
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Candidates</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-white">{copy.title}</h1>
           <p className="text-slate-500 text-sm mt-1">
-            {candidates.length} candidate{candidates.length !== 1 ? "s" : ""} across all projects
+            {copy.across(candidates.length)}
           </p>
         </div>
         <button
@@ -214,16 +305,16 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5" />
           </svg>
-          Invite Candidate
+          {copy.inviteCandidate}
         </button>
       </div>
 
       {/* Status stats */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {[
-          { key: "invited", label: "Invited", count: counts.invited },
-          { key: "started", label: "Started", count: counts.started },
-          { key: "completed", label: "Completed", count: counts.completed },
+          { key: "invited", label: copy.status.invited, count: counts.invited },
+          { key: "started", label: copy.status.started, count: counts.started },
+          { key: "completed", label: copy.status.completed, count: counts.completed },
         ].map((s, index) => {
           const cfg = statusConfig[s.key];
           return (
@@ -248,7 +339,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name or email..."
+              placeholder={copy.search}
               className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] py-2.5 pl-9 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
             />
           </div>
@@ -257,17 +348,17 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
             onChange={(e) => setStatusFilter(e.target.value)}
             className="cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
           >
-            <option value="all">All Statuses</option>
-            <option value="invited">Invited</option>
-            <option value="started">Started</option>
-            <option value="completed">Completed</option>
+            <option value="all">{copy.allStatuses}</option>
+            <option value="invited">{copy.status.invited}</option>
+            <option value="started">{copy.status.started}</option>
+            <option value="completed">{copy.status.completed}</option>
           </select>
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
             className="cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
           >
-            <option value="all">All Projects</option>
+            <option value="all">{copy.allProjects}</option>
             {projects.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
             ))}
@@ -278,10 +369,10 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
       {/* Candidate table */}
       <div className="premium-card overflow-hidden rounded-xl">
         <div className="hidden grid-cols-12 gap-4 border-b border-[#1E2240] px-6 py-3 text-xs font-medium uppercase tracking-wider text-slate-500 md:grid">
-          <div className="col-span-5">Candidate</div>
-          <div className="col-span-4">Project</div>
-          <div className="col-span-2">Status</div>
-          <div className="col-span-1 text-right">Invited</div>
+          <div className="col-span-5">{copy.candidate}</div>
+          <div className="col-span-4">{copy.project}</div>
+          <div className="col-span-2">{copy.statusHeader}</div>
+          <div className="col-span-1 text-right">{copy.invitedAt}</div>
         </div>
 
         {filtered.length === 0 ? (
@@ -289,15 +380,15 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
             <svg className="w-10 h-10 mx-auto mb-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8" />
             </svg>
-            <p className="text-sm">{candidates.length === 0 ? "No candidates yet. Click Invite Candidate to get started." : "No candidates match your filters."}</p>
+            <p className="text-sm">{candidates.length === 0 ? copy.noCandidates : copy.noMatches}</p>
           </div>
         ) : (
           <div className="divide-y divide-[#1E2240]">
             {filtered.map((candidate, i) => {
               const cfg = statusConfig[candidate.status] ?? statusConfig.invited;
               const avatarClass = avatarColors[i % avatarColors.length];
-              const name = candidate.full_name?.trim() || "Anonymous";
-              const initials = name === "Anonymous" ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+              const name = candidate.full_name?.trim() || copy.anonymous;
+              const initials = name === copy.anonymous ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
               return (
                 <div key={candidate.id} className="grid gap-4 px-4 py-4 transition-colors hover:bg-[#1E2240]/30 md:grid-cols-12 md:px-6 md:items-center group">
                   <div className="flex min-w-0 items-center gap-3 md:col-span-5">
@@ -310,20 +401,20 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                     </div>
                   </div>
                   <div className="min-w-0 md:col-span-4">
-                    <p className="truncate text-sm text-slate-400">{candidate.hiring_projects?.name ?? "Unassigned"}</p>
+                    <p className="truncate text-sm text-slate-400">{candidate.hiring_projects?.name ?? copy.unassigned}</p>
                     <p className="mt-1 text-xs text-slate-600 md:hidden">
-                      Invited {new Date(candidate.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {copy.invitedAt} {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
                   <div className="md:col-span-2">
                     <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
                       <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                      {cfg.label}
+                      {copy.status[candidate.status] ?? cfg.label}
                     </span>
                   </div>
                   <div className="hidden text-right md:col-span-1 md:block">
                     <p className="text-xs text-slate-500">
-                      {new Date(candidate.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                      {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
                 </div>
@@ -333,7 +424,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         )}
 
         <div className="border-t border-[#1E2240] px-6 py-3 text-xs text-slate-600">
-          Showing {filtered.length} of {candidates.length} candidates
+          {copy.showing(filtered.length, candidates.length)}
         </div>
       </div>
 
@@ -350,8 +441,8 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
             {/* Header */}
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold text-white">Invite Candidate</h3>
-                <p className="mt-0.5 text-xs text-slate-500">Generate a secure, 7-day assessment link.</p>
+                <h3 className="text-base font-semibold text-white">{copy.modalTitle}</h3>
+                <p className="mt-0.5 text-xs text-slate-500">{copy.modalDescription}</p>
               </div>
               <button
                 onClick={closeModal}
@@ -375,12 +466,12 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                         </svg>
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-emerald-300">Link copied to clipboard</p>
-                        <p className="text-xs text-slate-500">Valid for 7 days · share with your candidate</p>
+                        <p className="text-sm font-medium text-emerald-300">{copy.copied}</p>
+                        <p className="text-xs text-slate-500">{copy.validShare}</p>
                       </div>
                     </div>
                     <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
-                      <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Invite link</p>
+                      <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{copy.inviteLink}</p>
                       <div className="flex items-center gap-2">
                         <p className="flex-1 break-all font-mono text-xs text-blue-300">{success.url}</p>
                         <CopyButton text={success.url} />
@@ -395,7 +486,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                       </svg>
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-emerald-300">Email sent</p>
+                      <p className="text-sm font-medium text-emerald-300">{copy.emailSent}</p>
                       <p className="truncate text-xs text-slate-500">{success.to}</p>
                     </div>
                   </div>
@@ -405,7 +496,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                   onClick={resetForm}
                   className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
                 >
-                  Invite another
+                  {copy.inviteAnother}
                 </button>
               </div>
             ) : (
@@ -419,8 +510,8 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
 
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                    Candidate name
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                    {copy.candidateName}
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.optional})</span>
                   </label>
                   <input
                     value={form.full_name}
@@ -432,8 +523,8 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
 
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                    Email address
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">(required for Send Email)</span>
+                    {copy.emailAddress}
+                    <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.requiredEmail})</span>
                   </label>
                   <input
                     type="email"
@@ -445,10 +536,10 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-300">Project</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.project}</label>
                   {projects.length === 0 ? (
                     <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
-                      No projects yet — <a href="/projects/new" className="text-[#8CB1FF] hover:underline">create one first</a>
+                      {copy.noProjects} — <a href="/projects/new" className="text-[#8CB1FF] hover:underline">{copy.createFirst}</a>
                     </p>
                   ) : (
                     <select
@@ -464,10 +555,10 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-300">Assessment</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.assessment}</label>
                   {currentAssessments.length === 0 ? (
                     <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
-                      {form.project_id ? "No assessments linked to this project" : "Select a project first"}
+                      {form.project_id ? copy.noLinked : copy.selectProjectFirst}
                     </p>
                   ) : (
                     <select
@@ -499,7 +590,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
                       </svg>
                     )}
-                    {loadingMode === "link" ? "Copying…" : "Copy Link"}
+                    {loadingMode === "link" ? copy.copying : copy.copyLink}
                   </button>
                   <button
                     type="button"
@@ -517,7 +608,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
                       </svg>
                     )}
-                    {loadingMode === "email" ? "Sending…" : "Send Email"}
+                    {loadingMode === "email" ? copy.sending : copy.sendEmail}
                   </button>
                 </div>
               </div>

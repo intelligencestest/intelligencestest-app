@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { sendAuthEmail } from "@/lib/auth-email";
+import { toAppLocale } from "@/lib/i18n/locales";
 import { NextRequest, NextResponse } from "next/server";
 
 const APP_URL = "https://app.intelligencestest.com";
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 });
   }
 
-  const lang = ["en", "es"].includes(language) ? language : "en";
+  const lang = toAppLocale(language);
   const normalizedEmail = email.toLowerCase().trim();
 
   const admin = createAdminClient();

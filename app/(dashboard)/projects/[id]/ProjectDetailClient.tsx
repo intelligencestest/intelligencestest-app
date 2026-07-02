@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -54,6 +55,7 @@ interface EditForm {
 }
 
 function CopyButton({ text }: { text: string }) {
+  const es = useLocale() === "es";
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -69,7 +71,7 @@ function CopyButton({ text }: { text: string }) {
       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
       </svg>
-      {copied ? "Copied!" : "Copy"}
+      {copied ? (es ? "Copiado" : "Copied!") : (es ? "Copiar" : "Copy")}
     </button>
   );
 }
@@ -97,6 +99,115 @@ const avatarColors = [
 
 export default function ProjectDetailClient({ project, assessments, candidates, allAssessments }: Props) {
   const router = useRouter();
+  const es = useLocale() === "es";
+  const dateLocale = es ? "es-ES" : "en-US";
+  const copy = es
+    ? {
+        status: { active: "Activo", draft: "Borrador", archived: "Archivado", invited: "Invitado", started: "Iniciado", completed: "Completado" } as Record<string, string>,
+        created: "Creado",
+        deadline: "Límite",
+        edit: "Editar",
+        viewReport: "Ver informe",
+        battery: "Batería de evaluaciones",
+        tests: (count: number) => `${count} prueba${count === 1 ? "" : "s"}`,
+        totalMinutes: "min totales",
+        add: "Agregar",
+        noAssessments: "Aún no hay evaluaciones vinculadas.",
+        addFirst: "Agregar primera evaluación →",
+        inviteCandidate: "Invitar candidato",
+        inviteDescription: "Genere un enlace seguro de invitación válido por 7 días.",
+        linkCopied: "Enlace copiado al portapapeles",
+        validShare: "Válido por 7 días, compártalo con el candidato",
+        inviteLink: "Enlace de invitación",
+        emailSent: "Correo enviado",
+        generateAnother: "Generar otra invitación",
+        candidateName: "Nombre del candidato",
+        optional: "opcional",
+        emailAddress: "Correo electrónico",
+        requiredEmail: "requerido para enviar correo",
+        assessment: "Evaluación",
+        noAssessmentsInProject: "No hay evaluaciones en este proyecto.",
+        copyLink: "Copiar enlace",
+        copying: "Copiando...",
+        sendEmail: "Enviar correo",
+        sending: "Enviando...",
+        candidates: "Candidatos",
+        total: "total",
+        completion: "avance",
+        noCandidates: "Aún no hay candidatos",
+        inviteFirst: "Genere un enlace de invitación arriba para agregar el primer candidato.",
+        anonymous: "Sin nombre",
+        editProject: "Editar proyecto",
+        editDescription: "Actualice el nombre, la descripción o la fecha límite del proyecto.",
+        projectNameRequired: "El nombre del proyecto es obligatorio",
+        projectName: "Nombre del proyecto",
+        description: "Descripción",
+        describePlaceholder: "Describa el rol o contexto de selección...",
+        cancel: "Cancelar",
+        saving: "Guardando...",
+        saveChanges: "Guardar cambios",
+        addAssessment: "Agregar evaluación",
+        addAssessmentDescription: "Seleccione una prueba para agregarla a la batería del proyecto.",
+        added: "Agregada",
+        failedSave: "No se pudieron guardar los cambios",
+        failedAdd: "No se pudo agregar la evaluación. Intente de nuevo.",
+        validEmail: "Se requiere un correo electrónico válido para enviar la invitación.",
+        failedInvite: "No se pudo generar la invitación",
+        network: "Error de red. Intente de nuevo.",
+      }
+    : {
+        status: { active: "Active", draft: "Draft", archived: "Archived", invited: "Invited", started: "Started", completed: "Completed" } as Record<string, string>,
+        created: "Created",
+        deadline: "Deadline",
+        edit: "Edit",
+        viewReport: "View report",
+        battery: "Assessment battery",
+        tests: (count: number) => `${count} test${count !== 1 ? "s" : ""}`,
+        totalMinutes: "min total",
+        add: "Add",
+        noAssessments: "No assessments linked yet.",
+        addFirst: "Add your first assessment →",
+        inviteCandidate: "Invite candidate",
+        inviteDescription: "Generate a secure, 7-day invite link.",
+        linkCopied: "Link copied to clipboard",
+        validShare: "Valid for 7 days, share with your candidate",
+        inviteLink: "Invite link",
+        emailSent: "Email sent",
+        generateAnother: "Generate another invite",
+        candidateName: "Candidate name",
+        optional: "optional",
+        emailAddress: "Email address",
+        requiredEmail: "required for Send Email",
+        assessment: "Assessment",
+        noAssessmentsInProject: "No assessments in this project.",
+        copyLink: "Copy Link",
+        copying: "Copying...",
+        sendEmail: "Send Email",
+        sending: "Sending...",
+        candidates: "Candidates",
+        total: "total",
+        completion: "completion",
+        noCandidates: "No candidates yet",
+        inviteFirst: "Generate an invite link above to add your first candidate.",
+        anonymous: "Anonymous",
+        editProject: "Edit project",
+        editDescription: "Update project name, description, or deadline.",
+        projectNameRequired: "Project name is required",
+        projectName: "Project name",
+        description: "Description",
+        describePlaceholder: "Describe the role or hiring context...",
+        cancel: "Cancel",
+        saving: "Saving...",
+        saveChanges: "Save changes",
+        addAssessment: "Add assessment",
+        addAssessmentDescription: "Select a test to add to this project's battery.",
+        added: "Added",
+        failedSave: "Failed to save changes",
+        failedAdd: "Failed to add assessment. Please try again.",
+        validEmail: "A valid email address is required to send an invite.",
+        failedInvite: "Failed to generate invite",
+        network: "Network error. Please try again.",
+      };
 
   // Invite state
   const [inviteForm, setInviteForm] = useState({ full_name: "", email: "", assessment_id: assessments[0]?.id ?? "" });
@@ -144,7 +255,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
   const handleEditSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setEditError("");
-    if (!editForm.name.trim()) { setEditError("Project name is required"); return; }
+    if (!editForm.name.trim()) { setEditError(copy.projectNameRequired); return; }
     setEditSaving(true);
     try {
       const res = await fetch(`/api/projects/${project.id}`, {
@@ -158,13 +269,13 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
       });
       const data = await res.json();
       if (!res.ok) {
-        setEditError(data.error ?? "Failed to save changes");
+        setEditError(data.error ?? copy.failedSave);
       } else {
         setEditOpen(false);
         router.refresh();
       }
     } catch {
-      setEditError("Network error. Please try again.");
+      setEditError(copy.network);
     }
     setEditSaving(false);
   };
@@ -185,10 +296,10 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         router.refresh();
         setTimeout(() => setAddOpen(false), 400);
       } else {
-        setAddError(data.error ?? "Failed to add assessment. Please try again.");
+        setAddError(data.error ?? copy.failedAdd);
       }
     } catch {
-      setAddError("Network error. Please try again.");
+      setAddError(copy.network);
     }
     setAddingId(null);
   };
@@ -200,7 +311,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
 
     if (mode === "email") {
       if (!inviteForm.email || !inviteForm.email.includes("@")) {
-        setInviteError("A valid email address is required to send an invite.");
+        setInviteError(copy.validEmail);
         return;
       }
     }
@@ -222,7 +333,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
       const data = await res.json();
 
       if (!res.ok) {
-        setInviteError(data.error ?? "Failed to generate invite");
+        setInviteError(data.error ?? copy.failedInvite);
       } else if (mode === "link") {
         const url = `${window.location.origin}${data.test_url}`;
         await navigator.clipboard.writeText(url).catch(() => {});
@@ -233,7 +344,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         router.refresh();
       }
     } catch {
-      setInviteError("Network error. Please try again.");
+      setInviteError(copy.network);
     }
 
     setInviteLoadingMode(null);
@@ -254,18 +365,18 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
-          <div className="mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${cfg.class}">
+          <div className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${cfg.class}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-            <span className={cfg.class.split(" ").find((c) => c.startsWith("text-")) ?? "text-slate-300"}>{cfg.label}</span>
+            <span className={cfg.class.split(" ").find((c) => c.startsWith("text-")) ?? "text-slate-300"}>{copy.status[project.status] ?? cfg.label}</span>
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-white">{project.name}</h1>
           {project.description && (
             <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{project.description}</p>
           )}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
-            <span>Created {new Date(project.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+            <span>{copy.created} {new Date(project.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric", year: "numeric" })}</span>
             {project.deadline && (
-              <span>· Deadline {new Date(project.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+              <span>· {copy.deadline} {new Date(project.deadline).toLocaleDateString(dateLocale, { month: "short", day: "numeric", year: "numeric" })}</span>
             )}
           </div>
         </div>
@@ -286,7 +397,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
             </svg>
-            Edit
+            {copy.edit}
           </button>
           <Link
             href={`/reports?project=${project.id}`}
@@ -295,7 +406,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 10a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 0v10m0-10a2 2 0 0 1 2 2h2a2 2 0 0 1 2-2V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2" />
             </svg>
-            View report
+            {copy.viewReport}
           </Link>
         </div>
       </div>
@@ -306,9 +417,9 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         <div className="premium-card rounded-xl p-5">
           <div className="mb-4 flex items-center justify-between border-b border-[#1E2240] pb-4">
             <div>
-              <h2 className="text-base font-semibold text-white">Assessment battery</h2>
+              <h2 className="text-base font-semibold text-white">{copy.battery}</h2>
               <p className="mt-0.5 text-xs text-slate-500">
-                {assessments.length} test{assessments.length !== 1 ? "s" : ""} · {assessments.reduce((s, a) => s + (a.duration_minutes ?? 0), 0)} min total
+                {copy.tests(assessments.length)} · {assessments.reduce((s, a) => s + (a.duration_minutes ?? 0), 0)} {copy.totalMinutes}
               </p>
             </div>
             <button
@@ -319,19 +430,19 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
               </svg>
-              Add
+              {copy.add}
             </button>
           </div>
 
           {assessments.length === 0 ? (
             <div className="rounded-xl border border-dashed border-[#1E2240] py-10 text-center">
-              <p className="mb-3 text-sm text-slate-500">No assessments linked yet.</p>
+              <p className="mb-3 text-sm text-slate-500">{copy.noAssessments}</p>
               <button
                 type="button"
                 onClick={() => setAddOpen(true)}
                 className="text-xs text-[#8CB1FF] transition-colors hover:text-blue-200"
               >
-                Add your first assessment →
+                {copy.addFirst}
               </button>
             </div>
           ) : (
@@ -362,8 +473,8 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         {/* Invite panel */}
         <div className="premium-card rounded-xl p-5">
           <div className="mb-4 border-b border-[#1E2240] pb-4">
-            <h2 className="text-base font-semibold text-white">Invite candidate</h2>
-            <p className="mt-0.5 text-xs text-slate-500">Generate a secure, 7-day invite link.</p>
+            <h2 className="text-base font-semibold text-white">{copy.inviteCandidate}</h2>
+            <p className="mt-0.5 text-xs text-slate-500">{copy.inviteDescription}</p>
           </div>
 
           {inviteSuccess ? (
@@ -377,12 +488,12 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-emerald-300">Link copied to clipboard</p>
-                      <p className="text-xs text-slate-500">Valid for 7 days · share with your candidate</p>
+                      <p className="text-sm font-medium text-emerald-300">{copy.linkCopied}</p>
+                      <p className="text-xs text-slate-500">{copy.validShare}</p>
                     </div>
                   </div>
                   <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
-                    <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Invite link</p>
+                    <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{copy.inviteLink}</p>
                     <div className="flex items-center gap-2">
                       <p className="flex-1 break-all font-mono text-xs text-blue-300">{inviteSuccess.url}</p>
                       <CopyButton text={inviteSuccess.url} />
@@ -397,7 +508,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                     </svg>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-emerald-300">Email sent</p>
+                    <p className="text-sm font-medium text-emerald-300">{copy.emailSent}</p>
                     <p className="truncate text-xs text-slate-500">{inviteSuccess.to}</p>
                   </div>
                 </div>
@@ -407,7 +518,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 onClick={resetInvite}
                 className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
               >
-                Generate another invite
+                {copy.generateAnother}
               </button>
             </div>
           ) : (
@@ -419,8 +530,8 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               )}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Candidate name
-                  <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                  {copy.candidateName}
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.optional})</span>
                 </label>
                 <input
                   value={inviteForm.full_name}
@@ -431,8 +542,8 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Email address
-                  <span className="ml-1.5 text-xs font-normal text-slate-500">(required for Send Email)</span>
+                  {copy.emailAddress}
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.requiredEmail})</span>
                 </label>
                 <input
                   type="email"
@@ -443,9 +554,9 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-300">Assessment</label>
+                <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.assessment}</label>
                 {assessments.length === 0 ? (
-                  <p className="text-sm text-slate-500">No assessments in this project.</p>
+                  <p className="text-sm text-slate-500">{copy.noAssessmentsInProject}</p>
                 ) : (
                   <select
                     value={inviteForm.assessment_id}
@@ -477,7 +588,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
                     </svg>
                   )}
-                  {inviteLoadingMode === "link" ? "Copying…" : "Copy Link"}
+                  {inviteLoadingMode === "link" ? copy.copying : copy.copyLink}
                 </button>
                 <button
                   type="button"
@@ -495,7 +606,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
                     </svg>
                   )}
-                  {inviteLoadingMode === "email" ? "Sending…" : "Send Email"}
+                  {inviteLoadingMode === "email" ? copy.sending : copy.sendEmail}
                 </button>
               </div>
             </div>
@@ -507,9 +618,9 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
       <div className="premium-card rounded-xl">
         <div className="flex items-center justify-between border-b border-[#1E2240] px-5 py-4">
           <div>
-            <h2 className="text-base font-semibold text-white">Candidates</h2>
+            <h2 className="text-base font-semibold text-white">{copy.candidates}</h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              {candidates.length} total · {completed} completed · {progress}% completion
+              {candidates.length} {copy.total} · {completed} {copy.status.completed.toLowerCase()} · {progress}% {copy.completion}
             </p>
           </div>
         </div>
@@ -519,15 +630,15 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <svg className="mx-auto mb-3 h-10 w-10 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87" />
             </svg>
-            <p className="text-sm font-medium text-slate-400">No candidates yet</p>
-            <p className="mt-1 text-xs text-slate-600">Generate an invite link above to add your first candidate.</p>
+            <p className="text-sm font-medium text-slate-400">{copy.noCandidates}</p>
+            <p className="mt-1 text-xs text-slate-600">{copy.inviteFirst}</p>
           </div>
         ) : (
           <div className="divide-y divide-[#1E2240]">
             {candidates.map((candidate, i) => {
               const sc = candidateStatusConfig[candidate.status] ?? candidateStatusConfig.invited;
-              const displayName = candidate.full_name?.trim() || "Anonymous";
-              const initials = displayName === "Anonymous"
+              const displayName = candidate.full_name?.trim() || copy.anonymous;
+              const initials = displayName === copy.anonymous
                 ? "?"
                 : displayName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
               const avatarClass = avatarColors[i % avatarColors.length];
@@ -541,11 +652,11 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-slate-200">{displayName}</p>
                     <p className="mt-0.5 text-xs text-slate-600">
-                      {new Date(candidate.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                      {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric", year: "numeric" })}
                     </p>
                   </div>
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${sc.class}`}>
-                    {sc.label}
+                    {copy.status[candidate.status] ?? sc.label}
                   </span>
                   {score !== null && (
                     <span className={`w-10 shrink-0 text-right text-sm font-bold ${scoreColor}`}>{score}</span>
@@ -569,8 +680,8 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           >
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold text-white">Edit project</h2>
-                <p className="mt-0.5 text-xs text-slate-500">Update project name, description, or deadline.</p>
+                <h2 className="text-base font-semibold text-white">{copy.editProject}</h2>
+                <p className="mt-0.5 text-xs text-slate-500">{copy.editDescription}</p>
               </div>
               <button
                 type="button"
@@ -590,7 +701,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               )}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Project name <span className="text-red-400">*</span>
+                  {copy.projectName} <span className="text-red-400">*</span>
                 </label>
                 <input
                   required
@@ -601,21 +712,21 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Description
-                  <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                  {copy.description}
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.optional})</span>
                 </label>
                 <textarea
                   rows={3}
                   value={editForm.description}
                   onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
-                  placeholder="Describe the role or hiring context…"
+                  placeholder={copy.describePlaceholder}
                   className="w-full resize-none rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                 />
               </div>
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  Deadline
-                  <span className="ml-1.5 text-xs font-normal text-slate-500">(optional)</span>
+                  {copy.deadline}
+                  <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.optional})</span>
                 </label>
                 <input
                   type="date"
@@ -630,7 +741,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   onClick={() => setEditOpen(false)}
                   className="flex-1 cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
                 >
-                  Cancel
+                  {copy.cancel}
                 </button>
                 <button
                   type="submit"
@@ -643,10 +754,10 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
                       </svg>
-                      Saving…
+                      {copy.saving}
                     </>
                   ) : (
-                    "Save changes"
+                    copy.saveChanges
                   )}
                 </button>
               </div>
@@ -667,8 +778,8 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           >
             <div className="mb-5 flex items-center justify-between">
               <div>
-                <h2 className="text-base font-semibold text-white">Add assessment</h2>
-                <p className="mt-0.5 text-xs text-slate-500">Select a test to add to this project's battery.</p>
+                <h2 className="text-base font-semibold text-white">{copy.addAssessment}</h2>
+                <p className="mt-0.5 text-xs text-slate-500">{copy.addAssessmentDescription}</p>
               </div>
               <button
                 type="button"
@@ -706,7 +817,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>
-                        Added
+                        {copy.added}
                       </span>
                     ) : (
                       <button
@@ -725,7 +836,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                             <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 5v14m7-7H5" />
                             </svg>
-                            Add
+                            {copy.add}
                           </>
                         )}
                       </button>

@@ -1,10 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function DashboardHeader() {
   const router = useRouter();
+  const actions = useTranslations("actions");
   const [spinning, setSpinning] = useState(false);
 
   const handleRefresh = () => {
@@ -18,7 +20,7 @@ export default function DashboardHeader() {
       <button
         type="button"
         onClick={handleRefresh}
-        title="Refresh page data"
+        title={actions("refresh")}
         className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#1E2240] px-2.5 py-1.5 text-xs font-medium text-slate-500 transition-colors hover:border-[#2d3a70] hover:text-slate-300"
       >
         <svg
@@ -34,7 +36,7 @@ export default function DashboardHeader() {
             d="M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15"
           />
         </svg>
-        Refresh
+        {actions("refresh")}
       </button>
     </div>
   );

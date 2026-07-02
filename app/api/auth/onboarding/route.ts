@@ -1,4 +1,5 @@
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
+import { toAppLocale } from "@/lib/i18n/locales";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
   if (!company_name || !industry) {
     return NextResponse.json({ error: "Company name and industry are required" }, { status: 400 });
   }
-  const lang = ["en", "es"].includes(language) ? language : "en";
+  const lang = toAppLocale(language);
 
   const admin = createAdminClient();
 

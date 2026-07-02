@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
+import { getLocale } from "next-intl/server";
 
 export default async function DashboardPage() {
+  const locale = await getLocale();
+  const es = locale === "es";
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -36,12 +39,89 @@ export default async function DashboardPage() {
     ? Math.round(scores.reduce((sum: number, result: { score: number }) => sum + result.score, 0) / scoreTotal)
     : 0;
   const completionRate = totalCandidates ? Math.min(100, Math.round(((completedAssessments ?? 0) / totalCandidates) * 100)) : 0;
+  const dateLocale = es ? "es-ES" : "en-US";
+
+  const copy = es
+    ? {
+        liveWorkspace: "Espacio de trabajo activo",
+        title: "Resumen del espacio de trabajo",
+        subtitle: "Vista en tiempo real de proyectos, participantes, resultados y actividad de evaluaciones en su organización.",
+        completionSignal: "Señal de finalización",
+        completed: "completadas",
+        participantRecords: "registros de participantes",
+        stats: {
+          participants: ["Participantes", "Registros totales del espacio"],
+          activeProjects: ["Proyectos activos", "Flujos de trabajo abiertos"],
+          completed: ["Completadas", "Evaluaciones enviadas"],
+          averageScore: ["Puntuación promedio", "Referencia general"],
+        },
+        startedTitle: "Comenzar",
+        startedBody: "Siga estos pasos para ejecutar su primer proyecto de evaluación.",
+        steps: [
+          { step: "1", title: "Crear un proyecto", desc: "Organice candidatos por rol, equipo o caso de uso." },
+          { step: "2", title: "Seleccionar evaluaciones", desc: "Elija pruebas de la biblioteca y agréguelas al proyecto." },
+          { step: "3", title: "Invitar candidatos", desc: "Comparta un enlace seguro, sin necesidad de crear cuentas." },
+        ],
+        firstProject: "Crear primer proyecto",
+        activityStream: "Actividad reciente",
+        latestUpdates: "Últimas actualizaciones",
+        noActivity: "Aún no hay actividad. Agregue participantes o complete una evaluación para ver novedades aquí.",
+        scoreBands: "Bandas de puntuación",
+        noResults: "Aún no hay resultados",
+        high: "Alta",
+        medium: "Media",
+        low: "Baja",
+        projectFlow: "Flujo del proyecto",
+        added: "Agregados",
+        topResults: "Mejores resultados",
+        unknown: "Sin nombre",
+        projectFallback: "un proyecto",
+        completedMessage: (name: string, assessment: string, score: number) => `${name} completó ${assessment} con una puntuación de ${score}`,
+        invitedMessage: (name: string, project: string) => `${name} fue agregado/a a ${project}`,
+      }
+    : {
+        liveWorkspace: "Live workspace",
+        title: "Workspace Overview",
+        subtitle: "A real-time view of projects, participants, results, and assessment activity across your organization.",
+        completionSignal: "Completion Signal",
+        completed: "completed",
+        participantRecords: "participant records",
+        stats: {
+          participants: ["Participants", "Total records in workspace"],
+          activeProjects: ["Active Projects", "Open workstreams"],
+          completed: ["Completed", "Submitted assessments"],
+          averageScore: ["Average Score", "Overall benchmark"],
+        },
+        startedTitle: "Get started",
+        startedBody: "Follow these steps to run your first assessment project.",
+        steps: [
+          { step: "1", title: "Create a project", desc: "Organize candidates by role, team, or use case." },
+          { step: "2", title: "Select assessments", desc: "Pick tests from the library and add them to your project." },
+          { step: "3", title: "Invite candidates", desc: "Share a secure link, no account required." },
+        ],
+        firstProject: "Create your first project",
+        activityStream: "Activity Stream",
+        latestUpdates: "Latest updates",
+        noActivity: "No activity yet. Add participants or complete an assessment to populate this feed.",
+        scoreBands: "Score Bands",
+        noResults: "No results yet",
+        high: "High",
+        medium: "Medium",
+        low: "Low",
+        projectFlow: "Project Flow",
+        added: "Added",
+        topResults: "Top Results",
+        unknown: "Unknown",
+        projectFallback: "a project",
+        completedMessage: (name: string, assessment: string, score: number) => `${name} completed ${assessment} with a score of ${score}`,
+        invitedMessage: (name: string, project: string) => `${name} was added to ${project}`,
+      };
 
   const statsCards = [
-    { label: "Participants", value: totalCandidates ?? 0, icon: "participants", color: "text-blue-300", bg: "bg-blue-400/10", ring: "ring-blue-400/20", helper: "Total records in workspace" },
-    { label: "Active Projects", value: activeProjects ?? 0, icon: "projects", color: "text-violet-300", bg: "bg-violet-400/10", ring: "ring-violet-400/20", helper: "Open workstreams" },
-    { label: "Completed", value: completedAssessments ?? 0, icon: "completed", color: "text-emerald-300", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20", helper: "Submitted assessments" },
-    { label: "Average Score", value: avgScore ? `${avgScore}%` : "-", icon: "score", color: "text-amber-300", bg: "bg-amber-400/10", ring: "ring-amber-400/20", helper: "Overall benchmark" },
+    { label: copy.stats.participants[0], value: totalCandidates ?? 0, icon: "participants", color: "text-blue-300", bg: "bg-blue-400/10", ring: "ring-blue-400/20", helper: copy.stats.participants[1] },
+    { label: copy.stats.activeProjects[0], value: activeProjects ?? 0, icon: "projects", color: "text-violet-300", bg: "bg-violet-400/10", ring: "ring-violet-400/20", helper: copy.stats.activeProjects[1] },
+    { label: copy.stats.completed[0], value: completedAssessments ?? 0, icon: "completed", color: "text-emerald-300", bg: "bg-emerald-400/10", ring: "ring-emerald-400/20", helper: copy.stats.completed[1] },
+    { label: copy.stats.averageScore[0], value: avgScore ? `${avgScore}%` : "-", icon: "score", color: "text-amber-300", bg: "bg-amber-400/10", ring: "ring-amber-400/20", helper: copy.stats.averageScore[1] },
   ];
 
   type Activity = { key: string; message: string; time: string; type: "completed" | "invited"; timestamp: number };
@@ -53,8 +133,8 @@ export default async function DashboardPage() {
     if (candidate && assessment) {
       activity.push({
         key: `r-${result.completed_at}`,
-        message: `${candidate.full_name} completed ${assessment.name} with a score of ${result.score}`,
-        time: new Date(result.completed_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        message: copy.completedMessage(candidate.full_name, assessment.name, result.score),
+        time: new Date(result.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
         type: "completed",
         timestamp: new Date(result.completed_at).getTime(),
       });
@@ -66,8 +146,8 @@ export default async function DashboardPage() {
     if (candidate.status === "invited") {
       activity.push({
         key: `c-${candidate.id}`,
-        message: `${candidate.full_name} was added to ${project?.name ?? "a project"}`,
-        time: new Date(candidate.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        message: copy.invitedMessage(candidate.full_name, project?.name ?? copy.projectFallback),
+        time: new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" }),
         type: "invited",
         timestamp: new Date(candidate.created_at).getTime(),
       });
@@ -76,9 +156,9 @@ export default async function DashboardPage() {
   activity.sort((a, b) => b.timestamp - a.timestamp);
 
   const scoreGroups = [
-    { label: "High", range: "80-100", color: "bg-emerald-500", text: "text-emerald-300", count: scores?.filter((s: { score: number }) => s.score >= 80).length ?? 0 },
-    { label: "Medium", range: "60-79", color: "bg-amber-500", text: "text-amber-300", count: scores?.filter((s: { score: number }) => s.score >= 60 && s.score < 80).length ?? 0 },
-    { label: "Low", range: "0-59", color: "bg-red-500", text: "text-red-300", count: scores?.filter((s: { score: number }) => s.score < 60).length ?? 0 },
+    { label: copy.high, range: "80-100", color: "bg-emerald-500", text: "text-emerald-300", count: scores?.filter((s: { score: number }) => s.score >= 80).length ?? 0 },
+    { label: copy.medium, range: "60-79", color: "bg-amber-500", text: "text-amber-300", count: scores?.filter((s: { score: number }) => s.score >= 60 && s.score < 80).length ?? 0 },
+    { label: copy.low, range: "0-59", color: "bg-red-500", text: "text-red-300", count: scores?.filter((s: { score: number }) => s.score < 60).length ?? 0 },
   ];
 
   const invited = recentCandidates?.filter((candidate) => candidate.status === "invited").length ?? 0;
@@ -92,11 +172,11 @@ export default async function DashboardPage() {
           <div>
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#07080F]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-soft-pulse" />
-              Live workspace
+              {copy.liveWorkspace}
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Workspace Overview</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{copy.title}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              A real-time view of projects, participants, results, and assessment activity across your organization.
+              {copy.subtitle}
             </p>
           </div>
 
@@ -110,9 +190,9 @@ export default async function DashboardPage() {
               </div>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-wider text-slate-500">Completion Signal</p>
-              <p className="mt-1 text-sm font-semibold text-white">{completed} completed</p>
-              <p className="mt-1 text-xs text-slate-600">{totalCandidates ?? 0} participant records</p>
+              <p className="text-xs uppercase tracking-wider text-slate-500">{copy.completionSignal}</p>
+              <p className="mt-1 text-sm font-semibold text-white">{completed} {copy.completed}</p>
+              <p className="mt-1 text-xs text-slate-600">{totalCandidates ?? 0} {copy.participantRecords}</p>
             </div>
           </div>
         </div>
@@ -121,15 +201,11 @@ export default async function DashboardPage() {
       {(activeProjects ?? 0) === 0 ? (
         <div className="premium-card rounded-2xl p-8">
           <div className="mb-8 text-center">
-            <h2 className="text-xl font-semibold text-white">Get started</h2>
-            <p className="mt-2 text-sm text-slate-400">Follow these steps to run your first assessment project.</p>
+            <h2 className="text-xl font-semibold text-white">{copy.startedTitle}</h2>
+            <p className="mt-2 text-sm text-slate-400">{copy.startedBody}</p>
           </div>
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {[
-              { step: "1", title: "Create a project", desc: "Organize candidates by role, team, or use case." },
-              { step: "2", title: "Select assessments", desc: "Pick from 22 tests in the library and add them to your project." },
-              { step: "3", title: "Invite candidates", desc: "Share a secure link — no email required." },
-            ].map((item) => (
+            {copy.steps.map((item) => (
               <div key={item.step} className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-5">
                 <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#1D4ED8]/40 bg-[#1D4ED8]/15 text-xs font-semibold text-[#8CB1FF]">
                   {item.step}
@@ -147,7 +223,7 @@ export default async function DashboardPage() {
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-              Create your first project
+              {copy.firstProject}
             </Link>
           </div>
         </div>
@@ -189,12 +265,12 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="premium-card overflow-hidden rounded-xl xl:col-span-2">
           <div className="flex items-center justify-between border-b border-[#1E2240] px-6 py-4">
-            <h2 className="text-base font-semibold text-white">Activity Stream</h2>
-            <span className="rounded-full border border-[#1E2240] px-2.5 py-1 text-xs text-slate-500">Latest updates</span>
+            <h2 className="text-base font-semibold text-white">{copy.activityStream}</h2>
+            <span className="rounded-full border border-[#1E2240] px-2.5 py-1 text-xs text-slate-500">{copy.latestUpdates}</span>
           </div>
           {activity.length === 0 ? (
             <div className="px-6 py-12 text-center text-sm text-slate-600">
-              No activity yet. Add participants or complete an assessment to populate this feed.
+              {copy.noActivity}
             </div>
           ) : (
             <div className="divide-y divide-[#1E2240]">
@@ -219,9 +295,9 @@ export default async function DashboardPage() {
 
         <div className="space-y-4">
           <div className="premium-card rounded-xl p-5">
-            <h3 className="mb-4 text-sm font-semibold text-white">Score Bands</h3>
+            <h3 className="mb-4 text-sm font-semibold text-white">{copy.scoreBands}</h3>
             {scoreTotal === 0 ? (
-              <p className="py-4 text-center text-xs text-slate-600">No results yet</p>
+              <p className="py-4 text-center text-xs text-slate-600">{copy.noResults}</p>
             ) : (
               <div className="space-y-4">
                 {scoreGroups.map((group) => {
@@ -244,11 +320,11 @@ export default async function DashboardPage() {
           </div>
 
           <div className="premium-card rounded-xl p-5">
-            <h3 className="mb-4 text-sm font-semibold text-white">Project Flow</h3>
+            <h3 className="mb-4 text-sm font-semibold text-white">{copy.projectFlow}</h3>
             <div className="space-y-3">
               {[
-                { label: "Added", count: invited, color: "bg-blue-400" },
-                { label: "Completed", count: completed, color: "bg-emerald-500" },
+                { label: copy.added, count: invited, color: "bg-blue-400" },
+                { label: copy.completed, count: completed, color: "bg-emerald-500" },
               ].map((stage) => (
                 <div key={stage.label} className="flex items-center gap-3">
                   <div className={`h-2 w-2 rounded-full ${stage.color}`} />
@@ -260,9 +336,9 @@ export default async function DashboardPage() {
           </div>
 
           <div className="premium-card rounded-xl p-5">
-            <h3 className="mb-4 text-sm font-semibold text-white">Top Results</h3>
+            <h3 className="mb-4 text-sm font-semibold text-white">{copy.topResults}</h3>
             {!recentResults || recentResults.length === 0 ? (
-              <p className="py-2 text-center text-xs text-slate-600">No results yet</p>
+              <p className="py-2 text-center text-xs text-slate-600">{copy.noResults}</p>
             ) : (
               <div className="space-y-3">
                 {recentResults.slice(0, 3).map((result, index) => {
@@ -275,7 +351,7 @@ export default async function DashboardPage() {
                       <div className="flex h-7 w-7 items-center justify-center rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/20 text-xs font-medium text-[#9BB8FF]">
                         {initials}
                       </div>
-                      <span className="flex-1 truncate text-sm text-slate-300">{candidate?.full_name ?? "Unknown"}</span>
+                      <span className="flex-1 truncate text-sm text-slate-300">{candidate?.full_name ?? copy.unknown}</span>
                       <span className={`text-sm font-bold ${color}`}>{result.score}</span>
                     </div>
                   );

@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import {
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  detectLocaleFromHeader,
+  isAppLocale,
+} from "@/lib/i18n/locales";
 
 const PROTECTED = [
   "/dashboard",
@@ -14,6 +20,24 @@ const PROTECTED = [
 
 // Authenticated users visiting these are bounced to /dashboard
 const AUTH_PAGES = ["/login", "/signup"];
+
+function ensureLocaleCookie(request: NextRequest, response: NextResponse) {
+  const currentLocale = request.cookies.get(LANGUAGE_COOKIE)?.value;
+
+  if (!isAppLocale(currentLocale)) {
+    response.cookies.set(
+      LANGUAGE_COOKIE,
+      detectLocaleFromHeader(request.headers.get("accept-language")),
+      {
+        path: "/",
+        sameSite: "lax",
+        maxAge: LANGUAGE_COOKIE_MAX_AGE,
+      }
+    );
+  }
+
+  return response;
+}
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request });
@@ -43,14 +67,14 @@ export async function middleware(request: NextRequest) {
   const isAuthPage = AUTH_PAGES.some((p) => pathname === p);
 
   if (isProtected && !user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return ensureLocaleCookie(request, NextResponse.redirect(new URL("/login", request.url)));
   }
 
   if (isAuthPage && user) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return ensureLocaleCookie(request, NextResponse.redirect(new URL("/dashboard", request.url)));
   }
 
-  return response;
+  return ensureLocaleCookie(request, response);
 }
 
 export const config = {

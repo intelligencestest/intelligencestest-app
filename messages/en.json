@@ -20,7 +20,8 @@
     "confirm": "Confirm",
     "create": "Create",
     "invite": "Invite",
-    "export": "Export"
+    "export": "Export",
+    "refresh": "Refresh"
   },
   "status": {
     "loading": "Loading...",
@@ -127,6 +128,7 @@
     "title": "Projects",
     "badge": "Projects",
     "newProject": "New Project",
+    "summary": "{activeCount} active projects · {totalCandidates} candidates in motion",
     "projectName": "Project Name",
     "noProjects": "No projects yet",
     "noProjectsDescription": "Create your first project to get started.",
@@ -156,7 +158,14 @@
     "linkCopied": "Link copied to clipboard!",
     "linkValid": "Valid for 7 days",
     "inviteAnother": "Invite another",
-    "noAssessmentsLinked": "No assessments linked to this project."
+    "noAssessmentsLinked": "No assessments linked to this project.",
+    "inviteError": "Failed to generate invite",
+    "networkError": "Network error. Please try again.",
+    "statusActive": "Active",
+    "statusDraft": "Draft",
+    "statusArchived": "Archived",
+    "noDescription": "No description provided.",
+    "optional": "optional"
   },
   "candidates": {
     "fullName": "Full Name",
@@ -177,7 +186,9 @@
     "language": "Assessment language",
     "languageDescription": "Select the default language for candidate assessments.",
     "continueToDashboard": "Continue to dashboard →",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "requiredFields": "Please fill in all required fields.",
+    "genericError": "Something went wrong. Please try again."
   },
   "language": {
     "english": "English",

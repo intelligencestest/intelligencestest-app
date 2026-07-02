@@ -1,5 +1,6 @@
 import { sendAuthEmail } from "@/lib/auth-email";
 import { createAdminClient } from "@/lib/supabase-server";
+import { toAppLocale } from "@/lib/i18n/locales";
 import { NextRequest, NextResponse } from "next/server";
 
 const APP_URL = "https://app.intelligencestest.com";
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   const profileCompany = Array.isArray(profile.companies) ? profile.companies[0] : profile.companies;
-  const locale = language === "es" || language === "en" ? language : profileCompany?.language ?? "en";
+  const locale = language === "es" || language === "en" ? language : toAppLocale(profileCompany?.language);
 
   const { data, error } = await admin.auth.admin.generateLink({
     type: "magiclink",

@@ -1,6 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase-server";
+import {
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  LANGUAGE_OVERRIDE_COOKIE,
+  toAppLocale,
+} from "@/lib/i18n/locales";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -62,17 +68,25 @@ export async function GET(request: NextRequest) {
 
     const destination = userRow?.company_id ? next : "/onboarding";
 
-    // Set lang cookie so next-intl uses the company's configured language
+    // Set lang cookie so next-intl uses the company language, unless the user chose a personal override.
+    const hasLanguageOverride = request.cookies.get(LANGUAGE_OVERRIDE_COOKIE)?.value === "1";
+    const currentLocale = toAppLocale(request.cookies.get(LANGUAGE_COOKIE)?.value);
+    let nextLocale = currentLocale;
+
     if (userRow?.company_id) {
       const { data: company } = await admin
         .from("companies")
         .select("language")
         .eq("id", userRow.company_id)
         .single();
-      if (company?.language) {
-        response.cookies.set("lang", company.language, { path: "/", sameSite: "lax" });
-      }
+      nextLocale = hasLanguageOverride ? currentLocale : toAppLocale(company?.language);
     }
+
+    response.cookies.set(LANGUAGE_COOKIE, nextLocale, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: LANGUAGE_COOKIE_MAX_AGE,
+    });
 
     response.headers.set("Location", new URL(destination, origin).toString());
     return response;

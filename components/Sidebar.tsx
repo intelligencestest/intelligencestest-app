@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase";
@@ -75,6 +75,7 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
   const router = useRouter();
   const nav = useTranslations("nav");
   const auth = useTranslations("auth");
+  const es = useLocale() === "es";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
@@ -107,7 +108,7 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
         </div>
         <div>
           <div className="text-sm font-semibold text-white leading-tight">Intelligences Test</div>
-          <div className="text-xs text-slate-500 leading-tight">Assessment OS</div>
+          <div className="text-xs text-slate-500 leading-tight">{es ? "Sistema de evaluación" : "Assessment OS"}</div>
         </div>
       </div>
 
@@ -149,7 +150,7 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
             {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-slate-200 truncate">{userName ?? "Admin"}</div>
+            <div className="text-sm font-medium text-slate-200 truncate">{userName ?? (es ? "Administrador" : "Admin")}</div>
             <div className="text-xs text-slate-500 truncate">{userEmail ?? ""}</div>
           </div>
         </div>

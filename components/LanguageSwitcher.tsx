@@ -3,16 +3,27 @@
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-
-type AppLocale = "en" | "es";
+import {
+  DEFAULT_LOCALE,
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  LANGUAGE_OVERRIDE_COOKIE,
+  LANGUAGE_OVERRIDE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  type AppLocale,
+  toAppLocale,
+} from "@/lib/i18n/locales";
 
 const LOCALES: Array<{ value: AppLocale; short: string; labelKey: "english" | "spanish" }> = [
-  { value: "en", short: "EN", labelKey: "english" },
   { value: "es", short: "ES", labelKey: "spanish" },
+  { value: "en", short: "EN", labelKey: "english" },
 ];
 
-function toLocale(value: string | null | undefined): AppLocale | null {
-  return value === "en" || value === "es" ? value : null;
+function persistLanguage(locale: AppLocale) {
+  document.cookie = `${LANGUAGE_COOKIE}=${locale}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+  document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+  window.localStorage.setItem(LANGUAGE_STORAGE_KEY, locale);
+  window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
 }
 
 interface LanguageSwitcherProps {
@@ -32,21 +43,34 @@ export default function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const intlLocale = toLocale(useLocale()) ?? "en";
+  const intlLocale = toAppLocale(useLocale());
   const t = useTranslations("language");
   const [selected, setSelected] = useState<AppLocale>(intlLocale);
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const queryLocale = toLocale(params.get("lang"));
+    const queryLang = params.get("lang");
+    const queryLocale = queryLang === "en" || queryLang === "es" ? queryLang : null;
 
     if (preserveLangParam && queryLocale) {
       setSelected(queryLocale);
       if (queryLocale !== intlLocale) {
-        document.cookie = `lang=${queryLocale}; path=/; max-age=31536000; samesite=lax`;
+        persistLanguage(queryLocale);
         router.refresh();
       }
+      return;
+    }
+
+    const savedLocale =
+      window.localStorage.getItem(LANGUAGE_OVERRIDE_STORAGE_KEY) === "1"
+        ? toAppLocale(window.localStorage.getItem(LANGUAGE_STORAGE_KEY), intlLocale)
+        : null;
+
+    if (savedLocale && savedLocale !== intlLocale) {
+      setSelected(savedLocale);
+      persistLanguage(savedLocale);
+      router.refresh();
       return;
     }
 
@@ -55,13 +79,13 @@ export default function LanguageSwitcher({
 
   function setLanguage(locale: AppLocale) {
     setSelected(locale);
-    document.cookie = `lang=${locale}; path=/; max-age=31536000; samesite=lax`;
+    persistLanguage(locale);
     onLocaleChange?.(locale);
 
     startTransition(() => {
       if (preserveLangParam) {
         const params = new URLSearchParams(window.location.search);
-        if (locale === "en") {
+        if (locale === DEFAULT_LOCALE) {
           params.delete("lang");
         } else {
           params.set("lang", locale);

@@ -1,4 +1,5 @@
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
+import { LANGUAGE_COOKIE, LANGUAGE_COOKIE_MAX_AGE, toAppLocale } from "@/lib/i18n/locales";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { language } = await request.json();
-  const lang = language === "es" ? "es" : "en";
+  const lang = toAppLocale(language);
   const admin = createAdminClient();
 
   const { data: userRow } = await admin
@@ -33,10 +34,10 @@ export async function POST(request: NextRequest) {
   }
 
   const response = NextResponse.json({ success: true, language: lang });
-  response.cookies.set("lang", lang, {
+  response.cookies.set(LANGUAGE_COOKIE, lang, {
     path: "/",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 365,
+    maxAge: LANGUAGE_COOKIE_MAX_AGE,
   });
   return response;
 }

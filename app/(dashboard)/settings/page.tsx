@@ -3,12 +3,75 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import {
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  LANGUAGE_OVERRIDE_COOKIE,
+  LANGUAGE_OVERRIDE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+} from "@/lib/i18n/locales";
 
 type AppLocale = "en" | "es";
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
   const currentLocale = useLocale() === "es" ? "es" : "en";
+  const es = currentLocale === "es";
+  const copy = es
+    ? {
+        english: "Inglés",
+        profile: "Perfil de la cuenta",
+        yourName: "Su nombre",
+        fields: [
+          { key: "name", label: "Nombre completo", placeholder: "Su nombre" },
+          { key: "email", label: "Correo electrónico", placeholder: "usted@empresa.com" },
+          { key: "company", label: "Empresa", placeholder: "Nombre de la empresa" },
+          { key: "role", label: "Cargo", placeholder: "Ej. Reclutador/a, gerente de operaciones" },
+        ],
+        notifications: "Preferencias de notificación",
+        notificationItems: [
+          { key: "candidateCompleted", label: "El candidato completa una evaluación", desc: "Reciba una notificación cuando un candidato finalice su evaluación" },
+          { key: "candidateInvited", label: "El candidato abre la invitación", desc: "Notificación cuando un candidato abre su enlace de invitación" },
+          { key: "reportReady", label: "El informe está listo", desc: "Aviso cuando se genera un informe de proyecto y está listo para revisar" },
+          { key: "weeklyDigest", label: "Resumen semanal", desc: "Resumen de la actividad de evaluación enviado cada lunes" },
+        ],
+        teamMembers: "Miembros del equipo",
+        inviteMember: "Invitar miembro",
+        owner: "Propietario",
+        recruiter: "Reclutador/a",
+        dangerZone: "Zona de riesgo",
+        dangerText: "Estas acciones son irreversibles. Proceda con cautela.",
+        deleteData: "Eliminar todos los datos de evaluación",
+        closeAccount: "Cerrar cuenta",
+        saveChanges: "Guardar cambios",
+      }
+    : {
+        english: "English",
+        profile: "Account Profile",
+        yourName: "Your name",
+        fields: [
+          { key: "name", label: "Full Name", placeholder: "Your name" },
+          { key: "email", label: "Email Address", placeholder: "you@company.com" },
+          { key: "company", label: "Company", placeholder: "Company name" },
+          { key: "role", label: "Job Title", placeholder: "e.g. Recruiter, Operations Manager" },
+        ],
+        notifications: "Notification Preferences",
+        notificationItems: [
+          { key: "candidateCompleted", label: "Candidate completes assessment", desc: "Get notified when a candidate finishes their assessment" },
+          { key: "candidateInvited", label: "Candidate accepts invitation", desc: "Notification when a candidate opens their invitation link" },
+          { key: "reportReady", label: "Report is ready", desc: "Alert when a project report is generated and ready to review" },
+          { key: "weeklyDigest", label: "Weekly digest", desc: "A summary of all assessment activity sent every Monday" },
+        ],
+        teamMembers: "Team Members",
+        inviteMember: "Invite member",
+        owner: "Owner",
+        recruiter: "Recruiter",
+        dangerZone: "Danger Zone",
+        dangerText: "These actions are irreversible. Please proceed with caution.",
+        deleteData: "Delete All Assessment Data",
+        closeAccount: "Close Account",
+        saveChanges: "Save Changes",
+      };
   const [saved, setSaved] = useState(false);
   const [language, setLanguage] = useState<AppLocale>(currentLocale);
   const [languageSaving, setLanguageSaving] = useState(false);
@@ -45,7 +108,10 @@ export default function SettingsPage() {
       if (!res.ok) {
         setLanguageMessage({ type: "error", text: t("languageError") });
       } else {
-        document.cookie = `lang=${language}; path=/; max-age=31536000; samesite=lax`;
+        document.cookie = `${LANGUAGE_COOKIE}=${language}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+        document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+        window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+        window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
         setLanguageMessage({ type: "success", text: t("languageSaved") });
       }
     } catch {
@@ -90,11 +156,11 @@ export default function SettingsPage() {
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/65 p-4">
                 <p className="text-xs font-medium uppercase tracking-wider text-slate-600">{t("dashboardLanguage")}</p>
-                <p className="mt-2 text-sm font-semibold text-white">{language === "es" ? "Español" : "English"}</p>
+                <p className="mt-2 text-sm font-semibold text-white">{language === "es" ? "Español" : copy.english}</p>
               </div>
               <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/65 p-4">
                 <p className="text-xs font-medium uppercase tracking-wider text-slate-600">{t("candidateLanguage")}</p>
-                <p className="mt-2 text-sm font-semibold text-white">{language === "es" ? "Español" : "English"}</p>
+                <p className="mt-2 text-sm font-semibold text-white">{language === "es" ? "Español" : copy.english}</p>
               </div>
             </div>
             <p className="text-xs leading-5 text-slate-500">{t("languageNote")}</p>
@@ -135,25 +201,20 @@ export default function SettingsPage() {
 
       {/* Profile section */}
       <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-5">
-        <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3">Account Profile</h2>
+        <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3">{copy.profile}</h2>
 
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full bg-[#1D4ED8]/20 border-2 border-[#1D4ED8]/40 flex items-center justify-center text-xl font-bold text-[#6B9FFF]">
             {profile.name ? profile.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() : "?"}
           </div>
           <div>
-            <p className="text-sm font-medium text-white">{profile.name || <span className="text-slate-500">Your name</span>}</p>
+            <p className="text-sm font-medium text-white">{profile.name || <span className="text-slate-500">{copy.yourName}</span>}</p>
             <p className="text-xs text-slate-500 mt-0.5">{profile.email || "—"}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {[
-            { key: "name", label: "Full Name", placeholder: "Your name" },
-            { key: "email", label: "Email Address", placeholder: "you@company.com" },
-            { key: "company", label: "Company", placeholder: "Company name" },
-            { key: "role", label: "Job Title", placeholder: "e.g. Recruiter, Operations Manager" },
-          ].map((field) => (
+          {copy.fields.map((field) => (
             <div key={field.key}>
               <label className="block text-sm font-medium text-slate-300 mb-2">{field.label}</label>
               <input
@@ -169,13 +230,8 @@ export default function SettingsPage() {
 
       {/* Notifications */}
       <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-4">
-        <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3">Notification Preferences</h2>
-        {[
-          { key: "candidateCompleted", label: "Candidate completes assessment", desc: "Get notified when a candidate finishes their assessment" },
-          { key: "candidateInvited", label: "Candidate accepts invitation", desc: "Notification when a candidate opens their invitation link" },
-          { key: "reportReady", label: "Report is ready", desc: "Alert when a project report is generated and ready to review" },
-          { key: "weeklyDigest", label: "Weekly digest", desc: "A summary of all assessment activity sent every Monday" },
-        ].map((item) => (
+        <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3">{copy.notifications}</h2>
+        {copy.notificationItems.map((item) => (
           <div key={item.key} className="flex items-start justify-between gap-4 py-3 border-b border-[#1E2240] last:border-0 last:pb-0">
             <div>
               <p className="text-sm font-medium text-slate-200">{item.label}</p>
@@ -198,16 +254,16 @@ export default function SettingsPage() {
       {/* Team members */}
       <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
         <div className="flex items-center justify-between border-b border-[#1E2240] pb-3 mb-4">
-          <h2 className="text-base font-semibold text-white">Team Members</h2>
+          <h2 className="text-base font-semibold text-white">{copy.teamMembers}</h2>
           <button className="text-xs text-[#6B9FFF] hover:text-blue-300 transition-colors font-medium">
-            + Invite member
+            + {copy.inviteMember}
           </button>
         </div>
         <div className="space-y-3">
           {[
-            { name: "HR Admin", email: "admin@company.com", role: "Owner", avatar: "HR", color: "bg-[#1D4ED8]/20 text-[#6B9FFF] border-[#1D4ED8]/30" },
-            { name: "Sarah Kowalski", email: "s.kowalski@company.com", role: "Recruiter", avatar: "SK", color: "bg-violet-500/20 text-violet-400 border-violet-500/30" },
-            { name: "David Park", email: "d.park@company.com", role: "Recruiter", avatar: "DP", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+            { name: "HR Admin", email: "admin@company.com", role: copy.owner, avatar: "HR", color: "bg-[#1D4ED8]/20 text-[#6B9FFF] border-[#1D4ED8]/30" },
+            { name: "Sarah Kowalski", email: "s.kowalski@company.com", role: copy.recruiter, avatar: "SK", color: "bg-violet-500/20 text-violet-400 border-violet-500/30" },
+            { name: "David Park", email: "d.park@company.com", role: copy.recruiter, avatar: "DP", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
           ].map((member) => (
             <div key={member.email} className="flex items-center gap-3 py-2">
               <div className={`w-9 h-9 rounded-full border flex items-center justify-center text-xs font-semibold flex-shrink-0 ${member.color}`}>
@@ -225,14 +281,14 @@ export default function SettingsPage() {
 
       {/* Danger zone */}
       <div className="bg-[#0D1020] border border-red-500/20 rounded-xl p-6">
-        <h2 className="text-base font-semibold text-red-400 mb-3">Danger Zone</h2>
-        <p className="text-sm text-slate-500 mb-4">These actions are irreversible. Please proceed with caution.</p>
+        <h2 className="text-base font-semibold text-red-400 mb-3">{copy.dangerZone}</h2>
+        <p className="text-sm text-slate-500 mb-4">{copy.dangerText}</p>
         <div className="flex flex-col sm:flex-row gap-3">
           <button className="px-4 py-2.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors">
-            Delete All Assessment Data
+            {copy.deleteData}
           </button>
           <button className="px-4 py-2.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors">
-            Close Account
+            {copy.closeAccount}
           </button>
         </div>
       </div>
@@ -243,7 +299,7 @@ export default function SettingsPage() {
           onClick={handleSave}
           className="px-6 py-2.5 rounded-lg bg-[#1D4ED8] hover:bg-[#1e40af] text-white text-sm font-semibold transition-colors"
         >
-          Save Changes
+          {copy.saveChanges}
         </button>
       </div>
     </div>

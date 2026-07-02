@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import {
+  LANGUAGE_COOKIE,
+  LANGUAGE_COOKIE_MAX_AGE,
+  LANGUAGE_OVERRIDE_COOKIE,
+  LANGUAGE_OVERRIDE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  toAppLocale,
+} from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -30,6 +38,13 @@ const Logo = ({ subtitle }: { subtitle: string }) => (
     </div>
   </div>
 );
+
+function getCookieValue(name: string) {
+  return document.cookie
+    .split("; ")
+    .find((row) => row.startsWith(`${name}=`))
+    ?.split("=")?.[1];
+}
 
 export default function SignupPage() {
   const router = useRouter();
@@ -74,8 +89,15 @@ export default function SignupPage() {
       return;
     }
 
-    const langCookie = document.cookie.split("; ").find((r) => r.startsWith("lang="))?.split("=")?.[1] ?? "en";
-    const language = ["en", "es"].includes(langCookie) ? langCookie : "en";
+    const savedLanguage =
+      window.localStorage.getItem(LANGUAGE_OVERRIDE_STORAGE_KEY) === "1"
+        ? window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
+        : getCookieValue(LANGUAGE_COOKIE);
+    const language = toAppLocale(savedLanguage);
+    document.cookie = `${LANGUAGE_COOKIE}=${language}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+    document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
 
     setLoading(true);
     const res = await fetch("/api/auth/signup", {
