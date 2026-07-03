@@ -7,6 +7,7 @@ import { useMemo, useState } from "react";
 import { scoreAQ } from "@/lib/questions/aq";
 import { scoreResults } from "@/lib/questions/critical-thinking";
 import { PDF_SAFE_ASSESSMENTS } from "@/lib/report-scoring";
+import { assessmentName as termName, assessmentShort as termShort } from "@/lib/i18n/assessment-terms";
 import type { CTPDFData, AQPDFData } from "@/lib/pdf";
 import type { ComprehensiveReportData } from "@/lib/report-pdf";
 
@@ -351,7 +352,7 @@ export default function ReportsClient({
                             ) : (
                               <p className="text-sm font-medium text-white truncate">{candidate?.full_name ?? copy.unknown}</p>
                             )}
-                            <p className="text-xs text-slate-500 truncate">{result.assessments?.name ?? copy.assessment}</p>
+                            <p className="text-xs text-slate-500 truncate">{result.assessments ? termName(result.assessments.name, es ? "es" : "en") : copy.assessment}</p>
                           </div>
                           <div className="text-right flex-shrink-0">
                             <p className={`text-xl font-bold ${scoreColor}`}>{result.score}</p>
@@ -459,7 +460,7 @@ export default function ReportsClient({
                           <div className="flex flex-wrap gap-1.5 mt-1.5">
                             {group.results.map(r => (
                               <span key={r.id} className="text-xs bg-[#1E2240] text-slate-400 px-2 py-0.5 rounded">
-                                {r.assessments?.name?.replace(" Test", "").replace(" Assessment", "") ?? "?"} · {r.score}
+                                {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
                               </span>
                             ))}
                           </div>

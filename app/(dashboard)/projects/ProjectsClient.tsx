@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 
 interface Assessment {
   id: string;
@@ -371,7 +372,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                   >
                     {availableAssessments.map((a) => (
                       <option key={a.id} value={a.id}>
-                        {a.name}{a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}
+                        {termName(a.name, locale)}{a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}
                       </option>
                     ))}
                   </select>

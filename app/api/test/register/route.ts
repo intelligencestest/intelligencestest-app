@@ -17,9 +17,9 @@ export async function POST(request: NextRequest) {
   // Verify the project exists and get company_id
   const { data: project, error: projectError } = await admin
     .from("hiring_projects")
-    .select("id, company_id, status")
+    .select("id, company_id, status, companies(language)")
     .eq("id", project_id)
-    .single();
+    .single<{ id: string; company_id: string; status: string; companies: { language: string | null } | null }>();
 
   if (projectError || !project) {
     return NextResponse.json({ error: "Invalid assessment link" }, { status: 404 });
@@ -74,6 +74,7 @@ export async function POST(request: NextRequest) {
       full_name: name.trim(),
       email: email.toLowerCase().trim(),
       status: "invited",
+      language: project.companies?.language === "en" ? "en" : "es",
       token,
       token_expires_at: expiresAt,
     })

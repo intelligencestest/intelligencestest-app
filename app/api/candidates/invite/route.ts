@@ -401,6 +401,7 @@ export async function POST(request: NextRequest) {
       full_name: (full_name ?? "").trim(),
       email: (email ?? "").toLowerCase().trim(),
       status: "invited",
+      language: lang,
       token,
       token_expires_at: expiresAt,
     })

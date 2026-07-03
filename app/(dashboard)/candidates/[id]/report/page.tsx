@@ -1,21 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
+import { toAppLocale } from "@/lib/i18n/locales";
 import { analyzeResult } from "@/lib/report-scoring";
 import { assessmentName as termName, dimensionLabel as termDimension } from "@/lib/i18n/assessment-terms";
 import {
   bandOf,
-  BAND_LABEL_ES,
-  contentFor,
+  contentForLocale,
   interviewQuestions,
-  buildVerdict,
-  executiveSummary,
-  RECOMMENDATION_ES,
+  buildVerdictLocalized,
+  executiveSummaryLocalized,
+  RECOMMENDATION_LABEL,
+  BAND_LABEL,
   type Band,
+  type ReportLang,
 } from "@/lib/report-content";
 import PrintButton from "./PrintButton";
 
-// Executive document — Spanish is the production language of the report.
+// Executive document. The workspace language is the only locale source.
 
 const BAND_TONE: Record<Band, { text: string; bg: string; bar: string }> = {
   high: { text: "#047857", bg: "#ECFDF5", bar: "#059669" },
@@ -23,20 +26,85 @@ const BAND_TONE: Record<Band, { text: string; bg: string; bar: string }> = {
   low: { text: "#DC2626", bg: "#FEF2F2", bar: "#DC2626" },
 };
 
-const READING_ES: Record<Band, string> = {
-  high: "Fortaleza clara",
-  medium: "Competente, con matices",
-  low: "Área de riesgo",
-};
+const CHROME = {
+  es: {
+    back: "← Volver al perfil", print: "Imprimir / Guardar PDF", docTitle: "Informe ejecutivo",
+    docSubtitle: "Informe ejecutivo de evaluación", confidential: "Confidencial", of100: "de 100",
+    confidence: "Confianza", conf: { alta: "Alta", media: "Media", limitada: "Limitada" } as Record<string, string>,
+    statAssessments: "Evaluaciones", statAverage: "Promedio", statBest: "Mejor resultado", statPosition: "Posición",
+    coverFootnote: "Este documento se generó a partir de los resultados reales de las evaluaciones completadas y forma parte del expediente del proceso de selección.",
+    sResults: "Resultados de evaluaciones", hResults: "Resultados",
+    resultsDesc: (n: string, b: boolean) => `Puntuaciones obtenidas por ${n}${b ? ", comparadas con los demás candidatos evaluados en esta posición." : "."}`,
+    thAssessment: "Evaluación", thScore: "Puntuación", thPercentile: "Percentil", thBand: "Banda", thReading: "Lectura",
+    reading: { high: "Fortaleza clara", medium: "Competente, con matices", low: "Área de riesgo" } as Record<Band, string>,
+    benchTitle: "Comparativa dentro del proceso", benchAvg: "Promedio del proceso", benchTop: "Mejor resultado",
+    benchNote: "La comparativa incluye únicamente candidatos evaluados en esta misma posición.",
+    sMeaning: "Interpretación de resultados", hMeaning: "Qué significan estos resultados",
+    meaningDesc: "Implicaciones para el negocio según la banda real obtenida en cada instrumento.",
+    behaviors: "Comportamientos probables", riskLevel: "Nivel de riesgo", forTeam: "Para el equipo de selección",
+    correct: (c: number, t: number) => `${c} de ${t} respuestas correctas.`,
+    sStrengths: "Fortalezas", hStrengths: "Fortalezas observadas",
+    strengthsDesc: (n: string) => `Derivadas únicamente de los instrumentos donde ${n} obtuvo resultados en banda alta.`,
+    sDev: "Áreas de desarrollo", hDev: "Áreas de desarrollo",
+    devDesc: "Presentadas con contexto: riesgo potencial, oportunidad de desarrollo y qué explorar en entrevista.",
+    devRisk: "Riesgo potencial", devCoach: "Oportunidad de desarrollo", devTopics: "Explorar en entrevista",
+    sInterview: "Guía de entrevista", hInterview: "Guía de entrevista",
+    interviewDesc: "Preguntas seleccionadas según la puntuación real: los resultados altos se validan; los bajos se exploran.",
+    sFinal: "Recomendación final", hFinal: "Recomendación final", recLabel: "Recomendación",
+    why: "Por qué", hiringRisks: "Riesgos de contratación", nextSteps: "Próximos pasos sugeridos",
+    sRecord: "Registro de revisión", hRecord: "Registro de revisión",
+    recordDesc: "Para el expediente del proceso. Complete tras la reunión de decisión.",
+    reviewedBy: "Revisado por", role: "Cargo", decision: "Decisión",
+    decisions: ["Avanzar a entrevista", "Extender oferta", "Rechazar", "Mantener en reserva"],
+    comments: "Comentarios", signature: "Firma", date: "Fecha",
+    legal: (id: string, d: string, co: string, n: string, p: string) =>
+      `${id} · Generado el ${d} por Intelligences Test para ${co}. Documento confidencial: contiene resultados de evaluación de ${n} para la posición de ${p}. Las puntuaciones reflejan el desempeño en los instrumentos completados y deben interpretarse junto con la entrevista y las referencias.`,
+    forTeamFallback: "el equipo de selección", candidateFallback: "Candidato",
+  },
+  en: {
+    back: "← Back to profile", print: "Print / Save PDF", docTitle: "Executive report",
+    docSubtitle: "Executive assessment report", confidential: "Confidential", of100: "out of 100",
+    confidence: "Confidence", conf: { alta: "High", media: "Medium", limitada: "Limited" } as Record<string, string>,
+    statAssessments: "Assessments", statAverage: "Average", statBest: "Best result", statPosition: "Position",
+    coverFootnote: "This document was generated from the real results of the completed assessments and forms part of the hiring process file.",
+    sResults: "Assessment results", hResults: "Results",
+    resultsDesc: (n: string, b: boolean) => `Scores obtained by ${n}${b ? ", compared against the other candidates assessed for this position." : "."}`,
+    thAssessment: "Assessment", thScore: "Score", thPercentile: "Percentile", thBand: "Band", thReading: "Reading",
+    reading: { high: "Clear strength", medium: "Competent, with nuances", low: "Risk area" } as Record<Band, string>,
+    benchTitle: "Comparison within the process", benchAvg: "Process average", benchTop: "Best result",
+    benchNote: "The comparison includes only candidates assessed for this same position.",
+    sMeaning: "Score interpretation", hMeaning: "What these results mean",
+    meaningDesc: "Business implications based on the actual band obtained in each instrument.",
+    behaviors: "Likely behaviours", riskLevel: "Risk level", forTeam: "For the hiring team",
+    correct: (c: number, t: number) => `${c} of ${t} correct answers.`,
+    sStrengths: "Strengths", hStrengths: "Observed strengths",
+    strengthsDesc: (n: string) => `Derived only from the instruments where ${n} scored in the high band.`,
+    sDev: "Development areas", hDev: "Development areas",
+    devDesc: "Presented with context: potential risk, development opportunity, and what to explore in the interview.",
+    devRisk: "Potential risk", devCoach: "Development opportunity", devTopics: "Explore in interview",
+    sInterview: "Interview guide", hInterview: "Interview guide",
+    interviewDesc: "Questions selected by the actual score: high results are validated; low results are explored.",
+    sFinal: "Final recommendation", hFinal: "Final recommendation", recLabel: "Recommendation",
+    why: "Why", hiringRisks: "Hiring risks", nextSteps: "Suggested next steps",
+    sRecord: "Review record", hRecord: "Review record",
+    recordDesc: "For the process file. Complete after the decision meeting.",
+    reviewedBy: "Reviewed by", role: "Role", decision: "Decision",
+    decisions: ["Advance to interview", "Extend offer", "Reject", "Keep on hold"],
+    comments: "Comments", signature: "Signature", date: "Date",
+    legal: (id: string, d: string, co: string, n: string, p: string) =>
+      `${id} · Generated on ${d} by Intelligences Test for ${co}. Confidential document: contains assessment results for ${n} for the ${p} position. Scores reflect performance in the completed instruments and should be interpreted alongside the interview and references.`,
+    forTeamFallback: "the hiring team", candidateFallback: "Candidate",
+  },
+} satisfies Record<ReportLang, unknown>;
 
-function BandChip({ band }: { band: Band }) {
+function BandChip({ band, lang }: { band: Band; lang: ReportLang }) {
   const tone = BAND_TONE[band];
   return (
     <span
       className="inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
       style={{ color: tone.text, backgroundColor: tone.bg }}
     >
-      {BAND_LABEL_ES[band]}
+      {BAND_LABEL[lang][band]}
     </span>
   );
 }
@@ -52,11 +120,11 @@ function ScoreBar({ score, band, height = 6 }: { score: number; band: Band; heig
   );
 }
 
-function SheetHeader({ candidate, section, index }: { candidate: string; section: string; index: string }) {
+function SheetHeader({ candidate, section, index, docTitle }: { candidate: string; section: string; index: string; docTitle: string }) {
   return (
     <div className="mb-10 flex items-baseline justify-between border-b border-slate-200 pb-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-        Informe ejecutivo · {candidate}
+        {docTitle} · {candidate}
       </p>
       <p className="text-[11px] font-medium text-slate-400">
         <span className="mr-3 font-semibold text-[#1D4ED8]">{index}</span>
@@ -68,7 +136,9 @@ function SheetHeader({ candidate, section, index }: { candidate: string; section
 
 export default async function ExecutiveReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const locale = "es";
+  const locale: ReportLang = toAppLocale(await getLocale());
+  const L = CHROME[locale];
+  const dateLocale = locale === "es" ? "es-ES" : "en-US";
 
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -116,10 +186,10 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   if (myResults.length === 0) notFound();
 
   const peers = projectResults ?? [];
-  const name = candidate.full_name?.trim() || "Candidato";
+  const name = candidate.full_name?.trim() || L.candidateFallback;
   const projectName = candidate.hiring_projects?.name ?? "—";
   const companyName = company?.name ?? "";
-  const today = new Date().toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+  const today = new Date().toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
   const reportId = `RPT-${candidate.id.slice(0, 8).toUpperCase()}`;
 
   // ---- Derived analysis -----------------------------------------------------
@@ -130,7 +200,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
     const percentile =
       others.length >= 3 ? Math.round((others.filter((o) => o.score < r.score).length / others.length) * 100) : null;
     const projectAvg =
-      others.length >= 1 ? Math.round(others.reduce((s, o) => s + o.score, 0 + r.score) / (others.length + 1)) : null;
+      others.length >= 1 ? Math.round(others.reduce((s, o) => s + o.score, r.score) / (others.length + 1)) : null;
     const projectTop = others.length >= 1 ? Math.max(r.score, ...others.map((o) => o.score)) : null;
     return {
       result: r,
@@ -138,10 +208,10 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
       displayName,
       band: bandOf(r.score),
       percentile,
-      projectAvg: others.length >= 1 ? projectAvg : null,
+      projectAvg,
       projectTop,
       peerCount: others.length,
-      content: contentFor(rawName, r.assessments?.category ?? null),
+      content: contentForLocale(rawName, r.assessments?.category ?? null, locale),
       detail: r.assessments ? analyzeResult(rawName, r.raw_answers) : null,
     };
   });
@@ -149,24 +219,23 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   const overall = Math.round(myResults.reduce((s, r) => s + r.score, 0) / myResults.length);
   const overallBand = bandOf(overall);
   const assigned = Math.max(assignedCount ?? 0, myResults.length);
-  const verdict = buildVerdict({ scores: rows.map((r) => ({ name: r.displayName, score: r.result.score })), assigned });
-  const summary = executiveSummary({
-    name,
-    projectName,
-    scores: rows.map((r) => ({ name: r.displayName, score: r.result.score })),
-    verdict,
-  });
-  const rec = RECOMMENDATION_ES[verdict.recommendation];
+  const verdict = buildVerdictLocalized(
+    { scores: rows.map((r) => ({ name: r.displayName, score: r.result.score })), assigned },
+    locale
+  );
+  const summary = executiveSummaryLocalized(
+    { name, projectName, scores: rows.map((r) => ({ name: r.displayName, score: r.result.score })), verdict },
+    locale
+  );
+  const rec = RECOMMENDATION_LABEL[locale][verdict.recommendation];
 
   const strengthRows = rows.filter((r) => r.band === "high");
   const devRows = rows.filter((r) => r.band !== "high");
   const showBenchmarks = rows.some((r) => r.peerCount >= 1);
 
-  const CONF_LABEL: Record<string, string> = { alta: "Alta", media: "Media", limitada: "Limitada" };
-
   let sectionNo = 1;
   const nextIndex = () => String(sectionNo++).padStart(2, "0");
-  const summaryIdx = nextIndex();
+  nextIndex(); // 01 cover
   const resultsIdx = nextIndex();
   const meaningIdx = nextIndex();
   const strengthsIdx = strengthRows.length > 0 ? nextIndex() : null;
@@ -174,6 +243,11 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   const interviewIdx = nextIndex();
   const finalIdx = nextIndex();
   const recordIdx = nextIndex();
+
+  const recColor =
+    verdict.recommendation === "not_recommended" ? "#DC2626" : verdict.recommendation === "proceed" ? "#047857" : "#B45309";
+  const recBg =
+    verdict.recommendation === "not_recommended" ? "#FEF2F2" : verdict.recommendation === "proceed" ? "#ECFDF5" : "#FFFBEB";
 
   return (
     <main className="min-h-screen bg-[#07080F] px-4 py-8 text-slate-900 print:bg-white print:p-0">
@@ -192,27 +266,25 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
       <div className="no-print mx-auto mb-5 flex max-w-[210mm] items-center justify-between gap-4">
         <div>
           <Link href={`/candidates/${candidate.id}`} className="text-[13px] font-medium text-slate-400 hover:text-slate-200">
-            ← Volver al perfil
+            {L.back}
           </Link>
-          <p className="mt-1 text-sm font-semibold text-white">Informe ejecutivo · {name}</p>
+          <p className="mt-1 text-sm font-semibold text-white">{L.docTitle} · {name}</p>
         </div>
-        <PrintButton label="Imprimir / Guardar PDF" />
+        <PrintButton label={L.print} />
       </div>
 
       <div className="mx-auto max-w-[210mm] space-y-6">
-        {/* ── 01 · Resumen ejecutivo ─────────────────────────────────────── */}
+        {/* 01 · Executive summary */}
         <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
           <div className="flex items-start justify-between border-b-2 border-[#1D4ED8] pb-6">
             <div>
               <p className="text-[13px] font-semibold text-[#1D4ED8]">Intelligences Test</p>
-              <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-slate-400">
-                Informe ejecutivo de evaluación
-              </p>
+              <p className="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-slate-400">{L.docSubtitle}</p>
             </div>
             <div className="text-right text-[11px] leading-5 text-slate-400">
               <p className="font-semibold text-slate-500">{reportId}</p>
               <p>{today}</p>
-              <p className="font-semibold uppercase tracking-wider text-slate-400">Confidencial</p>
+              <p className="font-semibold uppercase tracking-wider text-slate-400">{L.confidential}</p>
             </div>
           </div>
 
@@ -230,19 +302,19 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               style={{ borderColor: BAND_TONE[overallBand].bar }}
             >
               <span className="text-5xl font-semibold tracking-tight text-slate-900">{overall}</span>
-              <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400">de 100</span>
+              <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400">{L.of100}</span>
             </div>
             <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-2.5">
                 <span
                   className="inline-flex rounded-full px-3.5 py-1.5 text-[13px] font-semibold text-white"
-                  style={{ backgroundColor: verdict.recommendation === "not_recommended" ? "#DC2626" : verdict.recommendation === "proceed" ? "#047857" : "#B45309" }}
+                  style={{ backgroundColor: recColor }}
                 >
                   {rec.label}
                 </span>
-                <BandChip band={overallBand} />
+                <BandChip band={overallBand} lang={locale} />
                 <span className="inline-flex rounded-full border border-slate-200 px-2.5 py-0.5 text-[11px] font-semibold text-slate-500">
-                  Confianza: {CONF_LABEL[verdict.confidence]}
+                  {L.confidence}: {L.conf[verdict.confidence]}
                 </span>
               </div>
               <p className="max-w-xl text-[15px] leading-7 text-slate-700">{summary}</p>
@@ -251,10 +323,10 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
 
           <div className="mt-12 grid grid-cols-4 gap-px overflow-hidden rounded-xl border border-slate-200 bg-slate-200">
             {[
-              { label: "Evaluaciones", value: `${myResults.length}/${assigned}` },
-              { label: "Promedio", value: `${overall}` },
-              { label: "Mejor resultado", value: `${Math.max(...myResults.map((r) => r.score))}` },
-              { label: "Posición", value: projectName.length > 18 ? `${projectName.slice(0, 17)}…` : projectName },
+              { label: L.statAssessments, value: `${myResults.length}/${assigned}` },
+              { label: L.statAverage, value: `${overall}` },
+              { label: L.statBest, value: `${Math.max(...myResults.map((r) => r.score))}` },
+              { label: L.statPosition, value: projectName.length > 18 ? `${projectName.slice(0, 17)}…` : projectName },
             ].map((cell) => (
               <div key={cell.label} className="bg-white p-4">
                 <p className="text-[11px] font-medium uppercase tracking-wider text-slate-400">{cell.label}</p>
@@ -264,28 +336,24 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </div>
 
           <p className="mt-12 border-t border-slate-200 pt-5 text-[11px] leading-5 text-slate-400">
-            {verdict.confidenceReason} Este documento se generó a partir de los resultados reales de las evaluaciones
-            completadas y forma parte del expediente del proceso de selección.
+            {verdict.confidenceReason} {L.coverFootnote}
           </p>
         </section>
 
-        {/* ── 02 · Resultados ────────────────────────────────────────────── */}
+        {/* 02 · Results */}
         <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
-          <SheetHeader candidate={name} section="Resultados de evaluaciones" index={resultsIdx} />
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Resultados</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Puntuaciones obtenidas por {name}
-            {showBenchmarks ? ", comparadas con los demás candidatos evaluados en esta posición." : "."}
-          </p>
+          <SheetHeader candidate={name} section={L.sResults} index={resultsIdx} docTitle={L.docTitle} />
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{L.hResults}</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-500">{L.resultsDesc(name, showBenchmarks)}</p>
 
           <table className="mt-8 w-full border-collapse text-left">
             <thead>
               <tr className="border-b-2 border-slate-900 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                <th className="py-3 pr-4">Evaluación</th>
-                <th className="w-24 py-3 pr-4 text-right">Puntuación</th>
-                {rows.some((r) => r.percentile !== null) && <th className="w-24 py-3 pr-4 text-right">Percentil</th>}
-                <th className="w-20 py-3 pr-4">Banda</th>
-                <th className="w-44 py-3">Lectura</th>
+                <th className="py-3 pr-4">{L.thAssessment}</th>
+                <th className="w-24 py-3 pr-4 text-right">{L.thScore}</th>
+                {rows.some((r) => r.percentile !== null) && <th className="w-24 py-3 pr-4 text-right">{L.thPercentile}</th>}
+                <th className="w-20 py-3 pr-4">{L.thBand}</th>
+                <th className="w-44 py-3">{L.thReading}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -305,8 +373,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                       {row.percentile !== null ? `P${row.percentile}` : "—"}
                     </td>
                   )}
-                  <td className="py-4 pr-4 align-top"><BandChip band={row.band} /></td>
-                  <td className="py-4 align-top text-[13px] leading-5 text-slate-600">{READING_ES[row.band]}</td>
+                  <td className="py-4 pr-4 align-top"><BandChip band={row.band} lang={locale} /></td>
+                  <td className="py-4 align-top text-[13px] leading-5 text-slate-600">{L.reading[row.band]}</td>
                 </tr>
               ))}
             </tbody>
@@ -314,7 +382,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
 
           {showBenchmarks && (
             <div className="avoid-break mt-10">
-              <h3 className="text-sm font-semibold text-slate-900">Comparativa dentro del proceso</h3>
+              <h3 className="text-sm font-semibold text-slate-900">{L.benchTitle}</h3>
               <div className="mt-4 space-y-5">
                 {rows.filter((r) => r.projectAvg !== null).map((row) => (
                   <div key={`bench-${row.result.id}`}>
@@ -322,8 +390,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     <div className="space-y-1">
                       {[
                         { label: name, value: row.result.score, color: BAND_TONE[row.band].bar, bold: true },
-                        { label: "Promedio del proceso", value: row.projectAvg!, color: "#94A3B8", bold: false },
-                        { label: "Mejor resultado", value: row.projectTop!, color: "#1D4ED8", bold: false },
+                        { label: L.benchAvg, value: row.projectAvg!, color: "#94A3B8", bold: false },
+                        { label: L.benchTop, value: row.projectTop!, color: "#1D4ED8", bold: false },
                       ].map((bar) => (
                         <div key={bar.label} className="flex items-center gap-3">
                           <span className={`w-44 text-[11px] ${bar.bold ? "font-semibold text-slate-800" : "text-slate-500"}`}>
@@ -339,20 +407,16 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   </div>
                 ))}
               </div>
-              <p className="mt-3 text-[11px] text-slate-400">
-                La comparativa incluye únicamente candidatos evaluados en esta misma posición.
-              </p>
+              <p className="mt-3 text-[11px] text-slate-400">{L.benchNote}</p>
             </div>
           )}
         </section>
 
-        {/* ── 03 · Qué significan los resultados ─────────────────────────── */}
+        {/* 03 · What the scores mean */}
         <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
-          <SheetHeader candidate={name} section="Interpretación de resultados" index={meaningIdx} />
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Qué significan estos resultados</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Implicaciones para el negocio según la banda real obtenida en cada instrumento.
-          </p>
+          <SheetHeader candidate={name} section={L.sMeaning} index={meaningIdx} docTitle={L.docTitle} />
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{L.hMeaning}</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-500">{L.meaningDesc}</p>
 
           <div className="mt-8 space-y-8">
             {rows.map((row) => {
@@ -366,7 +430,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     </div>
                     <div className="flex flex-shrink-0 items-center gap-2">
                       <span className="text-lg font-semibold" style={{ color: BAND_TONE[row.band].text }}>{row.result.score}</span>
-                      <BandChip band={row.band} />
+                      <BandChip band={row.band} lang={locale} />
                     </div>
                   </div>
 
@@ -392,13 +456,13 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   )}
                   {row.detail?.correct && (
                     <p className="mt-4 text-[12px] text-slate-500">
-                      {row.detail.correct.correct} de {row.detail.correct.total} respuestas correctas.
+                      {L.correct(row.detail.correct.correct, row.detail.correct.total)}
                     </p>
                   )}
 
                   <div className="mt-5 grid grid-cols-[1.2fr_1fr] gap-6">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Comportamientos probables</p>
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.behaviors}</p>
                       <ul className="mt-2 space-y-1.5">
                         {meaning.behaviors.map((b) => (
                           <li key={b} className="flex gap-2 text-[13px] leading-5 text-slate-700">
@@ -410,11 +474,11 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     </div>
                     <div className="space-y-3">
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Nivel de riesgo</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.riskLevel}</p>
                         <p className="mt-1.5 text-[13px] leading-5 text-slate-700">{meaning.risk}</p>
                       </div>
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Para el equipo de selección</p>
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.forTeam}</p>
                         <p className="mt-1.5 text-[13px] leading-5 text-slate-700">{meaning.considerations}</p>
                       </div>
                     </div>
@@ -425,14 +489,12 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </div>
         </section>
 
-        {/* ── 04 · Fortalezas (solo con evidencia) ───────────────────────── */}
+        {/* 04 · Strengths (only with evidence) */}
         {strengthsIdx && (
           <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
-            <SheetHeader candidate={name} section="Fortalezas" index={strengthsIdx} />
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Fortalezas observadas</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Derivadas únicamente de los instrumentos donde {name} obtuvo resultados en banda alta.
-            </p>
+            <SheetHeader candidate={name} section={L.sStrengths} index={strengthsIdx} docTitle={L.docTitle} />
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{L.hStrengths}</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">{L.strengthsDesc(name)}</p>
             <div className="mt-8 grid grid-cols-2 gap-4">
               {strengthRows.flatMap((row) =>
                 row.content.strengths.slice(0, 3).map((s) => (
@@ -460,14 +522,12 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </section>
         )}
 
-        {/* ── 05 · Áreas de desarrollo (solo con evidencia) ──────────────── */}
+        {/* 05 · Development areas (only with evidence) */}
         {devIdx && (
           <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
-            <SheetHeader candidate={name} section="Áreas de desarrollo" index={devIdx} />
-            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Áreas de desarrollo</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500">
-              Presentadas con contexto: riesgo potencial, oportunidad de desarrollo y qué explorar en entrevista.
-            </p>
+            <SheetHeader candidate={name} section={L.sDev} index={devIdx} docTitle={L.docTitle} />
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{L.hDev}</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">{L.devDesc}</p>
             <div className="mt-8 space-y-6">
               {devRows.map((row) => (
                 <article key={`dev-${row.result.id}`} className="avoid-break rounded-xl border border-slate-200 p-6">
@@ -475,14 +535,14 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     <h3 className="text-[15px] font-semibold text-slate-900">{row.displayName}</h3>
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-semibold" style={{ color: BAND_TONE[row.band].text }}>{row.result.score}</span>
-                      <BandChip band={row.band} />
+                      <BandChip band={row.band} lang={locale} />
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-3 gap-6">
                     {[
-                      { title: "Riesgo potencial", items: row.content.development.risks },
-                      { title: "Oportunidad de desarrollo", items: row.content.development.coaching },
-                      { title: "Explorar en entrevista", items: row.content.development.topics },
+                      { title: L.devRisk, items: row.content.development.risks },
+                      { title: L.devCoach, items: row.content.development.coaching },
+                      { title: L.devTopics, items: row.content.development.topics },
                     ].map((col) => (
                       <div key={col.title}>
                         <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{col.title}</p>
@@ -503,16 +563,14 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </section>
         )}
 
-        {/* ── 06 · Guía de entrevista ────────────────────────────────────── */}
+        {/* 06 · Interview guide */}
         <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
-          <SheetHeader candidate={name} section="Guía de entrevista" index={interviewIdx} />
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Guía de entrevista</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Preguntas seleccionadas según la puntuación real: los resultados altos se validan; los bajos se exploran.
-          </p>
+          <SheetHeader candidate={name} section={L.sInterview} index={interviewIdx} docTitle={L.docTitle} />
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{L.hInterview}</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-500">{L.interviewDesc}</p>
           <div className="mt-8 space-y-7">
             {rows.map((row) => {
-              const guide = interviewQuestions(row.content, row.result.score);
+              const guide = interviewQuestions(row.content, row.result.score, locale);
               return (
                 <div key={`iv-${row.result.id}`} className="avoid-break">
                   <div className="flex items-baseline justify-between border-b border-slate-200 pb-2">
@@ -533,30 +591,24 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </div>
         </section>
 
-        {/* ── 07 · Recomendación final ───────────────────────────────────── */}
+        {/* 07 · Final recommendation */}
         <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
-          <SheetHeader candidate={name} section="Recomendación final" index={finalIdx} />
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Recomendación final</h2>
+          <SheetHeader candidate={name} section={L.sFinal} index={finalIdx} docTitle={L.docTitle} />
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{L.hFinal}</h2>
 
-          <div
-            className="mt-8 rounded-xl p-7"
-            style={{ backgroundColor: verdict.recommendation === "not_recommended" ? "#FEF2F2" : verdict.recommendation === "proceed" ? "#ECFDF5" : "#FFFBEB" }}
-          >
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">Recomendación</p>
-            <p
-              className="mt-1 text-[26px] font-semibold tracking-tight"
-              style={{ color: verdict.recommendation === "not_recommended" ? "#DC2626" : verdict.recommendation === "proceed" ? "#047857" : "#B45309" }}
-            >
+          <div className="mt-8 rounded-xl p-7" style={{ backgroundColor: recBg }}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">{L.recLabel}</p>
+            <p className="mt-1 text-[26px] font-semibold tracking-tight" style={{ color: recColor }}>
               {rec.label}
             </p>
             <p className="mt-2 text-[13px] text-slate-600">
-              Confianza {CONF_LABEL[verdict.confidence].toLowerCase()} — {verdict.confidenceReason}
+              {L.confidence}: {L.conf[verdict.confidence]} — {verdict.confidenceReason}
             </p>
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-8">
             <div>
-              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">Por qué</h3>
+              <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">{L.why}</h3>
               <ul className="mt-3 space-y-2">
                 {verdict.reasons.map((reason) => (
                   <li key={reason} className="flex gap-2.5 text-[13px] leading-6 text-slate-700">
@@ -568,7 +620,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             </div>
             <div className="space-y-7">
               <div>
-                <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">Riesgos de contratación</h3>
+                <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">{L.hiringRisks}</h3>
                 <ul className="mt-3 space-y-2">
                   {verdict.risks.map((risk) => (
                     <li key={risk} className="flex gap-2.5 text-[13px] leading-6 text-slate-700">
@@ -579,7 +631,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 </ul>
               </div>
               <div>
-                <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">Próximos pasos sugeridos</h3>
+                <h3 className="text-[13px] font-semibold uppercase tracking-wider text-slate-500">{L.nextSteps}</h3>
                 <ol className="mt-3 space-y-2">
                   {verdict.nextSteps.map((step, i) => (
                     <li key={step} className="flex gap-3 text-[13px] leading-6 text-slate-700">
@@ -593,30 +645,28 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </div>
         </section>
 
-        {/* ── 08 · Registro de revisión ──────────────────────────────────── */}
+        {/* 08 · Review record */}
         <section className="sheet rounded-2xl bg-white p-12 shadow-2xl">
-          <SheetHeader candidate={name} section="Registro de revisión" index={recordIdx} />
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Registro de revisión</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Para el expediente del proceso. Complete tras la reunión de decisión.
-          </p>
+          <SheetHeader candidate={name} section={L.sRecord} index={recordIdx} docTitle={L.docTitle} />
+          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{L.hRecord}</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-500">{L.recordDesc}</p>
 
           <div className="mt-10 space-y-8">
             <div className="grid grid-cols-2 gap-8">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Revisado por</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.reviewedBy}</p>
                 <div className="mt-6 border-b border-slate-300" />
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Cargo</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.role}</p>
                 <div className="mt-6 border-b border-slate-300" />
               </div>
             </div>
 
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Decisión</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.decision}</p>
               <div className="mt-3 grid grid-cols-4 gap-3">
-                {["Avanzar a entrevista", "Extender oferta", "Rechazar", "Mantener en reserva"].map((option) => (
+                {L.decisions.map((option) => (
                   <div key={option} className="flex items-center gap-2.5 rounded-lg border border-slate-200 px-3 py-2.5">
                     <span className="h-4 w-4 flex-shrink-0 rounded border border-slate-300" aria-hidden="true" />
                     <span className="text-[12px] font-medium text-slate-700">{option}</span>
@@ -626,7 +676,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             </div>
 
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Comentarios</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.comments}</p>
               <div className="mt-6 space-y-6">
                 <div className="border-b border-slate-300" />
                 <div className="border-b border-slate-300" />
@@ -636,21 +686,18 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
 
             <div className="grid grid-cols-2 gap-8 pt-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Firma</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.signature}</p>
                 <div className="mt-10 border-b border-slate-300" />
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Fecha</p>
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{L.date}</p>
                 <div className="mt-10 border-b border-slate-300" />
               </div>
             </div>
           </div>
 
           <p className="mt-14 border-t border-slate-200 pt-5 text-[10px] leading-5 text-slate-400">
-            {reportId} · Generado el {today} por Intelligences Test para {companyName || "el equipo de selección"}. Documento
-            confidencial: contiene resultados de evaluación de {name} para la posición de {projectName}. Las puntuaciones
-            reflejan el desempeño en los instrumentos completados y deben interpretarse junto con la entrevista y las
-            referencias.
+            {L.legal(reportId, today, companyName || L.forTeamFallback, name, projectName)}
           </p>
         </section>
       </div>

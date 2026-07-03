@@ -352,6 +352,7 @@
     "description": "Gestione su cuenta y las preferencias de la plataforma.",
     "saved": "La configuración se guardó correctamente.",
     "languageTitle": "Idioma del espacio de trabajo",
+    "languageLocked": "El idioma del espacio se eligió al crear la cuenta y se aplica a todos los reclutadores, candidatos, correos e informes de este espacio.",
     "languageDescription": "Elija el idioma del panel y el idioma predeterminado para las invitaciones de candidatos.",
     "dashboardLanguage": "Idioma del panel",
     "candidateLanguage": "Idioma de invitación",

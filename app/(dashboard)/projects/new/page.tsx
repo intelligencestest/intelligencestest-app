@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLocale } from "next-intl";
+import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -559,7 +560,7 @@ export default function NewProjectPage() {
                             className="mt-1 h-4 w-4 cursor-pointer rounded border-[#1E2240] bg-[#0D1020] accent-[#1D4ED8]"
                           />
                           <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-medium text-white">{assessment.name}</span>
+                            <span className="block text-sm font-medium text-white">{termName(assessment.name, es ? "es" : "en")}</span>
                             <span className="mt-1 block text-xs text-slate-500">
                               {assessment.duration_minutes} min / {assessment.question_count} {copy.questions}
                             </span>

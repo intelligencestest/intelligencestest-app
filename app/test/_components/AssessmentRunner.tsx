@@ -156,6 +156,11 @@ export default function AssessmentRunner({
             setErrorMsg(data.error);
             setPhase("error");
           } else {
+            // The candidate record carries the workspace language — it wins
+            // over the URL parameter as the source of truth.
+            if (data.candidate?.language === "en" || data.candidate?.language === "es") {
+              setLocale(data.candidate.language);
+            }
             setCandidate(data.candidate);
             setPhase("ready");
           }

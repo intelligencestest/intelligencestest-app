@@ -6,6 +6,7 @@ interface CandidateRow {
   full_name: string;
   email: string;
   status: string;
+  language: string | null;
   project_id: string;
   company_id: string;
   token_expires_at: string | null;
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   const { data: candidate, error } = await supabase
     .from("candidates")
-    .select("id, full_name, email, status, project_id, company_id, token_expires_at, hiring_projects(name)")
+    .select("id, full_name, email, status, language, project_id, company_id, token_expires_at, hiring_projects(name)")
     .eq("token", token)
     .returns<CandidateRow[]>()
     .maybeSingle();
@@ -66,6 +67,7 @@ export async function GET(request: NextRequest) {
       full_name: candidate.full_name,
       email: candidate.email,
       status: candidate.status,
+      language: candidate.language === "en" ? "en" : "es",
       project_id: candidate.project_id,
       company_id: candidate.company_id,
     },

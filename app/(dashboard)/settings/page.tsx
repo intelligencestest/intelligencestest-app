@@ -2,14 +2,6 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import {
-  LANGUAGE_COOKIE,
-  LANGUAGE_COOKIE_MAX_AGE,
-  LANGUAGE_OVERRIDE_COOKIE,
-  LANGUAGE_OVERRIDE_STORAGE_KEY,
-  LANGUAGE_STORAGE_KEY,
-} from "@/lib/i18n/locales";
 
 type AppLocale = "en" | "es";
 type ProfileState = {
@@ -106,9 +98,8 @@ export default function SettingsPage() {
         saveChanges: "Save Changes",
       };
   const [saved, setSaved] = useState(false);
-  const [language, setLanguage] = useState<AppLocale>(currentLocale);
-  const [languageSaving, setLanguageSaving] = useState(false);
-  const [languageMessage, setLanguageMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  // Workspace language is fixed at signup; settings no longer change it.
+  const language: AppLocale = currentLocale;
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -211,34 +202,6 @@ export default function SettingsPage() {
     }
   };
 
-  const saveLanguage = async () => {
-    setLanguageSaving(true);
-    setLanguageMessage(null);
-
-    try {
-      const res = await fetch("/api/settings/language", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ language }),
-      });
-
-      if (!res.ok) {
-        setLanguageMessage({ type: "error", text: t("languageError") });
-      } else {
-        document.cookie = `${LANGUAGE_COOKIE}=${language}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
-        document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
-        window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-        window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
-        setLanguageMessage({ type: "success", text: t("languageSaved") });
-      }
-    } catch {
-      setLanguageMessage({ type: "error", text: t("languageError") });
-    }
-
-    setLanguageSaving(false);
-    window.setTimeout(() => setLanguageMessage(null), 2600);
-  };
-
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
@@ -255,64 +218,16 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* Language preference */}
+      {/* Language is a workspace property chosen at signup */}
       <div className="premium-card rounded-xl p-6">
-        <div className="mb-5 flex flex-col gap-4 border-b border-[#1E2240] pb-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <h2 className="text-base font-semibold text-white">{t("languageTitle")}</h2>
-            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">{t("languageDescription")}</p>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-400">{t("languageLocked")}</p>
           </div>
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#6B9FFF]" />
-            EN / ES
+          <span className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-3 py-1.5 text-sm font-semibold text-[#9BB8FF]">
+            {language === "es" ? "Español" : "English"}
           </span>
-        </div>
-
-        <div className="grid gap-5 md:grid-cols-[1fr_220px] md:items-start">
-          <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/65 p-4">
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-600">{t("dashboardLanguage")}</p>
-                <p className="mt-2 text-sm font-semibold text-white">{language === "es" ? "Español" : copy.english}</p>
-              </div>
-              <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/65 p-4">
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-600">{t("candidateLanguage")}</p>
-                <p className="mt-2 text-sm font-semibold text-white">{language === "es" ? "Español" : copy.english}</p>
-              </div>
-            </div>
-            <p className="text-xs leading-5 text-slate-500">{t("languageNote")}</p>
-          </div>
-
-          <div className="space-y-3">
-            <LanguageSwitcher
-              variant="settings"
-              showLabel={false}
-              onLocaleChange={(locale) => setLanguage(locale)}
-            />
-            <button
-              type="button"
-              onClick={saveLanguage}
-              disabled={languageSaving}
-              className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {languageSaving && (
-                <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-                </svg>
-              )}
-              {languageSaving ? t("savingLanguage") : t("saveLanguage")}
-            </button>
-            {languageMessage && (
-              <div className={`rounded-xl border px-3 py-2 text-xs font-medium ${
-                languageMessage.type === "success"
-                  ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
-                  : "border-red-500/25 bg-red-500/10 text-red-300"
-              }`}>
-                {languageMessage.text}
-              </div>
-            )}
-          </div>
         </div>
       </div>
 

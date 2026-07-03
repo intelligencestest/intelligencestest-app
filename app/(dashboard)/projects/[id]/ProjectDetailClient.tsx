@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLocale } from "next-intl";
+import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -458,7 +459,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 4.5h6m-8.25 3h10.5m-12 3h13.5M7.5 21h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 16.5 7.5h-9a2.25 2.25 0 0 0-2.25 2.25v9A2.25 2.25 0 0 0 7.5 21Z" />
                       </svg>
                     </div>
-                    <p className="truncate text-sm font-medium text-slate-200">{assessment.name}</p>
+                    <p className="truncate text-sm font-medium text-slate-200">{termName(assessment.name, es ? "es" : "en")}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3 text-xs text-slate-500">
                     {assessment.duration_minutes != null && <span>{assessment.duration_minutes} min</span>}
@@ -565,7 +566,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   >
                     {assessments.map((a) => (
                       <option key={a.id} value={a.id}>
-                        {a.name}{a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}
+                        {termName(a.name, es ? "es" : "en")}{a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}
                       </option>
                     ))}
                   </select>
@@ -807,7 +808,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                     className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${linked ? "border-emerald-500/20 bg-emerald-500/5" : "border-[#1E2240] bg-[#07080F]/55"}`}
                   >
                     <div className="min-w-0 flex-1">
-                      <p className={`truncate text-sm font-medium ${linked ? "text-emerald-300" : "text-slate-200"}`}>{a.name}</p>
+                      <p className={`truncate text-sm font-medium ${linked ? "text-emerald-300" : "text-slate-200"}`}>{termName(a.name, es ? "es" : "en")}</p>
                       <p className="mt-0.5 text-xs text-slate-500">
                         {a.category} · {a.duration_minutes ?? "-"} min · {a.question_count ?? "-"} Q
                       </p>

@@ -424,18 +424,30 @@ export function contentFor(assessmentName: string, category: string | null): Ass
   );
 }
 
+export type ReportLang = "es" | "en";
+
+const TONES: Record<ReportLang, Record<"leadership" | "validation" | "mixed" | "probing", string>> = {
+  es: { leadership: "Potencial y liderazgo", validation: "Validación de fortaleza", mixed: "Validación y contraste", probing: "Exploración de riesgo" },
+  en: { leadership: "Potential and leadership", validation: "Strength validation", mixed: "Validation and contrast", probing: "Risk exploration" },
+};
+
 /** Score-dependent interview questions for one assessment. */
-export function interviewQuestions(content: AssessmentContent, score: number): { tone: string; questions: string[] } {
+export function interviewQuestions(
+  content: AssessmentContent,
+  score: number,
+  lang: ReportLang = "es"
+): { tone: string; questions: string[] } {
+  const tones = TONES[lang];
   if (score >= 90) {
-    return { tone: "Potencial y liderazgo", questions: [...content.interview.leadership, content.interview.validation[0]] };
+    return { tone: tones.leadership, questions: [...content.interview.leadership, content.interview.validation[0]] };
   }
   if (score >= 80) {
-    return { tone: "Validación de fortaleza", questions: content.interview.validation };
+    return { tone: tones.validation, questions: content.interview.validation };
   }
   if (score >= 60) {
-    return { tone: "Validación y contraste", questions: [content.interview.validation[0], ...content.interview.probing.slice(0, 2)] };
+    return { tone: tones.mixed, questions: [content.interview.validation[0], ...content.interview.probing.slice(0, 2)] };
   }
-  return { tone: "Exploración de riesgo", questions: content.interview.probing };
+  return { tone: tones.probing, questions: content.interview.probing };
 }
 
 // ---------------------------------------------------------------------------
@@ -556,6 +568,236 @@ export function executiveSummary(input: {
     reservations: " La evidencia respalda avanzar, con las reservas señaladas en la recomendación final.",
     interview: " La evidencia es mixta: se recomienda una entrevista adicional antes de decidir.",
     not_recommended: " La evidencia disponible no respalda avanzar en esta posición.",
+  };
+
+  return opening + evidence + closing[verdict.recommendation];
+}
+
+// ---------------------------------------------------------------------------
+// English layer — an English workspace must read like an English product.
+// Bespoke English instrument content can be added over time; until then the
+// English report uses the band-dependent category content below.
+// ---------------------------------------------------------------------------
+
+export const BAND_LABEL: Record<ReportLang, Record<Band, string>> = {
+  es: BAND_LABEL_ES,
+  en: { high: "High", medium: "Medium", low: "Low" },
+};
+
+export const RECOMMENDATION_LABEL: Record<ReportLang, Record<Recommendation, { label: string; short: string }>> = {
+  es: RECOMMENDATION_ES,
+  en: {
+    proceed: { label: "Proceed to the next stage", short: "Proceed" },
+    reservations: { label: "Proceed with reservations", short: "With reservations" },
+    interview: { label: "Additional interview required", short: "Additional interview" },
+    not_recommended: { label: "Not recommended for this position", short: "Not recommended" },
+  },
+};
+
+function genericEn(focus: string, domain: string, highBehaviors: string[], lowRisk: string): AssessmentContent {
+  return {
+    focus,
+    meaning: {
+      high: {
+        behaviors: highBehaviors,
+        risk: `Low risk against the ${domain} demands of the role.`,
+        considerations: `The result supports trusting the candidate with real ${domain} responsibility from the start.`,
+      },
+      medium: {
+        behaviors: [
+          `Handles the usual ${domain} demands competently`,
+          "Higher-complexity situations may require support or more time",
+        ],
+        risk: `Moderate risk if the role concentrates heavy ${domain} demands.`,
+        considerations: "Contrast the real demands of the role with this result before weighting it.",
+      },
+      low: {
+        behaviors: [
+          `Showed consistent difficulty in the ${domain} exercises`,
+          "Will likely need structure and close supervision in this area",
+        ],
+        risk: lowRisk,
+        considerations: "Assess whether the role allows this area to be offset by the rest of the profile.",
+      },
+    },
+    strengths: [
+      `Solid, consistent performance in ${domain}`,
+      "Results above the process standard in this area",
+    ],
+    development: {
+      risks: [`Errors or slowness when ${domain} demands are high`],
+      coaching: [`A guided practice plan for ${domain} during the first quarter`],
+      topics: [`Concrete examples of recent work that required ${domain}`],
+    },
+    interview: {
+      validation: [
+        `Describe the professional achievement that best demonstrates your ability in ${domain}.`,
+        "Which part of this kind of work comes naturally to you, and which takes effort?",
+      ],
+      probing: [
+        `Tell me about a recent situation where ${domain} put you in difficulty. What did you do?`,
+        "What support would you need from your manager in this area during the first months?",
+      ],
+      leadership: [`How would you raise the standard of ${domain} in a team you lead?`],
+    },
+  };
+}
+
+const CATEGORY_FALLBACK_EN: Record<string, AssessmentContent> = {
+  Cognitive: genericEn("Reasoning and problem-solving ability", "reasoning and analysis",
+    ["Solves novel problems without relying on memorized procedures", "Learns rules and patterns quickly"],
+    "High risk in roles requiring autonomous diagnosis and decisions."),
+  "Numerical Reasoning": genericEn("Quantitative and numerical reasoning", "working with numbers and data",
+    ["Interprets figures and trends accurately", "Catches numerical errors others miss"],
+    "High risk in roles involving reporting, cash handling, or quantitative analysis."),
+  Personality: genericEn("Stable workplace behavioural dispositions", "behavioural consistency",
+    ["Declared work style is consistent across situations", "Highly predictable behaviour for the team"],
+    "Risk of friction between natural style and role demands."),
+  Resilience: genericEn("Stability and recovery under pressure", "pressure management",
+    ["Maintains performance through setbacks", "Recovers quickly after adversity"],
+    "High risk in sustained-pressure or high-rejection environments."),
+  Leadership: genericEn("Leadership styles and readiness to direct people", "directing people",
+    ["Adapts leadership style to the situation and person", "Owns the team results"],
+    "High risk if the role requires leading people from day one."),
+  Communication: genericEn("Clarity and effectiveness of workplace communication", "communication",
+    ["Conveys complex ideas clearly", "Adjusts the message to the audience"],
+    "High risk in client-facing or cross-team coordination roles."),
+  Teamwork: genericEn("Collaboration and team contribution", "teamwork",
+    ["Prioritizes collective results over individual credit", "Collaborates without supervision"],
+    "Risk of friction in highly interdependent teams."),
+  "Customer Service": genericEn("Customer orientation and resolution", "customer service",
+    ["Maintains service quality with difficult customers", "Resolves on first contact when possible"],
+    "High risk in direct customer contact operations."),
+  Sales: genericEn("Sales aptitude and persuasion", "selling",
+    ["Handles objections without damaging the relationship", "Persists methodically after rejection"],
+    "High risk in commercial roles with individual quotas."),
+  Productivity: genericEn("Organization, priorities and time management", "organization and priorities",
+    ["Prioritizes by impact and meets deadlines consistently", "Protects time for what matters"],
+    "Risk of missed deadlines in multi-front roles."),
+  Judgment: genericEn("Judgment in real workplace situations", "judgment in real situations",
+    ["Chooses sensible courses of action in ambiguity", "Weighs consequences before acting"],
+    "High risk in roles with frequent unsupervised decisions."),
+  "Workplace Judgment": genericEn("Judgment in real workplace situations", "judgment in real situations",
+    ["Chooses sensible courses of action in ambiguity", "Weighs consequences before acting"],
+    "High risk in roles with frequent unsupervised decisions."),
+  Technical: genericEn("Applied technical and mechanical reasoning", "technical reasoning",
+    ["Understands physical systems and processes quickly", "Diagnoses faults with structured logic"],
+    "High risk in technical or plant-floor roles."),
+  Character: genericEn("Character traits relevant to the role", "behavioural reliability",
+    ["Consistent behaviour between what is declared and expected", "Stable conduct under pressure"],
+    "Risk of inconsistent conduct under pressure or low supervision."),
+  Behavioural: genericEn("Workplace behaviour and learning patterns", "adaptation and learning",
+    ["Incorporates feedback and adjusts quickly", "Learns from mistakes without repeating them"],
+    "Risk of slow adaptation in fast-changing environments."),
+  "Emotional Intelligence": genericEn("Reading and managing emotions at work", "interpersonal effectiveness",
+    ["Reads the team climate and adjusts communication", "Manages disagreement without escalation"],
+    "High risk in service, leadership, or consultative sales roles."),
+};
+
+export function contentForLocale(assessmentName: string, category: string | null, lang: ReportLang): AssessmentContent {
+  if (lang === "es") return contentFor(assessmentName, category);
+  return (category ? CATEGORY_FALLBACK_EN[category] : undefined) ?? CATEGORY_FALLBACK_EN.Cognitive;
+}
+
+/** Locale-aware verdict: same rules as buildVerdict, language-specific text. */
+export function buildVerdictLocalized(
+  input: { scores: { name: string; score: number }[]; assigned: number },
+  lang: ReportLang
+): Verdict {
+  if (lang === "es") return buildVerdict(input);
+
+  const { scores, assigned } = input;
+  const n = scores.length;
+  const avg = Math.round(scores.reduce((s, r) => s + r.score, 0) / Math.max(n, 1));
+  const min = Math.min(...scores.map((s) => s.score));
+  const max = Math.max(...scores.map((s) => s.score));
+  const lows = scores.filter((s) => s.score < 60);
+  const highs = scores.filter((s) => s.score >= 80);
+
+  let recommendation: Recommendation;
+  if (avg >= 80 && min >= 60) recommendation = "proceed";
+  else if (avg >= 70 && lows.length <= 1) recommendation = "reservations";
+  else if (avg >= 55) recommendation = "interview";
+  else recommendation = "not_recommended";
+
+  const confidence = n >= 3 ? "alta" : n === 2 ? "media" : "limitada";
+  const confidenceReason =
+    n >= 3
+      ? `Based on ${n} completed assessments covering distinct dimensions of the profile.`
+      : n === 2
+        ? "Based on two assessments; an additional instrument would increase certainty."
+        : "Based on a single assessment: treat this report as a first signal, not a verdict.";
+
+  const reasons: string[] = [];
+  reasons.push(`Overall average of ${avg} out of 100 across ${n} assessment${n === 1 ? "" : "s"}.`);
+  if (highs.length > 0) reasons.push(`High performance in ${highs.map((h) => h.name).join(", ")}.`);
+  if (lows.length > 0) reasons.push(`Results below threshold in ${lows.map((l) => l.name).join(", ")}.`);
+  if (n >= 2 && max - min <= 15) reasons.push("Consistent profile: low dispersion between instruments.");
+  if (n >= 2 && max - min >= 30) reasons.push(`Uneven profile: ${max - min} points between best and weakest result.`);
+  if (assigned > n) reasons.push(`Incomplete battery: ${assigned - n} assigned assessment${assigned - n === 1 ? "" : "s"} not completed.`);
+
+  const risks: string[] = [];
+  lows.forEach((l) => risks.push(`${l.name}: low result (${l.score}); see the development areas section.`));
+  if (n === 1) risks.push("Evidence limited to a single instrument.");
+  if (assigned > n) risks.push("The assigned battery was not completed; the profile may be partial.");
+  if (risks.length === 0) risks.push("No relevant risks identified in the completed assessments.");
+
+  const nextSteps: string[] = [];
+  if (recommendation === "proceed") {
+    nextSteps.push("Schedule the interview using the guide in this report.");
+    nextSteps.push("Check references with a focus on the detected strengths.");
+  } else if (recommendation === "reservations") {
+    nextSteps.push("Interview with focus on the flagged areas before deciding.");
+    if (assigned > n) nextSteps.push("Request completion of the pending battery.");
+    nextSteps.push("Contrast the reservations against reference checks.");
+  } else if (recommendation === "interview") {
+    nextSteps.push("Run a structured interview using the probing questions in this report.");
+    nextSteps.push("Consider an additional assessment in the weakest area.");
+  } else {
+    nextSteps.push("Document the decision and archive this report in the process file.");
+    nextSteps.push("Consider the candidate for roles with different demands, if there is mutual interest.");
+  }
+
+  return { recommendation, confidence, confidenceReason, reasons, risks, nextSteps };
+}
+
+/** Locale-aware executive paragraph. */
+export function executiveSummaryLocalized(
+  input: { name: string; projectName: string; scores: { name: string; score: number }[]; verdict: Verdict },
+  lang: ReportLang
+): string {
+  if (lang === "es") return executiveSummary(input);
+
+  const { name, projectName, scores, verdict } = input;
+  const n = scores.length;
+  const sorted = [...scores].sort((a, b) => b.score - a.score);
+  const best = sorted[0];
+  const worst = sorted[sorted.length - 1];
+
+  const opening = `${name} completed ${n} assessment${n === 1 ? "" : "s"} for the ${projectName} position.`;
+
+  let evidence: string;
+  if (n === 1) {
+    const b = bandOf(best.score);
+    evidence =
+      b === "high"
+        ? ` Their result in ${best.name} (${best.score}) sits in the high band of the instrument.`
+        : b === "medium"
+          ? ` Their result in ${best.name} (${best.score}) sits within the expected mid range.`
+          : ` Their result in ${best.name} (${best.score}) fell below the expected range.`;
+  } else {
+    evidence = ` Their strongest performance is in ${best.name} (${best.score})`;
+    evidence +=
+      worst.score < 70
+        ? `, while ${worst.name} (${worst.score}) concentrates the greatest room for development.`
+        : `, with the remaining results in consistent ranges.`;
+  }
+
+  const closing: Record<Recommendation, string> = {
+    proceed: " Overall, the evidence supports advancing to the interview stage.",
+    reservations: " The evidence supports advancing, with the reservations noted in the final recommendation.",
+    interview: " The evidence is mixed: an additional interview is recommended before deciding.",
+    not_recommended: " The available evidence does not support advancing for this position.",
   };
 
   return opening + evidence + closing[verdict.recommendation];

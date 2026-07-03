@@ -352,6 +352,7 @@
     "description": "Manage your account and platform preferences.",
     "saved": "Settings saved successfully.",
     "languageTitle": "Workspace Language",
+    "languageLocked": "The workspace language was chosen at signup and applies to every recruiter, candidate, email, and report in this workspace.",
     "languageDescription": "Choose the dashboard language and the default language used for candidate invitations.",
     "dashboardLanguage": "Dashboard language",
     "candidateLanguage": "Candidate invite language",

@@ -68,10 +68,9 @@ export async function GET(request: NextRequest) {
 
     const destination = userRow?.company_id ? next : "/onboarding";
 
-    // Set lang cookie so next-intl uses the company language, unless the user chose a personal override.
-    const hasLanguageOverride = request.cookies.get(LANGUAGE_OVERRIDE_COOKIE)?.value === "1";
-    const currentLocale = toAppLocale(request.cookies.get(LANGUAGE_COOKIE)?.value);
-    let nextLocale = currentLocale;
+    // Workspace language is the single source of truth: the lang cookie is
+    // only a cache of company.language, and personal overrides are cleared.
+    let nextLocale = toAppLocale(request.cookies.get(LANGUAGE_COOKIE)?.value);
 
     if (userRow?.company_id) {
       const { data: company } = await admin
@@ -79,7 +78,7 @@ export async function GET(request: NextRequest) {
         .select("language")
         .eq("id", userRow.company_id)
         .single();
-      nextLocale = hasLanguageOverride ? currentLocale : toAppLocale(company?.language);
+      nextLocale = toAppLocale(company?.language);
     }
 
     response.cookies.set(LANGUAGE_COOKIE, nextLocale, {
@@ -87,6 +86,7 @@ export async function GET(request: NextRequest) {
       sameSite: "lax",
       maxAge: LANGUAGE_COOKIE_MAX_AGE,
     });
+    response.cookies.set(LANGUAGE_OVERRIDE_COOKIE, "", { path: "/", maxAge: 0 });
 
     response.headers.set("Location", new URL(destination, origin).toString());
     return response;
