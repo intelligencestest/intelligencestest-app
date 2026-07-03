@@ -80,6 +80,11 @@ export function normalizeEnterpriseReportData(
   const assessments = completedAssessmentsOnly(data.assessments)
     .map(normalizeAssessment)
     .slice(0, safeLimits.maxCompletedAssessments);
+  const completedAssessmentIds = new Set(assessments.map((assessment) => assessment.id).filter(Boolean));
+  const hasCompletedSource = (sourceAssessmentId?: string) =>
+    !sourceAssessmentId || completedAssessmentIds.size === 0 || completedAssessmentIds.has(sourceAssessmentId);
+  const hasCompletedSources = (sourceAssessmentIds?: string[]) =>
+    !sourceAssessmentIds?.length || completedAssessmentIds.size === 0 || sourceAssessmentIds.some((id) => completedAssessmentIds.has(id));
   const overallScore =
     data.overallScore === undefined
       ? assessments.length
@@ -91,9 +96,18 @@ export function normalizeEnterpriseReportData(
     ...data,
     overallScore,
     assessments,
-    competencies: data.competencies?.map(normalizeCompetency).slice(0, safeLimits.maxCompetencies),
-    radarChart: data.radarChart?.map(normalizeChartPoint).slice(0, safeLimits.maxChartPoints),
-    barChart: data.barChart?.map(normalizeChartPoint).slice(0, safeLimits.maxChartPoints),
+    competencies: data.competencies
+      ?.filter((competency) => hasCompletedSources(competency.sourceAssessmentIds))
+      .map(normalizeCompetency)
+      .slice(0, safeLimits.maxCompetencies),
+    radarChart: data.radarChart
+      ?.filter((point) => hasCompletedSource(point.sourceAssessmentId))
+      .map(normalizeChartPoint)
+      .slice(0, safeLimits.maxChartPoints),
+    barChart: data.barChart
+      ?.filter((point) => hasCompletedSource(point.sourceAssessmentId))
+      .map(normalizeChartPoint)
+      .slice(0, safeLimits.maxChartPoints),
     strengths: data.strengths?.filter(Boolean).slice(0, safeLimits.maxStrengths),
     developmentAreas: data.developmentAreas?.filter(Boolean).slice(0, safeLimits.maxDevelopmentAreas),
     interviewQuestions: data.interviewQuestions?.filter((item) => item.question.trim()).slice(0, safeLimits.maxInterviewQuestions),
