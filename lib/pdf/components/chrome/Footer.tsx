@@ -14,8 +14,8 @@ export function Footer({ theme, messages }: FooterProps) {
       <View
         fixed
         style={{
-          borderTopColor: theme.border.default,
-          borderTopWidth: 1,
+          borderTopColor: theme.mode === "dark" ? "#1E293B" : "#E2E8F0",
+          borderTopWidth: 0.7,
           bottom: 36,
           left: theme.spacing.pageX,
           position: "absolute",
@@ -28,7 +28,7 @@ export function Footer({ theme, messages }: FooterProps) {
           bottom: 24,
           color: theme.page.subtle,
           fontFamily: theme.fontFamily,
-          fontSize: 8,
+          fontSize: 7,
           left: theme.spacing.pageX,
           position: "absolute",
         }}

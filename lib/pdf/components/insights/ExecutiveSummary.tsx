@@ -19,18 +19,21 @@ function confidenceLabel(messages: PdfMessages, confidence?: string) {
 
 export function ExecutiveSummary({ summary, theme, messages }: ExecutiveSummaryProps) {
   return (
-    <Section theme={theme} title={messages.executiveSummary}>
-      <View style={{ marginBottom: 8 }}>
+    <Section theme={theme} title={messages.executiveSummary} style={{ marginBottom: 18, paddingBottom: 16 }}>
+      <View style={{ marginBottom: 10 }}>
         <Badge theme={theme}>{`${messages.confidence}: ${confidenceLabel(messages, summary.confidence)}`}</Badge>
       </View>
-      <BodyText theme={theme} style={{ color: theme.page.foreground, fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+      <BodyText theme={theme} style={{ color: theme.page.foreground, fontSize: 15, fontWeight: 700, lineHeight: 1.25, marginBottom: 8 }}>
         {summary.headline}
       </BodyText>
-      <BodyText theme={theme}>{summary.summary}</BodyText>
+      <BodyText theme={theme} style={{ color: theme.page.muted, fontSize: 10.2, lineHeight: 1.55, maxWidth: 470 }}>{summary.summary}</BodyText>
       {summary.evidence?.map((item) => (
-        <BodyText key={item} theme={theme} style={{ marginTop: 6 }}>
-          - {item}
-        </BodyText>
+        <View key={item} style={{ flexDirection: "row", marginTop: 7, paddingRight: 18 }}>
+          <View style={{ backgroundColor: theme.brand.primary, height: 4, marginRight: 8, marginTop: 6, width: 4 }} />
+          <BodyText theme={theme} style={{ color: theme.page.muted, flex: 1, fontSize: 9.2, lineHeight: 1.45 }}>
+            {item}
+          </BodyText>
+        </View>
       ))}
     </Section>
   );

@@ -37,17 +37,16 @@ export function Section({
       wrap={wrap}
       style={mergeStyle(
         {
-          backgroundColor: theme.surface.card,
-          borderColor: theme.border.default,
-          borderRadius: theme.radius.md,
-          borderWidth: 1,
-          marginBottom: theme.spacing.md,
-          padding: theme.spacing.md,
+          backgroundColor: "transparent",
+          borderBottomColor: theme.border.default,
+          borderBottomWidth: 1,
+          marginBottom: 15,
+          paddingBottom: 12,
         },
         style,
       )}
     >
-      {eyebrow ? <Subheading theme={theme} style={{ marginBottom: 4 }}>{eyebrow}</Subheading> : null}
+      {eyebrow ? <Subheading theme={theme} style={{ marginBottom: 5 }}>{eyebrow}</Subheading> : null}
       {title ? <Heading theme={theme} style={{ marginBottom: 10 }}>{title}</Heading> : null}
       {children}
     </View>

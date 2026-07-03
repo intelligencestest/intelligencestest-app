@@ -12,10 +12,12 @@ interface DevelopmentAreasProps {
 export function DevelopmentAreas({ items, theme, messages }: DevelopmentAreasProps) {
   return (
     <Section theme={theme} title={messages.developmentAreas}>
-      {items.map((item) => (
-        <View key={item} style={{ flexDirection: "row", marginBottom: 7 }}>
-          <Text style={{ color: theme.score.medium, fontFamily: theme.fontFamily, fontSize: 10, marginRight: 7 }}>•</Text>
-          <Text style={{ color: theme.page.muted, flex: 1, fontFamily: theme.fontFamily, fontSize: 10, lineHeight: 1.35 }}>{item}</Text>
+      {items.map((item, index) => (
+        <View key={item} style={{ flexDirection: "row", marginBottom: 8 }}>
+          <Text style={{ color: theme.score.medium, fontFamily: theme.fontFamily, fontSize: 7.2, fontWeight: 700, marginRight: 9, marginTop: 2 }}>
+            {String(index + 1).padStart(2, "0")}
+          </Text>
+          <Text style={{ color: theme.page.muted, flex: 1, fontFamily: theme.fontFamily, fontSize: 9.1, lineHeight: 1.45 }}>{item}</Text>
         </View>
       ))}
     </Section>

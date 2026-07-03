@@ -12,21 +12,21 @@ export function Badge({ children, theme, color = theme.brand.primary }: BadgePro
     <View
       style={{
         alignSelf: "flex-start",
-        backgroundColor: `${color}18`,
-        borderColor: `${color}55`,
+        backgroundColor: `${color}10`,
+        borderColor: `${color}45`,
         borderRadius: 999,
         borderWidth: 1,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        paddingHorizontal: 7,
+        paddingVertical: 3,
       }}
     >
       <Text
         style={{
           color,
           fontFamily: theme.fontFamily,
-          fontSize: 8,
+          fontSize: 7,
           fontWeight: 700,
-          letterSpacing: 0.5,
+          letterSpacing: 0.8,
           textTransform: "uppercase",
         }}
       >

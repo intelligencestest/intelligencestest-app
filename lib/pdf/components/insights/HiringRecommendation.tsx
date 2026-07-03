@@ -1,7 +1,6 @@
 import { Text, View } from "@react-pdf/renderer";
 import type { PdfMessages } from "../../core/i18n";
 import type { HiringRecommendationContent, PdfTheme } from "../../core/types";
-import { Badge } from "../primitives/Badge";
 import { BodyText } from "../primitives/Text";
 import { Section } from "../primitives/Section";
 
@@ -19,17 +18,34 @@ function colorForLevel(theme: PdfTheme, level: HiringRecommendationContent["leve
 
 export function HiringRecommendation({ recommendation, theme, messages }: HiringRecommendationProps) {
   const color = colorForLevel(theme, recommendation.level);
+  const background = theme.mode === "dark" ? "#0B1220" : "#F8FAFC";
   return (
-    <Section theme={theme} title={messages.hiringRecommendation}>
-      <View style={{ marginBottom: 8 }}>
-        <Badge theme={theme} color={color}>{recommendation.title}</Badge>
+    <Section theme={theme} title={messages.hiringRecommendation} style={{ borderBottomWidth: 0, marginBottom: 16, paddingBottom: 0 }} wrap={false}>
+      <View
+        style={{
+          backgroundColor: background,
+          borderColor: theme.mode === "dark" ? "#1E293B" : "#E2E8F0",
+          borderLeftColor: color,
+          borderLeftWidth: 5,
+          borderRadius: 3,
+          borderWidth: 0.8,
+          paddingHorizontal: 18,
+          paddingVertical: 16,
+        }}
+      >
+        <Text style={{ color, fontFamily: theme.fontFamily, fontSize: 7.2, fontWeight: 700, letterSpacing: 1.2, marginBottom: 8, textTransform: "uppercase" }}>
+          {messages.hiringRecommendation}
+        </Text>
+        <Text style={{ color: theme.page.foreground, fontFamily: theme.fontFamily, fontSize: 15, fontWeight: 700, lineHeight: 1.25, marginBottom: 8 }}>
+          {recommendation.title}
+        </Text>
+        <BodyText theme={theme} style={{ color: theme.page.muted, fontSize: 9.7, lineHeight: 1.5 }}>{recommendation.rationale}</BodyText>
       </View>
-      <BodyText theme={theme}>{recommendation.rationale}</BodyText>
       {recommendation.nextSteps?.length ? (
-        <View style={{ marginTop: 10 }}>
-          {recommendation.nextSteps.map((step) => (
-            <Text key={step} style={{ color: theme.page.muted, fontFamily: theme.fontFamily, fontSize: 9.5, lineHeight: 1.35, marginBottom: 5 }}>
-              - {step}
+        <View style={{ marginTop: 12 }}>
+          {recommendation.nextSteps.map((step, index) => (
+            <Text key={step} style={{ color: theme.page.muted, fontFamily: theme.fontFamily, fontSize: 8.8, lineHeight: 1.45, marginBottom: 5 }}>
+              {index + 1}. {step}
             </Text>
           ))}
         </View>

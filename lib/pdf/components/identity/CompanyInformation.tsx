@@ -12,14 +12,14 @@ interface CompanyInformationProps {
 
 export function CompanyInformation({ company, theme, messages }: CompanyInformationProps) {
   return (
-    <Section theme={theme} title={messages.company} wrap={false}>
+    <Section theme={theme} title={messages.company} wrap={false} style={{ marginBottom: 14, paddingBottom: 10 }}>
       <View style={{ alignItems: "center", flexDirection: flowDirection(theme) }}>
-        {company.logoUrl ? <Image src={company.logoUrl} style={{ height: 34, marginRight: 12, objectFit: "contain", width: 86 }} /> : null}
+        {company.logoUrl ? <Image src={company.logoUrl} style={{ height: 30, marginRight: 12, objectFit: "contain", width: 78 }} /> : null}
         <View style={{ flex: 1 }}>
-          <Text style={{ color: theme.page.foreground, fontFamily: theme.fontFamily, fontSize: 13, fontWeight: 700 }}>{company.name}</Text>
-          {company.industry ? <Text style={{ color: theme.page.muted, fontFamily: theme.fontFamily, fontSize: 9, marginTop: 3 }}>{company.industry}</Text> : null}
+          <Text style={{ color: theme.page.foreground, fontFamily: theme.fontFamily, fontSize: 12, fontWeight: 700, lineHeight: 1.25 }}>{company.name}</Text>
+          {company.industry ? <Text style={{ color: theme.page.muted, fontFamily: theme.fontFamily, fontSize: 8.5, marginTop: 3 }}>{company.industry}</Text> : null}
           {company.recruiterName ? (
-            <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 8.5, marginTop: 6 }}>
+            <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 7.8, lineHeight: 1.35, marginTop: 6 }}>
               {messages.recruiter}: {company.recruiterName}
               {company.recruiterEmail ? ` - ${company.recruiterEmail}` : ""}
             </Text>

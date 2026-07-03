@@ -24,26 +24,29 @@ export function CompletedAssessments({ assessments, theme, messages, locale = "e
             key={assessment.id ?? assessment.name}
             style={{
               borderBottomColor: theme.border.default,
-              borderBottomWidth: 1,
-              marginBottom: 10,
-              paddingBottom: 10,
+              borderBottomWidth: 0.7,
+              marginBottom: 9,
+              paddingBottom: 9,
             }}
           >
-            <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 5 }}>
+            <View style={{ alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}>
               <View style={{ flex: 1, paddingRight: 10 }}>
-                <Text style={{ color: theme.page.foreground, fontFamily: theme.fontFamily, fontSize: 10.5, fontWeight: 700 }}>
+                <Text style={{ color: theme.page.foreground, fontFamily: theme.fontFamily, fontSize: 9.8, fontWeight: 700, lineHeight: 1.25 }}>
                   {assessment.name}
                 </Text>
-                <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 8, marginTop: 2 }}>
+                <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 7.4, marginTop: 3 }}>
                   {[assessment.category, formatDate(assessment.completedAt, locale)].filter(Boolean).join(" - ")}
                 </Text>
               </View>
-              <Text style={{ color, fontFamily: theme.fontFamily, fontSize: 14, fontWeight: 700 }}>
-                {Math.round(assessment.score)}
-              </Text>
+              <View style={{ alignItems: "flex-end", width: 56 }}>
+                <Text style={{ color, fontFamily: theme.fontFamily, fontSize: 15, fontWeight: 700, lineHeight: 1 }}>
+                  {Math.round(assessment.score)}
+                </Text>
+                <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 6.8, marginTop: 2 }}>/ {maxScore}</Text>
+              </View>
             </View>
-            <View style={{ backgroundColor: theme.border.default, borderRadius: 999, height: 5 }}>
-              <View style={{ backgroundColor: color, borderRadius: 999, height: 5, width: `${percent}%` }} />
+            <View style={{ backgroundColor: theme.mode === "dark" ? "#1E293B" : "#E2E8F0", borderRadius: 999, height: 3, marginTop: 7 }}>
+              <View style={{ backgroundColor: color, borderRadius: 999, height: 3, width: `${percent}%` }} />
             </View>
           </View>
         );

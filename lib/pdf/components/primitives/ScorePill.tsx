@@ -16,13 +16,10 @@ export function ScorePill({ score, maxScore = 100, theme, tone = "neutral" }: Sc
     <View
       style={{
         alignItems: "center",
-        backgroundColor: `${color}14`,
-        borderColor: `${color}55`,
-        borderRadius: theme.radius.md,
-        borderWidth: 1,
-        minWidth: 54,
-        paddingHorizontal: 8,
-        paddingVertical: 6,
+        backgroundColor: "transparent",
+        minWidth: 44,
+        paddingHorizontal: 0,
+        paddingVertical: 0,
       }}
     >
       <Text style={{ color, fontFamily: theme.fontFamily, fontSize: 18, fontWeight: 700 }}>
