@@ -1,9 +1,11 @@
+import type { ReactNode } from "react";
 import { Document, View } from "@react-pdf/renderer";
 import type { EnterpriseReportData } from "../core/types";
 import { createPdfTheme } from "../core/theme";
 import { getPdfDirection, getPdfMessages } from "../core/i18n";
-import { registerEnterprisePdfFonts } from "../core/fonts";
+import { normalizeEnterpriseReportData } from "../core/normalize";
 import { completedAssessmentsOnly, getEnabledSections } from "../core/section-registry";
+import { flowDirection } from "../core/layout";
 import { CoverPage } from "../components/identity/CoverPage";
 import { PdfReportPage } from "../components/primitives/Page";
 import { ReportHeader } from "../components/chrome/ReportHeader";
@@ -24,97 +26,102 @@ import { BenchmarkComparison } from "../components/insights/BenchmarkComparison"
 
 interface EnterpriseAssessmentReportProps {
   data: EnterpriseReportData;
+  children?: ReactNode;
 }
 
-export function EnterpriseAssessmentReport({ data }: EnterpriseAssessmentReportProps) {
-  const locale = data.locale ?? "es";
+export function EnterpriseAssessmentReport({ data, children }: EnterpriseAssessmentReportProps) {
+  const reportData = normalizeEnterpriseReportData(data);
+  const locale = reportData.locale ?? "es";
   const messages = getPdfMessages(locale);
-  const direction = getPdfDirection(locale, data.direction);
+  const direction = getPdfDirection(locale, reportData.direction);
   const theme = createPdfTheme({
-    ...data.theme,
+    ...reportData.theme,
     direction,
-    logoUrl: data.theme?.logoUrl ?? data.company.logoUrl,
+    logoUrl: reportData.theme?.logoUrl ?? reportData.company.logoUrl,
   });
-  const completedAssessments = completedAssessmentsOnly(data.assessments);
-  const enabled = getEnabledSections(data, completedAssessments);
-
-  registerEnterprisePdfFonts(data.fonts);
+  const completedAssessments = completedAssessmentsOnly(reportData.assessments);
+  const enabled = getEnabledSections(reportData, completedAssessments);
 
   return (
     <Document
-      author={data.company.name}
+      author={reportData.company.name}
       creator="Intelligences Test"
+      keywords={reportData.meta?.keywords?.join(", ")}
       language={locale}
-      subject={messages.coverSubtitle}
-      title={data.meta?.title ?? messages.coverTitle}
+      subject={reportData.meta?.description ?? messages.coverSubtitle}
+      title={reportData.meta?.title ?? messages.coverTitle}
     >
       {enabled.cover ? (
-        <CoverPage theme={theme} messages={messages} candidate={data.candidate} company={data.company} meta={data.meta} />
+        <CoverPage theme={theme} messages={messages} candidate={reportData.candidate} company={reportData.company} meta={reportData.meta} />
       ) : null}
 
       <PdfReportPage
         theme={theme}
-        header={<ReportHeader theme={theme} messages={messages} meta={data.meta} />}
+        header={<ReportHeader theme={theme} messages={messages} meta={reportData.meta} />}
         footer={<Footer theme={theme} messages={messages} />}
       >
-        <View style={{ flexDirection: "row", gap: 12 }}>
+        <View wrap={false} style={{ flexDirection: flowDirection(theme), gap: 12 }}>
           <View style={{ flex: 1 }}>
-            {enabled.candidateInfo ? <CandidateInformation candidate={data.candidate} theme={theme} messages={messages} locale={locale} /> : null}
+            {enabled.candidateInfo ? <CandidateInformation candidate={reportData.candidate} theme={theme} messages={messages} locale={locale} /> : null}
           </View>
           <View style={{ flex: 1 }}>
-            {enabled.companyInfo ? <CompanyInformation company={data.company} theme={theme} messages={messages} /> : null}
+            {enabled.companyInfo ? <CompanyInformation company={reportData.company} theme={theme} messages={messages} /> : null}
           </View>
         </View>
 
-        {enabled.executiveSummary && data.executiveSummary ? (
-          <ExecutiveSummary summary={data.executiveSummary} theme={theme} messages={messages} />
+        {enabled.executiveSummary && reportData.executiveSummary ? (
+          <ExecutiveSummary summary={reportData.executiveSummary} theme={theme} messages={messages} />
         ) : null}
 
-        {enabled.overallScore && data.overallScore !== undefined ? (
-          <OverallScoreCard score={data.overallScore} label={data.overallScoreLabel} theme={theme} messages={messages} />
+        {enabled.overallScore && reportData.overallScore !== undefined ? (
+          <OverallScoreCard score={reportData.overallScore} label={reportData.overallScoreLabel} theme={theme} messages={messages} />
         ) : null}
 
         {enabled.completedAssessments ? (
           <CompletedAssessments assessments={completedAssessments} theme={theme} messages={messages} locale={locale} />
         ) : null}
 
-        {enabled.competencies && data.competencies?.length ? (
-          <CompetencyScoreCards competencies={data.competencies} theme={theme} messages={messages} />
+        {enabled.competencies && reportData.competencies?.length ? (
+          <CompetencyScoreCards competencies={reportData.competencies} theme={theme} messages={messages} />
         ) : null}
 
-        <View style={{ flexDirection: "row", gap: 12 }}>
-          <View style={{ flex: 1 }}>
-            {enabled.radarChart && data.radarChart?.length ? <RadarChart data={data.radarChart} theme={theme} messages={messages} /> : null}
+        {enabled.radarChart || enabled.barChart ? (
+          <View wrap={false} style={{ flexDirection: flowDirection(theme), gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              {enabled.radarChart && reportData.radarChart?.length ? <RadarChart data={reportData.radarChart} theme={theme} messages={messages} /> : null}
+            </View>
+            <View style={{ flex: 1 }}>
+              {enabled.barChart && reportData.barChart?.length ? <BarChart data={reportData.barChart} theme={theme} messages={messages} /> : null}
+            </View>
           </View>
-          <View style={{ flex: 1 }}>
-            {enabled.barChart && data.barChart?.length ? <BarChart data={data.barChart} theme={theme} messages={messages} /> : null}
-          </View>
-        </View>
-
-        <View style={{ flexDirection: "row", gap: 12 }}>
-          <View style={{ flex: 1 }}>
-            {enabled.strengths && data.strengths?.length ? <Strengths items={data.strengths} theme={theme} messages={messages} /> : null}
-          </View>
-          <View style={{ flex: 1 }}>
-            {enabled.developmentAreas && data.developmentAreas?.length ? (
-              <DevelopmentAreas items={data.developmentAreas} theme={theme} messages={messages} />
-            ) : null}
-          </View>
-        </View>
-
-        {enabled.hiringRecommendation && data.hiringRecommendation ? (
-          <HiringRecommendation recommendation={data.hiringRecommendation} theme={theme} messages={messages} />
         ) : null}
 
-        {enabled.interviewQuestions && data.interviewQuestions?.length ? (
-          <InterviewQuestions questions={data.interviewQuestions} theme={theme} messages={messages} />
+        {enabled.strengths || enabled.developmentAreas ? (
+          <View style={{ flexDirection: flowDirection(theme), gap: 12 }}>
+            <View style={{ flex: 1 }}>
+              {enabled.strengths && reportData.strengths?.length ? <Strengths items={reportData.strengths} theme={theme} messages={messages} /> : null}
+            </View>
+            <View style={{ flex: 1 }}>
+              {enabled.developmentAreas && reportData.developmentAreas?.length ? (
+                <DevelopmentAreas items={reportData.developmentAreas} theme={theme} messages={messages} />
+              ) : null}
+            </View>
+          </View>
         ) : null}
 
-        {enabled.benchmarkComparison && data.benchmarkComparison?.length ? (
-          <BenchmarkComparison items={data.benchmarkComparison} theme={theme} messages={messages} />
+        {enabled.hiringRecommendation && reportData.hiringRecommendation ? (
+          <HiringRecommendation recommendation={reportData.hiringRecommendation} theme={theme} messages={messages} />
         ) : null}
 
-        {data.children}
+        {enabled.interviewQuestions && reportData.interviewQuestions?.length ? (
+          <InterviewQuestions questions={reportData.interviewQuestions} theme={theme} messages={messages} />
+        ) : null}
+
+        {enabled.benchmarkComparison && reportData.benchmarkComparison?.length ? (
+          <BenchmarkComparison items={reportData.benchmarkComparison} theme={theme} messages={messages} />
+        ) : null}
+
+        {children}
       </PdfReportPage>
     </Document>
   );

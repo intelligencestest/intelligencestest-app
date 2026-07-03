@@ -12,7 +12,7 @@ interface CompanyInformationProps {
 
 export function CompanyInformation({ company, theme, messages }: CompanyInformationProps) {
   return (
-    <Section theme={theme} title={messages.company}>
+    <Section theme={theme} title={messages.company} wrap={false}>
       <View style={{ alignItems: "center", flexDirection: flowDirection(theme) }}>
         {company.logoUrl ? <Image src={company.logoUrl} style={{ height: 34, marginRight: 12, objectFit: "contain", width: 86 }} /> : null}
         <View style={{ flex: 1 }}>

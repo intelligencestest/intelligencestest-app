@@ -1,11 +1,17 @@
 import { Font } from "@react-pdf/renderer";
 import type { PdfFontSource } from "./types";
 
-let registeredFamilies = new Set<string>();
+let registeredFontKeys = new Set<string>();
+let hyphenationRegistered = false;
+
+function fontKey(font: PdfFontSource): string {
+  return [font.family, font.regular, font.medium, font.semibold, font.bold].filter(Boolean).join("|");
+}
 
 export function registerEnterprisePdfFonts(fonts: PdfFontSource[] = []): void {
   for (const font of fonts) {
-    if (!font.family || registeredFamilies.has(font.family)) continue;
+    const key = fontKey(font);
+    if (!font.family || !key || registeredFontKeys.has(key)) continue;
 
     const src = font.regular ?? font.medium ?? font.semibold ?? font.bold;
     if (!src) continue;
@@ -20,8 +26,11 @@ export function registerEnterprisePdfFonts(fonts: PdfFontSource[] = []): void {
       ].filter(Boolean) as Array<{ src: string; fontWeight: number }>,
     });
 
-    registeredFamilies = new Set([...registeredFamilies, font.family]);
+    registeredFontKeys = new Set([...registeredFontKeys, key]);
   }
 
-  Font.registerHyphenationCallback((word) => [word]);
+  if (!hyphenationRegistered) {
+    Font.registerHyphenationCallback((word) => [word]);
+    hyphenationRegistered = true;
+  }
 }

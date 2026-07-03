@@ -1,9 +1,18 @@
-import type { CompletedAssessmentResult, EnterpriseReportData, ReportSectionVisibility } from "./types";
+import type { BenchmarkComparisonItem, CompletedAssessmentResult, EnterpriseReportData, ReportSectionVisibility } from "./types";
 
 export type EnterpriseSectionKey = keyof Required<ReportSectionVisibility>;
 
 export function completedAssessmentsOnly(assessments: CompletedAssessmentResult[]): CompletedAssessmentResult[] {
-  return assessments.filter((assessment) => assessment.status === undefined || assessment.status === "completed");
+  return assessments.filter(
+    (assessment) =>
+      (assessment.status === undefined || assessment.status === "completed") &&
+      Number.isFinite(assessment.score),
+  );
+}
+
+export function hasBenchmarkEvidence(item: BenchmarkComparisonItem): boolean {
+  const hasValue = item.benchmarkScore !== undefined || item.percentile !== undefined;
+  return hasValue && Boolean(item.source?.trim());
 }
 
 export function isSectionEnabled(
@@ -16,6 +25,8 @@ export function isSectionEnabled(
 }
 
 export function getEnabledSections(data: EnterpriseReportData, completedAssessments: CompletedAssessmentResult[]) {
+  const supportedBenchmarks = (data.benchmarkComparison ?? []).filter(hasBenchmarkEvidence);
+
   return {
     cover: data.sections?.cover !== false,
     candidateInfo: isSectionEnabled(data.sections, "candidateInfo", Boolean(data.candidate)),
@@ -29,7 +40,7 @@ export function getEnabledSections(data: EnterpriseReportData, completedAssessme
     developmentAreas: isSectionEnabled(data.sections, "developmentAreas", Boolean(data.developmentAreas?.length)),
     hiringRecommendation: isSectionEnabled(data.sections, "hiringRecommendation", Boolean(data.hiringRecommendation)),
     interviewQuestions: isSectionEnabled(data.sections, "interviewQuestions", Boolean(data.interviewQuestions?.length)),
-    benchmarkComparison: isSectionEnabled(data.sections, "benchmarkComparison", Boolean(data.benchmarkComparison?.length)),
+    benchmarkComparison: isSectionEnabled(data.sections, "benchmarkComparison", supportedBenchmarks.length > 0),
     completedAssessments: completedAssessments.length > 0,
   };
 }

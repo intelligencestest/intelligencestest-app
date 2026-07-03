@@ -1,4 +1,4 @@
-import type { PdfDirection, PdfLocale } from "./types";
+import type { BasePdfLocale, PdfDirection, PdfLocale } from "./types";
 
 export interface PdfMessages {
   coverTitle: string;
@@ -22,6 +22,7 @@ export interface PdfMessages {
   hiringRecommendation: string;
   interviewQuestions: string;
   benchmarkComparison: string;
+  benchmarkSource: string;
   score: string;
   confidence: string;
   highConfidence: string;
@@ -32,7 +33,7 @@ export interface PdfMessages {
   of: string;
 }
 
-const messages: Record<PdfLocale, PdfMessages> = {
+const messages: Record<BasePdfLocale, PdfMessages> = {
   en: {
     coverTitle: "Candidate Assessment Report",
     coverSubtitle: "Executive hiring decision document",
@@ -55,6 +56,7 @@ const messages: Record<PdfLocale, PdfMessages> = {
     hiringRecommendation: "Hiring Recommendation",
     interviewQuestions: "Interview Questions",
     benchmarkComparison: "Benchmark Comparison",
+    benchmarkSource: "Source",
     score: "Score",
     confidence: "Confidence",
     highConfidence: "High",
@@ -86,6 +88,7 @@ const messages: Record<PdfLocale, PdfMessages> = {
     hiringRecommendation: "Recomendacion de Contratacion",
     interviewQuestions: "Preguntas de Entrevista",
     benchmarkComparison: "Comparacion con Referencia",
+    benchmarkSource: "Fuente",
     score: "Puntuacion",
     confidence: "Confianza",
     highConfidence: "Alta",
@@ -98,10 +101,14 @@ const messages: Record<PdfLocale, PdfMessages> = {
 };
 
 export function getPdfMessages(locale: PdfLocale = "es"): PdfMessages {
-  return messages[locale] ?? messages.es;
+  const normalized = locale.toLowerCase();
+  if (normalized.startsWith("en")) return messages.en;
+  if (normalized.startsWith("es")) return messages.es;
+  return messages.es;
 }
 
 export function getPdfDirection(locale: PdfLocale = "es", direction?: PdfDirection): PdfDirection {
   if (direction) return direction;
-  return locale === "en" || locale === "es" ? "ltr" : "ltr";
+  const language = locale.toLowerCase().split("-")[0];
+  return ["ar", "fa", "he", "ur"].includes(language) ? "rtl" : "ltr";
 }

@@ -10,6 +10,8 @@ interface SectionProps {
   title?: string;
   eyebrow?: string;
   breakBefore?: boolean;
+  wrap?: boolean;
+  minPresenceAhead?: number;
   style?: Style | Style[];
 }
 
@@ -18,11 +20,21 @@ function mergeStyle(base: Style, style?: Style | Style[]): Style | Style[] {
   return Array.isArray(style) ? [base, ...style] : [base, style];
 }
 
-export function Section({ children, theme, title, eyebrow, breakBefore = false, style }: SectionProps) {
+export function Section({
+  children,
+  theme,
+  title,
+  eyebrow,
+  breakBefore = false,
+  wrap = true,
+  minPresenceAhead = 72,
+  style,
+}: SectionProps) {
   return (
     <View
       break={breakBefore}
-      minPresenceAhead={72}
+      minPresenceAhead={minPresenceAhead}
+      wrap={wrap}
       style={mergeStyle(
         {
           backgroundColor: theme.surface.card,

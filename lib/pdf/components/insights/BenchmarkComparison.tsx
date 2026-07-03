@@ -28,6 +28,11 @@ export function BenchmarkComparison({ items, theme, messages }: BenchmarkCompari
             <View style={{ backgroundColor: theme.score.medium, height: 11, marginLeft: `${scorePercent(item.benchmarkScore)}%`, marginTop: -9, width: 2 }} />
           ) : null}
           {item.note ? <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 8, marginTop: 5 }}>{item.note}</Text> : null}
+          {item.source ? (
+            <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 7.5, marginTop: 3 }}>
+              {messages.benchmarkSource}: {item.source}
+            </Text>
+          ) : null}
         </View>
       ))}
     </Section>

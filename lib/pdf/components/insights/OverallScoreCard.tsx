@@ -19,7 +19,7 @@ export function OverallScoreCard({ score, maxScore = 100, label, theme, messages
   const width = `${scorePercent(score, maxScore)}%`;
 
   return (
-    <Section theme={theme} title={label ?? messages.overallScore}>
+    <Section theme={theme} title={label ?? messages.overallScore} wrap={false}>
       <View style={{ alignItems: "center", flexDirection: "row", justifyContent: "space-between" }}>
         <View style={{ flex: 1, paddingRight: 18 }}>
           <Text style={{ color: theme.page.subtle, fontFamily: theme.fontFamily, fontSize: 8, fontWeight: 700, textTransform: "uppercase" }}>

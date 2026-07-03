@@ -33,7 +33,7 @@ export function Footer({ theme, messages }: FooterProps) {
           position: "absolute",
         }}
       >
-        {theme.brandName} - {messages.confidential}
+        {theme.footerBrandName} - {messages.confidential}
       </Text>
       <PageNumbers theme={theme} messages={messages} />
     </>

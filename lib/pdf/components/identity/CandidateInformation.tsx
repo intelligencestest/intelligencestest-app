@@ -25,7 +25,7 @@ function Field({ label, value, theme }: { label: string; value?: string; theme: 
 
 export function CandidateInformation({ candidate, theme, messages, locale = "es" }: CandidateInformationProps) {
   return (
-    <Section theme={theme} title={messages.candidate}>
+    <Section theme={theme} title={messages.candidate} wrap={false}>
       <View style={{ flexDirection: flowDirection(theme), flexWrap: "wrap", justifyContent: "space-between" }}>
         <Field label={messages.candidate} value={candidate.name} theme={theme} />
         <Field label={messages.email} value={candidate.email} theme={theme} />

@@ -13,7 +13,7 @@ interface CoverPageProps {
 }
 
 export function CoverPage({ theme, messages, candidate, company, meta }: CoverPageProps) {
-  const logoUrl = company.logoUrl ?? theme.logoUrl;
+  const logoUrl = company.logoUrl ?? theme.coverLogoUrl ?? theme.logoUrl;
 
   return (
     <Page

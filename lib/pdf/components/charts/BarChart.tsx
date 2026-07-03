@@ -12,7 +12,7 @@ interface BarChartProps {
 
 export function BarChart({ data, theme, messages }: BarChartProps) {
   return (
-    <Section theme={theme} title={messages.barChart}>
+    <Section theme={theme} title={messages.barChart} wrap={false}>
       {data.map((item) => {
         const width = `${scorePercent(item.value, item.maxValue ?? 100)}%`;
         return (

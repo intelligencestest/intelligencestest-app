@@ -1,6 +1,5 @@
-import type { ReactNode } from "react";
-
-export type PdfLocale = "en" | "es";
+export type BasePdfLocale = "en" | "es";
+export type PdfLocale = BasePdfLocale | (string & {});
 export type PdfDirection = "ltr" | "rtl";
 export type PdfThemeMode = "light" | "dark";
 export type ScoreTone = "high" | "medium" | "low" | "neutral";
@@ -19,9 +18,15 @@ export interface PdfThemeInput {
   direction?: PdfDirection;
   fontFamily?: string;
   brandName?: string;
+  footerBrandName?: string;
   logoUrl?: string;
+  coverLogoUrl?: string;
   primaryColor?: string;
   accentColor?: string;
+  pageBackground?: string;
+  cardBackground?: string;
+  textColor?: string;
+  mutedTextColor?: string;
 }
 
 export interface PdfTheme {
@@ -29,7 +34,9 @@ export interface PdfTheme {
   direction: PdfDirection;
   fontFamily: string;
   brandName: string;
+  footerBrandName: string;
   logoUrl?: string;
+  coverLogoUrl?: string;
   page: {
     background: string;
     foreground: string;
@@ -76,8 +83,11 @@ export interface ReportMeta {
   id?: string;
   title?: string;
   subtitle?: string;
+  description?: string;
+  keywords?: string[];
   generatedAt?: string;
   confidentialityLabel?: string;
+  accessibilitySummary?: string;
 }
 
 export interface CandidateInfo {
@@ -127,6 +137,7 @@ export interface CompetencyScore {
   category?: string;
   description?: string;
   evidence?: string;
+  sourceAssessmentIds?: string[];
 }
 
 export interface ChartPoint {
@@ -134,6 +145,7 @@ export interface ChartPoint {
   value: number;
   maxValue?: number;
   color?: string;
+  sourceAssessmentId?: string;
 }
 
 export interface ExecutiveSummaryContent {
@@ -156,6 +168,7 @@ export interface BenchmarkComparisonItem {
   candidateScore: number;
   benchmarkScore?: number;
   percentile?: number;
+  source?: string;
   note?: string;
 }
 
@@ -202,5 +215,16 @@ export interface EnterpriseReportData {
   interviewQuestions?: InterviewQuestion[];
   benchmarkComparison?: BenchmarkComparisonItem[];
   sections?: ReportSectionVisibility;
-  children?: ReactNode;
+}
+
+export interface EnterpriseReportRenderOptions {
+  maxCompletedAssessments?: number;
+  maxCompetencies?: number;
+  maxChartPoints?: number;
+  maxStrengths?: number;
+  maxDevelopmentAreas?: number;
+  maxInterviewQuestions?: number;
+  maxBenchmarks?: number;
+  maxBufferComplexity?: number;
+  allowLargeBufferRender?: boolean;
 }

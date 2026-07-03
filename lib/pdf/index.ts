@@ -4,7 +4,7 @@ export * from "./core/i18n";
 export * from "./core/fonts";
 export * from "./core/layout";
 export * from "./core/section-registry";
+export * from "./core/normalize";
 export * from "./render/filename";
-export * from "./render/renderReport";
 export * from "./templates/EnterpriseAssessmentReport";
 export * from "./components";
