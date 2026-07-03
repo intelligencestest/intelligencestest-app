@@ -537,7 +537,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 <input
                   value={inviteForm.full_name}
                   onChange={(e) => setInviteForm((f) => ({ ...f, full_name: e.target.value }))}
-                  placeholder="Jane Smith"
+                  placeholder={es ? "María García" : "Jane Smith"}
                   className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                 />
               </div>
@@ -550,7 +550,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   type="email"
                   value={inviteForm.email}
                   onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder="jane@example.com"
+                  placeholder={es ? "maria@ejemplo.com" : "jane@example.com"}
                   className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                 />
               </div>

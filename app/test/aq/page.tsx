@@ -266,7 +266,7 @@ export default function AQTest({
                 required
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
-                placeholder="Jane Smith"
+                placeholder={locale === "es" ? "María García" : "Jane Smith"}
                 className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/25"
               />
             </div>
@@ -277,7 +277,7 @@ export default function AQTest({
                 type="email"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
-                placeholder="jane@example.com"
+                placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
                 className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#7c3aed] focus:ring-2 focus:ring-[#7c3aed]/25"
               />
             </div>

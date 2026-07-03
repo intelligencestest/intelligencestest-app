@@ -530,7 +530,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                   <input
                     value={form.full_name}
                     onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
-                    placeholder="Jane Smith"
+                    placeholder={es ? "María García" : "Jane Smith"}
                     className={inputClass}
                   />
                 </div>
@@ -544,7 +544,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    placeholder="jane@example.com"
+                    placeholder={es ? "maria@ejemplo.com" : "jane@example.com"}
                     className={inputClass}
                   />
                 </div>

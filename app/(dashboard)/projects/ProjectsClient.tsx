@@ -346,7 +346,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                   <input
                     value={form.full_name}
                     onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
-                    placeholder="Jane Smith"
+                    placeholder={locale === "es" ? "María García" : "Jane Smith"}
                     className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                   />
                 </div>
@@ -359,7 +359,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    placeholder="jane@example.com"
+                    placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
                     className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
                   />
                 </div>
