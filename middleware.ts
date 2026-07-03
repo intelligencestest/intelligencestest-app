@@ -2,9 +2,9 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import {
+  DEFAULT_LOCALE,
   LANGUAGE_COOKIE,
   LANGUAGE_COOKIE_MAX_AGE,
-  detectLocaleFromHeader,
   isAppLocale,
 } from "@/lib/i18n/locales";
 
@@ -24,16 +24,15 @@ const AUTH_PAGES = ["/login", "/signup"];
 function ensureLocaleCookie(request: NextRequest, response: NextResponse) {
   const currentLocale = request.cookies.get(LANGUAGE_COOKIE)?.value;
 
+  // Browser language never decides the locale: anonymous visitors get the
+  // product default; the cookie is only ever set from the workspace language
+  // at auth boundaries.
   if (!isAppLocale(currentLocale)) {
-    response.cookies.set(
-      LANGUAGE_COOKIE,
-      detectLocaleFromHeader(request.headers.get("accept-language")),
-      {
-        path: "/",
-        sameSite: "lax",
-        maxAge: LANGUAGE_COOKIE_MAX_AGE,
-      }
-    );
+    response.cookies.set(LANGUAGE_COOKIE, DEFAULT_LOCALE, {
+      path: "/",
+      sameSite: "lax",
+      maxAge: LANGUAGE_COOKIE_MAX_AGE,
+    });
   }
 
   return response;
