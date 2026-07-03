@@ -21,6 +21,16 @@ const INDUSTRIES = [
   "Other",
 ] as const;
 
+// Stored values stay canonical (English); only the display localizes.
+const INDUSTRY_LABELS_ES: Record<string, string> = {
+  "Recruitment Agency": "Agencia de reclutamiento",
+  "Call Center / BPO": "Call center / BPO",
+  "SME / Startup": "Pyme / Startup",
+  "Consulting Firm": "Consultora",
+  "Enterprise HR": "RR. HH. corporativo",
+  Other: "Otro",
+};
+
 const LANGUAGES = [
   { value: "es", labelKey: "spanish", code: "ES" },
   { value: "en", labelKey: "english", code: "EN" },
@@ -31,6 +41,7 @@ export default function OnboardingPage() {
   const t = useTranslations("onboarding");
   const language = useTranslations("language");
   const locale = useLocale();
+  const es = toAppLocale(locale) === "es";
   const [form, setForm] = useState({ company_name: "", industry: "", language: toAppLocale(locale) });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -84,7 +95,7 @@ export default function OnboardingPage() {
           </div>
           <div>
             <p className="text-sm font-semibold text-white">Intelligences Test</p>
-            <p className="text-xs text-slate-500">Assessment Platform</p>
+            <p className="text-xs text-slate-500">{es ? "Plataforma de evaluación" : "Assessment Platform"}</p>
           </div>
         </div>
 
@@ -145,7 +156,7 @@ export default function OnboardingPage() {
                     {form.industry === industry && (
                       <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[#1D4ED8]" />
                     )}
-                    {industry}
+                    {es ? INDUSTRY_LABELS_ES[industry] ?? industry : industry}
                   </button>
                 ))}
               </div>
@@ -173,7 +184,7 @@ export default function OnboardingPage() {
                     <span className="min-w-0">
                       <span className="block truncate">{language(lang.labelKey)}</span>
                       <span className="mt-0.5 block text-xs font-normal text-slate-600">
-                        {lang.value === "es" ? "LATAM" : "Default"}
+                        {lang.value === "es" ? "LATAM" : es ? "Internacional" : "International"}
                       </span>
                     </span>
                     <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold ${

@@ -33,7 +33,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Sidebar userEmail={userEmail} userName={userName} activeAssessmentCount={activeAssessmentCount} />
       <main className="flex-1 overflow-y-auto">
         <DashboardHeader />
-        <div className="min-h-full p-4 sm:p-6 lg:p-8">{children}</div>
+        <div className="min-h-full p-4 sm:p-6 lg:p-8 print:p-0">{children}</div>
       </main>
     </div>
   );

@@ -463,7 +463,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   </div>
                   <div className="flex shrink-0 items-center gap-3 text-xs text-slate-500">
                     {assessment.duration_minutes != null && <span>{assessment.duration_minutes} min</span>}
-                    {assessment.question_count != null && <span>{assessment.question_count} Q</span>}
+                    {assessment.question_count != null && <span>{assessment.question_count} {es ? "preguntas" : "Q"}</span>}
                   </div>
                 </div>
               ))}

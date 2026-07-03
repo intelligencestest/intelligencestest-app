@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
+import { assessmentName as termName, assessmentDescription as termDesc } from "@/lib/i18n/assessment-terms";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -566,7 +566,7 @@ export default function NewProjectPage() {
                             </span>
                             {assessment.description && (
                               <span className="mt-2 line-clamp-2 block text-xs leading-relaxed text-slate-600">
-                                {assessment.description}
+                                {termDesc(assessment.name, assessment.description, es ? "es" : "en")}
                               </span>
                             )}
                           </span>

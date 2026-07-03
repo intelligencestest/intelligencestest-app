@@ -83,6 +83,47 @@ export const DIMENSION_ES: Record<string, string> = {
   Commanding: "Autoritario",
 };
 
+// Spanish catalog descriptions, keyed by the canonical assessment name.
+export const ASSESSMENT_DESC_ES: Record<string, string> = {
+  "Critical Thinking Test": "Mide la capacidad de razonamiento analítico y pensamiento crítico.",
+  "Numerical Intelligence Test": "Mide la capacidad de razonamiento cuantitativo.",
+  "Personality Type Test": "Perfil completo de tipo de personalidad.",
+  "Situational Judgment Test": "Mide el juicio práctico en escenarios laborales realistas.",
+  "Emotional Intelligence Test": "Mide la inteligencia emocional en 5 dimensiones de Goleman.",
+  "Leadership Styles Test": "Identifica el estilo de liderazgo dominante.",
+  "Adversity Quotient (AQ) Test": "Mide la capacidad para enfrentar la adversidad y los desafíos.",
+  "Attention to Detail Test":
+    "Mide la precisión y exactitud mediante 40 preguntas de detección de errores en ortografía, datos, cálculos, formato y consistencia referencial.",
+  "Verbal Reasoning Test":
+    "Evalúa la comprensión, las relaciones entre palabras y la deducción lógica en 30 preguntas que incluyen analogías, el elemento que no corresponde y silogismos.",
+  "Abstract Reasoning Test":
+    "Evalúa el reconocimiento de patrones y el razonamiento no verbal mediante 25 preguntas de secuencias y matrices.",
+  "Mechanical Reasoning Test":
+    "Evalúa la comprensión de principios mecánicos — engranajes, palancas, poleas, fuerzas, circuitos y dinámica de fluidos — en 30 preguntas.",
+  "Communication Skills Test":
+    "Perfila la efectividad comunicativa en 4 dimensiones: comunicación escrita, verbal, escucha activa y comunicación no verbal. 35 afirmaciones de escala Likert.",
+  "Problem Solving Test":
+    "Evalúa la resolución de problemas y la calidad de decisiones en 30 escenarios laborales realistas.",
+  "Work Style Assessment":
+    "Perfila las preferencias de trabajo en 5 dimensiones: analítico, orientado al detalle, colaborativo, adaptable y orientado a resultados. 40 afirmaciones de escala Likert.",
+  "Sales Aptitude Test":
+    "Evalúa la aptitud en ventas B2B en 4 dimensiones: prospección, persuasión, manejo de objeciones y cierre. 35 preguntas basadas en escenarios.",
+  "Customer Service Skills Test":
+    "Evalúa la efectividad en atención al cliente en 4 dimensiones: empatía, resolución de problemas, comunicación y paciencia. 35 preguntas basadas en escenarios.",
+  "Teamwork & Collaboration Test":
+    "Perfila el estilo de trabajo colaborativo en 4 dimensiones: cooperación, comunicación, confiabilidad y resolución de conflictos. 35 afirmaciones de escala Likert.",
+  "Time Management Test":
+    "Evalúa la gestión del tiempo y las prioridades en 4 dimensiones: priorización, planificación, enfoque y gestión de plazos. 30 preguntas basadas en escenarios.",
+  "Stress Tolerance Test":
+    "Mide la resiliencia y la compostura bajo presión en 4 dimensiones: control emocional, resiliencia, estrategias de afrontamiento y rendimiento bajo presión. 30 afirmaciones de escala Likert.",
+  "Integrity & Ethics Test":
+    "Evalúa la integridad profesional en 4 dimensiones: honestidad, responsabilidad, ética y confiabilidad. 30 preguntas basadas en escenarios.",
+  "Decision Making Test":
+    "Evalúa la calidad de las decisiones en 4 dimensiones: análisis, juicio, evaluación de riesgos y velocidad. 30 preguntas basadas en escenarios.",
+  "Learning Agility Test":
+    "Mide la adaptabilidad y la mentalidad de crecimiento en 4 dimensiones: flexibilidad mental, velocidad de aprendizaje, receptividad al feedback y experimentación. 30 preguntas basadas en escenarios.",
+};
+
 type Loc = string;
 const isEs = (locale: Loc) => locale === "es";
 
@@ -100,4 +141,8 @@ export function categoryLabel(category: string, locale: Loc): string {
 
 export function dimensionLabel(label: string, locale: Loc): string {
   return isEs(locale) ? DIMENSION_ES[label] ?? label : label;
+}
+
+export function assessmentDescription(name: string, fallback: string, locale: Loc): string {
+  return isEs(locale) ? ASSESSMENT_DESC_ES[name] ?? fallback : fallback;
 }

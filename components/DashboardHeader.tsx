@@ -16,7 +16,7 @@ export default function DashboardHeader() {
   };
 
   return (
-    <div className="sticky top-0 z-20 flex h-12 items-center justify-end gap-3 border-b border-[#1E2240] bg-[#07080F]/95 px-6 backdrop-blur-sm">
+    <div className="print:hidden sticky top-0 z-20 flex h-12 items-center justify-end gap-3 border-b border-[#1E2240] bg-[#07080F]/95 px-6 backdrop-blur-sm">
       <button
         type="button"
         onClick={handleRefresh}

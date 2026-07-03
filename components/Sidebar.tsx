@@ -171,7 +171,7 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
   return (
     <>
       <button
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-[#0D1020] border border-[#1E2240] text-slate-400 shadow-xl cursor-pointer"
+        className="lg:hidden print:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-[#0D1020] border border-[#1E2240] text-slate-400 shadow-xl cursor-pointer"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -184,20 +184,20 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
 
       {mobileOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+          className="lg:hidden print:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`lg:hidden fixed top-0 left-0 z-40 h-full w-64 bg-[#0D1020] border-r border-[#1E2240] transform transition-transform duration-200 shadow-2xl ${
+        className={`lg:hidden print:hidden fixed top-0 left-0 z-40 h-full w-64 bg-[#0D1020] border-r border-[#1E2240] transform transition-transform duration-200 shadow-2xl ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <SidebarContent />
       </aside>
 
-      <aside className="hidden lg:flex flex-col w-64 flex-shrink-0 h-full bg-[#0D1020] border-r border-[#1E2240] shadow-[12px_0_50px_rgba(0,0,0,0.18)]">
+      <aside className="hidden lg:flex print:hidden flex-col w-64 flex-shrink-0 h-full bg-[#0D1020] border-r border-[#1E2240] shadow-[12px_0_50px_rgba(0,0,0,0.18)]">
         <SidebarContent />
       </aside>
     </>

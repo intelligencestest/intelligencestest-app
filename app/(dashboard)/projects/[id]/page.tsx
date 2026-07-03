@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getLocale } from "next-intl/server";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
 import ProjectDetailClient from "./ProjectDetailClient";
 
@@ -103,11 +104,13 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     results: c.results ?? [],
   }));
 
+  const locale = await getLocale();
+
   return (
     <div>
       <nav className="mb-6 flex items-center gap-2 text-sm">
         <Link href="/projects" className="text-slate-500 transition-colors hover:text-slate-300">
-          Projects
+          {locale === "es" ? "Proyectos" : "Projects"}
         </Link>
         <svg className="h-3 w-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
