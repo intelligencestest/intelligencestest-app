@@ -38,7 +38,7 @@ export default function ExportPdfButton(props: ExportPdfButtonProps) {
         assessments: props.assessments,
         locale: locale === "en" ? "en" : "es",
       };
-      downloadComprehensiveReport(data);
+      await downloadComprehensiveReport(data);
     } catch {
       setError(true);
     } finally {

@@ -33,7 +33,7 @@ const avatarColors = [
   "bg-amber-500/20 text-amber-400 border-amber-500/30",
 ];
 
-function DownloadPDFButton({ result }: { result: Result }) {
+function DownloadPDFButton({ result, companyName }: { result: Result; companyName: string }) {
   const es = useLocale() === "es";
   const dateLocale = es ? "es-ES" : "en-GB";
   const [loading, setLoading] = useState(false);
@@ -64,8 +64,9 @@ function DownloadPDFButton({ result }: { result: Result }) {
           score: scored.total, control: scored.control, ownership: scored.ownership,
           reach: scored.reach, endurance: scored.endurance,
           interpretation: scored.interpretation, description: scored.description,
+          companyName, candidateEmail: result.candidates?.email ?? undefined, locale: es ? "es" : "en",
         };
-        downloadAQPDF(pdfData);
+        await downloadAQPDF(pdfData);
       } else {
         const rawAnswers: (number | null)[] = Array.isArray(data.raw_answers) ? data.raw_answers : [];
         const scored = scoreResults(rawAnswers);
@@ -73,8 +74,9 @@ function DownloadPDFButton({ result }: { result: Result }) {
           candidateName, assessmentName, date,
           score: scored.percentage, correct: scored.correct, total: scored.total,
           interpretation: scored.interpretation,
+          companyName, candidateEmail: result.candidates?.email ?? undefined, locale: es ? "es" : "en",
         };
-        downloadCTPDF(pdfData);
+        await downloadCTPDF(pdfData);
       }
     } catch {
       alert(es ? "No se pudo generar el PDF. Intente de nuevo." : "Could not generate PDF. Please try again.");
@@ -251,7 +253,7 @@ export default function ReportsClient({
         locale: es ? "es" : "en",
       };
 
-      downloadComprehensiveReport(reportData);
+      await downloadComprehensiveReport(reportData);
     } catch {
       alert(copy.pdfError);
     } finally {
@@ -360,7 +362,7 @@ export default function ReportsClient({
                               {new Date(result.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                             </p>
                           </div>
-                          {PDF_SAFE_ASSESSMENTS.has(result.assessments?.name ?? "") && <DownloadPDFButton result={result} />}
+                          {PDF_SAFE_ASSESSMENTS.has(result.assessments?.name ?? "") && <DownloadPDFButton result={result} companyName={companyName} />}
                         </div>
                         <div className="mt-3 ml-[88px]">
                           <div className="w-full h-1.5 bg-[#1E2240] rounded-full overflow-hidden">
