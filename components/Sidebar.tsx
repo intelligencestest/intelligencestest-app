@@ -17,6 +17,15 @@ const navItems = [
     ),
   },
   {
+    href: "/inbox",
+    labelKey: "inbox",
+    icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M2.25 13.5V6.75A2.25 2.25 0 0 1 4.5 4.5h15a2.25 2.25 0 0 1 2.25 2.25v6.75m-19.5 0v4.5A2.25 2.25 0 0 0 4.5 20.25h15a2.25 2.25 0 0 0 2.25-2.25v-4.5" />
+      </svg>
+    ),
+  },
+  {
     href: "/projects",
     labelKey: "projects",
     icon: (
@@ -67,10 +76,11 @@ const navItems = [
 interface SidebarProps {
   userEmail?: string;
   userName?: string;
-  activeAssessmentCount?: number;
+  /** Candidates waiting for review — the Inbox workload badge. */
+  reviewCount?: number;
 }
 
-export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0 }: SidebarProps) {
+export default function Sidebar({ userEmail, userName, reviewCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const nav = useTranslations("nav");
@@ -129,13 +139,13 @@ export default function Sidebar({ userEmail, userName, activeAssessmentCount = 0
             >
               <span className={`transition-colors ${active ? "text-[#8CB1FF]" : "text-slate-500 group-hover:text-slate-300"}`}>{item.icon}</span>
               <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
-              {item.href === "/assessments" && activeAssessmentCount > 0 && (
+              {item.href === "/inbox" && reviewCount > 0 && (
                 <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
                   active
                     ? "border-[#8CB1FF]/35 bg-[#1D4ED8]/25 text-[#C6D7FF]"
                     : "border-[#1E2240] bg-[#07080F] text-slate-400 group-hover:text-slate-200"
                 }`}>
-                  {activeAssessmentCount}
+                  {reviewCount}
                 </span>
               )}
             </Link>

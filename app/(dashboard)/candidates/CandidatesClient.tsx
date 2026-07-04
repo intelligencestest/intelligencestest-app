@@ -4,10 +4,22 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 
-const statusConfig: Record<string, { label: string; class: string; dot: string; text: string }> = {
+// Six-stage pipeline chips (candidates.pipeline_stage) + closed-outcome chips.
+const PIPELINE_STAGES = ["invited", "started", "completed", "reviewed", "interview", "hired"] as const;
+
+const stageConfig: Record<string, { label: string; class: string; dot: string; text: string }> = {
   invited: { label: "Invited", class: "bg-amber-500/10 text-amber-300 border-amber-500/25", dot: "bg-amber-400", text: "text-amber-300" },
   started: { label: "Started", class: "bg-blue-500/10 text-blue-300 border-blue-500/25", dot: "bg-blue-400", text: "text-blue-300" },
   completed: { label: "Completed", class: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400", text: "text-emerald-300" },
+  reviewed: { label: "Reviewed", class: "bg-violet-500/10 text-violet-300 border-violet-500/25", dot: "bg-violet-400", text: "text-violet-300" },
+  interview: { label: "Interview", class: "bg-[#1D4ED8]/15 text-[#9BB8FF] border-[#1D4ED8]/35", dot: "bg-[#6B9FFF]", text: "text-[#9BB8FF]" },
+  hired: { label: "Hired", class: "bg-emerald-500/15 text-emerald-200 border-emerald-400/40", dot: "bg-emerald-300", text: "text-emerald-200" },
+};
+
+const outcomeConfig: Record<string, { label: string; class: string; dot: string }> = {
+  rejected: { label: "Rejected", class: "bg-[#d03b3b]/10 text-[#f28b8b] border-[#d03b3b]/25", dot: "bg-[#e05252]" },
+  withdrawn: { label: "Withdrawn", class: "bg-[#1E2240]/60 text-slate-300 border-[#1E2240]", dot: "bg-slate-400" },
+  expired: { label: "Expired", class: "bg-[#ec835a]/10 text-[#ec835a] border-[#ec835a]/25", dot: "bg-[#ec835a]" },
 };
 
 const avatarColors = [
@@ -24,6 +36,8 @@ interface Candidate {
   full_name: string;
   email: string;
   status: string;
+  pipeline_stage: string;
+  outcome: string;
   created_at: string;
   token: string | null;
   hiring_projects: { id: string; name: string } | null;
@@ -76,7 +90,17 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         title: "Candidatos",
         across: (count: number) => `${count} candidato${count === 1 ? "" : "s"} en todos los proyectos`,
         inviteCandidate: "Invitar candidato",
-        status: { invited: "Invitado", started: "Iniciado", completed: "Completado" } as Record<string, string>,
+        status: {
+          invited: "Invitado",
+          started: "Iniciado",
+          completed: "Completado",
+          reviewed: "Revisado",
+          interview: "Entrevista",
+          hired: "Contratado",
+          rejected: "Rechazado",
+          withdrawn: "Retirado",
+          expired: "Expirado",
+        } as Record<string, string>,
         search: "Buscar por nombre o correo...",
         allStatuses: "Todos los estados",
         allProjects: "Todos los proyectos",
@@ -119,7 +143,17 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         title: "Candidates",
         across: (count: number) => `${count} candidate${count !== 1 ? "s" : ""} across all projects`,
         inviteCandidate: "Invite Candidate",
-        status: { invited: "Invited", started: "Started", completed: "Completed" } as Record<string, string>,
+        status: {
+          invited: "Invited",
+          started: "Started",
+          completed: "Completed",
+          reviewed: "Reviewed",
+          interview: "Interview",
+          hired: "Hired",
+          rejected: "Rejected",
+          withdrawn: "Withdrawn",
+          expired: "Expired",
+        } as Record<string, string>,
         search: "Search by name or email...",
         allStatuses: "All Statuses",
         allProjects: "All Projects",
@@ -188,11 +222,12 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
     return () => document.removeEventListener("keydown", handler);
   }, [showModal]);
 
-  // Deep links from the dashboard: ?status=, ?project=, ?invite=1
+  // Deep links from the dashboard: ?stage= (six-stage pipeline), legacy
+  // ?status=, ?project=, ?invite=1
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const status = params.get("status");
-    if (status && ["invited", "started", "completed"].includes(status)) setStatusFilter(status);
+    const stage = params.get("stage") ?? params.get("status");
+    if (stage && (PIPELINE_STAGES as readonly string[]).includes(stage)) setStatusFilter(stage);
     const project = params.get("project");
     if (project) setProjectFilter(project);
     if (params.get("invite") === "1") {
@@ -258,6 +293,8 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
             full_name: form.full_name || copy.anonymous,
             email: form.email || "",
             status: "invited",
+            pipeline_stage: "invited",
+            outcome: "pending",
             created_at: new Date().toISOString(),
             token: null,
             hiring_projects: project,
@@ -284,15 +321,15 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
       !search ||
       c.full_name.toLowerCase().includes(search.toLowerCase()) ||
       c.email.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === "all" || c.status === statusFilter;
+    const matchStatus = statusFilter === "all" || c.pipeline_stage === statusFilter;
     const matchProject = projectFilter === "all" || c.hiring_projects?.id === projectFilter;
     return matchSearch && matchStatus && matchProject;
   });
 
   const counts = {
-    invited: candidates.filter((c) => c.status === "invited").length,
-    started: candidates.filter((c) => c.status === "started").length,
-    completed: candidates.filter((c) => c.status === "completed").length,
+    invited: candidates.filter((c) => c.pipeline_stage === "invited").length,
+    started: candidates.filter((c) => c.pipeline_stage === "started").length,
+    completed: candidates.filter((c) => c.pipeline_stage === "completed").length,
   };
 
   const inputClass = "w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25";
@@ -330,7 +367,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           { key: "started", label: copy.status.started, count: counts.started },
           { key: "completed", label: copy.status.completed, count: counts.completed },
         ].map((s, index) => {
-          const cfg = statusConfig[s.key];
+          const cfg = stageConfig[s.key];
           return (
             <div key={s.label} className="premium-card rounded-xl p-4 animate-fade-up" style={{ animationDelay: `${index * 60}ms` }}>
               <div className="flex items-center justify-between">
@@ -363,9 +400,9 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
             className="cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
           >
             <option value="all">{copy.allStatuses}</option>
-            <option value="invited">{copy.status.invited}</option>
-            <option value="started">{copy.status.started}</option>
-            <option value="completed">{copy.status.completed}</option>
+            {PIPELINE_STAGES.map((stage) => (
+              <option key={stage} value={stage}>{copy.status[stage]}</option>
+            ))}
           </select>
           <select
             value={projectFilter}
@@ -399,7 +436,10 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         ) : (
           <div className="divide-y divide-[#1E2240]">
             {filtered.map((candidate, i) => {
-              const cfg = statusConfig[candidate.status] ?? statusConfig.invited;
+              // A closed outcome (rejected / withdrawn / expired) overrides the stage chip.
+              const closed = candidate.outcome !== "pending" ? outcomeConfig[candidate.outcome] : null;
+              const cfg = closed ?? stageConfig[candidate.pipeline_stage] ?? stageConfig.invited;
+              const chipKey = closed ? candidate.outcome : candidate.pipeline_stage;
               const avatarClass = avatarColors[i % avatarColors.length];
               const name = candidate.full_name?.trim() || copy.anonymous;
               const initials = name === copy.anonymous ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -423,7 +463,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                   <div className="md:col-span-2">
                     <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
                       <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                      {copy.status[candidate.status] ?? cfg.label}
+                      {copy.status[chipKey] ?? cfg.label}
                     </span>
                   </div>
                   <div className="hidden text-right md:col-span-1 md:block">

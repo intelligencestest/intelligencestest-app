@@ -30,7 +30,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const { data: candidate } = await admin
     .from("candidates")
-    .select("id, company_id, pipeline_stage, outcome")
+    .select("id, company_id, pipeline_stage, outcome, token")
     .eq("id", id)
     .eq("company_id", profile.company_id)
     .maybeSingle();
@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     return NextResponse.json({ error: "Candidate not found" }, { status: 404 });
   }
 
-  let body: { stage?: unknown; outcome?: unknown };
+  let body: { stage?: unknown; outcome?: unknown; extendInviteDays?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -47,8 +47,9 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   const stage = body.stage as Stage | undefined;
   const outcome = body.outcome as Outcome | undefined;
+  const extendInviteDays = body.extendInviteDays as number | undefined;
 
-  if (stage === undefined && outcome === undefined) {
+  if (stage === undefined && outcome === undefined && extendInviteDays === undefined) {
     return NextResponse.json({ error: "Nothing to update" }, { status: 400 });
   }
   if (stage !== undefined && !STAGES.includes(stage)) {
@@ -57,8 +58,24 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (outcome !== undefined && !OUTCOMES.includes(outcome)) {
     return NextResponse.json({ error: "Invalid outcome" }, { status: 400 });
   }
+  if (extendInviteDays !== undefined) {
+    if (!Number.isInteger(extendInviteDays) || extendInviteDays < 1 || extendInviteDays > 30) {
+      return NextResponse.json({ error: "extendInviteDays must be 1-30" }, { status: 400 });
+    }
+    if (candidate.pipeline_stage !== "invited") {
+      return NextResponse.json({ error: "Only open invitations can be extended" }, { status: 400 });
+    }
+    if (!candidate.token) {
+      return NextResponse.json({ error: "Candidate has no invite link to extend" }, { status: 400 });
+    }
+  }
 
   const updates: Record<string, unknown> = {};
+  if (extendInviteDays !== undefined) {
+    updates.token_expires_at = new Date(Date.now() + extendInviteDays * 24 * 60 * 60 * 1000).toISOString();
+    // A lapsed invite becomes live again once its link is extended.
+    if (candidate.outcome === "expired") updates.outcome = "pending";
+  }
   if (stage !== undefined && stage !== candidate.pipeline_stage) {
     updates.pipeline_stage = stage;
     updates.stage_changed_at = new Date().toISOString();

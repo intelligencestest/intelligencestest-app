@@ -1,5 +1,4 @@
 import Sidebar from "@/components/Sidebar";
-import DashboardHeader from "@/components/DashboardHeader";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
 
@@ -8,31 +7,34 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { data: { user } } = await supabase.auth.getUser();
 
   let userName: string | undefined;
-  let userEmail: string | undefined = user?.email ?? undefined;
-  let activeAssessmentCount = 0;
+  const userEmail: string | undefined = user?.email ?? undefined;
+  let reviewCount = 0;
 
   if (user) {
     const admin = createAdminClient();
-    const [{ data: profile }, { count }] = await Promise.all([
-      admin
-        .from("users")
-        .select("full_name")
-        .eq("id", user.id)
-        .single(),
-      admin
-        .from("assessments")
-        .select("id", { count: "exact", head: true })
-        .eq("status", "active"),
-    ]);
+    const { data: profile } = await admin
+      .from("users")
+      .select("full_name, company_id")
+      .eq("id", user.id)
+      .single();
     userName = profile?.full_name ?? undefined;
-    activeAssessmentCount = count ?? 0;
+
+    if (profile?.company_id) {
+      // Inbox workload badge; uses the (company_id, pipeline_stage, outcome) index.
+      const { count } = await admin
+        .from("candidates")
+        .select("id", { count: "exact", head: true })
+        .eq("company_id", profile.company_id)
+        .eq("pipeline_stage", "completed")
+        .eq("outcome", "pending");
+      reviewCount = count ?? 0;
+    }
   }
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#07080F]">
-      <Sidebar userEmail={userEmail} userName={userName} activeAssessmentCount={activeAssessmentCount} />
+      <Sidebar userEmail={userEmail} userName={userName} reviewCount={reviewCount} />
       <main className="flex-1 overflow-y-auto">
-        <DashboardHeader />
         <div className="min-h-full p-4 sm:p-6 lg:p-8 print:p-0">{children}</div>
       </main>
     </div>

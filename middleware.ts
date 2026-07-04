@@ -10,6 +10,7 @@ import {
 
 const PROTECTED = [
   "/dashboard",
+  "/inbox",
   "/projects",
   "/candidates",
   "/assessments",

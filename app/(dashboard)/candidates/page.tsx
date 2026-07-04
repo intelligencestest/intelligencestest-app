@@ -41,10 +41,10 @@ export default async function CandidatesPage() {
   const [{ data: candidates }, { data: projects }] = await Promise.all([
     admin
       .from("candidates")
-      .select("id, full_name, email, status, created_at, token, hiring_projects(id, name)")
+      .select("id, full_name, email, status, pipeline_stage, outcome, created_at, token, hiring_projects(id, name)")
       .eq("company_id", companyId)
       .order("created_at", { ascending: false })
-      .returns<{ id: string; full_name: string; email: string; status: string; created_at: string; token: string | null; hiring_projects: { id: string; name: string } | null }[]>(),
+      .returns<{ id: string; full_name: string; email: string; status: string; pipeline_stage: string; outcome: string; created_at: string; token: string | null; hiring_projects: { id: string; name: string } | null }[]>(),
     admin
       .from("hiring_projects")
       .select("id, name, status")
