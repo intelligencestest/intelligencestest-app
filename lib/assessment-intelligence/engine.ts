@@ -1,7 +1,12 @@
 import { extractAQEvidence } from "./extractors/aq";
 import { extractCriticalThinkingEvidence } from "./extractors/critical-thinking";
+import { extractCustomerServiceEvidence } from "./extractors/customer-service";
+import { extractDecisionMakingEvidence } from "./extractors/decision-making";
+import { extractLeadershipStylesEvidence } from "./extractors/leadership-styles";
+import { extractProblemSolvingEvidence } from "./extractors/problem-solving";
 import { extractScoreOnlyEvidence } from "./extractors/score-only";
-import { assessmentKey, clampScore, evidenceDirection, evidenceStrength, riskSeverity } from "./scales";
+import { extractSalesAptitudeEvidence } from "./extractors/sales-aptitude";
+import { assessmentKey, clampScore, evidenceStrength, riskSeverity } from "./scales";
 import { competencyCategory } from "./taxonomy";
 import type {
   AssessmentIntelligenceReport,
@@ -84,7 +89,21 @@ function extractSignals(input: AssessmentResultInput, locale: IntelligenceLocale
   const key = assessmentKey(input.name);
   if (key === "critical-thinking") return extractCriticalThinkingEvidence(input, locale);
   if (key === "aq") return extractAQEvidence(input, locale);
+  if (key === "customer-service") return extractCustomerServiceEvidence(input, locale);
+  if (key === "sales-aptitude") return extractSalesAptitudeEvidence(input, locale);
+  if (key === "leadership-styles") return extractLeadershipStylesEvidence(input, locale);
+  if (key === "decision-making") return extractDecisionMakingEvidence(input, locale);
+  if (key === "problem-solving") return extractProblemSolvingEvidence(input, locale);
   return extractScoreOnlyEvidence(input, locale);
+}
+
+function assessmentDecisionScore(input: AssessmentResultInput): number {
+  const key = assessmentKey(input.name);
+  // Leadership Styles is descriptive: the score is style concentration, not
+  // performance. Keep it neutral in recommendation math while its evidence
+  // signals still inform strengths, risks, and validation questions.
+  if (key === "leadership-styles") return 60;
+  return clampScore(input.score);
 }
 
 function dominantDirection(signals: EvidenceSignal[]): EvidenceDirection {
@@ -348,7 +367,7 @@ export function buildAssessmentIntelligence(options: BuildAssessmentIntelligence
     roleRequirementsProvided,
     locale,
   });
-  const assessmentAverage = average(assessments.map((assessment) => clampScore(assessment.score)));
+  const assessmentAverage = average(assessments.map((assessment) => assessmentDecisionScore(assessment)));
   const recommendation = buildRecommendation({
     assessmentAverage,
     confidence,

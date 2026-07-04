@@ -124,23 +124,7 @@ function dimensionStatement(label: string, score: number, locale: IntelligenceLo
 
 function dimensionImpact(competencyId: CompetencyId, score: number, locale: IntelligenceLocale): string {
   const risk = score < 50;
-  const copy: Record<CompetencyId, { positive: { en: string; es: string }; risk: { en: string; es: string } }> = {
-    "analytical-reasoning": {
-      positive: { en: "", es: "" },
-      risk: { en: "", es: "" },
-    },
-    "decision-quality": {
-      positive: { en: "", es: "" },
-      risk: { en: "", es: "" },
-    },
-    "resilience-under-pressure": {
-      positive: { en: "", es: "" },
-      risk: { en: "", es: "" },
-    },
-    "assessment-performance": {
-      positive: { en: "", es: "" },
-      risk: { en: "", es: "" },
-    },
+  const copy: Partial<Record<CompetencyId, { positive: { en: string; es: string }; risk: { en: string; es: string } }>> = {
     "adversity-control": {
       positive: {
         en: "Supports a tendency to look for actionable levers in difficult situations.",
@@ -183,7 +167,12 @@ function dimensionImpact(competencyId: CompetencyId, score: number, locale: Inte
     },
   };
 
-  return risk ? copy[competencyId].risk[locale] : copy[competencyId].positive[locale];
+  const fallback =
+    locale === "es"
+      ? "Debe validarse con ejemplos laborales recientes antes de usarlo como evidencia de ajuste."
+      : "Should be validated with recent work examples before using it as role-fit evidence.";
+
+  return (risk ? copy[competencyId]?.risk[locale] : copy[competencyId]?.positive[locale]) ?? fallback;
 }
 
 export function extractAQEvidence(input: AssessmentResultInput, locale: IntelligenceLocale): EvidenceSignal[] {

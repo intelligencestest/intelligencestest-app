@@ -19,6 +19,177 @@ export const COMPETENCY_TAXONOMY: Record<CompetencyId, CompetencyDefinition> = {
       es: "Puede esta persona tomar decisiones estructuradas cuando la evidencia es incompleta?",
     },
   },
+  "evidence-analysis": {
+    id: "evidence-analysis",
+    label: { en: "Evidence analysis", es: "Analisis de evidencia" },
+    category: { en: "Judgment", es: "Juicio" },
+    businessQuestion: {
+      en: "Can this candidate identify relevant information, assumptions, and decision criteria?",
+      es: "Puede esta persona identificar informacion relevante, supuestos y criterios de decision?",
+    },
+  },
+  "judgment-under-ambiguity": {
+    id: "judgment-under-ambiguity",
+    label: { en: "Judgment under ambiguity", es: "Juicio ante ambiguedad" },
+    category: { en: "Judgment", es: "Juicio" },
+    businessQuestion: {
+      en: "Can this candidate make sound calls when evidence points in multiple directions?",
+      es: "Puede esta persona tomar decisiones solidas cuando la evidencia apunta en varias direcciones?",
+    },
+  },
+  "risk-evaluation": {
+    id: "risk-evaluation",
+    label: { en: "Risk evaluation", es: "Evaluacion de riesgos" },
+    category: { en: "Judgment", es: "Juicio" },
+    businessQuestion: {
+      en: "Can this candidate evaluate downside, probability, impact, and mitigation?",
+      es: "Puede esta persona evaluar impacto, probabilidad, consecuencias y mitigacion?",
+    },
+  },
+  "decision-speed-calibration": {
+    id: "decision-speed-calibration",
+    label: { en: "Decision speed calibration", es: "Calibracion de velocidad decisoria" },
+    category: { en: "Judgment", es: "Juicio" },
+    businessQuestion: {
+      en: "Can this candidate match decision speed to urgency, stakes, and reversibility?",
+      es: "Puede esta persona ajustar la velocidad de decision a urgencia, riesgo y reversibilidad?",
+    },
+  },
+  "structured-problem-solving": {
+    id: "structured-problem-solving",
+    label: { en: "Structured problem solving", es: "Resolucion estructurada de problemas" },
+    category: { en: "Cognitive", es: "Cognitivo" },
+    businessQuestion: {
+      en: "Can this candidate break problems down, diagnose causes, and choose workable actions?",
+      es: "Puede esta persona descomponer problemas, diagnosticar causas y elegir acciones viables?",
+    },
+  },
+  "customer-empathy": {
+    id: "customer-empathy",
+    label: { en: "Customer empathy", es: "Empatia con clientes" },
+    category: { en: "Service", es: "Servicio" },
+    businessQuestion: {
+      en: "Can this candidate acknowledge customer emotion while moving toward resolution?",
+      es: "Puede esta persona reconocer la emocion del cliente y avanzar hacia una solucion?",
+    },
+  },
+  "customer-issue-resolution": {
+    id: "customer-issue-resolution",
+    label: { en: "Customer issue resolution", es: "Resolucion de incidencias" },
+    category: { en: "Service", es: "Servicio" },
+    businessQuestion: {
+      en: "Can this candidate diagnose customer issues and coordinate a clear resolution?",
+      es: "Puede esta persona diagnosticar incidencias y coordinar una resolucion clara?",
+    },
+  },
+  "customer-communication": {
+    id: "customer-communication",
+    label: { en: "Customer communication", es: "Comunicacion con clientes" },
+    category: { en: "Service", es: "Servicio" },
+    businessQuestion: {
+      en: "Can this candidate communicate clearly, accurately, and appropriately with customers?",
+      es: "Puede esta persona comunicarse con claridad, precision y criterio con clientes?",
+    },
+  },
+  "service-composure": {
+    id: "service-composure",
+    label: { en: "Service composure", es: "Compostura en servicio" },
+    category: { en: "Service", es: "Servicio" },
+    businessQuestion: {
+      en: "Can this candidate remain patient and professional in difficult interactions?",
+      es: "Puede esta persona mantener paciencia y profesionalismo en interacciones dificiles?",
+    },
+  },
+  "prospecting-discipline": {
+    id: "prospecting-discipline",
+    label: { en: "Prospecting discipline", es: "Disciplina de prospeccion" },
+    category: { en: "Sales", es: "Ventas" },
+    businessQuestion: {
+      en: "Can this candidate identify, qualify, and prioritize the right opportunities?",
+      es: "Puede esta persona identificar, calificar y priorizar oportunidades correctas?",
+    },
+  },
+  "consultative-selling": {
+    id: "consultative-selling",
+    label: { en: "Consultative selling", es: "Venta consultiva" },
+    category: { en: "Sales", es: "Ventas" },
+    businessQuestion: {
+      en: "Can this candidate connect customer needs to business value without generic pitching?",
+      es: "Puede esta persona conectar necesidades del cliente con valor de negocio sin discurso generico?",
+    },
+  },
+  "objection-handling": {
+    id: "objection-handling",
+    label: { en: "Objection handling", es: "Manejo de objeciones" },
+    category: { en: "Sales", es: "Ventas" },
+    businessQuestion: {
+      en: "Can this candidate explore resistance constructively and keep the opportunity moving?",
+      es: "Puede esta persona explorar resistencia de forma constructiva y mantener avance comercial?",
+    },
+  },
+  "deal-advancement": {
+    id: "deal-advancement",
+    label: { en: "Deal advancement", es: "Avance de oportunidades" },
+    category: { en: "Sales", es: "Ventas" },
+    businessQuestion: {
+      en: "Can this candidate create clear next steps and move complex deals forward ethically?",
+      es: "Puede esta persona crear pasos claros y avanzar oportunidades complejas de forma etica?",
+    },
+  },
+  "strategic-direction": {
+    id: "strategic-direction",
+    label: { en: "Strategic direction", es: "Direccion estrategica" },
+    category: { en: "Leadership", es: "Liderazgo" },
+    businessQuestion: {
+      en: "Does this candidate tend to create direction and connect work to a larger purpose?",
+      es: "Tiende esta persona a crear direccion y conectar el trabajo con un proposito mayor?",
+    },
+  },
+  "people-development": {
+    id: "people-development",
+    label: { en: "People development", es: "Desarrollo de personas" },
+    category: { en: "Leadership", es: "Liderazgo" },
+    businessQuestion: {
+      en: "Does this candidate tend to develop people through feedback, coaching, and goals?",
+      es: "Tiende esta persona a desarrollar personas mediante feedback, coaching y metas?",
+    },
+  },
+  "team-cohesion": {
+    id: "team-cohesion",
+    label: { en: "Team cohesion", es: "Cohesion del equipo" },
+    category: { en: "Leadership", es: "Liderazgo" },
+    businessQuestion: {
+      en: "Does this candidate tend to protect trust, morale, and working relationships?",
+      es: "Tiende esta persona a proteger confianza, moral y relaciones de trabajo?",
+    },
+  },
+  "participative-leadership": {
+    id: "participative-leadership",
+    label: { en: "Participative leadership", es: "Liderazgo participativo" },
+    category: { en: "Leadership", es: "Liderazgo" },
+    businessQuestion: {
+      en: "Does this candidate tend to build commitment through input and shared ownership?",
+      es: "Tiende esta persona a generar compromiso mediante participacion y responsabilidad compartida?",
+    },
+  },
+  "execution-standards": {
+    id: "execution-standards",
+    label: { en: "Execution standards", es: "Estandares de ejecucion" },
+    category: { en: "Leadership", es: "Liderazgo" },
+    businessQuestion: {
+      en: "Does this candidate tend to raise standards through pace, quality, and personal example?",
+      es: "Tiende esta persona a elevar estandares mediante ritmo, calidad y ejemplo personal?",
+    },
+  },
+  "directive-leadership": {
+    id: "directive-leadership",
+    label: { en: "Directive leadership", es: "Liderazgo directivo" },
+    category: { en: "Leadership", es: "Liderazgo" },
+    businessQuestion: {
+      en: "Does this candidate tend to provide firm direction in urgent or high-risk contexts?",
+      es: "Tiende esta persona a dar direccion firme en contextos urgentes o de alto riesgo?",
+    },
+  },
   "resilience-under-pressure": {
     id: "resilience-under-pressure",
     label: { en: "Resilience under pressure", es: "Resiliencia bajo presion" },

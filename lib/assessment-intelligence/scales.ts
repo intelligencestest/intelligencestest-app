@@ -1,4 +1,4 @@
-import type { EvidenceDirection, EvidenceStrength, RiskSeverity } from "./types";
+import type { EvidenceDirection, EvidenceSignal, EvidenceStrength, RiskSeverity } from "./types";
 
 export function clampScore(score: number, max = 100): number {
   if (!Number.isFinite(score)) return 0;
@@ -28,9 +28,14 @@ export function riskSeverity(normalizedScore: number): RiskSeverity {
   return "low";
 }
 
-export function assessmentKey(name: string): "critical-thinking" | "aq" | "score-only" {
+export function assessmentKey(name: string): EvidenceSignal["assessmentKey"] {
   const normalized = name.toLowerCase();
   if (normalized.includes("critical thinking")) return "critical-thinking";
   if (normalized.includes("adversity quotient") || normalized.includes("(aq)") || normalized === "aq") return "aq";
+  if (normalized.includes("customer service")) return "customer-service";
+  if (normalized.includes("sales aptitude")) return "sales-aptitude";
+  if (normalized.includes("leadership styles") || normalized.includes("leadership style")) return "leadership-styles";
+  if (normalized.includes("decision making")) return "decision-making";
+  if (normalized.includes("problem solving")) return "problem-solving";
   return "score-only";
 }

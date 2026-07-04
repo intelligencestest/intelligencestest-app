@@ -3,6 +3,25 @@ export type IntelligenceLocale = "en" | "es";
 export type CompetencyId =
   | "analytical-reasoning"
   | "decision-quality"
+  | "evidence-analysis"
+  | "judgment-under-ambiguity"
+  | "risk-evaluation"
+  | "decision-speed-calibration"
+  | "structured-problem-solving"
+  | "customer-empathy"
+  | "customer-issue-resolution"
+  | "customer-communication"
+  | "service-composure"
+  | "prospecting-discipline"
+  | "consultative-selling"
+  | "objection-handling"
+  | "deal-advancement"
+  | "strategic-direction"
+  | "people-development"
+  | "team-cohesion"
+  | "participative-leadership"
+  | "execution-standards"
+  | "directive-leadership"
   | "resilience-under-pressure"
   | "adversity-control"
   | "personal-accountability"
@@ -12,7 +31,15 @@ export type CompetencyId =
 
 export type EvidenceDirection = "positive" | "mixed" | "risk" | "neutral";
 export type EvidenceStrength = "strong" | "moderate" | "limited";
-export type EvidenceKind = "ability" | "resilience" | "score-only";
+export type EvidenceKind =
+  | "ability"
+  | "resilience"
+  | "service"
+  | "sales"
+  | "leadership"
+  | "judgment"
+  | "problem-solving"
+  | "score-only";
 export type RiskSeverity = "high" | "medium" | "low";
 export type ConfidenceLevel = "high" | "moderate" | "low";
 
@@ -47,7 +74,40 @@ export interface AQScoreDetails {
   description?: string;
 }
 
-export type AssessmentScoreDetails = CriticalThinkingScoreDetails | AQScoreDetails;
+export type StructuredAssessmentType =
+  | "customer-service"
+  | "sales-aptitude"
+  | "decision-making";
+
+export interface StructuredMultipleChoiceScoreDetails {
+  type: StructuredAssessmentType;
+  correct: number;
+  total: number;
+  percentage: number;
+  dimensions: Record<string, number>;
+}
+
+export interface ProblemSolvingScoreDetails {
+  type: "problem-solving";
+  correct: number;
+  total: number;
+  percentage: number;
+  interpretation?: string;
+}
+
+export interface LeadershipScoreDetails {
+  type: "leadership-styles";
+  score: number;
+  dominantStyle: string;
+  counts: Record<string, number>;
+}
+
+export type AssessmentScoreDetails =
+  | CriticalThinkingScoreDetails
+  | AQScoreDetails
+  | StructuredMultipleChoiceScoreDetails
+  | ProblemSolvingScoreDetails
+  | LeadershipScoreDetails;
 
 export interface AssessmentResultInput {
   id?: string;
@@ -64,7 +124,15 @@ export interface EvidenceSignal {
   id: string;
   assessmentId: string;
   assessmentName: string;
-  assessmentKey: "critical-thinking" | "aq" | "score-only";
+  assessmentKey:
+    | "critical-thinking"
+    | "aq"
+    | "customer-service"
+    | "sales-aptitude"
+    | "leadership-styles"
+    | "decision-making"
+    | "problem-solving"
+    | "score-only";
   competencyId: CompetencyId;
   competencyLabel: string;
   dimensionId?: string;
