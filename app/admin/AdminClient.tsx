@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -178,7 +179,7 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
         <div className="divide-y divide-[#1E2240]">
           {rows.map((row) => (
             <details key={row.id} className="group p-5">
-              <summary className="grid cursor-pointer list-none gap-4 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_1fr] lg:items-center">
+              <summary className="grid cursor-pointer list-none gap-4 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_1fr_auto] lg:items-center">
                 <div>
                   <p className="font-semibold text-white">{row.name}</p>
                   <p className="mt-1 text-sm text-slate-500">{row.email}</p>
@@ -193,8 +194,15 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                 <span className="text-sm text-slate-300">{row.plan}</span>
                 <span className="text-sm text-slate-300">{row.activeUsers} users</span>
                 <span className="text-sm text-slate-400">
-                  {row.projects} projects · {row.assessmentsUsed} assessments
+                  {row.projects} projects · {row.assessmentsUsed} completions 30d
                 </span>
+                <Link
+                  href={`/admin/companies/${row.id}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="w-fit rounded-lg border border-[#1E2240] px-3 py-1.5 text-xs font-semibold text-[#a78bfa] transition-colors hover:border-[#8b5cf6]/60"
+                >
+                  Open →
+                </Link>
               </summary>
 
               <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_300px]">

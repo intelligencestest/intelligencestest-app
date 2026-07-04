@@ -1,146 +1,170 @@
 import Link from "next/link";
-import AdminClient, { type AdminCompanyRow } from "./AdminClient";
 import { createAdminClient } from "@/lib/supabase-server";
-import { getInternalAdminUser } from "@/lib/internal-admin";
+import { getInternalAdmin } from "@/lib/internal-admin";
+import { loadTenantStats } from "@/lib/admin/stats";
+import { computeCompanyHealth } from "@/lib/admin/health";
+import { relativeTime, DAY } from "@/lib/dashboard/format";
+import { Chip, EmptyRow, MigrationNotice, Section, StatCard } from "@/components/admin/ui";
 
-type CompanyRow = {
-  id: string;
-  name: string;
-  email: string;
-  language: string | null;
-  industry: string | null;
-  logo_url: string | null;
-  created_at: string;
-  status: string | null;
-  plan: string | null;
-};
+const QUIET_AFTER_DAYS = 14;
 
-export default async function AdminPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const user = await getInternalAdminUser();
-  const params = await searchParams;
-  const q = (params.q ?? "").trim().toLowerCase();
-
-  if (!user) {
-    return (
-      <main className="min-h-screen bg-[#07080F] px-5 py-16 text-slate-100">
-        <div className="mx-auto max-w-xl rounded-lg border border-[#1E2240] bg-[#0D1020] p-6 text-center">
-          <h1 className="text-2xl font-semibold text-white">Admin access required</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-400">
-            Sign in with an email listed in INTERNAL_ADMIN_EMAILS or ADMIN_EMAILS to manage workspaces.
-          </p>
-          <Link href="/login" className="mt-6 inline-flex rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white">
-            Go to login
-          </Link>
-        </div>
-      </main>
-    );
-  }
+/**
+ * Home is a triage screen, not statistics: what needs an operator's
+ * attention, platform pulse, and what the team did recently.
+ */
+export default async function AdminHomePage() {
+  const adminCtx = await getInternalAdmin();
+  if (!adminCtx) return null; // layout renders the access screen
 
   const admin = createAdminClient();
+  const nowMs = Date.now();
+  const dayAgo = new Date(nowMs - DAY).toISOString();
+  const weekAgo = new Date(nowMs - 7 * DAY).toISOString();
+
   const [
-    { data: companies, error: companiesError },
-    { data: users },
-    { data: projects },
-    { data: projectAssessments },
+    { count: companiesTotal },
+    { count: companiesActive },
+    { count: completed24h },
+    { count: completed7d },
+    { count: invited7d },
+    statsMap,
+    { data: recentActions, error: actionsError },
   ] = await Promise.all([
+    admin.from("companies").select("id", { count: "exact", head: true }),
+    admin.from("companies").select("id", { count: "exact", head: true }).eq("status", "active"),
+    admin.from("results").select("id", { count: "exact", head: true }).gte("completed_at", dayAgo),
+    admin.from("results").select("id", { count: "exact", head: true }).gte("completed_at", weekAgo),
+    admin.from("candidates").select("id", { count: "exact", head: true }).gte("created_at", weekAgo),
+    loadTenantStats(admin),
     admin
-      .from("companies")
-      .select("id, name, email, language, industry, logo_url, created_at, status, plan")
-      .order("created_at", { ascending: false })
-      .returns<CompanyRow[]>(),
-    admin.from("users").select("id, company_id"),
-    admin.from("hiring_projects").select("id, company_id"),
-    admin.from("project_assessments").select("project_id, assessment_id"),
+      .from("admin_actions")
+      .select("id, admin_email, action_type, entity_type, entity_id, company_id, reason, occurred_at")
+      .order("occurred_at", { ascending: false })
+      .limit(8),
   ]);
 
-  if (companiesError) {
-    return (
-      <main className="min-h-screen bg-[#07080F] px-5 py-16 text-slate-100">
-        <div className="mx-auto max-w-2xl rounded-lg border border-red-500/25 bg-red-500/10 p-6">
-          <h1 className="text-xl font-semibold text-red-100">Admin schema needs attention</h1>
-          <p className="mt-3 text-sm leading-6 text-red-200">{companiesError.message}</p>
-          <p className="mt-3 text-sm leading-6 text-red-200">
-            Apply migration supabase/migrations/020_admin_workspace_fields.sql, then reload this page.
-          </p>
-        </div>
-      </main>
-    );
+  // Attention list from rollups: quiet tenants and tenants with no operators.
+  type Attention = { companyId: string; label: string; detail: string };
+  const attention: Attention[] = [];
+  const companyNames = new Map<string, string>();
+  if (statsMap && statsMap.size > 0) {
+    const { data: companies } = await admin
+      .from("companies")
+      .select("id, name, status")
+      .eq("status", "active");
+    for (const c of companies ?? []) companyNames.set(c.id, c.name);
+
+    for (const [companyId, stats] of statsMap) {
+      const name = companyNames.get(companyId);
+      if (!name) continue; // disabled or deleted
+      const daysSince = stats.lastActivityAt
+        ? Math.floor((nowMs - new Date(stats.lastActivityAt).getTime()) / DAY)
+        : null;
+
+      // Health-score extension point: once implemented, classification
+      // replaces these two hand-rolled rules.
+      const health = computeCompanyHealth({ stats, daysSinceActivity: daysSince });
+      if (health) continue; // future: push based on health.level/reasons
+
+      if (stats.candidatesTotal > 0 && daysSince !== null && daysSince >= QUIET_AFTER_DAYS) {
+        attention.push({
+          companyId,
+          label: `${name} has gone quiet`,
+          detail: `No activity for ${daysSince} days · ${stats.candidatesTotal} candidates total`,
+        });
+      } else if (stats.recruiters === 0) {
+        attention.push({
+          companyId,
+          label: `${name} has no recruiters`,
+          detail: "Workspace exists but nobody can sign in",
+        });
+      }
+    }
   }
-
-  const userCounts = new Map<string, number>();
-  for (const row of users ?? []) {
-    if (!row.company_id) continue;
-    userCounts.set(row.company_id, (userCounts.get(row.company_id) ?? 0) + 1);
-  }
-
-  const projectCounts = new Map<string, number>();
-  const projectCompany = new Map<string, string>();
-  for (const project of projects ?? []) {
-    if (!project.company_id) continue;
-    projectCounts.set(project.company_id, (projectCounts.get(project.company_id) ?? 0) + 1);
-    projectCompany.set(project.id, project.company_id);
-  }
-
-  const assessmentSets = new Map<string, Set<string>>();
-  for (const row of projectAssessments ?? []) {
-    const companyId = row.project_id ? projectCompany.get(row.project_id) : null;
-    if (!companyId || !row.assessment_id) continue;
-    if (!assessmentSets.has(companyId)) assessmentSets.set(companyId, new Set());
-    assessmentSets.get(companyId)!.add(row.assessment_id);
-  }
-
-  const allRows: AdminCompanyRow[] = (companies ?? []).map((company) => ({
-    id: company.id,
-    name: company.name,
-    email: company.email,
-    language: company.language ?? "es",
-    industry: company.industry,
-    logo_url: company.logo_url,
-    created_at: company.created_at,
-    status: company.status ?? "active",
-    plan: company.plan ?? "standard",
-    activeUsers: userCounts.get(company.id) ?? 0,
-    projects: projectCounts.get(company.id) ?? 0,
-    assessmentsUsed: assessmentSets.get(company.id)?.size ?? 0,
-  }));
-
-  const rows = q
-    ? allRows.filter((row) =>
-        [row.name, row.email, row.industry ?? "", row.plan, row.status]
-          .join(" ")
-          .toLowerCase()
-          .includes(q)
-      )
-    : allRows;
 
   return (
-    <main className="min-h-screen bg-[#07080F] text-slate-100">
-      <header className="border-b border-[#1E2240] bg-[#0D1020]">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-6 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#8CB1FF]">Internal Admin</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Workspace management</h1>
-            <p className="mt-2 text-sm text-slate-400">Companies, plans, access status, and admin password resets.</p>
-          </div>
-          <form action="/admin" className="flex w-full gap-2 lg:w-[360px]">
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="Search companies..."
-              className="min-w-0 flex-1 rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]"
-            />
-            <button className="rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white">Search</button>
-          </form>
-        </div>
-      </header>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">Operations home</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Triage first, then browse. <kbd className="rounded border border-[#1E2240] bg-[#0D1020] px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd> finds anything.
+        </p>
+      </div>
 
-      <section className="mx-auto max-w-7xl px-5 py-8 sm:px-6 lg:px-8">
-        <AdminClient rows={rows} />
-      </section>
-    </main>
+      {statsMap === null && <MigrationNotice what="Tenant rollups and the attention list" />}
+
+      {/* Platform pulse */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <StatCard label="Companies" value={`${companiesActive ?? 0}`} sub={`of ${companiesTotal ?? 0} total`} href="/admin/companies" />
+        <StatCard label="Completions · 24h" value={`${completed24h ?? 0}`} sub={`${completed7d ?? 0} in 7 days`} />
+        <StatCard label="Invites · 7d" value={`${invited7d ?? 0}`} />
+        <StatCard
+          label="Attention items"
+          value={`${attention.length}`}
+          sub={statsMap === null ? "needs migration 021" : "from tenant rollups"}
+        />
+        <StatCard label="Your role" value={adminCtx.role} sub={adminCtx.breakGlass ? "break-glass session" : "internal_admins"} />
+      </div>
+
+      {/* Needs attention */}
+      <Section title="Needs attention">
+        {attention.length === 0 ? (
+          <EmptyRow>{statsMap === null ? "Unavailable until migration 021 is applied." : "All tenants look active."}</EmptyRow>
+        ) : (
+          <div className="divide-y divide-[#1E2240]">
+            {attention.slice(0, 8).map((item) => (
+              <Link
+                key={item.companyId}
+                href={`/admin/companies/${item.companyId}`}
+                className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-[#1E2240]/30"
+              >
+                <Chip tone="warn">attention</Chip>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-slate-200">{item.label}</span>
+                  <span className="block truncate text-xs text-slate-500">{item.detail}</span>
+                </span>
+                <span className="text-xs font-medium text-[#a78bfa]">Open →</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </Section>
+
+      {/* Recent admin actions — the team's shared short-term memory */}
+      <Section
+        title="Recent admin actions"
+        action={
+          <Link href="/admin/audit" className="text-xs font-medium text-[#a78bfa] hover:underline">
+            Full audit log →
+          </Link>
+        }
+      >
+        {actionsError ? (
+          <EmptyRow>Audit log unavailable — apply migration 021.</EmptyRow>
+        ) : (recentActions ?? []).length === 0 ? (
+          <EmptyRow>No console actions recorded yet.</EmptyRow>
+        ) : (
+          <div className="divide-y divide-[#1E2240]">
+            {(recentActions ?? []).map((a) => (
+              <div key={a.id} className="flex items-center gap-4 px-5 py-3">
+                <code className="rounded bg-[#07080F] px-2 py-0.5 font-mono text-xs text-[#a78bfa]">{a.action_type}</code>
+                <span className="min-w-0 flex-1 truncate text-sm text-slate-300">
+                  {a.admin_email}
+                  {a.reason ? <span className="text-slate-500"> — {a.reason}</span> : null}
+                </span>
+                {a.company_id && (
+                  <Link href={`/admin/companies/${a.company_id}`} className="text-xs font-medium text-[#a78bfa] hover:underline">
+                    company →
+                  </Link>
+                )}
+                <span className="whitespace-nowrap text-xs tabular-nums text-slate-500">
+                  {relativeTime(new Date(a.occurred_at).getTime(), nowMs, "en-US")}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </Section>
+    </div>
   );
 }

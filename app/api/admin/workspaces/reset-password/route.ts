@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendAuthEmail } from "@/lib/auth-email";
 import { toAppLocale } from "@/lib/i18n/locales";
-import { requireInternalAdminForApi } from "@/lib/internal-admin";
+import { logAdminAction, requireInternalAdminForApi } from "@/lib/internal-admin";
 
 const APP_URL = "https://app.intelligencestest.com";
 
@@ -14,8 +14,8 @@ function jsonError(message: string, status: number) {
 }
 
 export async function POST(request: NextRequest) {
-  const { admin } = await requireInternalAdminForApi();
-  if (!admin) return jsonError("Forbidden", 403);
+  const { admin, user } = await requireInternalAdminForApi("support");
+  if (!admin || !user) return jsonError("Forbidden", 403);
 
   const body = await request.json().catch(() => null);
   const companyId = clean(body?.company_id);
@@ -70,5 +70,12 @@ export async function POST(request: NextRequest) {
     return jsonError(`Could not send reset email: ${result.error.message}`, 502);
   }
 
-  return NextResponse.json({ ok: true });
+  const { audited } = await logAdminAction(admin, user, {
+    actionType: "user.password_reset_sent",
+    entityType: "user",
+    entityId: target.email,
+    companyId,
+  });
+
+  return NextResponse.json({ ok: true, audited });
 }

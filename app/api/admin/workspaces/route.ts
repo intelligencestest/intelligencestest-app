@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { sendAuthEmail } from "@/lib/auth-email";
 import { toAppLocale } from "@/lib/i18n/locales";
-import { requireInternalAdminForApi } from "@/lib/internal-admin";
+import { logAdminAction, requireInternalAdminForApi } from "@/lib/internal-admin";
 
 const APP_URL = "https://app.intelligencestest.com";
 
@@ -19,8 +19,8 @@ function jsonError(message: string, status: number) {
 }
 
 export async function POST(request: NextRequest) {
-  const { admin } = await requireInternalAdminForApi();
-  if (!admin) return jsonError("Forbidden", 403);
+  const { admin, user } = await requireInternalAdminForApi("ops");
+  if (!admin || !user) return jsonError("Forbidden", 403);
 
   const body = await request.json().catch(() => null);
   const companyName = clean(body?.company_name);
@@ -112,24 +112,40 @@ export async function POST(request: NextRequest) {
     actionUrl: linkData.properties.action_link,
   });
 
+  const { audited } = await logAdminAction(admin, user, {
+    actionType: "company.create",
+    entityType: "company",
+    entityId: company.id,
+    companyId: company.id,
+    payload: { name: companyName, admin_email: adminEmail, plan, status, language },
+  });
+
   if (emailResult.error) {
     return jsonError(`Workspace created, but welcome email failed: ${emailResult.error.message}`, 502);
   }
 
-  return NextResponse.json({ ok: true, company_id: company.id });
+  return NextResponse.json({ ok: true, company_id: company.id, audited });
 }
 
 export async function PATCH(request: NextRequest) {
-  const { admin } = await requireInternalAdminForApi();
-  if (!admin) return jsonError("Forbidden", 403);
+  const { admin, user } = await requireInternalAdminForApi("ops");
+  if (!admin || !user) return jsonError("Forbidden", 403);
 
   const body = await request.json().catch(() => null);
   const companyId = clean(body?.company_id);
   const status = clean(body?.status);
+  const reason = clean(body?.reason) || null;
 
   if (!companyId) {
     return jsonError("Company id is required.", 400);
   }
+
+  const { data: before } = await admin
+    .from("companies")
+    .select("name, email, plan, status, language, industry")
+    .eq("id", companyId)
+    .maybeSingle();
+  if (!before) return jsonError("Company not found.", 404);
 
   const updates: Record<string, string | null | boolean> = {
     updated_at: new Date().toISOString(),
@@ -153,15 +169,31 @@ export async function PATCH(request: NextRequest) {
     return jsonError(error.message, 500);
   }
 
-  return NextResponse.json({ ok: true });
+  const { audited } = await logAdminAction(admin, user, {
+    actionType: updates.status === "disabled" ? "company.disable" : "company.update",
+    entityType: "company",
+    entityId: companyId,
+    companyId,
+    reason,
+    payload: { before, after: updates },
+  });
+
+  return NextResponse.json({ ok: true, audited });
 }
 
 export async function DELETE(request: NextRequest) {
-  const { admin } = await requireInternalAdminForApi();
-  if (!admin) return jsonError("Forbidden", 403);
+  // Hard delete is a destructive ceremony: superadmin only.
+  const { admin, user } = await requireInternalAdminForApi("superadmin");
+  if (!admin || !user) return jsonError("Forbidden", 403);
 
   const companyId = request.nextUrl.searchParams.get("company_id");
   if (!companyId) return jsonError("Company id is required.", 400);
+
+  const { data: doomed } = await admin
+    .from("companies")
+    .select("name, email, plan, status")
+    .eq("id", companyId)
+    .maybeSingle();
 
   const { data: users } = await admin.from("users").select("id").eq("company_id", companyId);
   const userIds = (users ?? []).map((user) => user.id).filter(Boolean);
@@ -185,5 +217,14 @@ export async function DELETE(request: NextRequest) {
 
   await Promise.allSettled(userIds.map((userId) => admin.auth.admin.deleteUser(userId)));
 
-  return NextResponse.json({ ok: true });
+  // The audit row is what remains of the tenant: record what was deleted.
+  const { audited } = await logAdminAction(admin, user, {
+    actionType: "company.hard_delete",
+    entityType: "company",
+    entityId: companyId,
+    companyId,
+    payload: { deleted: doomed ?? { id: companyId }, users: userIds.length, projects: projectIds.length },
+  });
+
+  return NextResponse.json({ ok: true, audited });
 }
