@@ -11,7 +11,11 @@ Module._resolveFilename = function resolveAlias(request: string, parent: unknown
   return originalResolveFilename.call(this, request, parent, isMain, options);
 };
 
-const { buildAssessmentIntelligence } = require("../lib/assessment-intelligence");
+const {
+  buildAssessmentIntelligence,
+  RECOMMENDATION_ORDER,
+  toQueueIntelligenceProjection,
+} = require("../lib/assessment-intelligence");
 const { toEnterpriseReportData } = require("../lib/report-pdf");
 const { AQ_QUESTIONS } = require("../lib/questions/aq");
 const { CT_QUESTIONS } = require("../lib/questions/critical-thinking");
@@ -98,6 +102,23 @@ for (const risk of mixedEvidence.risks) {
     "Every risk should generate an interview validation question.",
   );
 }
+
+const queueProjection = toQueueIntelligenceProjection(mixedEvidence);
+assert.equal(
+  queueProjection.primaryRisk !== null && queueProjection.primaryRisk.evidenceSignalIds.length > 0,
+  true,
+  "Queue intelligence projection should expose the leading risk with supporting evidence.",
+);
+assert.equal(
+  queueProjection.interviewKitReady && queueProjection.interviewQuestionCount > 0,
+  true,
+  "Queue intelligence projection should expose interview validation readiness.",
+);
+assert.equal(
+  RECOMMENDATION_ORDER.strong < RECOMMENDATION_ORDER.proceed && RECOMMENDATION_ORDER.proceed < RECOMMENDATION_ORDER.review,
+  true,
+  "Recommendation sort order should be exported from the intelligence layer.",
+);
 
 const pdfData = toEnterpriseReportData({
   candidateName: "Test Candidate",

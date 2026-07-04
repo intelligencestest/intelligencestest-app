@@ -129,6 +129,30 @@ export interface IntelligenceRecommendation {
   limitations: string[];
 }
 
+export interface QueueIntelligenceProjection {
+  recommendation: IntelligenceRecommendation["level"] | null;
+  confidence: ConfidenceLevel | null;
+  /** One candidate-specific sentence explaining the recommendation. */
+  headline: string | null;
+  /** Strongest positively-evidenced competency label, if any. */
+  topCompetency: string | null;
+  /** Highest-severity hiring risk, if any. */
+  primaryRisk: {
+    id?: string;
+    label: string;
+    severity: RiskSeverity;
+    evidenceSignalIds?: string[];
+  } | null;
+  /** Whether interview validation questions are ready for this candidate. */
+  interviewKitReady: boolean;
+  /** Number of validation prompts available for the recruiter workflow. */
+  interviewQuestionCount: number;
+  /** Evidence IDs supporting the queue-level recommendation. */
+  evidenceSignalIds: string[];
+  /** Source assessment IDs that produced this projection, when available. */
+  sourceAssessmentIds: string[];
+}
+
 export interface AssessmentIntelligenceReport {
   locale: IntelligenceLocale;
   completedAssessmentCount: number;

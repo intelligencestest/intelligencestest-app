@@ -1,5 +1,11 @@
 export { buildAssessmentIntelligence } from "./engine";
+export {
+  emptyQueueIntelligenceProjection,
+  RECOMMENDATION_ORDER,
+  toQueueIntelligenceProjection,
+} from "./projections";
 export { COMPETENCY_TAXONOMY } from "./taxonomy";
+export type { RecommendationLevel } from "./projections";
 export type {
   AQScoreDetails,
   AssessmentIntelligenceReport,
@@ -13,4 +19,7 @@ export type {
   HiringRisk,
   IntelligenceRecommendation,
   InterviewValidationQuestion,
+  QueueIntelligenceProjection,
+  RiskSeverity,
+  ConfidenceLevel,
 } from "./types";
