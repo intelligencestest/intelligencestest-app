@@ -140,7 +140,7 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
               <span className={`transition-colors ${active ? "text-[#8CB1FF]" : "text-slate-500 group-hover:text-slate-300"}`}>{item.icon}</span>
               <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
               {item.href === "/inbox" && reviewCount > 0 && (
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${
+                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
                   active
                     ? "border-[#8CB1FF]/35 bg-[#1D4ED8]/25 text-[#C6D7FF]"
                     : "border-[#1E2240] bg-[#07080F] text-slate-400 group-hover:text-slate-200"

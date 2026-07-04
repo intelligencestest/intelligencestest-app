@@ -226,7 +226,7 @@
     "tileReviewedSub": "esperando entrevista o decisión",
     "tileReviewedEmpty": "nada pendiente de un siguiente paso",
     "tileInterviewTitle": "En entrevista",
-    "tileInterviewSub": "{count, plural, one {# espera más de una semana} other {# esperan más de una semana}}",
+    "tileInterviewSub": "{count, plural, one {# decisión pendiente hace más de una semana} other {# decisiones pendientes hace más de una semana}}",
     "tileInterviewEmpty": "sin decisiones atrasadas",
     "attnBlocked": "{name} está bloqueado — {reason}",
     "blockedReasonNoAssessments": "el proyecto no tiene evaluaciones vinculadas",

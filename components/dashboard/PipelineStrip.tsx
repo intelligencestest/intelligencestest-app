@@ -26,7 +26,7 @@ export default async function PipelineStrip({ counts }: { counts: StageCounts })
             <Link
               key={stage}
               href={`/candidates?stage=${stage}`}
-              className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#1E2240]/40"
+              className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#1E2240]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
             >
               <span className="flex w-24 flex-shrink-0 items-center gap-2 text-[13px] capitalize text-slate-400 transition-colors group-hover:text-slate-200">
                 <span className={`h-2 w-2 flex-shrink-0 rounded-full ${STAGE_COLOR[stage]}`} aria-hidden="true" />
@@ -38,7 +38,11 @@ export default async function PipelineStrip({ counts }: { counts: StageCounts })
                   style={{ width: `${Math.max((counts[stage] / max) * 100, counts[stage] > 0 ? 6 : 0)}%` }}
                 />
               </span>
-              <span className="w-8 flex-shrink-0 text-right text-[13px] font-semibold text-slate-200">
+              <span
+                className={`w-8 flex-shrink-0 text-right text-[13px] font-semibold tabular-nums ${
+                  counts[stage] > 0 ? "text-slate-200" : "text-slate-600"
+                }`}
+              >
                 {counts[stage]}
               </span>
             </Link>

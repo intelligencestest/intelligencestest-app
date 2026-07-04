@@ -226,7 +226,7 @@
     "tileReviewedSub": "awaiting interview or decision",
     "tileReviewedEmpty": "nothing waiting on a next step",
     "tileInterviewTitle": "In interview",
-    "tileInterviewSub": "{count, plural, one {# waiting over a week} other {# waiting over a week}}",
+    "tileInterviewSub": "{count, plural, one {# decision pending over a week} other {# decisions pending over a week}}",
     "tileInterviewEmpty": "no decisions overdue",
     "attnBlocked": "{name} is blocked — {reason}",
     "blockedReasonNoAssessments": "no assessments are linked to the project",

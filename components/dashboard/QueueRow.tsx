@@ -36,16 +36,18 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
   const overSla = entry.waitMs > REVIEW_SLA_MS;
   const rec = intel.recommendation;
 
+  // One click target: the whole row opens the review. No inner links, so the
+  // recruiter never has to aim at a name or a small "Review" affordance.
   return (
-    <div className="group px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30">
+    <Link
+      href={`/candidates/${entry.id}?ctx=review`}
+      className="group block px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
+    >
       {/* Line 1 — who */}
       <div className="flex items-baseline gap-2">
-        <Link
-          href={`/candidates/${entry.id}?ctx=review`}
-          className="min-w-0 truncate text-sm font-semibold text-white transition-colors hover:text-[#AFC7FF]"
-        >
+        <span className="min-w-0 truncate text-sm font-semibold text-white transition-colors group-hover:text-[#AFC7FF]">
           {entry.fullName || t("unknown")}
-        </Link>
+        </span>
         <span className="min-w-0 flex-1 truncate text-[13px] text-slate-400">
           {entry.projectName ?? t("aProject")}
           {" · "}
@@ -54,7 +56,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
             : t("queueAssessmentsBare", { done: entry.resultsCount })}
         </span>
         <span
-          className={`flex-shrink-0 whitespace-nowrap text-xs font-medium ${
+          className={`flex-shrink-0 whitespace-nowrap text-xs font-medium tabular-nums ${
             overSla ? "text-[#fab219]" : "text-slate-400"
           }`}
         >
@@ -79,10 +81,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
           </span>
         )}
         {intel.confidence && (
-          <span
-            className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs text-slate-400"
-            title={t("confidenceLabel")}
-          >
+          <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs text-slate-400">
             <span className="inline-flex items-center gap-0.5" aria-hidden="true">
               {[0, 1, 2].map((i) => (
                 <span
@@ -97,12 +96,14 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
           </span>
         )}
         {intel.headline && (
-          <span className="min-w-0 truncate text-[13px] text-slate-400">{intel.headline}</span>
+          <span className="hidden min-w-0 truncate text-[13px] text-slate-400 sm:inline" title={intel.headline}>
+            {intel.headline}
+          </span>
         )}
       </div>
 
-      {/* Line 3 — evidence highlights + action */}
-      <div className="mt-1.5 flex items-center gap-4">
+      {/* Line 3 — evidence highlights + affordance */}
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
         {intel.topCompetency && (
           <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-slate-300">
             <svg className="h-3.5 w-3.5 flex-shrink-0 text-[#3fbf3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -133,13 +134,10 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
             {t("queueInterviewKit")}
           </span>
         )}
-        <Link
-          href={`/candidates/${entry.id}?ctx=review`}
-          className="ml-auto flex-shrink-0 whitespace-nowrap text-[13px] font-medium text-[#8CB1FF] group-hover:underline"
-        >
+        <span className="ml-auto flex-shrink-0 whitespace-nowrap text-[13px] font-medium text-[#8CB1FF] group-hover:underline">
           {t("queueReview")} →
-        </Link>
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }

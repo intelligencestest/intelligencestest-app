@@ -72,7 +72,7 @@ function ExtendButton({ candidateId, onDone }: { candidateId: string; onDone: ()
 
   if (state === "done") {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#3fbf3f]">
+      <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#3fbf3f]">
         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
@@ -213,7 +213,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
       <div className="flex items-center justify-between border-b border-[#1E2240] px-5 py-3.5">
         <h2 className="text-sm font-semibold text-white">{t("needsAttention")}</h2>
         {alerts.length > 0 && (
-          <span className="rounded-full border border-[#1E2240] px-2.5 py-0.5 text-xs font-medium text-slate-400">
+          <span className="rounded-full border border-[#1E2240] px-2.5 py-0.5 text-xs font-medium tabular-nums text-slate-400">
             {alerts.length}
           </span>
         )}
@@ -274,7 +274,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                   <button
                     type="button"
                     onClick={() => setExpanded(isOpen ? null : key)}
-                    className="block w-full cursor-pointer text-left transition-colors hover:bg-[#1E2240]/30"
+                    className="block w-full cursor-pointer text-left transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
                     aria-expanded={isOpen}
                   >
                     {row}
@@ -291,7 +291,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                     ? "/candidates?stage=invited"
                     : `/projects/${alert.projectId}`
                 }
-                className="block transition-colors hover:bg-[#1E2240]/30"
+                className="block transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
               >
                 {row}
               </Link>
@@ -301,7 +301,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
             <button
               type="button"
               onClick={() => setShowAll(true)}
-              className="block w-full cursor-pointer px-5 py-3 text-center text-[13px] font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240]/30"
+              className="block w-full cursor-pointer px-5 py-3 text-center text-[13px] font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
             >
               {t("attnMore", { count: alerts.length - MAX_VISIBLE_ALERTS })}
             </button>

@@ -27,10 +27,12 @@ export default async function QueueSection({
   // FIFO order decides who a review session starts with, regardless of view sort.
   const sessionStart = entries[0];
 
+  // Sort links land back on the queue, not at the top of the page.
   const sortLink = (mode: QueueSort, label: string) => (
     <Link
-      href={mode === "waiting" ? basePath : `${basePath}?queue=recommendation`}
-      className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+      href={mode === "waiting" ? `${basePath}#queue` : `${basePath}?queue=recommendation#queue`}
+      aria-current={sort === mode ? "true" : undefined}
+      className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] ${
         sort === mode
           ? "bg-[#1D4ED8]/16 text-[#AFC7FF] ring-1 ring-[#1D4ED8]/35"
           : "text-slate-400 hover:text-slate-200"
@@ -45,25 +47,30 @@ export default async function QueueSection({
       <div className="flex flex-wrap items-center gap-3 border-b border-[#1E2240] px-5 py-3.5">
         <h2 className="text-sm font-semibold text-white">{t("queueTitle")}</h2>
         {totalCount > 0 && (
-          <span className="rounded-full border border-[#1E2240] px-2.5 py-0.5 text-xs font-medium text-slate-400">
+          <span className="rounded-full border border-[#1E2240] px-2.5 py-0.5 text-xs font-medium tabular-nums text-slate-400">
             {totalCount}
           </span>
         )}
-        <div className="ml-auto flex items-center gap-1">
-          {sortLink("waiting", t("queueSortFifo"))}
-          {sortLink("recommendation", t("queueSortRecommendation"))}
+        <div className="ml-auto flex items-center gap-3">
+          {/* Controls only exist when there is something to control. */}
+          {visible.length > 1 && (
+            <div className="flex items-center gap-1">
+              {sortLink("waiting", t("queueSortFifo"))}
+              {sortLink("recommendation", t("queueSortRecommendation"))}
+            </div>
+          )}
+          {sessionStart && (
+            <Link
+              href={`/candidates/${sessionStart.id}?ctx=review`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1e40af] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8CB1FF]"
+            >
+              {t("queueStartSession")}
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          )}
         </div>
-        {sessionStart && (
-          <Link
-            href={`/candidates/${sessionStart.id}?ctx=review`}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1e40af]"
-          >
-            {t("queueStartSession")}
-            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        )}
       </div>
 
       {visible.length === 0 ? (
@@ -86,7 +93,7 @@ export default async function QueueSection({
           {limit && totalCount > visible.length && (
             <Link
               href="/inbox"
-              className="block border-t border-[#1E2240] px-5 py-3 text-center text-[13px] font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240]/30"
+              className="block border-t border-[#1E2240] px-5 py-3 text-center text-[13px] font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
             >
               {t("queueViewAll", { count: totalCount })} →
             </Link>

@@ -305,7 +305,12 @@ export default async function DashboardPage({
           <MorningGreeting firstName={firstName} />
           <p className="mt-2 text-sm text-slate-400">
             {briefParts.length > 0 ? (
-              <a href="#queue" className="transition-colors hover:text-slate-200">
+              /* The brief points at the work it describes: the queue when
+                 reviews wait, otherwise the alerts. */
+              <a
+                href={reviewQueue.totalCount > 0 || alerts.length === 0 ? "#queue" : "#attention"}
+                className="transition-colors hover:text-slate-200"
+              >
                 {briefParts.join(" · ")}
               </a>
             ) : (

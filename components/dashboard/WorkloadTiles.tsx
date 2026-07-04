@@ -67,11 +67,18 @@ export default async function WorkloadTiles({ data }: { data: WorkloadData }) {
         <Link
           key={tile.key}
           href={tile.href}
-          className="premium-card premium-card-hover flex flex-col rounded-xl p-5"
+          className="premium-card premium-card-hover flex flex-col rounded-xl p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
         >
           <p className="text-[13px] font-medium text-slate-400">{tile.label}</p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-3xl font-semibold tracking-tight text-white">{tile.value}</span>
+            {/* Cleared queues recede; only live work reads bright. */}
+            <span
+              className={`text-3xl font-semibold tracking-tight tabular-nums ${
+                tile.value > 0 ? "text-white" : "text-slate-500"
+              }`}
+            >
+              {tile.value}
+            </span>
           </div>
           <p className={`mt-1 text-[13px] ${tile.urgent ? "text-[#fab219]" : "text-slate-400"}`}>
             {tile.sub}
