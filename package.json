@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "smoke:intelligence": "tsc -p tsconfig.smoke.json && node .tmp/assessment-intelligence-smoke/scripts/smoke-assessment-intelligence.js"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.5.1",

@@ -1,13 +1,19 @@
 "use client";
 
 import { assessmentName, assessmentShort, categoryLabel } from "@/lib/i18n/assessment-terms";
+import { buildAssessmentIntelligence, type AssessmentScoreDetails } from "@/lib/assessment-intelligence";
 import { downloadEnterpriseReport } from "@/lib/pdf/download";
-import type { ConfidenceLevel, EnterpriseReportData, HiringRecommendationContent } from "@/lib/pdf/core/types";
+import type { EnterpriseReportData } from "@/lib/pdf/core/types";
 
 export interface AssessmentScore {
+  id?: string;
+  assessmentId?: string;
   name: string;
   score: number;
   completedAt: string;
+  category?: string;
+  rawAnswers?: unknown;
+  scoreDetails?: AssessmentScoreDetails;
 }
 
 export interface ComprehensiveReportData {
@@ -55,27 +61,7 @@ const COPY = {
     overallScore: "Promedio de evaluaciones completadas",
     unknownCompany: "Empresa",
     unknownProject: "Proyecto de evaluacion",
-    lowConfidence: "La conclusion debe revisarse con cautela porque se basa en una sola evaluacion completada.",
-    proceedTitle: "Avanzar con entrevista estructurada",
-    strongTitle: "Avanzar con alta prioridad",
-    reviewTitle: "Revisar con validacion adicional",
-    cautionTitle: "No avanzar sin evidencia adicional",
-    summaryHeadline: (avg: number) => `Promedio general ${avg}/100 basado solo en evaluaciones completadas.`,
-    summaryBody: (count: number) =>
-      `Este informe incluye ${count} evaluacion${count === 1 ? "" : "es"} completada${count === 1 ? "" : "s"} para apoyar una decision de seleccion. No se incluyen evaluaciones asignadas, incompletas o no relacionadas.`,
-    evidenceCount: (count: number) => `${count} resultado${count === 1 ? "" : "s"} completado${count === 1 ? "" : "s"} incluido${count === 1 ? "" : "s"}.`,
-    noFabricatedBenchmarks: "No se muestran benchmarks sin fuente validada.",
-    highStrength: (name: string, score: number) => `${name}: evidencia favorable (${score}/100).`,
-    midStrength: (name: string, score: number) => `${name}: base funcional para validar en entrevista (${score}/100).`,
-    lowDevelopment: (name: string, score: number) => `${name}: requiere exploracion especifica en entrevista (${score}/100).`,
-    defaultDevelopment: "Validar con ejemplos conductuales recientes antes de tomar una decision final.",
     competencyDescription: (name: string) => `Evidencia disponible a partir de ${name}.`,
-    question: (name: string) => `Cuénteme sobre una situacion reciente donde demostro ${name.toLowerCase()} en un contexto de trabajo.`,
-    questionReason: "Busca validar que la puntuacion se traduzca en conducta laboral observable.",
-    rationaleStrong: "La evidencia completada muestra un perfil solido. La recomendacion sigue dependiendo de entrevista estructurada, referencias y ajuste al rol.",
-    rationaleProceed: "La evidencia completada respalda continuar el proceso, con validacion dirigida en entrevista.",
-    rationaleReview: "La evidencia es mixta. Conviene profundizar en ejemplos concretos antes de avanzar.",
-    rationaleCaution: "La evidencia completada no es suficiente para recomendar avance sin informacion adicional.",
   },
   en: {
     title: "Executive Assessment Report",
@@ -83,27 +69,7 @@ const COPY = {
     overallScore: "Average of completed assessments",
     unknownCompany: "Company",
     unknownProject: "Assessment Project",
-    lowConfidence: "The conclusion should be reviewed carefully because it is based on one completed assessment.",
-    proceedTitle: "Proceed with structured interview",
-    strongTitle: "Proceed with high priority",
-    reviewTitle: "Review with additional validation",
-    cautionTitle: "Do not advance without more evidence",
-    summaryHeadline: (avg: number) => `Overall average ${avg}/100 based only on completed assessments.`,
-    summaryBody: (count: number) =>
-      `This report includes ${count} completed assessment${count === 1 ? "" : "s"} to support a hiring decision. Assigned, incomplete, or unrelated assessments are not included.`,
-    evidenceCount: (count: number) => `${count} completed result${count === 1 ? "" : "s"} included.`,
-    noFabricatedBenchmarks: "Benchmarks without a validated source are not shown.",
-    highStrength: (name: string, score: number) => `${name}: favorable evidence (${score}/100).`,
-    midStrength: (name: string, score: number) => `${name}: functional baseline to validate in interview (${score}/100).`,
-    lowDevelopment: (name: string, score: number) => `${name}: requires targeted interview exploration (${score}/100).`,
-    defaultDevelopment: "Validate with recent behavioral examples before making a final decision.",
     competencyDescription: (name: string) => `Available evidence from ${name}.`,
-    question: (name: string) => `Tell me about a recent work situation where you demonstrated ${name.toLowerCase()}.`,
-    questionReason: "Validates whether the score translates into observable workplace behavior.",
-    rationaleStrong: "The completed evidence shows a strong profile. The recommendation still depends on structured interview, references, and role fit.",
-    rationaleProceed: "The completed evidence supports continuing the process, with targeted interview validation.",
-    rationaleReview: "The evidence is mixed. Concrete examples should be reviewed before advancing.",
-    rationaleCaution: "The completed evidence is not strong enough to recommend advancement without additional information.",
   },
 } satisfies Record<Locale, Record<string, unknown>>;
 
@@ -141,96 +107,48 @@ function shortName(name: string, locale: Locale): string {
   return assessmentShort(name, name.replace(" Test", "").replace(" Assessment", ""), locale);
 }
 
-function confidenceFor(count: number): ConfidenceLevel {
-  if (count >= 4) return "high";
-  if (count >= 2) return "moderate";
-  return "low";
-}
-
-function recommendationFor(avg: number, count: number, locale: Locale): HiringRecommendationContent {
-  const copy = COPY[locale];
-  const lowConfidenceNote = count === 1 ? ` ${copy.lowConfidence}` : "";
-
-  if (avg >= 85) {
-    return {
-      level: "strong",
-      title: copy.strongTitle,
-      rationale: `${copy.rationaleStrong}${lowConfidenceNote}`,
-      confidence: confidenceFor(count),
-      nextSteps: [copy.defaultDevelopment],
-    };
-  }
-
-  if (avg >= 70) {
-    return {
-      level: "proceed",
-      title: copy.proceedTitle,
-      rationale: `${copy.rationaleProceed}${lowConfidenceNote}`,
-      confidence: confidenceFor(count),
-      nextSteps: [copy.defaultDevelopment],
-    };
-  }
-
-  if (avg >= 55) {
-    return {
-      level: "review",
-      title: copy.reviewTitle,
-      rationale: `${copy.rationaleReview}${lowConfidenceNote}`,
-      confidence: confidenceFor(count),
-      nextSteps: [copy.defaultDevelopment],
-    };
-  }
-
-  return {
-    level: "caution",
-    title: copy.cautionTitle,
-    rationale: `${copy.rationaleCaution}${lowConfidenceNote}`,
-    confidence: confidenceFor(count),
-    nextSteps: [copy.defaultDevelopment],
-  };
-}
-
 export function toEnterpriseReportData(data: ComprehensiveReportData): EnterpriseReportData {
   const locale = localeOf(data);
   const copy = COPY[locale];
   const assessments = normalizeAssessments(data.assessments);
+  const intelligence = buildAssessmentIntelligence({ assessments, locale });
   const average = assessments.length ? clampScore(assessments.reduce((sum, item) => sum + item.score, 0) / assessments.length) : 0;
   const candidateName = data.candidateName.trim() || (locale === "es" ? "Candidato" : "Candidate");
   const companyName = data.companyName.trim() || copy.unknownCompany;
   const projectName = data.projectName.trim() || copy.unknownProject;
 
-  const completedAssessments = assessments.map((assessment) => ({
-    id: assessment.name,
-    name: displayName(assessment.name, locale),
-    category: categoryFor(assessment.name, locale),
-    score: assessment.score,
-    completedAt: assessment.completedAt,
-    confidence: confidenceFor(assessments.length),
-    status: "completed" as const,
+  const completedAssessments = assessments.map((assessment) => {
+    const sourceId = assessment.assessmentId ?? assessment.id ?? assessment.name;
+    const sourceSignals = intelligence.evidenceSignals.filter((signal) => signal.assessmentId === sourceId);
+    return {
+      id: sourceId,
+      name: displayName(assessment.name, locale),
+      category: assessment.category ? categoryLabel(assessment.category, locale) : categoryFor(assessment.name, locale),
+      score: assessment.score,
+      completedAt: assessment.completedAt,
+      confidence: intelligence.confidence.level,
+      status: "completed" as const,
+      dimensions: sourceSignals
+        .filter((signal) => signal.dimensionId)
+        .map((signal) => ({
+          id: signal.dimensionId,
+          label: signal.dimensionLabel ?? signal.competencyLabel,
+          score: signal.normalizedScore,
+          maxScore: 100,
+          description: signal.statement,
+        })),
+    };
+  });
+
+  const competencies = intelligence.competencyEvidence.map((competency) => ({
+    id: competency.competencyId,
+    label: competency.label,
+    score: competency.score,
+    category: competency.category,
+    description: competency.summary,
+    evidence: competency.evidenceSignalIds.join(", "),
+    sourceAssessmentIds: competency.evidenceSignalIds,
   }));
-
-  const competencies = assessments.map((assessment) => ({
-    id: assessment.name,
-    label: shortName(assessment.name, locale),
-    score: assessment.score,
-    category: categoryFor(assessment.name, locale),
-    description: copy.competencyDescription(displayName(assessment.name, locale)),
-    sourceAssessmentIds: [assessment.name],
-  }));
-
-  const strengths = assessments
-    .filter((assessment) => assessment.score >= 65)
-    .slice(0, 4)
-    .map((assessment) =>
-      assessment.score >= 80
-        ? copy.highStrength(shortName(assessment.name, locale), assessment.score)
-        : copy.midStrength(shortName(assessment.name, locale), assessment.score),
-    );
-
-  const developmentAreas = assessments
-    .filter((assessment) => assessment.score < 70)
-    .slice(0, 4)
-    .map((assessment) => copy.lowDevelopment(shortName(assessment.name, locale), assessment.score));
 
   return {
     locale,
@@ -261,30 +179,26 @@ export function toEnterpriseReportData(data: ComprehensiveReportData): Enterpris
     overallScore: average,
     overallScoreLabel: copy.overallScore,
     executiveSummary: {
-      headline: copy.summaryHeadline(average),
-      summary: copy.summaryBody(assessments.length),
-      confidence: confidenceFor(assessments.length),
-      evidence: [copy.evidenceCount(assessments.length), copy.noFabricatedBenchmarks],
+      headline: intelligence.executiveSummary.headline,
+      summary: intelligence.executiveSummary.summary,
+      confidence: intelligence.confidence.level,
+      evidence: intelligence.executiveSummary.evidence,
     },
     competencies,
-    radarChart: assessments.slice(0, 8).map((assessment) => ({
-      label: shortName(assessment.name, locale),
-      value: assessment.score,
-      sourceAssessmentId: assessment.name,
+    radarChart: competencies.slice(0, 8).map((competency) => ({
+      label: competency.label,
+      value: competency.score,
+      sourceAssessmentId: competency.sourceAssessmentIds?.[0],
     })),
-    barChart: assessments.slice(0, 8).map((assessment) => ({
-      label: shortName(assessment.name, locale),
-      value: assessment.score,
-      sourceAssessmentId: assessment.name,
+    barChart: competencies.slice(0, 8).map((competency) => ({
+      label: competency.label,
+      value: competency.score,
+      sourceAssessmentId: competency.sourceAssessmentIds?.[0],
     })),
-    strengths: strengths.length ? strengths : [copy.midStrength(candidateName, average)],
-    developmentAreas: developmentAreas.length ? developmentAreas : [copy.defaultDevelopment],
-    hiringRecommendation: recommendationFor(average, assessments.length, locale),
-    interviewQuestions: assessments.slice(0, 4).map((assessment) => ({
-      competency: shortName(assessment.name, locale),
-      question: copy.question(shortName(assessment.name, locale)),
-      reason: copy.questionReason,
-    })),
+    strengths: intelligence.strengths.length ? intelligence.strengths : intelligence.executiveSummary.evidence.slice(0, 2),
+    developmentAreas: intelligence.developmentAreas.length ? intelligence.developmentAreas : intelligence.methodologyLimitations.slice(0, 3),
+    hiringRecommendation: intelligence.recommendation,
+    interviewQuestions: intelligence.interviewQuestions,
   };
 }
 

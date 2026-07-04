@@ -419,9 +419,13 @@ export default async function CandidateReportPage({
               projectName={projectName}
               candidateId={candidate.id}
               assessments={myResults.map((r) => ({
+                id: r.id,
+                assessmentId: r.assessment_id,
                 name: r.assessments?.name ?? "—",
                 score: r.score,
                 completedAt: r.completed_at,
+                category: r.assessments?.category ?? undefined,
+                rawAnswers: r.raw_answers,
               }))}
             />
           </section>

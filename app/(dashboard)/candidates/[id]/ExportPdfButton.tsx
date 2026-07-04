@@ -10,7 +10,7 @@ interface ExportPdfButtonProps {
   companyName: string;
   projectName: string;
   candidateId: string;
-  assessments: { name: string; score: number; completedAt: string }[];
+  assessments: { id?: string; assessmentId?: string; name: string; score: number; completedAt: string; category?: string; rawAnswers?: unknown }[];
 }
 
 export default function ExportPdfButton(props: ExportPdfButtonProps) {

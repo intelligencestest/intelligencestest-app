@@ -35,15 +35,17 @@ export default async function ReportsPage({
     id: string;
     score: number;
     completed_at: string;
+    raw_answers: unknown;
+    assessment_id: string;
     candidate_id: string | null;
     candidates: { full_name: string; email: string } | null;
-    assessments: { name: string } | null;
+    assessments: { name: string; category: string | null } | null;
   }[] = [];
 
   if (selectedProjectId) {
     const { data } = await admin
       .from("results")
-      .select("id, score, completed_at, candidate_id, candidates(full_name, email), assessments(name)")
+      .select("id, score, completed_at, raw_answers, assessment_id, candidate_id, candidates(full_name, email), assessments(name, category)")
       .eq("company_id", companyId)
       .eq("project_id", selectedProjectId)
       .order("score", { ascending: false })

@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "isolatedModules": false,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": false,
+    "outDir": ".tmp/assessment-intelligence-smoke",
+    "target": "ES2020",
+    "tsBuildInfoFile": ".tmp/assessment-intelligence-smoke.tsbuildinfo"
+  },
+  "include": [
+    "scripts/smoke-assessment-intelligence.ts",
+    "lib/assessment-intelligence/**/*.ts",
+    "lib/questions/aq.ts",
+    "lib/questions/critical-thinking.ts",
+    "lib/report-pdf.ts",
+    "lib/i18n/assessment-terms.ts",
+    "lib/pdf/download.ts",
+    "lib/pdf/render/filename.ts",
+    "lib/pdf/core/types.ts"
+  ]
+}

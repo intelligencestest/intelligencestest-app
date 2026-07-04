@@ -1,6 +1,7 @@
 "use client";
 
 import { assessmentName, dimensionLabel } from "@/lib/i18n/assessment-terms";
+import { buildAssessmentIntelligence } from "@/lib/assessment-intelligence";
 import { downloadEnterpriseReport } from "@/lib/pdf/download";
 import type { EnterpriseReportData } from "@/lib/pdf/core/types";
 
@@ -118,7 +119,6 @@ function baseReport({
       confidence: "low",
       evidence: [
         locale === "es" ? "Solo se incluye la evaluacion completada." : "Only the completed assessment is included.",
-        locale === "es" ? "No se muestran benchmarks sin fuente validada." : "Benchmarks without a validated source are not shown.",
       ],
     },
   };
@@ -171,51 +171,47 @@ export async function downloadCTPDF(data: CTPDFData): Promise<void> {
     score,
     locale,
   });
-  const rec = recommendation(score, locale);
+  const intelligence = buildAssessmentIntelligence({
+    locale,
+    assessments: [
+      {
+        name: data.assessmentName,
+        score,
+        completedAt: data.date,
+        scoreDetails: {
+          type: "critical-thinking",
+          correct: data.correct,
+          total: data.total,
+          percentage: score,
+          interpretation: data.interpretation,
+        },
+      },
+    ],
+  });
+  const competencies = intelligence.competencyEvidence.map((competency) => ({
+    id: competency.competencyId,
+    label: competency.label,
+    score: competency.score,
+    category: competency.category,
+    description: competency.summary,
+    evidence: competency.evidenceSignalIds.join(", "),
+    sourceAssessmentIds: competency.evidenceSignalIds,
+  }));
 
   await downloadEnterpriseReport({
     ...report,
-    competencies: [
-      {
-        id: "critical-thinking",
-        label: locale === "es" ? "Pensamiento critico" : "Critical thinking",
-        score,
-        description:
-          locale === "es"
-            ? `${data.correct} de ${data.total} respuestas correctas.`
-            : `${data.correct} of ${data.total} correct answers.`,
-        sourceAssessmentIds: [data.assessmentName],
-      },
-    ],
-    barChart: [{ label: assessment, value: score, sourceAssessmentId: data.assessmentName }],
-    strengths: [data.interpretation],
-    developmentAreas: [
-      locale === "es"
-        ? "Validar el razonamiento con preguntas situacionales relacionadas al rol."
-        : "Validate reasoning with role-related situational questions.",
-    ],
-    hiringRecommendation: {
-      ...rec,
-      confidence: "low",
-      nextSteps: [
-        locale === "es"
-          ? "Realizar entrevista estructurada enfocada en analisis, inferencia y toma de decisiones."
-          : "Run a structured interview focused on analysis, inference, and decision making.",
-      ],
+    executiveSummary: {
+      headline: intelligence.executiveSummary.headline,
+      summary: intelligence.executiveSummary.summary,
+      confidence: intelligence.confidence.level,
+      evidence: intelligence.executiveSummary.evidence,
     },
-    interviewQuestions: [
-      {
-        competency: locale === "es" ? "Pensamiento critico" : "Critical thinking",
-        question:
-          locale === "es"
-            ? "Cuénteme sobre una decision reciente en la que tuvo que evaluar informacion incompleta."
-            : "Tell me about a recent decision where you had to evaluate incomplete information.",
-        reason:
-          locale === "es"
-            ? "Valida si el resultado se traduce en razonamiento observable."
-            : "Validates whether the result translates into observable reasoning.",
-      },
-    ],
+    competencies,
+    barChart: competencies.map((competency) => ({ label: competency.label, value: competency.score, sourceAssessmentId: competency.sourceAssessmentIds?.[0] })),
+    strengths: intelligence.strengths,
+    developmentAreas: intelligence.developmentAreas,
+    hiringRecommendation: intelligence.recommendation,
+    interviewQuestions: intelligence.interviewQuestions,
   });
 }
 
@@ -234,7 +230,6 @@ export async function downloadAQPDF(data: AQPDFData): Promise<void> {
     maxScore: 200,
     locale,
   });
-  const rec = recommendation(normalizedScore, locale);
 
   const dimensions = [
     { id: "control", label: "control", score: data.control },
@@ -242,52 +237,54 @@ export async function downloadAQPDF(data: AQPDFData): Promise<void> {
     { id: "reach", label: "reach", score: data.reach },
     { id: "endurance", label: "endurance", score: data.endurance },
   ];
+  const intelligence = buildAssessmentIntelligence({
+    locale,
+    assessments: [
+      {
+        name: data.assessmentName,
+        score: normalizedScore,
+        completedAt: data.date,
+        scoreDetails: {
+          type: "aq",
+          total: data.score,
+          control: data.control,
+          ownership: data.ownership,
+          reach: data.reach,
+          endurance: data.endurance,
+          interpretation: data.interpretation,
+          description: data.description,
+        },
+      },
+    ],
+  });
+  const competencies = intelligence.competencyEvidence.map((competency) => ({
+    id: competency.competencyId,
+    label: competency.label,
+    score: competency.score,
+    category: competency.category,
+    description: competency.summary,
+    evidence: competency.evidenceSignalIds.join(", "),
+    sourceAssessmentIds: competency.evidenceSignalIds,
+  }));
 
   await downloadEnterpriseReport({
     ...report,
-    competencies: dimensions.map((dimension) => ({
-      id: dimension.id,
-      label: dimensionLabel(dimension.label, locale),
-      score: pct(dimension.score, 50),
-      description:
-        locale === "es"
-          ? `Dimension CORE puntuada en ${dimension.score}/50.`
-          : `CORE dimension scored at ${dimension.score}/50.`,
-      sourceAssessmentIds: [data.assessmentName],
-    })),
+    executiveSummary: {
+      headline: intelligence.executiveSummary.headline,
+      summary: intelligence.executiveSummary.summary,
+      confidence: intelligence.confidence.level,
+      evidence: intelligence.executiveSummary.evidence,
+    },
+    competencies,
     radarChart: dimensions.map((dimension) => ({
       label: dimensionLabel(dimension.label, locale),
       value: pct(dimension.score, 50),
       sourceAssessmentId: data.assessmentName,
     })),
-    barChart: dimensions.map((dimension) => ({
-      label: dimensionLabel(dimension.label, locale),
-      value: pct(dimension.score, 50),
-      sourceAssessmentId: data.assessmentName,
-    })),
-    strengths: [data.interpretation],
-    developmentAreas: [data.description],
-    hiringRecommendation: {
-      ...rec,
-      confidence: "low",
-      nextSteps: [
-        locale === "es"
-          ? "Validar con ejemplos concretos de presion, contratiempos y recuperacion."
-          : "Validate with concrete examples of pressure, setbacks, and recovery.",
-      ],
-    },
-    interviewQuestions: [
-      {
-        competency: locale === "es" ? "Resiliencia" : "Resilience",
-        question:
-          locale === "es"
-            ? "Describa una situacion en la que un plan fallo y tuvo que recuperarse rapidamente."
-            : "Describe a situation where a plan failed and you had to recover quickly.",
-        reason:
-          locale === "es"
-            ? "Valida responsabilidad, control y recuperacion ante adversidad."
-            : "Validates ownership, control, and recovery under adversity.",
-      },
-    ],
+    barChart: competencies.map((competency) => ({ label: competency.label, value: competency.score, sourceAssessmentId: competency.sourceAssessmentIds?.[0] })),
+    strengths: intelligence.strengths,
+    developmentAreas: intelligence.developmentAreas,
+    hiringRecommendation: intelligence.recommendation,
+    interviewQuestions: intelligence.interviewQuestions,
   });
 }

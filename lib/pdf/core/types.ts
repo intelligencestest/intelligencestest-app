@@ -160,7 +160,10 @@ export interface HiringRecommendationContent {
   title: string;
   rationale: string;
   confidence?: ConfidenceLevel;
+  evidenceSignalIds?: string[];
+  riskIds?: string[];
   nextSteps?: string[];
+  limitations?: string[];
 }
 
 export interface BenchmarkComparisonItem {
@@ -176,6 +179,8 @@ export interface InterviewQuestion {
   question: string;
   competency?: string;
   reason?: string;
+  evidenceSignalIds?: string[];
+  riskId?: string;
 }
 
 export interface ReportSectionVisibility {

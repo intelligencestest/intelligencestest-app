@@ -21,9 +21,11 @@ interface Result {
   id: string;
   score: number;
   completed_at: string;
+  raw_answers: unknown;
+  assessment_id: string;
   candidate_id: string | null;
   candidates: { full_name: string; email: string } | null;
-  assessments: { name: string } | null;
+  assessments: { name: string; category: string | null } | null;
 }
 
 const avatarColors = [
@@ -246,9 +248,13 @@ export default function ReportsClient({
         reportDate: new Date().toLocaleDateString(dateLocale, { month: "long", day: "numeric", year: "numeric" }),
         reportId: `RPT-${candidateKey.slice(0, 8).toUpperCase()}`,
         assessments: group.results.map(r => ({
+          id: r.id,
+          assessmentId: r.assessment_id,
           name: r.assessments?.name ?? copy.assessment,
           score: r.score,
           completedAt: r.completed_at,
+          category: r.assessments?.category ?? undefined,
+          rawAnswers: r.raw_answers,
         })),
         locale: es ? "es" : "en",
       };
