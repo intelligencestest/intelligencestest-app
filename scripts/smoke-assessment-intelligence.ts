@@ -12,18 +12,24 @@ Module._resolveFilename = function resolveAlias(request: string, parent: unknown
 };
 
 const {
+  ASSESSMENT_INTELLIGENCE_ENGINE_VERSION,
   buildAssessmentIntelligence,
   RECOMMENDATION_ORDER,
   toQueueIntelligenceProjection,
 } = require("../lib/assessment-intelligence");
 const { toEnterpriseReportData } = require("../lib/report-pdf");
 const { AQ_QUESTIONS } = require("../lib/questions/aq");
+const { CS_QUESTIONS } = require("../lib/questions/communication-skills");
 const { CT_QUESTIONS } = require("../lib/questions/critical-thinking");
 const { CSERV_QUESTIONS } = require("../lib/questions/customer-service-skills");
 const { DM_QUESTIONS } = require("../lib/questions/decision-making");
+const { EI_QUESTIONS } = require("../lib/questions/emotional-intelligence");
+const { IE_QUESTIONS } = require("../lib/questions/integrity-ethics");
 const { LEADERSHIP_QUESTIONS } = require("../lib/questions/leadership-styles");
 const { PS_QUESTIONS } = require("../lib/questions/problem-solving");
 const { SA_QUESTIONS } = require("../lib/questions/sales-aptitude");
+const { SJT_QUESTIONS } = require("../lib/questions/situational-judgment");
+const { TW_QUESTIONS } = require("../lib/questions/teamwork-collaboration");
 
 const ctPerfectAnswers = CT_QUESTIONS.map((question: { correct: number }) => question.correct);
 const aqHighAnswers = AQ_QUESTIONS.map((question: { reversed: boolean }) => (question.reversed ? 1 : 5));
@@ -32,6 +38,13 @@ const customerServicePerfectAnswers = CSERV_QUESTIONS.map((question: { correct: 
 const salesPerfectAnswers = SA_QUESTIONS.map((question: { correct: number }) => question.correct);
 const decisionPerfectAnswers = DM_QUESTIONS.map((question: { correct: number }) => question.correct);
 const problemSolvingPerfectAnswers = PS_QUESTIONS.map((question: { correct: number }) => question.correct);
+const communicationHighAnswers = CS_QUESTIONS.map((question: { reversed?: boolean }) => (question.reversed ? 1 : 5));
+const emotionalHighAnswers = EI_QUESTIONS.map((question: { reversed?: boolean }) => (question.reversed ? 1 : 5));
+const integrityPerfectAnswers = IE_QUESTIONS.map((question: { correct: number }) => question.correct);
+const situationalPerfectAnswers = SJT_QUESTIONS.map((question: { options: Array<{ score: number }> }) =>
+  question.options.findIndex((option) => option.score === 3)
+);
+const teamworkHighAnswers = TW_QUESTIONS.map((question: { reversed?: boolean }) => (question.reversed ? 1 : 5));
 const leadershipCommandingAnswers = LEADERSHIP_QUESTIONS.map((question: { options: Array<{ style: string }> }) =>
   question.options.findIndex((option) => option.style === "Commanding")
 );
@@ -54,6 +67,11 @@ assert.equal(
   }),
   true,
   "Critical Thinking evidence extraction should produce analytical reasoning evidence.",
+);
+assert.equal(
+  criticalThinkingOnly.engineVersion,
+  ASSESSMENT_INTELLIGENCE_ENGINE_VERSION,
+  "Generated intelligence reports should carry the current engine version.",
 );
 
 const aqOnly = buildAssessmentIntelligence({
@@ -235,6 +253,101 @@ assert.equal(
     leadershipStyles.interviewQuestions.some((question: { riskId?: string }) => question.riskId === leadershipStyles.risks[0].id),
   true,
   "Leadership overuse risks should generate interview validation questions.",
+);
+
+const communicationSkills = buildAssessmentIntelligence({
+  locale: "en",
+  assessments: [
+    {
+      name: "Communication Skills Test",
+      score: 100,
+      completedAt: "2026-07-04T00:00:00.000Z",
+      rawAnswers: communicationHighAnswers,
+    },
+  ],
+});
+assert.equal(
+  communicationSkills.evidenceSignals.some((signal: { assessmentKey: string; competencyId: string }) => {
+    return signal.assessmentKey === "communication-skills" && signal.competencyId === "active-listening";
+  }),
+  true,
+  "Communication Skills evidence extraction should produce active listening evidence.",
+);
+
+const integrityEthics = buildAssessmentIntelligence({
+  locale: "en",
+  assessments: [
+    {
+      name: "Integrity & Ethics Test",
+      score: 100,
+      completedAt: "2026-07-04T00:00:00.000Z",
+      rawAnswers: integrityPerfectAnswers,
+    },
+  ],
+});
+assert.equal(
+  integrityEthics.evidenceSignals.some((signal: { assessmentKey: string; competencyId: string }) => {
+    return signal.assessmentKey === "integrity-ethics" && signal.competencyId === "ethical-compliance";
+  }),
+  true,
+  "Integrity & Ethics evidence extraction should produce ethical compliance evidence.",
+);
+
+const situationalJudgment = buildAssessmentIntelligence({
+  locale: "en",
+  assessments: [
+    {
+      name: "Situational Judgment Test",
+      score: 100,
+      completedAt: "2026-07-04T00:00:00.000Z",
+      rawAnswers: situationalPerfectAnswers,
+    },
+  ],
+});
+assert.equal(
+  situationalJudgment.evidenceSignals.some((signal: { assessmentKey: string; competencyId: string }) => {
+    return signal.assessmentKey === "situational-judgment" && signal.competencyId === "adaptability";
+  }),
+  true,
+  "Situational Judgment evidence extraction should produce adaptability evidence.",
+);
+
+const emotionalIntelligence = buildAssessmentIntelligence({
+  locale: "en",
+  assessments: [
+    {
+      name: "Emotional Intelligence Test",
+      score: 100,
+      completedAt: "2026-07-04T00:00:00.000Z",
+      rawAnswers: emotionalHighAnswers,
+    },
+  ],
+});
+assert.equal(
+  emotionalIntelligence.evidenceSignals.some((signal: { assessmentKey: string; competencyId: string }) => {
+    return signal.assessmentKey === "emotional-intelligence" && signal.competencyId === "relationship-management";
+  }),
+  true,
+  "Emotional Intelligence evidence extraction should produce relationship management evidence.",
+);
+
+const teamworkCollaboration = buildAssessmentIntelligence({
+  locale: "en",
+  assessments: [
+    {
+      name: "Teamwork & Collaboration Test",
+      score: 100,
+      completedAt: "2026-07-04T00:00:00.000Z",
+      rawAnswers: teamworkHighAnswers,
+    },
+  ],
+});
+assert.equal(
+  teamworkCollaboration.evidenceSignals.some((signal: { assessmentKey: string; competencyId: string }) => {
+    return signal.assessmentKey === "teamwork-collaboration" && signal.competencyId === "conflict-resolution";
+  }),
+  true,
+  "Teamwork & Collaboration evidence extraction should produce conflict resolution evidence.",
 );
 
 const pdfData = toEnterpriseReportData({

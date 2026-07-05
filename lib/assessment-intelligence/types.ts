@@ -8,6 +8,21 @@ export type CompetencyId =
   | "risk-evaluation"
   | "decision-speed-calibration"
   | "structured-problem-solving"
+  | "professional-communication"
+  | "written-clarity"
+  | "active-listening"
+  | "interpersonal-awareness"
+  | "integrity-judgment"
+  | "ethical-compliance"
+  | "trust-reliability"
+  | "adaptability"
+  | "emotional-self-awareness"
+  | "emotional-self-regulation"
+  | "achievement-motivation"
+  | "relationship-management"
+  | "team-cooperation"
+  | "team-reliability"
+  | "conflict-resolution"
   | "customer-empathy"
   | "customer-issue-resolution"
   | "customer-communication"
@@ -39,6 +54,11 @@ export type EvidenceKind =
   | "leadership"
   | "judgment"
   | "problem-solving"
+  | "communication"
+  | "integrity"
+  | "situational-judgment"
+  | "emotional-intelligence"
+  | "teamwork"
   | "score-only";
 export type RiskSeverity = "high" | "medium" | "low";
 export type ConfidenceLevel = "high" | "moderate" | "low";
@@ -77,7 +97,8 @@ export interface AQScoreDetails {
 export type StructuredAssessmentType =
   | "customer-service"
   | "sales-aptitude"
-  | "decision-making";
+  | "decision-making"
+  | "integrity-ethics";
 
 export interface StructuredMultipleChoiceScoreDetails {
   type: StructuredAssessmentType;
@@ -95,6 +116,21 @@ export interface ProblemSolvingScoreDetails {
   interpretation?: string;
 }
 
+export interface LikertDimensionScoreDetails {
+  type: "communication-skills" | "emotional-intelligence" | "teamwork-collaboration";
+  total: number;
+  percentage: number;
+  dimensions: Record<string, number>;
+}
+
+export interface SituationalJudgmentScoreDetails {
+  type: "situational-judgment";
+  total: number;
+  max: number;
+  percentage: number;
+  dimensions: Record<string, { score: number; max: number }>;
+}
+
 export interface LeadershipScoreDetails {
   type: "leadership-styles";
   score: number;
@@ -107,7 +143,9 @@ export type AssessmentScoreDetails =
   | AQScoreDetails
   | StructuredMultipleChoiceScoreDetails
   | ProblemSolvingScoreDetails
-  | LeadershipScoreDetails;
+  | LeadershipScoreDetails
+  | LikertDimensionScoreDetails
+  | SituationalJudgmentScoreDetails;
 
 export interface AssessmentResultInput {
   id?: string;
@@ -132,6 +170,11 @@ export interface EvidenceSignal {
     | "leadership-styles"
     | "decision-making"
     | "problem-solving"
+    | "communication-skills"
+    | "integrity-ethics"
+    | "situational-judgment"
+    | "emotional-intelligence"
+    | "teamwork-collaboration"
     | "score-only";
   competencyId: CompetencyId;
   competencyLabel: string;
@@ -222,6 +265,7 @@ export interface QueueIntelligenceProjection {
 }
 
 export interface AssessmentIntelligenceReport {
+  engineVersion: string;
   locale: IntelligenceLocale;
   completedAssessmentCount: number;
   evidenceSignals: EvidenceSignal[];

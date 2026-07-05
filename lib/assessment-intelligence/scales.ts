@@ -37,5 +37,10 @@ export function assessmentKey(name: string): EvidenceSignal["assessmentKey"] {
   if (normalized.includes("leadership styles") || normalized.includes("leadership style")) return "leadership-styles";
   if (normalized.includes("decision making")) return "decision-making";
   if (normalized.includes("problem solving")) return "problem-solving";
+  if (normalized.includes("communication skills")) return "communication-skills";
+  if (normalized.includes("integrity") || normalized.includes("ethics")) return "integrity-ethics";
+  if (normalized.includes("situational judgment")) return "situational-judgment";
+  if (normalized.includes("emotional intelligence")) return "emotional-intelligence";
+  if (normalized.includes("teamwork") || normalized.includes("collaboration")) return "teamwork-collaboration";
   return "score-only";
 }

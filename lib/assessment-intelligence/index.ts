@@ -1,4 +1,4 @@
-export { buildAssessmentIntelligence } from "./engine";
+export { ASSESSMENT_INTELLIGENCE_ENGINE_VERSION, buildAssessmentIntelligence } from "./engine";
 export {
   emptyQueueIntelligenceProjection,
   RECOMMENDATION_ORDER,

@@ -1,11 +1,16 @@
 import { extractAQEvidence } from "./extractors/aq";
+import { extractCommunicationSkillsEvidence } from "./extractors/communication-skills";
 import { extractCriticalThinkingEvidence } from "./extractors/critical-thinking";
 import { extractCustomerServiceEvidence } from "./extractors/customer-service";
 import { extractDecisionMakingEvidence } from "./extractors/decision-making";
+import { extractEmotionalIntelligenceEvidence } from "./extractors/emotional-intelligence";
+import { extractIntegrityEthicsEvidence } from "./extractors/integrity-ethics";
 import { extractLeadershipStylesEvidence } from "./extractors/leadership-styles";
 import { extractProblemSolvingEvidence } from "./extractors/problem-solving";
 import { extractScoreOnlyEvidence } from "./extractors/score-only";
 import { extractSalesAptitudeEvidence } from "./extractors/sales-aptitude";
+import { extractSituationalJudgmentEvidence } from "./extractors/situational-judgment";
+import { extractTeamworkCollaborationEvidence } from "./extractors/teamwork-collaboration";
 import { assessmentKey, clampScore, evidenceStrength, riskSeverity } from "./scales";
 import { competencyCategory } from "./taxonomy";
 import type {
@@ -20,6 +25,8 @@ import type {
   IntelligenceRecommendation,
   InterviewValidationQuestion,
 } from "./types";
+
+export const ASSESSMENT_INTELLIGENCE_ENGINE_VERSION = "2026.07.04-ail-v1";
 
 interface BuildAssessmentIntelligenceOptions {
   assessments: AssessmentResultInput[];
@@ -94,6 +101,11 @@ function extractSignals(input: AssessmentResultInput, locale: IntelligenceLocale
   if (key === "leadership-styles") return extractLeadershipStylesEvidence(input, locale);
   if (key === "decision-making") return extractDecisionMakingEvidence(input, locale);
   if (key === "problem-solving") return extractProblemSolvingEvidence(input, locale);
+  if (key === "communication-skills") return extractCommunicationSkillsEvidence(input, locale);
+  if (key === "integrity-ethics") return extractIntegrityEthicsEvidence(input, locale);
+  if (key === "situational-judgment") return extractSituationalJudgmentEvidence(input, locale);
+  if (key === "emotional-intelligence") return extractEmotionalIntelligenceEvidence(input, locale);
+  if (key === "teamwork-collaboration") return extractTeamworkCollaborationEvidence(input, locale);
   return extractScoreOnlyEvidence(input, locale);
 }
 
@@ -187,6 +199,54 @@ function questionForRisk(risk: HiringRisk, locale: IntelligenceLocale): string {
     "resilience-under-pressure": {
       es: "Describa una etapa de presion sostenida. Que habitos o decisiones le ayudaron a mantener efectividad?",
       en: "Describe a period of sustained pressure. Which habits or decisions helped you remain effective?",
+    },
+    "professional-communication": {
+      es: "Cuénteme sobre una ocasion en la que tuvo que adaptar su comunicacion para una audiencia dificil. Que cambio y por que?",
+      en: "Tell me about a time you had to adapt your communication for a difficult audience. What changed and why?",
+    },
+    "active-listening": {
+      es: "Describa una situacion donde escuchar activamente cambio su decision o su respuesta.",
+      en: "Describe a situation where active listening changed your decision or response.",
+    },
+    "integrity-judgment": {
+      es: "Cuénteme sobre una vez en la que decir la verdad tenia un costo profesional. Como actuo?",
+      en: "Tell me about a time when telling the truth carried a professional cost. How did you act?",
+    },
+    "ethical-compliance": {
+      es: "Describa una situacion donde tuvo que defender una regla, politica o estandar etico bajo presion.",
+      en: "Describe a situation where you had to uphold a rule, policy, or ethical standard under pressure.",
+    },
+    "trust-reliability": {
+      es: "Cuénteme sobre una ocasion en la que no podia cumplir un compromiso tal como estaba acordado. Como manejo la confianza?",
+      en: "Tell me about a time you could not meet a commitment exactly as agreed. How did you protect trust?",
+    },
+    adaptability: {
+      es: "Describa un cambio inesperado que afecto su trabajo. Como reajusto prioridades y comunico el impacto?",
+      en: "Describe an unexpected change that affected your work. How did you reset priorities and communicate impact?",
+    },
+    "emotional-self-awareness": {
+      es: "Cuénteme sobre una situacion laboral donde reconocer su propia emocion cambio su respuesta.",
+      en: "Tell me about a work situation where recognizing your own emotion changed your response.",
+    },
+    "emotional-self-regulation": {
+      es: "Describa una conversacion tensa donde tuvo que controlar su primera reaccion para mantener efectividad.",
+      en: "Describe a tense conversation where you had to manage your first reaction to remain effective.",
+    },
+    "relationship-management": {
+      es: "Cuénteme sobre una relacion laboral que tuvo que reparar despues de un malentendido o conflicto.",
+      en: "Tell me about a work relationship you had to repair after a misunderstanding or conflict.",
+    },
+    "team-cooperation": {
+      es: "Describa una ocasion en la que puso el resultado del equipo por encima de su preferencia personal.",
+      en: "Describe a time when you put the team outcome ahead of your personal preference.",
+    },
+    "team-reliability": {
+      es: "Cuénteme sobre una vez en la que otros dependian de su entrega y aparecio un obstaculo. Que hizo?",
+      en: "Tell me about a time others depended on your delivery and an obstacle appeared. What did you do?",
+    },
+    "conflict-resolution": {
+      es: "Describa un desacuerdo laboral que resolvio directamente. Que hizo para separar el problema de lo personal?",
+      en: "Describe a work disagreement you resolved directly. What did you do to separate the issue from the personal dynamic?",
     },
   };
 
@@ -388,6 +448,7 @@ export function buildAssessmentIntelligence(options: BuildAssessmentIntelligence
     : confidence.limitations.slice(0, 3);
 
   return {
+    engineVersion: ASSESSMENT_INTELLIGENCE_ENGINE_VERSION,
     locale,
     completedAssessmentCount: assessments.length,
     evidenceSignals: signals,

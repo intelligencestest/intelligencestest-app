@@ -64,6 +64,141 @@ export const COMPETENCY_TAXONOMY: Record<CompetencyId, CompetencyDefinition> = {
       es: "Puede esta persona descomponer problemas, diagnosticar causas y elegir acciones viables?",
     },
   },
+  "professional-communication": {
+    id: "professional-communication",
+    label: { en: "Professional communication", es: "Comunicacion profesional" },
+    category: { en: "Communication", es: "Comunicacion" },
+    businessQuestion: {
+      en: "Can this candidate communicate clearly, adapt tone, and reduce misunderstanding at work?",
+      es: "Puede esta persona comunicarse con claridad, adaptar el tono y reducir malentendidos en el trabajo?",
+    },
+  },
+  "written-clarity": {
+    id: "written-clarity",
+    label: { en: "Written clarity", es: "Claridad escrita" },
+    category: { en: "Communication", es: "Comunicacion" },
+    businessQuestion: {
+      en: "Can this candidate structure written updates so others can act on them confidently?",
+      es: "Puede esta persona estructurar comunicaciones escritas para que otros actuen con confianza?",
+    },
+  },
+  "active-listening": {
+    id: "active-listening",
+    label: { en: "Active listening", es: "Escucha activa" },
+    category: { en: "Communication", es: "Comunicacion" },
+    businessQuestion: {
+      en: "Can this candidate listen accurately before responding or deciding?",
+      es: "Puede esta persona escuchar con precision antes de responder o decidir?",
+    },
+  },
+  "interpersonal-awareness": {
+    id: "interpersonal-awareness",
+    label: { en: "Interpersonal awareness", es: "Conciencia interpersonal" },
+    category: { en: "Communication", es: "Comunicacion" },
+    businessQuestion: {
+      en: "Can this candidate read social cues and adjust behavior appropriately?",
+      es: "Puede esta persona leer senales sociales y ajustar su conducta con criterio?",
+    },
+  },
+  "integrity-judgment": {
+    id: "integrity-judgment",
+    label: { en: "Integrity judgment", es: "Criterio de integridad" },
+    category: { en: "Integrity", es: "Integridad" },
+    businessQuestion: {
+      en: "Can this candidate choose transparent conduct when honesty has a cost?",
+      es: "Puede esta persona elegir una conducta transparente cuando la honestidad tiene costo?",
+    },
+  },
+  "ethical-compliance": {
+    id: "ethical-compliance",
+    label: { en: "Ethical compliance", es: "Cumplimiento etico" },
+    category: { en: "Integrity", es: "Integridad" },
+    businessQuestion: {
+      en: "Can this candidate uphold policy, fairness, and compliance under pressure?",
+      es: "Puede esta persona sostener politicas, equidad y cumplimiento bajo presion?",
+    },
+  },
+  "trust-reliability": {
+    id: "trust-reliability",
+    label: { en: "Trust reliability", es: "Confiabilidad" },
+    category: { en: "Integrity", es: "Integridad" },
+    businessQuestion: {
+      en: "Can this candidate protect trust through reliability, confidentiality, and timely disclosure?",
+      es: "Puede esta persona proteger la confianza mediante fiabilidad, confidencialidad y comunicacion oportuna?",
+    },
+  },
+  adaptability: {
+    id: "adaptability",
+    label: { en: "Adaptability", es: "Adaptabilidad" },
+    category: { en: "Judgment", es: "Juicio" },
+    businessQuestion: {
+      en: "Can this candidate adjust constructively when conditions, tools, or priorities change?",
+      es: "Puede esta persona ajustarse de forma constructiva cuando cambian condiciones, herramientas o prioridades?",
+    },
+  },
+  "emotional-self-awareness": {
+    id: "emotional-self-awareness",
+    label: { en: "Emotional self-awareness", es: "Autoconciencia emocional" },
+    category: { en: "Emotional intelligence", es: "Inteligencia emocional" },
+    businessQuestion: {
+      en: "Can this candidate recognize emotions and their impact before they distort behavior?",
+      es: "Puede esta persona reconocer emociones y su impacto antes de que distorsionen su conducta?",
+    },
+  },
+  "emotional-self-regulation": {
+    id: "emotional-self-regulation",
+    label: { en: "Emotional self-regulation", es: "Autorregulacion emocional" },
+    category: { en: "Emotional intelligence", es: "Inteligencia emocional" },
+    businessQuestion: {
+      en: "Can this candidate manage reactions under pressure without escalating situations?",
+      es: "Puede esta persona gestionar sus reacciones bajo presion sin escalar situaciones?",
+    },
+  },
+  "achievement-motivation": {
+    id: "achievement-motivation",
+    label: { en: "Achievement motivation", es: "Motivacion de logro" },
+    category: { en: "Emotional intelligence", es: "Inteligencia emocional" },
+    businessQuestion: {
+      en: "Can this candidate sustain initiative and constructive energy through slow progress?",
+      es: "Puede esta persona sostener iniciativa y energia constructiva ante avances lentos?",
+    },
+  },
+  "relationship-management": {
+    id: "relationship-management",
+    label: { en: "Relationship management", es: "Gestion de relaciones" },
+    category: { en: "Emotional intelligence", es: "Inteligencia emocional" },
+    businessQuestion: {
+      en: "Can this candidate build, repair, and influence working relationships constructively?",
+      es: "Puede esta persona construir, reparar e influir relaciones laborales de forma constructiva?",
+    },
+  },
+  "team-cooperation": {
+    id: "team-cooperation",
+    label: { en: "Team cooperation", es: "Cooperacion en equipo" },
+    category: { en: "Teamwork", es: "Trabajo en equipo" },
+    businessQuestion: {
+      en: "Can this candidate prioritize shared outcomes and support colleagues effectively?",
+      es: "Puede esta persona priorizar resultados compartidos y apoyar eficazmente a sus colegas?",
+    },
+  },
+  "team-reliability": {
+    id: "team-reliability",
+    label: { en: "Team reliability", es: "Fiabilidad en equipo" },
+    category: { en: "Teamwork", es: "Trabajo en equipo" },
+    businessQuestion: {
+      en: "Can this candidate follow through dependably when others rely on their work?",
+      es: "Puede esta persona cumplir con fiabilidad cuando otros dependen de su trabajo?",
+    },
+  },
+  "conflict-resolution": {
+    id: "conflict-resolution",
+    label: { en: "Conflict resolution", es: "Resolucion de conflictos" },
+    category: { en: "Teamwork", es: "Trabajo en equipo" },
+    businessQuestion: {
+      en: "Can this candidate address disagreement directly while preserving working relationships?",
+      es: "Puede esta persona abordar desacuerdos directamente preservando relaciones de trabajo?",
+    },
+  },
   "customer-empathy": {
     id: "customer-empathy",
     label: { en: "Customer empathy", es: "Empatia con clientes" },

@@ -34,6 +34,7 @@ interface BuildStructuredChoiceEvidenceOptions<D extends string> {
   scored: StructuredChoiceScore<D>;
   dimensions: Array<DimensionEvidenceConfig<D>>;
   limitation: LocalizedText;
+  rawEvidenceSummary?: string;
 }
 
 function safeId(value: string): string {
@@ -101,6 +102,7 @@ export function buildStructuredChoiceEvidence<D extends string>({
   scored,
   dimensions,
   limitation,
+  rawEvidenceSummary,
 }: BuildStructuredChoiceEvidenceOptions<D>): EvidenceSignal[] {
   const assessmentId = input.assessmentId ?? input.id ?? input.name;
   const label = localize(assessmentLabel, locale);
@@ -130,10 +132,9 @@ export function buildStructuredChoiceEvidence<D extends string>({
             ? "Puede requerir mayor validacion antes de usar esta evaluacion como apoyo para avanzar en el proceso."
             : "May require additional validation before using this assessment as support for advancing the process.",
       limitation: localize(limitation, locale),
-      rawEvidence:
-        locale === "es"
-          ? `${scored.correct}/${scored.total} respuestas correctas`
-          : `${scored.correct}/${scored.total} correct answers`,
+      rawEvidence: rawEvidenceSummary ?? (locale === "es"
+        ? `${scored.correct}/${scored.total} respuestas correctas`
+        : `${scored.correct}/${scored.total} correct answers`),
     },
   ];
 
