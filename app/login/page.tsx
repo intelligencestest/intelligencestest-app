@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
-import { LANGUAGE_OVERRIDE_COOKIE, LANGUAGE_OVERRIDE_STORAGE_KEY, LANGUAGE_STORAGE_KEY } from "@/lib/i18n/locales";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  LANGUAGE_OVERRIDE_COOKIE,
+  LANGUAGE_OVERRIDE_STORAGE_KEY,
+  LANGUAGE_STORAGE_KEY,
+  localePath,
+  toAppLocale,
+} from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -18,6 +24,7 @@ const GoogleIcon = () => (
 
 export default function LoginPage() {
   const router = useRouter();
+  const locale = toAppLocale(useLocale());
   const auth = useTranslations("auth");
   const flow = useTranslations("authFlow");
   const [email, setEmail] = useState("");
@@ -64,12 +71,16 @@ export default function LoginPage() {
       return;
     }
     // Workspace language is the single source of truth: clear any legacy
-    // personal override and sync the session language from the company.
+    // personal override and sync the session language from the company. The
+    // company language then decides whether the dashboard lives under /es.
     window.localStorage.removeItem(LANGUAGE_OVERRIDE_STORAGE_KEY);
     window.localStorage.removeItem(LANGUAGE_STORAGE_KEY);
     document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=; path=/; max-age=0; samesite=lax`;
-    await fetch("/api/auth/session-language", { method: "POST" }).catch(() => null);
-    router.push("/dashboard");
+    const sync = await fetch("/api/auth/session-language", { method: "POST" })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+    const companyLocale = toAppLocale(sync?.language, locale);
+    router.push(localePath("/dashboard", companyLocale));
     router.refresh();
   };
 
@@ -79,7 +90,7 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?lang=${locale}`,
         queryParams: { prompt: "select_account" },
       },
     });
@@ -157,7 +168,7 @@ export default function LoginPage() {
                 <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("welcomeBack")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("noAccountYet")}{" "}
-                  <Link href="/select-language" className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
+                  <Link href={localePath("/signup", locale)} className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
                     {auth("createOneFree")}
                   </Link>
                 </p>
@@ -223,7 +234,7 @@ export default function LoginPage() {
                 <div>
                   <div className="mb-2 flex items-center justify-between">
                     <label className="text-sm font-medium text-slate-300">{auth("password")}</label>
-                    <Link href="/forgot-password" className="text-xs text-slate-500 hover:text-[#6B9FFF] transition-colors">
+                    <Link href={localePath("/forgot-password", locale)} className="text-xs text-slate-500 hover:text-[#6B9FFF] transition-colors">
                       {auth("forgotPassword")}
                     </Link>
                   </div>

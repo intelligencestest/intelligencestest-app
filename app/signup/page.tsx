@@ -2,16 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import {
-  LANGUAGE_COOKIE,
-  LANGUAGE_COOKIE_MAX_AGE,
-  LANGUAGE_OVERRIDE_COOKIE,
-  LANGUAGE_OVERRIDE_STORAGE_KEY,
-  LANGUAGE_STORAGE_KEY,
-  toAppLocale,
-} from "@/lib/i18n/locales";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -38,15 +31,11 @@ const Logo = ({ subtitle }: { subtitle: string }) => (
   </div>
 );
 
-function getCookieValue(name: string) {
-  return document.cookie
-    .split("; ")
-    .find((row) => row.startsWith(`${name}=`))
-    ?.split("=")?.[1];
-}
-
 export default function SignupPage() {
   const router = useRouter();
+  // The entry URL decides the workspace language: /es/signup -> es, /signup -> en.
+  // The proxy forces this locale for the request, so it is authoritative here.
+  const language = toAppLocale(useLocale());
   const auth = useTranslations("auth");
   const onboarding = useTranslations("onboarding");
   const flow = useTranslations("authFlow");
@@ -88,16 +77,6 @@ export default function SignupPage() {
       return;
     }
 
-    const savedLanguage =
-      window.localStorage.getItem(LANGUAGE_OVERRIDE_STORAGE_KEY) === "1"
-        ? window.localStorage.getItem(LANGUAGE_STORAGE_KEY)
-        : getCookieValue(LANGUAGE_COOKIE);
-    const language = toAppLocale(savedLanguage);
-    document.cookie = `${LANGUAGE_COOKIE}=${language}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
-    document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=1; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE}; samesite=lax`;
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-    window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
-
     setLoading(true);
     const res = await fetch("/api/auth/signup", {
       method: "POST",
@@ -118,7 +97,9 @@ export default function SignupPage() {
       return;
     }
 
-    router.push(`/verify-email?email=${encodeURIComponent(form.email)}&lang=${language}`);
+    router.push(
+      localePath(`/verify-email?email=${encodeURIComponent(form.email)}&lang=${language}`, language)
+    );
   };
 
   const handleGoogle = async () => {
@@ -127,7 +108,7 @@ export default function SignupPage() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?lang=${language}`,
         queryParams: { prompt: "select_account" },
       },
     });
@@ -180,7 +161,7 @@ export default function SignupPage() {
                 <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("createAccount")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("alreadyHaveAccount")}{" "}
-                  <Link href="/login" className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
+                  <Link href={localePath("/login", language)} className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
                     {auth("signIn")}
                   </Link>
                 </p>

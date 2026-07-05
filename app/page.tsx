@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import { PublicFooter, PublicHeader, SignalBoard } from "@/components/public/PublicSite";
-import { toAppLocale } from "@/lib/i18n/locales";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { getPublicCopy } from "@/lib/public-site-copy";
 
 function FeatureIcon({ index }: { index: string }) {
@@ -53,7 +53,7 @@ export default async function Home() {
             </p>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
-                href="/signup"
+                href={localePath("/signup", locale)}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(29,78,216,0.4)] transition hover:bg-[#1e40af] focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/70"
               >
                 {copy.home.primaryCta}
@@ -62,7 +62,7 @@ export default async function Home() {
                 </svg>
               </Link>
               <Link
-                href="/#assessments"
+                href={`${localePath("/", locale)}#assessments`}
                 className="inline-flex items-center justify-center rounded-xl border border-[#1E2240] bg-[#0D1020]/60 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-[#2d3a70] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/60"
               >
                 {copy.home.secondaryCta}
@@ -119,7 +119,7 @@ export default async function Home() {
             <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.assessmentsTitle}</h2>
             <p className="mt-5 text-base leading-7 text-slate-400">{copy.home.assessmentsBody}</p>
             <Link
-              href="/signup"
+              href={localePath("/signup", locale)}
               className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#8CB1FF] transition hover:text-white"
             >
               {copy.home.primaryCta}
@@ -181,7 +181,7 @@ export default async function Home() {
               <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-400">{copy.home.finalBody}</p>
               <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
                 <Link
-                  href="/signup"
+                  href={localePath("/signup", locale)}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(29,78,216,0.4)] transition hover:bg-[#1e40af]"
                 >
                   {copy.home.primaryCta}
@@ -190,7 +190,7 @@ export default async function Home() {
                   </svg>
                 </Link>
                 <Link
-                  href="/contact"
+                  href={localePath("/contact", locale)}
                   className="inline-flex items-center justify-center rounded-xl border border-[#1E2240] bg-[#07080F]/60 px-6 py-3.5 text-sm font-semibold text-white transition hover:border-[#2d3a70]"
                 >
                   {copy.nav.contact}

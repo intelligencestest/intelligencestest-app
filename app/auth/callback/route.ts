@@ -5,6 +5,7 @@ import {
   LANGUAGE_COOKIE,
   LANGUAGE_COOKIE_MAX_AGE,
   LANGUAGE_OVERRIDE_COOKIE,
+  localePath,
   toAppLocale,
 } from "@/lib/i18n/locales";
 
@@ -12,6 +13,9 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/dashboard";
+  // Entry-language hint carried from /es signup/login OAuth; used only until we
+  // can read the workspace language from the company row.
+  const langHint = searchParams.get("lang");
 
   // Behind a reverse proxy (Nginx → Node on localhost:3000), request.url has
   // the wrong host. Reconstruct the public origin from forwarded headers, with
@@ -74,7 +78,9 @@ export async function GET(request: NextRequest) {
 
     // Workspace language is the single source of truth: the lang cookie is
     // only a cache of company.language, and personal overrides are cleared.
-    let nextLocale = toAppLocale(request.cookies.get(LANGUAGE_COOKIE)?.value);
+    // For a brand-new OAuth signup (no company yet), fall back to the entry-URL
+    // hint so a /es signup lands in Spanish onboarding.
+    let nextLocale = toAppLocale(langHint ?? request.cookies.get(LANGUAGE_COOKIE)?.value);
 
     if (userRow?.company_id) {
       const { data: company } = await admin
@@ -92,7 +98,11 @@ export async function GET(request: NextRequest) {
     });
     response.cookies.set(LANGUAGE_OVERRIDE_COOKIE, "", { path: "/", maxAge: 0 });
 
-    response.headers.set("Location", new URL(destination, origin).toString());
+    // Spanish workspaces live under /es; English stays unprefixed.
+    response.headers.set(
+      "Location",
+      new URL(localePath(destination, nextLocale), origin).toString()
+    );
     return response;
 
   } catch (err) {

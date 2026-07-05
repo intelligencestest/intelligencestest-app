@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { getLocale } from "next-intl/server";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import type { PublicCopy } from "@/lib/public-site-copy";
 
 function BrandMark() {
@@ -17,24 +19,27 @@ function BrandMark() {
   );
 }
 
-export function PublicHeader({ copy }: { copy: PublicCopy }) {
+export async function PublicHeader({ copy }: { copy: PublicCopy }) {
+  // Keep Spanish visitors under /es so their entry language carries into signup.
+  const locale = toAppLocale(await getLocale());
+  const home = localePath("/", locale);
   return (
     <header className="sticky top-0 z-40 border-b border-[#1E2240] bg-[#07080F]/92 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
-        <Link href="/" aria-label="Intelligences Test home">
+        <Link href={home} aria-label="Intelligences Test home">
           <BrandMark />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-400 lg:flex" aria-label={copy.nav.primaryAria}>
-          <a href="/#features" className="transition hover:text-white">{copy.nav.features}</a>
-          <a href="/#assessments" className="transition hover:text-white">{copy.nav.assessments}</a>
-          <a href="/#faq" className="transition hover:text-white">{copy.nav.faq}</a>
-          <Link href="/contact" className="transition hover:text-white">{copy.nav.contact}</Link>
+          <a href={`${home}#features`} className="transition hover:text-white">{copy.nav.features}</a>
+          <a href={`${home}#assessments`} className="transition hover:text-white">{copy.nav.assessments}</a>
+          <a href={`${home}#faq`} className="transition hover:text-white">{copy.nav.faq}</a>
+          <Link href={localePath("/contact", locale)} className="transition hover:text-white">{copy.nav.contact}</Link>
         </nav>
         <div className="flex items-center gap-2.5">
-          <Link href="/login" className="hidden rounded-lg border border-[#1E2240] px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:border-[#2d3a70] hover:text-white sm:inline-flex">
+          <Link href={localePath("/login", locale)} className="hidden rounded-lg border border-[#1E2240] px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:border-[#2d3a70] hover:text-white sm:inline-flex">
             {copy.nav.login}
           </Link>
-          <Link href="/signup" className="rounded-lg bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_0_24px_rgba(29,78,216,0.35)] transition hover:bg-[#1e40af]">
+          <Link href={localePath("/signup", locale)} className="rounded-lg bg-[#1D4ED8] px-3.5 py-2 text-sm font-semibold text-white shadow-[0_0_24px_rgba(29,78,216,0.35)] transition hover:bg-[#1e40af]">
             {copy.nav.demo}
           </Link>
         </div>
@@ -43,7 +48,8 @@ export function PublicHeader({ copy }: { copy: PublicCopy }) {
   );
 }
 
-export function PublicFooter({ copy }: { copy: PublicCopy }) {
+export async function PublicFooter({ copy }: { copy: PublicCopy }) {
+  const locale = toAppLocale(await getLocale());
   return (
     <footer className="border-t border-[#1E2240] bg-[#07080F]">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-6 md:grid-cols-[1fr_1fr] lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
@@ -54,9 +60,9 @@ export function PublicFooter({ copy }: { copy: PublicCopy }) {
         <div>
           <p className="text-sm font-semibold text-white">{copy.footer.product}</p>
           <ul className="mt-4 space-y-3 text-sm text-slate-400">
-            <li><Link href="/signup" className="hover:text-white">{copy.nav.signup}</Link></li>
-            <li><Link href="/login" className="hover:text-white">{copy.nav.login}</Link></li>
-            <li><Link href="/contact" className="hover:text-white">{copy.nav.contact}</Link></li>
+            <li><Link href={localePath("/signup", locale)} className="hover:text-white">{copy.nav.signup}</Link></li>
+            <li><Link href={localePath("/login", locale)} className="hover:text-white">{copy.nav.login}</Link></li>
+            <li><Link href={localePath("/contact", locale)} className="hover:text-white">{copy.nav.contact}</Link></li>
           </ul>
         </div>
         <div>

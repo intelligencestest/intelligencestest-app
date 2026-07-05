@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import { localePath, stripLocalePrefix, toAppLocale } from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 
 const navItems = [
@@ -85,20 +86,24 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
   const router = useRouter();
   const nav = useTranslations("nav");
   const auth = useTranslations("auth");
-  const es = useLocale() === "es";
+  const locale = toAppLocale(useLocale());
+  const es = locale === "es";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
+  // Compare against the logical path so /es/projects highlights the same item
+  // as /projects. Links themselves keep the /es prefix for Spanish workspaces.
+  const logicalPath = stripLocalePrefix(pathname);
   const isActive = (href: string) => {
-    if (href === "/dashboard") return pathname === "/dashboard";
-    return pathname.startsWith(href);
+    if (href === "/dashboard") return logicalPath === "/dashboard";
+    return logicalPath.startsWith(href);
   };
 
   const handleLogout = async () => {
     setLoggingOut(true);
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/login");
+    router.push(localePath("/login", locale));
     router.refresh();
   };
 
@@ -129,7 +134,7 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
           return (
             <Link
               key={item.href}
-              href={item.href}
+              href={localePath(item.href, locale)}
               onClick={() => setMobileOpen(false)}
               className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 active

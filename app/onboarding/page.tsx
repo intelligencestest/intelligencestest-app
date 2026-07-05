@@ -9,6 +9,7 @@ import {
   LANGUAGE_OVERRIDE_COOKIE,
   LANGUAGE_OVERRIDE_STORAGE_KEY,
   LANGUAGE_STORAGE_KEY,
+  localePath,
   toAppLocale,
 } from "@/lib/i18n/locales";
 
@@ -75,7 +76,8 @@ export default function OnboardingPage() {
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, form.language);
     window.localStorage.setItem(LANGUAGE_OVERRIDE_STORAGE_KEY, "1");
 
-    router.push("/dashboard");
+    // The chosen workspace language decides whether the dashboard lives under /es.
+    router.push(localePath("/dashboard", toAppLocale(form.language)));
     router.refresh();
   };
 
