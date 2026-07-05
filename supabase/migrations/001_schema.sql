@@ -34,7 +34,7 @@ CREATE TABLE hiring_projects (
 
 CREATE TABLE assessments (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
+  name TEXT NOT NULL UNIQUE,
   category TEXT NOT NULL,
   description TEXT,
   duration_minutes INTEGER,

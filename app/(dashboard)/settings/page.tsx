@@ -49,11 +49,10 @@ export default function SettingsPage() {
           { key: "weeklyDigest", label: "Resumen semanal", desc: "Resumen de la actividad de evaluación enviado cada lunes" },
         ],
         teamMembers: "Miembros del equipo",
-        inviteMember: "Invitar miembro",
-        owner: "Propietario",
-        recruiter: "Reclutador/a",
+        teamMembersComingSoon: "La invitación y gestión de roles de miembros del equipo estará disponible próximamente. Por ahora, todos los usuarios del espacio de trabajo comparten acceso de administrador.",
         dangerZone: "Zona de riesgo",
         dangerText: "Estas acciones son irreversibles. Proceda con cautela.",
+        dangerComingSoon: "Próximamente",
         deleteData: "Eliminar todos los datos de evaluación",
         closeAccount: "Cerrar cuenta",
         saveChanges: "Guardar cambios",
@@ -88,11 +87,10 @@ export default function SettingsPage() {
           { key: "weeklyDigest", label: "Weekly digest", desc: "A summary of all assessment activity sent every Monday" },
         ],
         teamMembers: "Team Members",
-        inviteMember: "Invite member",
-        owner: "Owner",
-        recruiter: "Recruiter",
+        teamMembersComingSoon: "Team member invitations and role management are coming soon. For now, all workspace users share admin access.",
         dangerZone: "Danger Zone",
         dangerText: "These actions are irreversible. Please proceed with caution.",
+        dangerComingSoon: "Coming soon",
         deleteData: "Delete All Assessment Data",
         closeAccount: "Close Account",
         saveChanges: "Save Changes",
@@ -357,30 +355,8 @@ export default function SettingsPage() {
 
       {/* Team members */}
       <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
-        <div className="flex items-center justify-between border-b border-[#1E2240] pb-3 mb-4">
-          <h2 className="text-base font-semibold text-white">{copy.teamMembers}</h2>
-          <button className="text-xs text-[#6B9FFF] hover:text-blue-300 transition-colors font-medium">
-            + {copy.inviteMember}
-          </button>
-        </div>
-        <div className="space-y-3">
-          {[
-            { name: "HR Admin", email: "admin@company.com", role: copy.owner, avatar: "HR", color: "bg-[#1D4ED8]/20 text-[#6B9FFF] border-[#1D4ED8]/30" },
-            { name: "Sarah Kowalski", email: "s.kowalski@company.com", role: copy.recruiter, avatar: "SK", color: "bg-violet-500/20 text-violet-400 border-violet-500/30" },
-            { name: "David Park", email: "d.park@company.com", role: copy.recruiter, avatar: "DP", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-          ].map((member) => (
-            <div key={member.email} className="flex items-center gap-3 py-2">
-              <div className={`w-9 h-9 rounded-full border flex items-center justify-center text-xs font-semibold flex-shrink-0 ${member.color}`}>
-                {member.avatar}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white">{member.name}</p>
-                <p className="text-xs text-slate-500">{member.email}</p>
-              </div>
-              <span className="text-xs bg-[#1E2240] text-slate-400 px-2.5 py-1 rounded-full">{member.role}</span>
-            </div>
-          ))}
-        </div>
+        <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3 mb-4">{copy.teamMembers}</h2>
+        <p className="text-sm leading-6 text-slate-500">{copy.teamMembersComingSoon}</p>
       </div>
 
       {/* Billing placeholder */}
@@ -394,11 +370,21 @@ export default function SettingsPage() {
         <h2 className="text-base font-semibold text-red-400 mb-3">{copy.dangerZone}</h2>
         <p className="text-sm text-slate-500 mb-4">{copy.dangerText}</p>
         <div className="flex flex-col sm:flex-row gap-3">
-          <button className="px-4 py-2.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors">
-            {copy.deleteData}
+          <button
+            type="button"
+            disabled
+            title={copy.dangerComingSoon}
+            className="px-4 py-2.5 rounded-lg border border-red-500/30 text-red-400 text-sm font-medium cursor-not-allowed opacity-50"
+          >
+            {copy.deleteData} · {copy.dangerComingSoon}
           </button>
-          <button className="px-4 py-2.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-medium transition-colors">
-            {copy.closeAccount}
+          <button
+            type="button"
+            disabled
+            title={copy.dangerComingSoon}
+            className="px-4 py-2.5 rounded-lg border border-red-500/30 text-red-400 text-sm font-medium cursor-not-allowed opacity-50"
+          >
+            {copy.closeAccount} · {copy.dangerComingSoon}
           </button>
         </div>
       </div>
