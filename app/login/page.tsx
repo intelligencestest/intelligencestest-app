@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -24,7 +24,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState(false);
+  const [recoveryRedirecting, setRecoveryRedirecting] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""));
+    const hasRecoveryToken =
+      url.searchParams.get("type") === "recovery" ||
+      hashParams.get("type") === "recovery" ||
+      Boolean(url.searchParams.get("code")) ||
+      Boolean(hashParams.get("access_token") && hashParams.get("refresh_token"));
+
+    if (!hasRecoveryToken) return;
+
+    setRecoveryRedirecting(true);
+    window.location.replace(`/reset-password${url.search}${url.hash}`);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,6 +187,12 @@ export default function LoginPage() {
                 <span className="h-px flex-1 bg-[#1E2240]" />
               </div>
 
+              {recoveryRedirecting && (
+                <div className="mb-5 rounded-xl border border-[#1E2240] bg-[#07080F] p-4 text-sm text-slate-300">
+                  {flow("preparingPasswordReset")}
+                </div>
+              )}
+
               {error && (
                 <div className="mb-5 flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
                   <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -180,6 +202,7 @@ export default function LoginPage() {
                 </div>
               )}
 
+              {!recoveryRedirecting && (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-300">{auth("emailAddress")}</label>
@@ -236,6 +259,7 @@ export default function LoginPage() {
                   )}
                 </button>
               </form>
+              )}
 
               <div className="mt-6 border-t border-[#1E2240] pt-5">
                 <div className="flex items-center justify-between text-xs text-slate-500">
