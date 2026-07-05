@@ -46,8 +46,8 @@ export default function LoginPage() {
     if (!hasRecoveryToken) return;
 
     setRecoveryRedirecting(true);
-    window.location.replace(`/reset-password${url.search}${url.hash}`);
-  }, []);
+    window.location.replace(`${localePath("/reset-password", locale)}${url.search}${url.hash}`);
+  }, [locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

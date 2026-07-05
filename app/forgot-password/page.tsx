@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 
 export default function ForgotPasswordPage() {
-  const locale = useLocale();
+  const locale = toAppLocale(useLocale());
   const auth = useTranslations("auth");
   const flow = useTranslations("authFlow");
   const [email, setEmail] = useState("");
@@ -62,7 +63,7 @@ export default function ForgotPasswordPage() {
               <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-300">
                 {flow("resetLinkSent")}
               </div>
-              <Link href="/login" className="block text-xs text-slate-500 hover:text-slate-300 transition-colors">
+              <Link href={localePath("/login", locale)} className="block text-xs text-slate-500 hover:text-slate-300 transition-colors">
                 ← {flow("backToSignIn")}
               </Link>
             </div>
@@ -104,7 +105,7 @@ export default function ForgotPasswordPage() {
                 </button>
               </form>
               <div className="mt-5 text-center">
-                <Link href="/login" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+                <Link href={localePath("/login", locale)} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
                   ← {flow("backToSignIn")}
                 </Link>
               </div>

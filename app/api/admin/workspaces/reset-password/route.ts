@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendAuthEmail } from "@/lib/auth-email";
-import { toAppLocale } from "@/lib/i18n/locales";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { logAdminAction, requireInternalAdminForApi } from "@/lib/internal-admin";
 
 const APP_URL = "https://app.intelligencestest.com";
@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
     type: "recovery",
     email: target.email,
     options: {
-      redirectTo: `${APP_URL}/reset-password`,
+      redirectTo: `${APP_URL}${localePath("/reset-password", locale)}`,
     },
   });
 

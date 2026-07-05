@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 
 export default function ResetPasswordPage() {
   const router = useRouter();
+  const locale = toAppLocale(useLocale());
   const flow = useTranslations("authFlow");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -42,7 +44,7 @@ export default function ResetPasswordPage() {
       }
 
       if (url.search || url.hash) {
-        window.history.replaceState(null, "", "/reset-password");
+        window.history.replaceState(null, "", localePath("/reset-password", locale));
       }
 
       if (!mounted) return;
@@ -71,7 +73,7 @@ export default function ResetPasswordPage() {
     return () => {
       mounted = false;
     };
-  }, [flow]);
+  }, [flow, locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,7 +98,7 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(localePath("/dashboard", locale));
     router.refresh();
   };
 
@@ -132,7 +134,7 @@ export default function ResetPasswordPage() {
           {status === "invalid" && (
             <button
               type="button"
-              onClick={() => router.push("/forgot-password")}
+              onClick={() => router.push(localePath("/forgot-password", locale))}
               className="flex w-full items-center justify-center rounded-xl bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
             >
               {flow("requestNewResetLink")}

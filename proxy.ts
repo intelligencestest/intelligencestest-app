@@ -30,7 +30,7 @@ const AUTH_PAGES = ["/login", "/signup"];
 // Unprefixed public entry pages that must render in English regardless of any
 // stale cookie, mirroring how /es forces Spanish. Their Spanish counterparts
 // are reached via the /es prefix instead.
-const ENGLISH_ENTRY = ["/login", "/signup"];
+const ENGLISH_ENTRY = ["/login", "/signup", "/forgot-password", "/reset-password", "/verify-email"];
 
 export async function proxy(request: NextRequest) {
   const rawPathname = request.nextUrl.pathname;
