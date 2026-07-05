@@ -1,6 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
-import { PublicFooter, PublicHeader, SignalBoard } from "@/components/public/PublicSite";
+import { PublicFooter, PublicHeader } from "@/components/public/PublicSite";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { getPublicCopy } from "@/lib/public-site-copy";
 
@@ -39,8 +40,24 @@ export default async function Home() {
           }}
           aria-hidden="true"
         />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
-          <div className="animate-fade-up">
+        {/* Premium hero visual (lg+): assessment panels sit on the right, the
+            headline reads over the dark negative space on the left. */}
+        <div className="absolute inset-0 hidden lg:block" aria-hidden="true">
+          <Image
+            src="/home-hero-intelligence-platform.png"
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-right"
+          />
+          {/* Left-to-right scrim keeps the headline crisp over the panels. */}
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#07080F_0%,#07080F_28%,rgba(7,8,15,0.86)_46%,rgba(7,8,15,0.35)_68%,rgba(7,8,15,0)_100%)]" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#07080F] to-transparent" />
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <div className="animate-fade-up max-w-2xl">
             <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#28345F] bg-[#0D1020]/90 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
               {copy.home.eyebrow}
@@ -87,12 +104,6 @@ export default async function Home() {
                 </div>
               ))}
             </dl>
-          </div>
-          <div className="relative hidden lg:block" aria-hidden="false">
-            <div className="absolute -inset-10 rounded-[40px] bg-[radial-gradient(ellipse_at_center,rgba(29,78,216,0.16),transparent_65%)]" aria-hidden="true" />
-            <div className="gradient-ring relative rounded-2xl p-1.5">
-              <SignalBoard copy={copy} />
-            </div>
           </div>
         </div>
       </section>
