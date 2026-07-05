@@ -41,36 +41,47 @@ export default async function Home() {
         />
         <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
           <div className="animate-fade-up">
-            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020]/80 px-3.5 py-1.5 text-xs font-medium text-[#9BB8FF]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#6B9FFF]" aria-hidden="true" />
+            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#28345F] bg-[#0D1020]/90 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.16em] text-[#9BB8FF]">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
               {copy.home.eyebrow}
             </p>
-            <h1 className="headline-gradient max-w-2xl text-[2.6rem] font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+            <h1 className="max-w-3xl text-[2.65rem] font-semibold leading-[1.02] tracking-tight text-white sm:text-5xl lg:text-[4rem]">
               {copy.home.heroTitle}
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-400">
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
               {copy.home.heroBody}
             </p>
+            <div className="mt-8 grid max-w-2xl gap-3 text-sm leading-6 text-slate-300 sm:grid-cols-3">
+              {copy.home.proofPoints.map((point) => (
+                <div key={point} className="flex items-start gap-2 rounded-xl border border-[#1E2240] bg-[#0D1020]/68 px-3.5 py-3">
+                  <svg className="mt-0.5 h-4 w-4 shrink-0 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4.5 12.75 5.25 5.25 9.75-12" />
+                  </svg>
+                  <span>{point}</span>
+                </div>
+              ))}
+            </div>
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
-                href={localePath("/signup", locale)}
+                href={localePath("/demo", locale)}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(29,78,216,0.4)] transition hover:bg-[#1e40af] focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/70"
               >
-                {copy.home.primaryCta}
+                {copy.home.heroPrimaryCta}
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                 </svg>
               </Link>
               <Link
-                href={`${localePath("/", locale)}#assessments`}
+                href={localePath("/signup", locale)}
                 className="inline-flex items-center justify-center rounded-xl border border-[#1E2240] bg-[#0D1020]/60 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-[#2d3a70] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/60"
               >
-                {copy.home.secondaryCta}
+                {copy.home.heroSecondaryCta}
               </Link>
             </div>
-            <dl className="mt-12 flex max-w-xl divide-x divide-[#1E2240] border-t border-[#1E2240] pt-6">
-              {copy.home.stats.map((stat, i) => (
-                <div key={stat.label} className={i === 0 ? "pr-8" : "px-8"}>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-slate-500">{copy.home.heroTrust}</p>
+            <dl className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
+              {copy.home.stats.map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-[#1E2240] bg-[#0D1020]/72 p-4">
                   <dt className="text-2xl font-semibold tracking-tight text-white">{stat.value}</dt>
                   <dd className="mt-1 text-[13px] leading-5 text-slate-400">{stat.label}</dd>
                 </div>

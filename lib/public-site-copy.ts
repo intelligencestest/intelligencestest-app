@@ -18,6 +18,10 @@ type PublicCopyInternal = {
     eyebrow: string;
     heroTitle: string;
     heroBody: string;
+    heroPrimaryCta: string;
+    heroSecondaryCta: string;
+    heroTrust: string;
+    proofPoints: string[];
     primaryCta: string;
     secondaryCta: string;
     stats: Array<{ value: string; label: string }>;
@@ -110,16 +114,24 @@ const es: PublicCopyInternal = {
     rights: "© 2026 IntelligencesTest. Todos los derechos reservados.",
   },
   home: {
-    eyebrow: "B2B para selección y consultoría HR",
-    heroTitle: "Evaluaciones psicométricas para decisiones de selección más claras",
+    eyebrow: "Plataforma B2B de inteligencia de talento",
+    heroTitle: "Decisiones de selección defendibles, basadas en evidencia",
     heroBody:
-      "Invite candidatos, combine pruebas cognitivas y conductuales, y revise resultados en un espacio de trabajo diseñado para agencias de reclutamiento, pymes, call centers y consultoras de RR. HH.",
+      "IntelligencesTest ayuda a equipos de selección a evaluar candidatos con pruebas cognitivas, conductuales y laborales, convertir resultados en señales comparables y revisar cada decisión con trazabilidad.",
+    heroPrimaryCta: "Solicitar una demo",
+    heroSecondaryCta: "Crear cuenta",
+    heroTrust: "Diseñado para agencias de reclutamiento, pymes, call centers y consultoras de RR. HH.",
+    proofPoints: [
+      "Invitaciones seguras sin cuenta para candidatos",
+      "Informes ejecutivos con recomendaciones explicables",
+      "Experiencia en español e inglés para equipos LATAM",
+    ],
     primaryCta: "Comenzar ahora",
     secondaryCta: "Ver evaluaciones",
     stats: [
-      { value: "22+", label: "evaluaciones activas" },
-      { value: "ES/EN", label: "experiencia bilingüe" },
-      { value: "7 días", label: "enlaces seguros" },
+      { value: "30", label: "evaluaciones por rol" },
+      { value: "ES/EN", label: "operación bilingüe" },
+      { value: "7 días", label: "enlaces de invitación seguros" },
     ],
     boardAria: "Vista previa del flujo de evaluación",
     boardTitle: "Operación de evaluaciones",
@@ -260,16 +272,24 @@ const en: PublicCopyInternal = {
     rights: "© 2026 IntelligencesTest. All rights reserved.",
   },
   home: {
-    eyebrow: "B2B for recruitment and HR consulting",
-    heroTitle: "Psychometric assessments for clearer hiring decisions",
+    eyebrow: "B2B talent intelligence platform",
+    heroTitle: "Defensible hiring decisions, backed by assessment evidence",
     heroBody:
-      "Invite candidates, combine cognitive and behavioral tests, and review results in a workspace built for recruitment agencies, SMEs, call centers, and HR consulting firms.",
+      "IntelligencesTest helps hiring teams assess candidates with cognitive, behavioral, and workplace tests, turn results into comparable signals, and review every decision with traceability.",
+    heroPrimaryCta: "Request a demo",
+    heroSecondaryCta: "Create account",
+    heroTrust: "Built for recruitment agencies, SMEs, call centers, and HR consulting firms.",
+    proofPoints: [
+      "Secure candidate invitations with no candidate account required",
+      "Executive reports with explainable hiring recommendations",
+      "Spanish and English experience for LATAM-ready teams",
+    ],
     primaryCta: "Start now",
     secondaryCta: "Explore assessments",
     stats: [
-      { value: "22+", label: "active assessments" },
-      { value: "ES/EN", label: "bilingual experience" },
-      { value: "7 days", label: "secure links" },
+      { value: "30", label: "role-based assessments" },
+      { value: "ES/EN", label: "bilingual operations" },
+      { value: "7 days", label: "secure invite links" },
     ],
     boardAria: "Assessment workflow preview",
     boardTitle: "Assessment operations",
