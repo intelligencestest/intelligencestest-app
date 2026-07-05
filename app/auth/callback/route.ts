@@ -23,6 +23,10 @@ export async function GET(request: NextRequest) {
     siteUrl ??
     (fwdHost ? `${fwdProto}://${fwdHost}` : new URL(request.url).origin);
 
+  if (!code && next === "/reset-password") {
+    return NextResponse.redirect(new URL("/reset-password", origin));
+  }
+
   if (!code) {
     return NextResponse.redirect(new URL("/login?error=no_code", origin));
   }

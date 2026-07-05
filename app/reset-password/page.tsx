@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { createClient } from "@/lib/supabase";
 
@@ -11,7 +11,67 @@ export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<"checking" | "ready" | "invalid">("checking");
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    let mounted = true;
+    const supabase = createClient();
+
+    async function prepareRecoverySession() {
+      setStatus("checking");
+      setError("");
+
+      const url = new URL(window.location.href);
+      const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const code = url.searchParams.get("code");
+
+      let sessionError: string | null = null;
+
+      if (accessToken && refreshToken) {
+        const { error: setSessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        sessionError = setSessionError?.message ?? null;
+      } else if (code) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        sessionError = exchangeError?.message ?? null;
+      }
+
+      if (url.search || url.hash) {
+        window.history.replaceState(null, "", "/reset-password");
+      }
+
+      if (!mounted) return;
+
+      if (sessionError) {
+        setError(flow("resetSessionError"));
+        setStatus("invalid");
+        return;
+      }
+
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!mounted) return;
+
+      if (!session) {
+        setError(flow("resetLinkInvalid"));
+        setStatus("invalid");
+        return;
+      }
+
+      setStatus("ready");
+    }
+
+    void prepareRecoverySession();
+
+    return () => {
+      mounted = false;
+    };
+  }, [flow]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +123,23 @@ export default function ResetPasswordPage() {
             </div>
           )}
 
+          {status === "checking" && (
+            <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-4 text-sm text-slate-300">
+              {flow("preparingPasswordReset")}
+            </div>
+          )}
+
+          {status === "invalid" && (
+            <button
+              type="button"
+              onClick={() => router.push("/forgot-password")}
+              className="flex w-full items-center justify-center rounded-xl bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+            >
+              {flow("requestNewResetLink")}
+            </button>
+          )}
+
+          {status === "ready" && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-slate-300">{flow("newPassword")}</label>
@@ -104,6 +181,7 @@ export default function ResetPasswordPage() {
               )}
             </button>
           </form>
+          )}
         </div>
       </div>
     </div>
