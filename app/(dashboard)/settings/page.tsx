@@ -45,6 +45,7 @@ function usageTone(used: number, limit: number | null) {
 
 export default function SettingsPage() {
   const t = useTranslations("settings");
+  const billingT = useTranslations("billing");
   const currentLocale = useLocale() === "es" ? "es" : "en";
   const es = currentLocale === "es";
   const copy = es
@@ -319,9 +320,20 @@ export default function SettingsPage() {
 
   const planName = planData
     ? planData.planId
-      ? copy.planNames[planData.planId as PlanId]
+      ? {
+          trial: copy.planNames.trial,
+          starter: billingT("starterPlanLabel"),
+          professional: billingT("professionalPlanLabel"),
+          enterprise: copy.planNames.enterprise,
+        }[planData.planId as PlanId]
       : copy.legacyPlan(planData.plan)
     : "";
+  const planPriceLine =
+    planData?.planId === "starter" || planData?.planId === "professional"
+      ? null
+      : planData?.priceEur !== null && planData?.priceEur !== undefined
+        ? copy.priceMonthly(planData.priceEur)
+        : copy.priceContact;
   const subscriptionStatusKey = planData?.subscriptionStatus as keyof typeof copy.subscriptionLabels | undefined;
   const subscriptionStatusLabel =
     subscriptionStatusKey && copy.subscriptionLabels[subscriptionStatusKey]
@@ -516,9 +528,7 @@ export default function SettingsPage() {
               <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
                 <p className="text-xs uppercase tracking-wider text-slate-600">{copy.planLabel}</p>
                 <p className="mt-1 text-lg font-semibold text-slate-100">{planName}</p>
-                <p className="mt-0.5 text-sm text-slate-500">
-                  {planData.priceEur !== null ? copy.priceMonthly(planData.priceEur) : copy.priceContact}
-                </p>
+                {planPriceLine ? <p className="mt-0.5 text-sm text-slate-500">{planPriceLine}</p> : null}
               </div>
               <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
                 <p className="text-xs uppercase tracking-wider text-slate-600">{copy.subscriptionLabel}</p>
