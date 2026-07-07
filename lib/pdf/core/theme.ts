@@ -1,8 +1,25 @@
 import type { PdfTheme, PdfThemeInput, ScoreTone } from "./types";
 
-const DEFAULT_PRIMARY = "#1D4ED8";
-const DEFAULT_ACCENT = "#2563EB";
+const DEFAULT_PRIMARY = "#101A2B";
+const DEFAULT_ACCENT = "#9C7A2E";
 const HEX_COLOR = /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+/**
+ * Editorial design system — locked. See design direction sign-off; these values
+ * (ink / paper / brass / slate / line) are the report's entire palette. Brass has
+ * exactly two jobs: the cover identity mark and the candidate's dot in every chart.
+ * Nothing else in the report is colored.
+ */
+export const EDITORIAL = {
+  ink: "#101A2B",
+  paper: "#FAF9F6",
+  brass: "#9C7A2E",
+  slate: "#56606E",
+  line: "#E2DFD6",
+  /** Built-in PDF standard fonts — no font file registration required. */
+  serif: "Times-Roman",
+  serifBold: "Times-Bold",
+} as const;
 
 function safeColor(value: string | undefined, fallback: string): string {
   return value && HEX_COLOR.test(value) ? value : fallback;
@@ -11,8 +28,8 @@ function safeColor(value: string | undefined, fallback: string): string {
 export function createPdfTheme(input: PdfThemeInput = {}): PdfTheme {
   const mode = input.mode ?? "light";
   const isDark = mode === "dark";
-  const foreground = safeColor(input.textColor, isDark ? "#F8FAFC" : "#111827");
-  const muted = safeColor(input.mutedTextColor, isDark ? "#CBD5E1" : "#475569");
+  const foreground = safeColor(input.textColor, isDark ? "#F8FAFC" : EDITORIAL.ink);
+  const muted = safeColor(input.mutedTextColor, isDark ? "#CBD5E1" : EDITORIAL.slate);
   const primary = safeColor(input.primaryColor, DEFAULT_PRIMARY);
   const accent = safeColor(input.accentColor, DEFAULT_ACCENT);
 
@@ -25,10 +42,10 @@ export function createPdfTheme(input: PdfThemeInput = {}): PdfTheme {
     logoUrl: input.logoUrl,
     coverLogoUrl: input.coverLogoUrl ?? input.logoUrl,
     page: {
-      background: safeColor(input.pageBackground, isDark ? "#07080F" : "#FFFFFF"),
+      background: safeColor(input.pageBackground, isDark ? "#07080F" : EDITORIAL.paper),
       foreground,
       muted,
-      subtle: isDark ? "#94A3B8" : "#64748B",
+      subtle: isDark ? "#94A3B8" : "#8A93A2",
     },
     surface: {
       card: safeColor(input.cardBackground, isDark ? "#0D1020" : "#F8FAFC"),
@@ -36,7 +53,7 @@ export function createPdfTheme(input: PdfThemeInput = {}): PdfTheme {
       inverse: isDark ? "#FFFFFF" : "#07080F",
     },
     border: {
-      default: isDark ? "#26304D" : "#D9E2F1",
+      default: isDark ? "#26304D" : EDITORIAL.line,
       strong: isDark ? "#3B4A73" : "#B7C4D8",
     },
     brand: {
@@ -53,11 +70,11 @@ export function createPdfTheme(input: PdfThemeInput = {}): PdfTheme {
       xs: 4,
       sm: 8,
       md: 14,
-      lg: 22,
-      xl: 34,
-      pageX: 42,
-      pageTop: 58,
-      pageBottom: 48,
+      lg: 20,
+      xl: 40,
+      pageX: 54,
+      pageTop: 56,
+      pageBottom: 56,
     },
     radius: {
       sm: 4,

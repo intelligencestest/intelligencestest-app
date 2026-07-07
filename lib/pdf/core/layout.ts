@@ -2,6 +2,10 @@ import type { PdfTheme } from "./types";
 
 export const A4_SIZE = "A4" as const;
 
+/** Editorial grid — locked. Narrow label column beside one wide reading column. */
+export const LABEL_COLUMN_WIDTH = 112;
+export const CONTENT_COLUMN_GAP = 10;
+
 export function flowDirection(theme: PdfTheme): "row" | "row-reverse" {
   return theme.direction === "rtl" ? "row-reverse" : "row";
 }

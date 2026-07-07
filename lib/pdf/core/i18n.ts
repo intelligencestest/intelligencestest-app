@@ -31,6 +31,32 @@ export interface PdfMessages {
   noBenchmark: string;
   page: string;
   of: string;
+  hiringDecisionPageLabel: string;
+  evidencePageLabel: string;
+  recommendationLabel: string;
+  scoreLabel: string;
+  whyLabel: string;
+  watchLabel: string;
+  competenciesLabel: string;
+  evidenceLabel: string;
+  validationLabel: string;
+  confidenceLine: string;
+  verdictProceed: string;
+  verdictCaution: string;
+  verdictDecline: string;
+  exhibit: string;
+  whyWeAsk: string;
+  assessmentColumn: string;
+  competencyColumn: string;
+  scoreColumn: string;
+  vsCohortColumn: string;
+  benchmarkCohort: string;
+  methodologyLine: string;
+  competencyEvidenceCaption: string;
+  competencyBenchmarkCaption: string;
+  percentileLabel: string;
+  versusLabel: string;
+  indexedToBenchmark: string;
 }
 
 const messages: Record<BasePdfLocale, PdfMessages> = {
@@ -65,6 +91,32 @@ const messages: Record<BasePdfLocale, PdfMessages> = {
     noBenchmark: "Benchmark data not available",
     page: "Page",
     of: "of",
+    hiringDecisionPageLabel: "Hiring Decision",
+    evidencePageLabel: "Evidence & Interview Validation",
+    recommendationLabel: "Recommendation",
+    scoreLabel: "Score",
+    whyLabel: "Why",
+    watchLabel: "Watch",
+    competenciesLabel: "Competencies",
+    evidenceLabel: "Evidence",
+    validationLabel: "Validation",
+    confidenceLine: "Confidence",
+    verdictProceed: "Proceed",
+    verdictCaution: "Caution",
+    verdictDecline: "Decline",
+    exhibit: "Exhibit",
+    whyWeAsk: "Why we ask",
+    assessmentColumn: "Assessment",
+    competencyColumn: "Competency",
+    scoreColumn: "Score",
+    vsCohortColumn: "Vs. cohort",
+    benchmarkCohort: "benchmark cohort",
+    methodologyLine: "Methodology — validated assessments and structured interview signals.",
+    competencyEvidenceCaption: "Competency evidence from completed assessments.",
+    competencyBenchmarkCaption: "Competencies compared with available benchmark evidence.",
+    percentileLabel: "Percentile",
+    versusLabel: "vs.",
+    indexedToBenchmark: "indexed to",
   },
   es: {
     coverTitle: "Informe de Evaluacion del Candidato",
@@ -97,6 +149,32 @@ const messages: Record<BasePdfLocale, PdfMessages> = {
     noBenchmark: "Datos de referencia no disponibles",
     page: "Pagina",
     of: "de",
+    hiringDecisionPageLabel: "Decision de Contratacion",
+    evidencePageLabel: "Evidencia y Validacion de Entrevista",
+    recommendationLabel: "Recomendacion",
+    scoreLabel: "Puntuacion",
+    whyLabel: "Por que",
+    watchLabel: "Observar",
+    competenciesLabel: "Competencias",
+    evidenceLabel: "Evidencia",
+    validationLabel: "Validacion",
+    confidenceLine: "Confianza",
+    verdictProceed: "Proceder",
+    verdictCaution: "Precaucion",
+    verdictDecline: "Declinar",
+    exhibit: "Anexo",
+    whyWeAsk: "Por que preguntamos",
+    assessmentColumn: "Evaluacion",
+    competencyColumn: "Competencia",
+    scoreColumn: "Puntuacion",
+    vsCohortColumn: "Vs. cohorte",
+    benchmarkCohort: "cohorte de referencia",
+    methodologyLine: "Metodologia — evaluaciones validadas y senales de entrevista estructurada.",
+    competencyEvidenceCaption: "Evidencia de competencias basada en evaluaciones completadas.",
+    competencyBenchmarkCaption: "Competencias comparadas con evidencia de referencia disponible.",
+    percentileLabel: "Percentil",
+    versusLabel: "vs.",
+    indexedToBenchmark: "comparada con",
   },
 };
 
