@@ -4,10 +4,10 @@ import type { ProjectHealth, ProjectHealthStatus } from "@/lib/dashboard/project
 import { PIPELINE_STAGES, STAGE_COLOR, STAGE_LABEL_KEY } from "@/lib/dashboard/stages";
 
 const HEALTH_STYLE: Record<ProjectHealthStatus, { chip: string; dot: string; text: string }> = {
-  onTrack: { chip: "bg-[#0ca30c]/10 text-[#3fbf3f] ring-[#0ca30c]/25", dot: "bg-[#3fbf3f]", text: "text-[#3fbf3f]" },
-  slowing: { chip: "bg-[#fab219]/10 text-[#fab219] ring-[#fab219]/25", dot: "bg-[#fab219]", text: "text-[#fab219]" },
-  atRisk: { chip: "bg-[#ec835a]/10 text-[#ec835a] ring-[#ec835a]/25", dot: "bg-[#ec835a]", text: "text-[#ec835a]" },
-  blocked: { chip: "bg-[#d03b3b]/10 text-[#f28b8b] ring-[#d03b3b]/25", dot: "bg-[#e05252]", text: "text-[#f28b8b]" },
+  onTrack: { chip: "enterprise-chip-success", dot: "bg-[var(--it-success)]", text: "text-[#91c7ad]" },
+  slowing: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#d2b174]" },
+  atRisk: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#d2b174]" },
+  blocked: { chip: "enterprise-chip-danger", dot: "bg-[var(--it-danger)]", text: "text-[#d99792]" },
 };
 
 const HEALTH_LABEL_KEY: Record<ProjectHealthStatus, string> = {
@@ -74,16 +74,16 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
     .filter((s) => s.count > 0);
 
   return (
-    <article className="premium-card premium-card-hover rounded-xl p-5">
+    <article className="enterprise-card enterprise-card-hover rounded-xl p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Link
             href={`/projects/${project.id}`}
-            className="block truncate text-[15px] font-semibold text-white transition-colors hover:text-[#AFC7FF]"
+            className="block truncate text-[15px] font-semibold text-white transition-colors hover:text-[#d7e1ff]"
           >
             {project.name}
           </Link>
-          <p className="mt-0.5 text-[13px] text-slate-400">
+          <p className="mt-0.5 text-[13px] leading-5 text-[var(--it-muted)]">
             {deadlineLabel}
             {reasonText && (
               <>
@@ -94,7 +94,7 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
           </p>
         </div>
         <span
-          className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${style.chip}`}
+          className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style.chip}`}
         >
           <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden="true" />
           {t(HEALTH_LABEL_KEY[health.status])}
@@ -111,7 +111,7 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
             {segments.map((s) => (
               <div
                 key={s.key}
-                className={`h-2.5 rounded-full ${s.cls}`}
+                className={`h-2.5 rounded-sm ${s.cls}`}
                 style={{ flexGrow: s.count, flexBasis: 0, minWidth: "8px" }}
               />
             ))}
@@ -121,7 +121,7 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
               <Link
                 key={s.key}
                 href={s.href}
-                className="inline-flex items-center gap-1.5 text-[13px] capitalize text-slate-400 transition-colors hover:text-slate-200"
+                className="inline-flex items-center gap-1.5 text-[13px] capitalize text-[var(--it-muted)] transition-colors hover:text-slate-200"
               >
                 <span className={`h-2 w-2 rounded-full ${s.cls}`} aria-hidden="true" />
                 <span className="font-semibold text-slate-200">{s.count}</span> {s.label}
@@ -130,11 +130,11 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
           </div>
         </>
       ) : (
-        <p className="mt-4 text-[13px] text-slate-400">{t("noCandidatesInProject")}</p>
+        <p className="mt-4 text-[13px] text-[var(--it-muted)]">{t("noCandidatesInProject")}</p>
       )}
 
-      <div className="mt-4 flex items-center justify-between border-t border-[#1E2240] pt-3.5">
-        <div className="flex items-center gap-3 text-[13px] text-slate-400">
+      <div className="mt-4 flex items-center justify-between border-t enterprise-divider pt-3.5">
+        <div className="flex items-center gap-3 text-[13px] text-[var(--it-muted)]">
           {health.total > 0 && <span>{t("completionShort", { pct: health.pct })}</span>}
           {health.total > 0 && (
             <>
@@ -156,7 +156,7 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
           >
             {t("inviteShort")}
           </Link>
-          <Link href={`/projects/${project.id}`} className="text-[13px] font-medium text-[#8CB1FF] hover:underline">
+          <Link href={`/projects/${project.id}`} className="enterprise-link text-[13px] font-medium">
             {t("openProject")} →
           </Link>
         </div>

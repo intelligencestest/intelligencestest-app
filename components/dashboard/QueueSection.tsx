@@ -32,10 +32,10 @@ export default async function QueueSection({
     <Link
       href={mode === "waiting" ? `${basePath}#queue` : `${basePath}?queue=recommendation#queue`}
       aria-current={sort === mode ? "true" : undefined}
-      className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8] ${
+      className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)] ${
         sort === mode
-          ? "bg-[#1D4ED8]/16 text-[#AFC7FF] ring-1 ring-[#1D4ED8]/35"
-          : "text-slate-400 hover:text-slate-200"
+          ? "bg-white/[0.055] text-slate-100 ring-1 ring-[var(--it-border)]"
+          : "text-[var(--it-muted)] hover:text-slate-200"
       }`}
     >
       {label}
@@ -43,11 +43,13 @@ export default async function QueueSection({
   );
 
   return (
-    <section id="queue" className="premium-card overflow-hidden rounded-xl">
-      <div className="flex flex-wrap items-center gap-3 border-b border-[#1E2240] px-5 py-3.5">
-        <h2 className="text-sm font-semibold text-white">{t("queueTitle")}</h2>
+    <section id="queue" className="enterprise-card overflow-hidden rounded-xl">
+      <div className="flex flex-wrap items-center gap-3 border-b enterprise-divider px-5 py-4">
+        <div>
+          <h2 className="text-base font-semibold text-white">{t("queueTitle")}</h2>
+        </div>
         {totalCount > 0 && (
-          <span className="rounded-full border border-[#1E2240] px-2.5 py-0.5 text-xs font-medium tabular-nums text-slate-400">
+          <span className="enterprise-chip rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums">
             {totalCount}
           </span>
         )}
@@ -62,7 +64,7 @@ export default async function QueueSection({
           {sessionStart && (
             <Link
               href={`/candidates/${sessionStart.id}?ctx=review`}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1e40af] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8CB1FF]"
+              className="enterprise-button inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9fb3e5]"
             >
               {t("queueStartSession")}
               <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -75,17 +77,17 @@ export default async function QueueSection({
 
       {visible.length === 0 ? (
         <div className="px-6 py-10 text-center">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#0ca30c]/10 ring-1 ring-[#0ca30c]/25">
-            <svg className="h-5 w-5 text-[#3fbf3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full enterprise-chip-success">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <p className="text-sm font-medium text-slate-200">{t("queueEmptyTitle")}</p>
-          <p className="mt-1 text-[13px] text-slate-400">{t("queueEmptyBody")}</p>
+          <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("queueEmptyBody")}</p>
         </div>
       ) : (
         <>
-          <div className="divide-y divide-[#1E2240]">
+          <div>
             {visible.map((entry) => (
               <QueueRow key={entry.id} entry={entry} />
             ))}
@@ -93,7 +95,7 @@ export default async function QueueSection({
           {limit && totalCount > visible.length && (
             <Link
               href="/inbox"
-              className="block border-t border-[#1E2240] px-5 py-3 text-center text-[13px] font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
+              className="enterprise-link block border-t enterprise-divider px-5 py-3 text-center text-[13px] font-medium transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
             >
               {t("queueViewAll", { count: totalCount })} →
             </Link>

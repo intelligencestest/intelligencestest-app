@@ -32,10 +32,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#07080F]">
+    <div className="enterprise-shell flex h-screen overflow-hidden">
       <Sidebar userEmail={userEmail} userName={userName} reviewCount={reviewCount} />
       <main className="flex-1 overflow-y-auto">
-        <div className="min-h-full p-4 sm:p-6 lg:p-8 print:p-0">{children}</div>
+        <div className="min-h-full p-4 sm:p-6 lg:p-8 xl:p-10 print:p-0">{children}</div>
       </main>
     </div>
   );

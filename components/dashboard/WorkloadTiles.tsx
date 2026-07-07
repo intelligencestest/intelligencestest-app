@@ -62,25 +62,25 @@ export default async function WorkloadTiles({ data }: { data: WorkloadData }) {
   ];
 
   return (
-    <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <section className="enterprise-card grid grid-cols-1 overflow-hidden rounded-xl sm:grid-cols-2 xl:grid-cols-4">
       {tiles.map((tile) => (
         <Link
           key={tile.key}
           href={tile.href}
-          className="premium-card premium-card-hover flex flex-col rounded-xl p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+          className="enterprise-card-hover flex min-h-[122px] flex-col border-b border-[var(--it-border-soft)] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)] sm:odd:border-r xl:border-b-0 xl:border-r xl:last:border-r-0"
         >
-          <p className="text-[13px] font-medium text-slate-400">{tile.label}</p>
+          <p className="text-[12px] font-medium uppercase text-[var(--it-faint)]">{tile.label}</p>
           <div className="mt-2 flex items-baseline gap-2">
             {/* Cleared queues recede; only live work reads bright. */}
             <span
-              className={`text-3xl font-semibold tracking-tight tabular-nums ${
-                tile.value > 0 ? "text-white" : "text-slate-500"
+              className={`text-4xl font-semibold tabular-nums ${
+                tile.value > 0 ? "text-white" : "text-[var(--it-faint)]"
               }`}
             >
               {tile.value}
             </span>
           </div>
-          <p className={`mt-1 text-[13px] ${tile.urgent ? "text-[#fab219]" : "text-slate-400"}`}>
+          <p className={`mt-auto pt-2 text-[13px] leading-5 ${tile.urgent ? "text-[#d2b174]" : "text-[var(--it-muted)]"}`}>
             {tile.sub}
           </p>
         </Link>

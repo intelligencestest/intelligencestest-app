@@ -7,11 +7,11 @@ import { REVIEW_SLA_MS, shortDuration } from "@/lib/dashboard/format";
 // Recommendation chips use the fixed status palette; icon + label always
 // accompany color so identity is never color-alone.
 const REC_STYLE: Record<RecommendationLevel, { chip: string; dot: string }> = {
-  strong: { chip: "bg-[#0ca30c]/10 text-[#3fbf3f] ring-[#0ca30c]/25", dot: "bg-[#3fbf3f]" },
-  proceed: { chip: "bg-[#3987e5]/10 text-[#6da7ec] ring-[#3987e5]/25", dot: "bg-[#6da7ec]" },
-  review: { chip: "bg-[#fab219]/10 text-[#fab219] ring-[#fab219]/25", dot: "bg-[#fab219]" },
-  caution: { chip: "bg-[#ec835a]/10 text-[#ec835a] ring-[#ec835a]/25", dot: "bg-[#ec835a]" },
-  notRecommended: { chip: "bg-[#d03b3b]/10 text-[#f28b8b] ring-[#d03b3b]/25", dot: "bg-[#e05252]" },
+  strong: { chip: "enterprise-chip-success", dot: "bg-[var(--it-success)]" },
+  proceed: { chip: "enterprise-chip-info", dot: "bg-[var(--it-info)]" },
+  review: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]" },
+  caution: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]" },
+  notRecommended: { chip: "enterprise-chip-danger", dot: "bg-[var(--it-danger)]" },
 };
 
 const REC_LABEL_KEY: Record<RecommendationLevel, string> = {
@@ -41,14 +41,14 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
   return (
     <Link
       href={`/candidates/${entry.id}?ctx=review`}
-      className="group block px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
+      className="enterprise-table-row group block px-5 py-4 transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
     >
       {/* Line 1 — who */}
       <div className="flex items-baseline gap-2">
-        <span className="min-w-0 truncate text-sm font-semibold text-white transition-colors group-hover:text-[#AFC7FF]">
+        <span className="min-w-0 truncate text-[15px] font-semibold text-white transition-colors group-hover:text-[#d7e1ff]">
           {entry.fullName || t("unknown")}
         </span>
-        <span className="min-w-0 flex-1 truncate text-[13px] text-slate-400">
+        <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--it-muted)]">
           {entry.projectName ?? t("aProject")}
           {" · "}
           {entry.assessmentTotal !== null && entry.assessmentTotal > 0
@@ -57,7 +57,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
         </span>
         <span
           className={`flex-shrink-0 whitespace-nowrap text-xs font-medium tabular-nums ${
-            overSla ? "text-[#fab219]" : "text-slate-400"
+            overSla ? "text-[#d2b174]" : "text-[var(--it-muted)]"
           }`}
         >
           {t("queueWaitingFor", { time: shortDuration(entry.waitMs) })}
@@ -68,7 +68,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
       <div className="mt-1.5 flex min-w-0 items-center gap-2.5">
         {rec ? (
           <span
-            className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${REC_STYLE[rec].chip}`}
+            className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${REC_STYLE[rec].chip}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${REC_STYLE[rec].dot}`} aria-hidden="true" />
             {t(REC_LABEL_KEY[rec])}
@@ -76,18 +76,18 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
         ) : (
           // Placeholder slot: filled by the Assessment Intelligence Layer
           // snapshot once available for candidates without derivable evidence.
-          <span className="inline-flex flex-shrink-0 items-center rounded-full bg-[#1E2240]/60 px-2.5 py-0.5 text-xs font-medium text-slate-400 ring-1 ring-[#1E2240]">
+          <span className="enterprise-chip inline-flex flex-shrink-0 items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
             {t("queueIntelPending")}
           </span>
         )}
         {intel.confidence && (
-          <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs text-slate-400">
+          <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs text-[var(--it-muted)]">
             <span className="inline-flex items-center gap-0.5" aria-hidden="true">
               {[0, 1, 2].map((i) => (
                 <span
                   key={i}
                   className={`h-1.5 w-1.5 rounded-full ${
-                    i < CONFIDENCE_FILL[intel.confidence!] ? "bg-slate-300" : "bg-[#1E2240]"
+                    i < CONFIDENCE_FILL[intel.confidence!] ? "bg-slate-300" : "bg-[var(--it-border)]"
                   }`}
                 />
               ))}
@@ -96,7 +96,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
           </span>
         )}
         {intel.headline && (
-          <span className="hidden min-w-0 truncate text-[13px] text-slate-400 sm:inline" title={intel.headline}>
+          <span className="hidden min-w-0 truncate text-[13px] text-[var(--it-muted)] sm:inline" title={intel.headline}>
             {intel.headline}
           </span>
         )}
@@ -106,7 +106,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
       <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
         {intel.topCompetency && (
           <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-slate-300">
-            <svg className="h-3.5 w-3.5 flex-shrink-0 text-[#3fbf3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <svg className="h-3.5 w-3.5 flex-shrink-0 text-[#91c7ad]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-6 6m6-6l6 6" />
             </svg>
             <span className="truncate">{intel.topCompetency}</span>
@@ -114,7 +114,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
         )}
         <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-slate-400">
           <svg
-            className={`h-3.5 w-3.5 flex-shrink-0 ${intel.primaryRisk ? "text-[#ec835a]" : "text-slate-500"}`}
+            className={`h-3.5 w-3.5 flex-shrink-0 ${intel.primaryRisk ? "text-[#d2b174]" : "text-[var(--it-faint)]"}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -122,19 +122,19 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
           >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M4.5 19.5h15L12 4.5l-7.5 15Z" />
           </svg>
-          <span className={`truncate ${intel.primaryRisk ? "text-[#ec835a]" : ""}`}>
+          <span className={`truncate ${intel.primaryRisk ? "text-[#d2b174]" : ""}`}>
             {intel.primaryRisk ? intel.primaryRisk.label : t("queueRiskNone")}
           </span>
         </span>
         {intel.interviewKitReady && (
-          <span className="hidden items-center gap-1.5 text-[13px] text-slate-400 sm:inline-flex">
-            <svg className="h-3.5 w-3.5 flex-shrink-0 text-[#6da7ec]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <span className="hidden items-center gap-1.5 text-[13px] text-[var(--it-muted)] sm:inline-flex">
+            <svg className="h-3.5 w-3.5 flex-shrink-0 text-[#9bb7d2]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a8.96 8.96 0 0 1-1.5 5L21 21l-4.35-1.45A9 9 0 1 1 21 12Z" />
             </svg>
             {t("queueInterviewKit")}
           </span>
         )}
-        <span className="ml-auto flex-shrink-0 whitespace-nowrap text-[13px] font-medium text-[#8CB1FF] group-hover:underline">
+        <span className="enterprise-link ml-auto flex-shrink-0 whitespace-nowrap text-[13px] font-medium">
           {t("queueReview")} →
         </span>
       </div>

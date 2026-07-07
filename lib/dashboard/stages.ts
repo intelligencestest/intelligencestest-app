@@ -12,13 +12,13 @@ export type PipelineStage = (typeof PIPELINE_STAGES)[number];
 
 /** Segment/dot colors for stage visualizations; "expired" is the closed-invite bucket. */
 export const STAGE_COLOR: Record<PipelineStage | "expired", string> = {
-  invited: "bg-amber-400",
-  started: "bg-blue-400",
-  completed: "bg-emerald-400",
-  reviewed: "bg-violet-400",
-  interview: "bg-[#6B9FFF]",
-  hired: "bg-emerald-300",
-  expired: "bg-slate-600",
+  invited: "bg-[#b8862f]",
+  started: "bg-[#527aa3]",
+  completed: "bg-[#3f8f6b]",
+  reviewed: "bg-[#788197]",
+  interview: "bg-[#647895]",
+  hired: "bg-[#7fb695]",
+  expired: "bg-[#4b5563]",
 };
 
 /** i18n key (dashboard namespace) per stage. */

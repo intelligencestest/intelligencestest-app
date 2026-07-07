@@ -298,12 +298,12 @@ export default async function DashboardPage({
   const emptyWorkspace = all.length === 0 && (projects ?? []).length === 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 animate-fade-up">
+    <div className="mx-auto max-w-[1180px] space-y-7 animate-fade-up">
       {/* Zone A — Morning brief */}
       <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <MorningGreeting firstName={firstName} />
-          <p className="mt-2 text-sm text-slate-400">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--it-muted)]">
             {briefParts.length > 0 ? (
               /* The brief points at the work it describes: the queue when
                  reviews wait, otherwise the alerts. */
@@ -322,13 +322,13 @@ export default async function DashboardPage({
           <div className="flex items-center gap-2.5">
             <Link
               href="/projects/new"
-              className="inline-flex items-center gap-2 rounded-xl border border-[#1E2240] px-4 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:border-[#2d3a70] hover:text-white"
+              className="enterprise-button-secondary inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium"
             >
               {t("newProject")}
             </Link>
             <Link
               href="/candidates?invite=1"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+              className="enterprise-button inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -341,26 +341,26 @@ export default async function DashboardPage({
 
       {emptyWorkspace ? (
         /* First-run: guided setup */
-        <div className="premium-card rounded-2xl p-8">
+        <div className="enterprise-card rounded-xl p-8">
           <div className="mb-8 text-center">
             <h2 className="text-xl font-semibold text-white">{t("startedTitle")}</h2>
-            <p className="mt-2 text-sm text-slate-400">{t("startedBody")}</p>
+            <p className="mt-2 text-sm text-[var(--it-muted)]">{t("startedBody")}</p>
           </div>
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-5">
-                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full border border-[#1D4ED8]/40 bg-[#1D4ED8]/15 text-xs font-semibold text-[#8CB1FF]">
+              <div key={n} className="enterprise-panel rounded-lg p-5">
+                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--it-border)] bg-white/[0.03] text-xs font-semibold text-slate-300">
                   {n}
                 </div>
                 <h3 className="text-sm font-semibold text-white">{t(`step${n}Title`)}</h3>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-slate-400">{t(`step${n}Desc`)}</p>
+                <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--it-muted)]">{t(`step${n}Desc`)}</p>
               </div>
             ))}
           </div>
           <div className="text-center">
             <Link
               href="/projects/new"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+              className="enterprise-button inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -374,7 +374,7 @@ export default async function DashboardPage({
           {/* Zone B — Action Center (exceptions only; collapses away when clear) */}
           {alerts.length > 0 && <ActionCenter alerts={alerts} nowMs={nowMs} />}
 
-          {/* Zone C — Workload tiles */}
+          {/* Zone C — Workload strip */}
           <WorkloadTiles
             data={{
               review: {
@@ -388,8 +388,8 @@ export default async function DashboardPage({
           />
 
           {/* Zones D–H — queue + projects | pipeline + activity */}
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:items-start">
-            <div className="space-y-6 xl:col-span-2">
+          <div className="grid grid-cols-1 gap-7 xl:grid-cols-[minmax(0,2.05fr)_minmax(300px,0.95fr)] xl:items-start">
+            <div className="space-y-7">
               {/* Zone D — Candidate queue (hero) */}
               <QueueSection
                 entries={reviewQueue.entries}
@@ -402,20 +402,20 @@ export default async function DashboardPage({
               {/* Zone E — Project health */}
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-white">{t("activeProjectsTitle")}</h2>
+                  <h2 className="text-[13px] font-semibold uppercase text-[var(--it-muted)]">{t("activeProjectsTitle")}</h2>
                   {sortedProjects.length > 4 && (
-                    <Link href="/projects" className="text-[13px] font-medium text-[#8CB1FF] hover:underline">
+                    <Link href="/projects" className="enterprise-link text-[13px] font-medium">
                       {t("viewAllProjects", { count: sortedProjects.length })} →
                     </Link>
                   )}
                 </div>
                 {sortedProjects.length === 0 ? (
-                  <div className="premium-card rounded-xl p-8 text-center">
+                  <div className="enterprise-card rounded-xl p-8 text-center">
                     <p className="text-sm font-medium text-slate-200">{t("noActiveProjects")}</p>
-                    <p className="mt-1 text-[13px] text-slate-400">{t("noActiveProjectsBody")}</p>
+                    <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("noActiveProjectsBody")}</p>
                     <Link
                       href="/projects/new"
-                      className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+                      className="enterprise-button mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold"
                     >
                       {t("newProject")}
                     </Link>
@@ -431,7 +431,7 @@ export default async function DashboardPage({
             </div>
 
             {/* Zones F + H — right rail */}
-            <div className="space-y-6">
+            <div className="space-y-7">
               <PipelineStrip counts={stageCounts} />
               <ActivityRail items={activity.slice(0, 8)} />
             </div>

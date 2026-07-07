@@ -36,20 +36,20 @@ export default async function InboxPage({
   );
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6 animate-fade-up">
+    <div className="mx-auto max-w-[960px] space-y-6 animate-fade-up">
       <header>
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-          <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-soft-pulse" />
+        <div className="enterprise-chip mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--it-info)] animate-soft-pulse" />
           {t("inboxBadge")}
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-white">{t("inboxTitle")}</h1>
-        <p className="mt-1 text-sm text-slate-500">{t("inboxSubtitle", { count: totalCount })}</p>
+        <h1 className="text-3xl font-semibold text-white">{t("inboxTitle")}</h1>
+        <p className="mt-2 text-sm text-[var(--it-muted)]">{t("inboxSubtitle", { count: totalCount })}</p>
       </header>
 
       <QueueSection entries={entries} totalCount={totalCount} sort={sort} basePath="/inbox" />
 
       {totalCount > entries.length && (
-        <p className="text-center text-xs text-slate-500">
+        <p className="text-center text-xs text-[var(--it-faint)]">
           {t("inboxShowingOldest", { count: entries.length, total: totalCount, limit: QUEUE_FETCH_LIMIT })}
         </p>
       )}

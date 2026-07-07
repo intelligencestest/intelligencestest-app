@@ -30,10 +30,10 @@ export default function MorningGreeting({ firstName }: { firstName?: string }) {
 
   return (
     <div>
-      <p className="min-h-5 text-[13px] font-medium text-slate-400 first-letter:uppercase">
+      <p className="min-h-5 text-[13px] font-medium text-[var(--it-faint)] first-letter:uppercase">
         {dateLabel ?? " "}
       </p>
-      <h1 className="mt-1 text-[28px] font-semibold tracking-tight text-white">
+      <h1 className="mt-1 text-[32px] font-semibold text-white sm:text-[34px]">
         {greeting}
         {firstName ? `, ${firstName}` : ""}
       </h1>

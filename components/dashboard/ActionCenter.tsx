@@ -25,9 +25,9 @@ export type AttentionAlert =
   | { kind: "stalled"; count: number };
 
 const SEVERITY_STYLE = {
-  warning: { text: "text-[#fab219]", bg: "bg-[#fab219]/10", ring: "ring-[#fab219]/25" },
-  serious: { text: "text-[#ec835a]", bg: "bg-[#ec835a]/10", ring: "ring-[#ec835a]/25" },
-  info: { text: "text-[#6da7ec]", bg: "bg-[#3987e5]/10", ring: "ring-[#3987e5]/25" },
+  warning: { text: "text-[#d2b174]", bg: "bg-[rgba(184,134,47,0.08)]", ring: "ring-[rgba(184,134,47,0.28)]" },
+  serious: { text: "text-[#d99792]", bg: "bg-[rgba(185,82,76,0.08)]", ring: "ring-[rgba(185,82,76,0.28)]" },
+  info: { text: "text-[#9bb7d2]", bg: "bg-[rgba(82,122,163,0.08)]", ring: "ring-[rgba(82,122,163,0.28)]" },
 } as const;
 
 const ICON_PATHS: Record<string, string> = {
@@ -72,7 +72,7 @@ function ExtendButton({ candidateId, onDone }: { candidateId: string; onDone: ()
 
   if (state === "done") {
     return (
-      <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#3fbf3f]">
+      <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#91c7ad]">
         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
@@ -84,7 +84,7 @@ function ExtendButton({ candidateId, onDone }: { candidateId: string; onDone: ()
     <button
       onClick={extend}
       disabled={state === "busy"}
-      className="cursor-pointer whitespace-nowrap rounded-lg border border-[#1E2240] px-2.5 py-1 text-xs font-medium text-slate-300 transition-colors hover:border-[#2d3a70] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+      className="enterprise-button-secondary cursor-pointer whitespace-nowrap rounded-md px-2.5 py-1 text-xs font-medium disabled:cursor-not-allowed disabled:opacity-50"
     >
       {state === "error" ? t("attnErrorRetry") : state === "busy" ? t("attnExtending") : t("attnExtend")}
     </button>
@@ -101,7 +101,7 @@ function CandidateSubList({ candidates, nowMs }: { candidates: AlertCandidate[];
   const open = candidates.filter((c) => !resolved.has(c.id));
 
   return (
-    <div className="border-t border-[#1E2240]/60 bg-[#07080F]/40">
+    <div className="border-t enterprise-divider bg-black/10">
       {open.slice(0, MAX_INLINE_CANDIDATES).map((c) => (
         <div key={c.id} className="flex items-center gap-3 py-2 pl-5 pr-5 sm:pl-[72px]">
           <Link
@@ -111,7 +111,7 @@ function CandidateSubList({ candidates, nowMs }: { candidates: AlertCandidate[];
             {c.name || t("unknown")}
           </Link>
           {c.expiresAt && (
-            <span className="flex-shrink-0 text-xs text-slate-500">
+            <span className="flex-shrink-0 text-xs text-[var(--it-faint)]">
               {t("attnExpires", {
                 time: relativeTime(new Date(c.expiresAt).getTime(), nowMs, dateLocale),
               })}
@@ -131,7 +131,7 @@ function CandidateSubList({ candidates, nowMs }: { candidates: AlertCandidate[];
       {open.length > MAX_INLINE_CANDIDATES && (
         <Link
           href="/candidates?stage=invited"
-          className="block py-2 pl-5 pr-5 sm:pl-[72px] text-xs font-medium text-[#8CB1FF] hover:underline"
+          className="enterprise-link block py-2 pl-5 pr-5 sm:pl-[72px] text-xs font-medium"
         >
           {t("attnMore", { count: open.length - MAX_INLINE_CANDIDATES })} →
         </Link>
@@ -209,11 +209,11 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
     alert.kind === "blocked" || alert.kind === "atRisk" ? `${alert.kind}-${alert.projectId}` : alert.kind;
 
   return (
-    <section id="attention" className="premium-card overflow-hidden rounded-xl">
-      <div className="flex items-center justify-between border-b border-[#1E2240] px-5 py-3.5">
-        <h2 className="text-sm font-semibold text-white">{t("needsAttention")}</h2>
+    <section id="attention" className="enterprise-card overflow-hidden rounded-xl">
+      <div className="flex items-center justify-between border-b enterprise-divider px-5 py-3.5">
+        <h2 className="text-[13px] font-semibold uppercase text-[var(--it-muted)]">{t("needsAttention")}</h2>
         {alerts.length > 0 && (
-          <span className="rounded-full border border-[#1E2240] px-2.5 py-0.5 text-xs font-medium tabular-nums text-slate-400">
+          <span className="enterprise-chip rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums">
             {alerts.length}
           </span>
         )}
@@ -221,16 +221,16 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
 
       {alerts.length === 0 ? (
         <div className="px-6 py-8 text-center">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#0ca30c]/10 ring-1 ring-[#0ca30c]/25">
-            <svg className="h-5 w-5 text-[#3fbf3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <div className="enterprise-chip-success mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
           <p className="text-sm font-medium text-slate-200">{t("allClearTitle")}</p>
-          <p className="mt-1 text-[13px] text-slate-400">{t("allClearBody")}</p>
+          <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("allClearBody")}</p>
         </div>
       ) : (
-        <div className="divide-y divide-[#1E2240]">
+        <div>
           {visible.map((alert) => {
             const meta = rowMeta(alert);
             const sev = SEVERITY_STYLE[meta.severity];
@@ -239,16 +239,16 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
             const isOpen = expanded === key;
 
             const row = (
-              <div className="flex items-center gap-4 px-5 py-3.5">
+              <div className="enterprise-table-row flex items-center gap-4 px-5 py-3.5">
                 <span className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${sev.bg} ${sev.text} ${sev.ring}`}>
                   <AlertIcon kind={meta.icon} />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium text-slate-200">{meta.text}</span>
-                  {meta.hint && <span className="mt-0.5 block text-[13px] text-slate-400">{meta.hint}</span>}
+                  {meta.hint && <span className="mt-0.5 block text-[13px] text-[var(--it-muted)]">{meta.hint}</span>}
                 </span>
                 {expandable ? (
-                  <span className="flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-medium text-[#8CB1FF]">
+                  <span className="enterprise-link flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-medium">
                     {isOpen ? t("attnHideCandidates") : t("attnShowCandidates")}
                     <svg
                       className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -261,7 +261,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                     </svg>
                   </span>
                 ) : (
-                  <span className="flex-shrink-0 whitespace-nowrap text-[13px] font-medium text-[#8CB1FF]">
+                  <span className="enterprise-link flex-shrink-0 whitespace-nowrap text-[13px] font-medium">
                     {alert.kind === "stalled" ? t("attnStalledAction") : t("attnProjectAction")} →
                   </span>
                 )}
@@ -274,7 +274,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                   <button
                     type="button"
                     onClick={() => setExpanded(isOpen ? null : key)}
-                    className="block w-full cursor-pointer text-left transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
+                    className="block w-full cursor-pointer text-left transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
                     aria-expanded={isOpen}
                   >
                     {row}
@@ -291,7 +291,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                     ? "/candidates?stage=invited"
                     : `/projects/${alert.projectId}`
                 }
-                className="block transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
+                className="block transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
               >
                 {row}
               </Link>
@@ -301,7 +301,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
             <button
               type="button"
               onClick={() => setShowAll(true)}
-              className="block w-full cursor-pointer px-5 py-3 text-center text-[13px] font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240]/30 focus-visible:bg-[#1E2240]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
+              className="enterprise-link block w-full cursor-pointer px-5 py-3 text-center text-[13px] font-medium transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
             >
               {t("attnMore", { count: alerts.length - MAX_VISIBLE_ALERTS })}
             </button>

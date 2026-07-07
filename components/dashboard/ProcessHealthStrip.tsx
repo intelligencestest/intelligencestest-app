@@ -59,19 +59,19 @@ export default async function ProcessHealthStrip({ data }: { data: ProcessHealth
   ];
 
   return (
-    <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
+    <section className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-[var(--it-border-soft)] bg-[var(--it-border-soft)] xl:grid-cols-4">
       {items.map((item) => (
         <Link
           key={item.key}
           href={item.href}
-          className="premium-card premium-card-hover rounded-xl p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1D4ED8]"
+          className="enterprise-card-hover bg-[var(--it-surface-muted)] p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)]"
         >
-          <p className="text-xs font-medium text-slate-500">{item.label}</p>
+          <p className="text-xs font-medium text-[var(--it-faint)]">{item.label}</p>
           <div className="mt-1.5 flex items-baseline gap-2">
-            <span className="text-xl font-semibold tracking-tight tabular-nums text-slate-200">{item.value}</span>
+            <span className="text-xl font-semibold tabular-nums text-slate-200">{item.value}</span>
             {item.delta !== null && item.delta !== 0 && (
               <span
-                className={`text-xs font-medium ${item.delta > 0 ? "text-[#3fbf3f]" : "text-[#f28b8b]"}`}
+                className={`text-xs font-medium ${item.delta > 0 ? "text-[#91c7ad]" : "text-[#d99792]"}`}
               >
                 <span aria-hidden="true">{item.delta > 0 ? "▲" : "▼"}</span>{" "}
                 {item.delta > 0 ? "+" : ""}
@@ -79,7 +79,7 @@ export default async function ProcessHealthStrip({ data }: { data: ProcessHealth
               </span>
             )}
           </div>
-          <p className="mt-1 text-xs text-slate-500">{item.sub}</p>
+          <p className="mt-1 text-xs text-[var(--it-faint)]">{item.sub}</p>
         </Link>
       ))}
     </section>

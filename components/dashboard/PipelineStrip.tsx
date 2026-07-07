@@ -14,33 +14,33 @@ export default async function PipelineStrip({ counts }: { counts: StageCounts })
   const max = Math.max(...PIPELINE_STAGES.map((s) => counts[s]), 1);
 
   return (
-    <section className="premium-card overflow-hidden rounded-xl">
-      <div className="border-b border-[#1E2240] px-4 py-3.5">
-        <h2 className="text-sm font-semibold text-white">{t("pipelineTitle")}</h2>
+    <section className="enterprise-card overflow-hidden rounded-xl">
+      <div className="border-b enterprise-divider px-4 py-3.5">
+        <h2 className="text-[13px] font-semibold uppercase text-[var(--it-muted)]">{t("pipelineTitle")}</h2>
       </div>
       {total === 0 ? (
-        <div className="px-5 py-8 text-center text-[13px] text-slate-400">{t("pipelineEmpty")}</div>
+        <div className="px-5 py-8 text-center text-[13px] text-[var(--it-muted)]">{t("pipelineEmpty")}</div>
       ) : (
         <div className="space-y-1 px-4 py-3">
           {PIPELINE_STAGES.map((stage) => (
             <Link
               key={stage}
               href={`/candidates?stage=${stage}`}
-              className="group flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors hover:bg-[#1E2240]/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#1D4ED8]"
+              className="group flex items-center gap-3 rounded-md px-2 py-1.5 transition-colors hover:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
             >
-              <span className="flex w-24 flex-shrink-0 items-center gap-2 text-[13px] capitalize text-slate-400 transition-colors group-hover:text-slate-200">
+              <span className="flex w-24 flex-shrink-0 items-center gap-2 text-[13px] capitalize text-[var(--it-muted)] transition-colors group-hover:text-slate-200">
                 <span className={`h-2 w-2 flex-shrink-0 rounded-full ${STAGE_COLOR[stage]}`} aria-hidden="true" />
                 <span className="truncate">{t(STAGE_LABEL_KEY[stage])}</span>
               </span>
-              <span className="h-2 min-w-0 flex-1 rounded-full bg-[#07080F]/70" aria-hidden="true">
+              <span className="h-2 min-w-0 flex-1 rounded-sm bg-black/24" aria-hidden="true">
                 <span
-                  className={`block h-2 rounded-full ${STAGE_COLOR[stage]}`}
+                  className={`block h-2 rounded-sm ${STAGE_COLOR[stage]}`}
                   style={{ width: `${Math.max((counts[stage] / max) * 100, counts[stage] > 0 ? 6 : 0)}%` }}
                 />
               </span>
               <span
                 className={`w-8 flex-shrink-0 text-right text-[13px] font-semibold tabular-nums ${
-                  counts[stage] > 0 ? "text-slate-200" : "text-slate-600"
+                  counts[stage] > 0 ? "text-slate-200" : "text-[var(--it-faint)]"
                 }`}
               >
                 {counts[stage]}

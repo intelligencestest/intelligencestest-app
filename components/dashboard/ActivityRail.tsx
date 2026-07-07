@@ -18,25 +18,25 @@ export default async function ActivityRail({ items }: { items: ActivityItem[] })
   const t = await getTranslations("dashboard");
 
   return (
-    <section id="activity" className="premium-card overflow-hidden rounded-xl">
-      <div className="border-b border-[#1E2240] px-4 py-3.5">
-        <h2 className="text-sm font-semibold text-white">{t("activity")}</h2>
+    <section id="activity" className="enterprise-card overflow-hidden rounded-xl">
+      <div className="border-b enterprise-divider px-4 py-3.5">
+        <h2 className="text-[13px] font-semibold uppercase text-[var(--it-muted)]">{t("activity")}</h2>
       </div>
       {items.length === 0 ? (
-        <div className="px-5 py-10 text-center text-[13px] text-slate-400">{t("activityEmpty")}</div>
+        <div className="px-5 py-10 text-center text-[13px] text-[var(--it-muted)]">{t("activityEmpty")}</div>
       ) : (
-        <div className="divide-y divide-[#1E2240]">
+        <div>
           {items.map((item) => (
             <Link
               key={item.key}
               href={item.href}
-              className="flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[#1E2240]/30"
+              className="enterprise-table-row flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.025]"
             >
               <span
-                className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg ring-1 ${
+                className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md ring-1 ${
                   item.kind === "completed"
-                    ? "bg-[#0ca30c]/10 text-[#3fbf3f] ring-[#0ca30c]/25"
-                    : "bg-[#3987e5]/10 text-[#6da7ec] ring-[#3987e5]/25"
+                    ? "bg-[rgba(63,143,107,0.08)] text-[#91c7ad] ring-[rgba(63,143,107,0.26)]"
+                    : "bg-[rgba(82,122,163,0.08)] text-[#9bb7d2] ring-[rgba(82,122,163,0.26)]"
                 }`}
               >
                 {item.kind === "completed" ? (
@@ -51,7 +51,7 @@ export default async function ActivityRail({ items }: { items: ActivityItem[] })
               </span>
               <span className="min-w-0 flex-1">
                 <span className="block text-[13px] leading-snug text-slate-300">{item.message}</span>
-                <span className="mt-0.5 block text-xs text-slate-400">{item.time}</span>
+                <span className="mt-0.5 block text-xs text-[var(--it-faint)]">{item.time}</span>
               </span>
             </Link>
           ))}

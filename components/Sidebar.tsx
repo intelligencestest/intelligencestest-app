@@ -114,8 +114,8 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-[#1E2240] bg-[linear-gradient(180deg,rgba(255,255,255,0.035),transparent)]">
-        <div className="w-9 h-9 rounded-xl bg-[#1D4ED8] border border-[#6B9FFF]/30 shadow-[0_0_28px_rgba(29,78,216,0.28)] flex items-center justify-center flex-shrink-0">
+      <div className="flex items-center gap-3 px-6 py-5 border-b enterprise-divider">
+        <div className="w-9 h-9 rounded-lg bg-[var(--it-primary)] border border-white/10 flex items-center justify-center flex-shrink-0">
           <svg className="w-5 h-5 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
@@ -123,7 +123,7 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
         </div>
         <div>
           <div className="text-sm font-semibold text-white leading-tight">Intelligences Test</div>
-          <div className="text-xs text-slate-500 leading-tight">{es ? "Sistema de evaluación" : "Assessment OS"}</div>
+          <div className="text-xs text-[var(--it-faint)] leading-tight">{es ? "Sistema de evaluación" : "Assessment OS"}</div>
         </div>
       </div>
 
@@ -138,17 +138,17 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
               onClick={() => setMobileOpen(false)}
               className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 active
-                  ? "bg-[#1D4ED8]/16 text-[#AFC7FF] border border-[#1D4ED8]/35 shadow-[0_10px_30px_rgba(29,78,216,0.10)]"
-                  : "border border-transparent text-slate-400 hover:text-slate-200 hover:bg-[#1E2240]/50 hover:border-[#1E2240]"
+                  ? "bg-white/[0.045] text-white border border-[var(--it-border)]"
+                  : "border border-transparent text-[var(--it-muted)] hover:text-slate-100 hover:bg-white/[0.025]"
               }`}
             >
-              <span className={`transition-colors ${active ? "text-[#8CB1FF]" : "text-slate-500 group-hover:text-slate-300"}`}>{item.icon}</span>
+              <span className={`transition-colors ${active ? "text-[#b7c5e6]" : "text-[var(--it-faint)] group-hover:text-slate-300"}`}>{item.icon}</span>
               <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
               {item.href === "/inbox" && reviewCount > 0 && (
                 <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
                   active
-                    ? "border-[#8CB1FF]/35 bg-[#1D4ED8]/25 text-[#C6D7FF]"
-                    : "border-[#1E2240] bg-[#07080F] text-slate-400 group-hover:text-slate-200"
+                    ? "border-white/10 bg-white/[0.06] text-slate-100"
+                    : "border-[var(--it-border)] bg-[var(--it-bg)] text-[var(--it-muted)] group-hover:text-slate-200"
                 }`}>
                   {reviewCount}
                 </span>
@@ -159,14 +159,14 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
       </nav>
 
       {/* User section + logout */}
-      <div className="px-3 py-4 border-t border-[#1E2240] space-y-2">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-[#07080F]/55 border border-[#1E2240]/70">
-          <div className="w-8 h-8 rounded-full bg-[#1D4ED8]/20 border border-[#1D4ED8]/40 flex items-center justify-center text-xs font-semibold text-[#9BB8FF] flex-shrink-0">
+      <div className="px-3 py-4 border-t enterprise-divider space-y-2">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-black/12">
+          <div className="w-8 h-8 rounded-full bg-white/[0.04] border border-[var(--it-border)] flex items-center justify-center text-xs font-semibold text-slate-300 flex-shrink-0">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-slate-200 truncate">{userName ?? (es ? "Administrador" : "Admin")}</div>
-            <div className="text-xs text-slate-500 truncate">{userEmail ?? ""}</div>
+            <div className="text-xs text-[var(--it-faint)] truncate">{userEmail ?? ""}</div>
           </div>
         </div>
         <button
@@ -186,7 +186,7 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
   return (
     <>
       <button
-        className="lg:hidden print:hidden fixed top-4 left-4 z-50 p-2 rounded-xl bg-[#0D1020] border border-[#1E2240] text-slate-400 shadow-xl cursor-pointer"
+        className="lg:hidden print:hidden fixed top-4 left-4 z-50 p-2 rounded-lg enterprise-card text-slate-400 cursor-pointer"
         onClick={() => setMobileOpen(!mobileOpen)}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,14 +205,14 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
       )}
 
       <aside
-        className={`lg:hidden print:hidden fixed top-0 left-0 z-40 h-full w-64 bg-[#0D1020] border-r border-[#1E2240] transform transition-transform duration-200 shadow-2xl ${
+        className={`lg:hidden print:hidden fixed top-0 left-0 z-40 h-full w-64 bg-[var(--it-sidebar)] border-r enterprise-divider transform transition-transform duration-200 shadow-2xl ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <SidebarContent />
       </aside>
 
-      <aside className="hidden lg:flex print:hidden flex-col w-64 flex-shrink-0 h-full bg-[#0D1020] border-r border-[#1E2240] shadow-[12px_0_50px_rgba(0,0,0,0.18)]">
+      <aside className="hidden lg:flex print:hidden flex-col w-64 flex-shrink-0 h-full bg-[var(--it-sidebar)] border-r enterprise-divider">
         <SidebarContent />
       </aside>
     </>
