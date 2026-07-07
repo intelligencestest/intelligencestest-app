@@ -3,13 +3,8 @@
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-import { scoreAQ } from "@/lib/questions/aq";
-import { scoreResults } from "@/lib/questions/critical-thinking";
-import { PDF_SAFE_ASSESSMENTS } from "@/lib/report-scoring";
+import { useMemo } from "react";
 import { assessmentName as termName, assessmentShort as termShort } from "@/lib/i18n/assessment-terms";
-import type { CTPDFData, AQPDFData } from "@/lib/pdf";
-import type { ComprehensiveReportData } from "@/lib/report-pdf";
 
 interface Project {
   id: string;
@@ -34,78 +29,6 @@ const avatarColors = [
   "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
   "bg-amber-500/20 text-amber-400 border-amber-500/30",
 ];
-
-function DownloadPDFButton({ result, companyName }: { result: Result; companyName: string }) {
-  const es = useLocale() === "es";
-  const dateLocale = es ? "es-ES" : "en-GB";
-  const [loading, setLoading] = useState(false);
-
-  const handleDownload = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/results/${result.id}`);
-      if (!res.ok) throw new Error("Failed to fetch result");
-      const data = await res.json();
-
-      const candidateName = result.candidates?.full_name ?? (es ? "Sin nombre" : "Unknown");
-      const assessmentName = result.assessments?.name ?? (es ? "Evaluación" : "Assessment");
-      const date = new Date(result.completed_at).toLocaleDateString(dateLocale, {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
-
-      const { downloadCTPDF, downloadAQPDF } = await import("@/lib/pdf");
-      const isAQ = assessmentName.toLowerCase().includes("aq") || assessmentName.toLowerCase().includes("adversity");
-
-      if (isAQ) {
-        const rawAnswers: (number | null)[] = Array.isArray(data.raw_answers) ? data.raw_answers : [];
-        const scored = scoreAQ(rawAnswers);
-        const pdfData: AQPDFData = {
-          candidateName, assessmentName, date,
-          score: scored.total, control: scored.control, ownership: scored.ownership,
-          reach: scored.reach, endurance: scored.endurance,
-          interpretation: scored.interpretation, description: scored.description,
-          companyName, candidateEmail: result.candidates?.email ?? undefined, locale: es ? "es" : "en",
-        };
-        await downloadAQPDF(pdfData);
-      } else {
-        const rawAnswers: (number | null)[] = Array.isArray(data.raw_answers) ? data.raw_answers : [];
-        const scored = scoreResults(rawAnswers);
-        const pdfData: CTPDFData = {
-          candidateName, assessmentName, date,
-          score: scored.percentage, correct: scored.correct, total: scored.total,
-          interpretation: scored.interpretation,
-          companyName, candidateEmail: result.candidates?.email ?? undefined, locale: es ? "es" : "en",
-        };
-        await downloadCTPDF(pdfData);
-      }
-    } catch {
-      alert(es ? "No se pudo generar el PDF. Intente de nuevo." : "Could not generate PDF. Please try again.");
-    }
-    setLoading(false);
-  };
-
-  return (
-    <button
-      onClick={handleDownload}
-      disabled={loading}
-      title={es ? "Descargar PDF de evaluación individual" : "Download single-assessment PDF"}
-      className="flex-shrink-0 cursor-pointer rounded-lg border border-[#1E2240] p-1.5 text-slate-500 transition-colors hover:border-[#1D4ED8]/40 hover:text-[#8CB1FF] disabled:opacity-50"
-    >
-      {loading ? (
-        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-        </svg>
-      ) : (
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-        </svg>
-      )}
-    </button>
-  );
-}
 
 export default function ReportsClient({
   projects,
@@ -149,12 +72,11 @@ export default function ReportsClient({
         distribution: "Distribución de puntuaciones",
         noData: "Aún no hay datos",
         comprehensive: "Informes completos de candidatos",
-        comprehensiveSubtitle: "Informe PDF por candidato con solo sus evaluaciones completadas",
+        comprehensiveSubtitle: "Abra el informe ejecutivo dentro de la plataforma para revisar evidencia y tomar decisiones",
         candidates: (count: number) => `${count} candidato${count === 1 ? "" : "s"}`,
         noEmail: "Sin correo",
         avgScore: "promedio",
-        generating: "Generando...",
-        fullReport: "Informe completo",
+        fullReport: "Abrir informe",
       }
     : {
         unknown: "Unknown",
@@ -183,14 +105,12 @@ export default function ReportsClient({
         distribution: "Score Distribution",
         noData: "No data yet",
         comprehensive: "Comprehensive Candidate Reports",
-        comprehensiveSubtitle: "PDF report per candidate across only their completed assessments",
+        comprehensiveSubtitle: "Open the executive report inside the platform to review evidence and make decisions",
         candidates: (count: number) => `${count} candidate${count !== 1 ? "s" : ""}`,
         noEmail: "No email",
         avgScore: "avg score",
-        generating: "Generating...",
-        fullReport: "Full Report",
+        fullReport: "Open report",
       };
-  const [fullReportLoading, setFullReportLoading] = useState<string | null>(null);
 
   const results = initialResults;
   const avgScore = results.length
@@ -229,42 +149,6 @@ export default function ReportsClient({
 
   function selectProject(id: string) {
     router.push(`/reports?project=${id}`);
-  }
-
-  async function handleFullReport(candidateKey: string) {
-    setFullReportLoading(candidateKey);
-    try {
-      const group = candidateGroups.find(([k]) => k === candidateKey)?.[1];
-      if (!group) return;
-
-      const selectedProject = projects.find(p => p.id === selectedProjectId);
-      const { downloadComprehensiveReport } = await import("@/lib/report-pdf");
-
-      const reportData: ComprehensiveReportData = {
-        candidateName: group.name,
-        candidateEmail: group.email,
-        companyName,
-        projectName: selectedProject?.name ?? copy.projectFallback,
-        reportDate: new Date().toLocaleDateString(dateLocale, { month: "long", day: "numeric", year: "numeric" }),
-        reportId: `RPT-${candidateKey.slice(0, 8).toUpperCase()}`,
-        assessments: group.results.map(r => ({
-          id: r.id,
-          assessmentId: r.assessment_id,
-          name: r.assessments?.name ?? copy.assessment,
-          score: r.score,
-          completedAt: r.completed_at,
-          category: r.assessments?.category ?? undefined,
-          rawAnswers: r.raw_answers,
-        })),
-        locale: es ? "es" : "en",
-      };
-
-      await downloadComprehensiveReport(reportData);
-    } catch {
-      alert(copy.pdfError);
-    } finally {
-      setFullReportLoading(null);
-    }
   }
 
   return (
@@ -368,7 +252,6 @@ export default function ReportsClient({
                               {new Date(result.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                             </p>
                           </div>
-                          {PDF_SAFE_ASSESSMENTS.has(result.assessments?.name ?? "") && <DownloadPDFButton result={result} companyName={companyName} />}
                         </div>
                         <div className="mt-3 ml-[88px]">
                           <div className="w-full h-1.5 bg-[#1E2240] rounded-full overflow-hidden">
@@ -449,56 +332,52 @@ export default function ReportsClient({
                   const groupAvg = Math.round(group.results.reduce((s, r) => s + r.score, 0) / group.results.length);
                   const avgColor = groupAvg >= 80 ? "text-emerald-400" : groupAvg >= 60 ? "text-amber-400" : "text-red-400";
                   const initials = group.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-                  const isLoading = fullReportLoading === candidateKey;
                   return (
                     <div key={candidateKey} className="px-6 py-4 hover:bg-[#1E2240]/20 transition-colors">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-[#1D4ED8]/20 border border-[#1D4ED8]/30 flex items-center justify-center text-sm font-semibold text-blue-400 flex-shrink-0">
-                          {initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          {group.id ? (
-                            <Link href={`/candidates/${group.id}`} className="text-sm font-medium text-white hover:text-[#8CB1FF] transition-colors">
-                              {group.name}
-                            </Link>
-                          ) : (
-                            <p className="text-sm font-medium text-white">{group.name}</p>
-                          )}
-                          <p className="text-xs text-slate-500 truncate">{group.email || copy.noEmail}</p>
-                          <div className="flex flex-wrap gap-1.5 mt-1.5">
-                            {group.results.map(r => (
-                              <span key={r.id} className="text-xs bg-[#1E2240] text-slate-400 px-2 py-0.5 rounded">
-                                {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
-                              </span>
-                            ))}
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                        <div className="flex min-w-0 flex-1 items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-[#1D4ED8]/20 border border-[#1D4ED8]/30 flex items-center justify-center text-sm font-semibold text-blue-400 flex-shrink-0">
+                            {initials}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            {group.id ? (
+                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-white hover:text-[#8CB1FF] transition-colors">
+                                {group.name}
+                              </Link>
+                            ) : (
+                              <p className="break-words text-sm font-medium text-white">{group.name}</p>
+                            )}
+                            <p className="text-xs text-slate-500 truncate">{group.email || copy.noEmail}</p>
+                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                              {group.results.map(r => (
+                                <span key={r.id} className="text-xs bg-[#1E2240] text-slate-400 px-2 py-0.5 rounded">
+                                  {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-right flex-shrink-0 mr-4">
-                          <p className={`text-2xl font-bold ${avgColor}`}>{groupAvg}</p>
-                          <p className="text-xs text-slate-500">{copy.avgScore}</p>
-                        </div>
-                        <button
-                          onClick={() => handleFullReport(candidateKey)}
-                          disabled={isLoading}
-                          className="flex-shrink-0 flex items-center gap-2 cursor-pointer rounded-lg bg-[#1D4ED8]/10 border border-[#1D4ED8]/30 px-3 py-2 text-xs font-medium text-[#8CB1FF] transition-colors hover:bg-[#1D4ED8]/20 hover:border-[#1D4ED8]/50 disabled:opacity-50"
-                        >
-                          {isLoading ? (
-                            <>
-                              <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-                              </svg>
-                              {copy.generating}
-                            </>
-                          ) : (
-                            <>
-                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+                          <div className="text-left sm:text-right sm:mr-4">
+                            <p className={`text-2xl font-bold ${avgColor}`}>{groupAvg}</p>
+                            <p className="text-xs text-slate-500">{copy.avgScore}</p>
+                          </div>
+                          {group.id ? (
+                            <Link
+                              href={`/candidates/${group.id}/report`}
+                              className="flex flex-shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-3 py-2 text-xs font-medium text-[#8CB1FF] transition-colors hover:border-[#1D4ED8]/50 hover:bg-[#1D4ED8]/20"
+                            >
+                              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                               </svg>
                               {copy.fullReport}
-                            </>
+                            </Link>
+                          ) : (
+                            <span className="flex-shrink-0 rounded-lg border border-[#1E2240] px-3 py-2 text-xs font-medium text-slate-500">
+                              {copy.fullReport}
+                            </span>
                           )}
-                        </button>
+                        </div>
                       </div>
                     </div>
                   );
