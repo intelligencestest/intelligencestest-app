@@ -438,5 +438,15 @@
     "savingLanguage": "Guardando idioma...",
     "languageSaved": "Preferencia de idioma guardada.",
     "languageError": "No se pudo guardar la preferencia de idioma. Intente de nuevo."
+  },
+  "billing": {
+    "trialDaysLeft": "Quedan {days} días de prueba",
+    "trialOneDayLeft": "Queda 1 día de prueba",
+    "trialLastDay": "Último día de su prueba",
+    "trialExpiredTitle": "Su prueba ha finalizado — contacte con ventas para continuar",
+    "usageCandidates": "Candidatos",
+    "usageProjects": "Proyectos",
+    "upgradeNow": "Ampliar plan",
+    "contactSales": "Contactar con ventas"
   }
 }

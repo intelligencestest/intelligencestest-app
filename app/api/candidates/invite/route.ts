@@ -2,6 +2,7 @@ import { createAdminClient } from "@/lib/supabase-server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { assessmentName as localizedAssessmentName } from "@/lib/i18n/assessment-terms";
+import { assertWithinLimit } from "@/lib/plan/limits";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
@@ -364,6 +365,14 @@ export async function POST(request: NextRequest) {
 
   const lang = toAppLocale(company?.language);
   const companyName = company?.name ?? "Your Company";
+
+  const limitCheck = await assertWithinLimit(admin, userProfile.company_id, "candidate");
+  if (!limitCheck.ok) {
+    return NextResponse.json(
+      { error: limitCheck.message?.[lang], reason: limitCheck.reason },
+      { status: 403 }
+    );
+  }
 
   if (!assessment_type) {
     return NextResponse.json({ error: "Assessment type is required" }, { status: 400 });

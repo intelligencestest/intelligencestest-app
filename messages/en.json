@@ -438,5 +438,15 @@
     "savingLanguage": "Saving language...",
     "languageSaved": "Language preference saved.",
     "languageError": "Could not save the language preference. Please try again."
+  },
+  "billing": {
+    "trialDaysLeft": "{days} days left in your trial",
+    "trialOneDayLeft": "1 day left in your trial",
+    "trialLastDay": "Last day of your trial",
+    "trialExpiredTitle": "Your trial has ended — contact sales to keep going",
+    "usageCandidates": "Candidates",
+    "usageProjects": "Projects",
+    "upgradeNow": "Upgrade now",
+    "contactSales": "Contact sales"
   }
 }

@@ -14,6 +14,19 @@ type ProfileState = {
 };
 type ProfileKey = keyof ProfileState;
 
+interface PlanData {
+  plan: string;
+  planId: "trial" | "starter" | "professional" | "enterprise" | null;
+  trialStatus: "active" | "expired" | "extended" | "converted";
+  trialEndsAt: string | null;
+  trialDaysLeft: number | null;
+  isTrialExpired: boolean;
+  subscriptionStatus: string;
+  limits: { candidates: number | null; projects: number | null; recruiters: number | null };
+  usage: { candidates: number; projects: number; recruiters: number };
+  priceEur: number | null;
+}
+
 export default function SettingsPage() {
   const t = useTranslations("settings");
   const currentLocale = useLocale() === "es" ? "es" : "en";
@@ -41,6 +54,22 @@ export default function SettingsPage() {
         passwordResetError: "No se pudo enviar el enlace de restablecimiento.",
         billing: "Facturación",
         billingText: "La facturación se integrará más adelante. Por ahora, los planes se gestionan desde el panel interno.",
+        planLabel: "Plan actual",
+        priceMonthly: (amount: number) => `${amount} €/mes`,
+        priceContact: "Contactar con ventas",
+        trialEndsLabel: "Su prueba termina el",
+        trialExpiredLabel: "Su prueba finalizó el",
+        trialDaysLeft: (days: number) => (days === 1 ? "Queda 1 día de prueba" : `Quedan ${days} días de prueba`),
+        usageLabel: "Uso este mes",
+        usageCandidates: "Candidatos",
+        usageProjects: "Proyectos activos",
+        usageRecruiters: "Reclutadores",
+        usageUnlimited: "sin límite",
+        paymentMethodLabel: "Método de pago",
+        paymentMethodValue: "Facturación manual · PayPal próximamente",
+        contactSales: "Contactar con ventas",
+        requestUpgrade: "Solicitar ampliación de plan",
+        planLoading: "Cargando plan...",
         notifications: "Preferencias de notificación",
         notificationItems: [
           { key: "candidateCompleted", label: "El candidato completa una evaluación", desc: "Reciba una notificación cuando un candidato finalice su evaluación" },
@@ -79,6 +108,22 @@ export default function SettingsPage() {
         passwordResetError: "Could not send password reset link.",
         billing: "Billing",
         billingText: "Billing will be integrated later. For now, plans are managed from the internal admin panel.",
+        planLabel: "Current plan",
+        priceMonthly: (amount: number) => `€${amount}/month`,
+        priceContact: "Contact sales",
+        trialEndsLabel: "Your trial ends on",
+        trialExpiredLabel: "Your trial ended on",
+        trialDaysLeft: (days: number) => (days === 1 ? "1 day left in your trial" : `${days} days left in your trial`),
+        usageLabel: "Usage this month",
+        usageCandidates: "Candidates",
+        usageProjects: "Active projects",
+        usageRecruiters: "Recruiters",
+        usageUnlimited: "unlimited",
+        paymentMethodLabel: "Payment method",
+        paymentMethodValue: "Manual billing · PayPal coming soon",
+        contactSales: "Contact sales",
+        requestUpgrade: "Request upgrade",
+        planLoading: "Loading plan...",
         notifications: "Notification Preferences",
         notificationItems: [
           { key: "candidateCompleted", label: "Candidate completes assessment", desc: "Get notified when a candidate finishes their assessment" },
@@ -117,6 +162,28 @@ export default function SettingsPage() {
     logo_url: "",
     role: "admin",
   });
+  const [planData, setPlanData] = useState<PlanData | null>(null);
+  const [planLoading, setPlanLoading] = useState(true);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function loadPlan() {
+      try {
+        const res = await fetch("/api/settings/plan");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (mounted) setPlanData(data);
+      } finally {
+        if (mounted) setPlanLoading(false);
+      }
+    }
+
+    loadPlan();
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -359,10 +426,85 @@ export default function SettingsPage() {
         <p className="text-sm leading-6 text-slate-500">{copy.teamMembersComingSoon}</p>
       </div>
 
-      {/* Billing placeholder */}
-      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
-        <h2 className="text-base font-semibold text-white">{copy.billing}</h2>
-        <p className="mt-2 text-sm leading-6 text-slate-500">{copy.billingText}</p>
+      {/* Billing / Plan */}
+      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1E2240] pb-4">
+          <div>
+            <h2 className="text-base font-semibold text-white">{copy.billing}</h2>
+            <p className="mt-1 text-sm text-slate-500">{copy.billingText}</p>
+          </div>
+          {planData && (
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-3 py-1.5 text-sm font-semibold capitalize text-[#9BB8FF]">
+              {planData.plan}
+            </span>
+          )}
+        </div>
+
+        {planLoading ? (
+          <p className="text-sm text-slate-500">{copy.planLoading}</p>
+        ) : planData ? (
+          <div className="space-y-5">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-slate-600">{copy.planLabel}</p>
+                <p className="mt-1 text-sm font-medium text-slate-200">
+                  {planData.priceEur !== null ? copy.priceMonthly(planData.priceEur) : copy.priceContact}
+                </p>
+              </div>
+              {planData.planId === "trial" && planData.trialEndsAt && (
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-slate-600">
+                    {planData.isTrialExpired ? copy.trialExpiredLabel : copy.trialEndsLabel}
+                  </p>
+                  <p className={`mt-1 text-sm font-medium ${planData.isTrialExpired ? "text-red-400" : "text-slate-200"}`}>
+                    {new Date(planData.trialEndsAt).toLocaleDateString(es ? "es-ES" : "en-US", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                    {!planData.isTrialExpired && planData.trialDaysLeft !== null
+                      ? ` · ${copy.trialDaysLeft(planData.trialDaysLeft)}`
+                      : ""}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-wider text-slate-600">{copy.usageLabel}</p>
+              <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                {(
+                  [
+                    ["usageCandidates", planData.usage.candidates, planData.limits.candidates],
+                    ["usageProjects", planData.usage.projects, planData.limits.projects],
+                    ["usageRecruiters", planData.usage.recruiters, planData.limits.recruiters],
+                  ] as const
+                ).map(([key, used, limit]) => (
+                  <div key={key} className="rounded-lg border border-[#1E2240] bg-[#07080F]/60 px-3 py-2.5">
+                    <p className="text-xs text-slate-500">{copy[key]}</p>
+                    <p className="mt-0.5 text-sm font-semibold text-slate-100">
+                      {used}
+                      <span className="font-normal text-slate-500">/{limit ?? copy.usageUnlimited}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#1E2240] bg-[#07080F]/60 px-4 py-3">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-slate-600">{copy.paymentMethodLabel}</p>
+                <p className="mt-1 text-sm text-slate-300">{copy.paymentMethodValue}</p>
+              </div>
+              <a
+                href="/contact"
+                className="flex-shrink-0 rounded-lg bg-[#1D4ED8] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+              >
+                {planData.planId === "trial" ? copy.contactSales : copy.requestUpgrade}
+              </a>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {/* Danger zone */}

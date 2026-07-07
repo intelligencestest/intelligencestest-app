@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { sendAuthEmail } from "@/lib/auth-email";
 import { toAppLocale } from "@/lib/i18n/locales";
+import { PLAN_LIMITS, TRIAL_DURATION_DAYS } from "@/lib/plan/limits";
 import { NextRequest, NextResponse } from "next/server";
 
 const APP_URL = "https://app.intelligencestest.com";
@@ -31,10 +32,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 });
   }
 
-  // 1. Create company
+  // 1. Create company — every new signup starts on a time-boxed trial.
+  const trialStartedAt = new Date();
+  const trialEndsAt = new Date(trialStartedAt.getTime() + TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000);
+  const trialLimits = PLAN_LIMITS.trial;
+
   const { data: company, error: companyError } = await admin
     .from("companies")
-    .insert({ name: company_name, email: normalizedEmail, language: lang })
+    .insert({
+      name: company_name,
+      email: normalizedEmail,
+      language: lang,
+      plan: "trial",
+      trial_started_at: trialStartedAt.toISOString(),
+      trial_ends_at: trialEndsAt.toISOString(),
+      trial_status: "active",
+      subscription_status: "manual",
+      billing_provider: "manual",
+      candidate_limit: trialLimits.candidates,
+      project_limit: trialLimits.projects,
+      recruiter_limit: trialLimits.recruiters,
+    })
     .select("id")
     .single();
 

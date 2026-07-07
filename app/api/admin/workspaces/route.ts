@@ -127,6 +127,17 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ ok: true, company_id: company.id, audited });
 }
 
+const TRIAL_STATUSES = new Set(["active", "expired", "extended", "converted"]);
+const SUBSCRIPTION_STATUSES = new Set(["manual", "pending_payment", "active", "past_due", "cancelled"]);
+const BILLING_PROVIDERS = new Set(["manual", "paypal", "stripe"]);
+
+function cleanIntOrNull(value: unknown): number | null | undefined {
+  if (value === null) return null; // explicit null → unlimited
+  if (value === undefined) return undefined; // not provided → leave untouched
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : undefined;
+}
+
 export async function PATCH(request: NextRequest) {
   const { admin, user } = await requireInternalAdminForApi("ops");
   if (!admin || !user) return jsonError("Forbidden", 403);
@@ -142,12 +153,14 @@ export async function PATCH(request: NextRequest) {
 
   const { data: before } = await admin
     .from("companies")
-    .select("name, email, plan, status, language, industry")
+    .select(
+      "name, email, plan, status, language, industry, trial_status, trial_ends_at, subscription_status, billing_provider, candidate_limit, project_limit, recruiter_limit"
+    )
     .eq("id", companyId)
     .maybeSingle();
   if (!before) return jsonError("Company not found.", 404);
 
-  const updates: Record<string, string | null | boolean> = {
+  const updates: Record<string, string | number | null | boolean> = {
     updated_at: new Date().toISOString(),
   };
 
@@ -157,6 +170,28 @@ export async function PATCH(request: NextRequest) {
   if (typeof body?.language === "string") updates.language = toAppLocale(body.language);
   if (typeof body?.industry === "string") updates.industry = clean(body.industry);
   if (typeof body?.logo_url === "string") updates.logo_url = clean(body.logo_url, 1000);
+
+  // Trial / subscription lifecycle — "ops — change plan" per the console's role model.
+  if (typeof body?.trial_status === "string" && TRIAL_STATUSES.has(body.trial_status)) {
+    updates.trial_status = body.trial_status;
+  }
+  if (typeof body?.extend_trial_days === "number" && body.extend_trial_days > 0) {
+    const base = before.trial_ends_at && new Date(before.trial_ends_at).getTime() > Date.now() ? new Date(before.trial_ends_at) : new Date();
+    updates.trial_ends_at = new Date(base.getTime() + body.extend_trial_days * 24 * 60 * 60 * 1000).toISOString();
+    updates.trial_status = "extended";
+  }
+  if (typeof body?.subscription_status === "string" && SUBSCRIPTION_STATUSES.has(body.subscription_status)) {
+    updates.subscription_status = body.subscription_status;
+  }
+  if (typeof body?.billing_provider === "string" && BILLING_PROVIDERS.has(body.billing_provider)) {
+    updates.billing_provider = body.billing_provider;
+  }
+  const candidateLimit = cleanIntOrNull(body?.candidate_limit);
+  if (candidateLimit !== undefined) updates.candidate_limit = candidateLimit;
+  const projectLimit = cleanIntOrNull(body?.project_limit);
+  if (projectLimit !== undefined) updates.project_limit = projectLimit;
+  const recruiterLimit = cleanIntOrNull(body?.recruiter_limit);
+  if (recruiterLimit !== undefined) updates.recruiter_limit = recruiterLimit;
 
   if (status) {
     updates.status = status === "disabled" ? "disabled" : "active";
