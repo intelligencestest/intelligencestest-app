@@ -71,7 +71,7 @@ export default function SettingsPage() {
         passwordResetError: "No se pudo enviar el enlace de restablecimiento.",
         billing: "Plan y facturación",
         billingText:
-          "Durante la fase de lanzamiento, la facturación se gestiona manualmente. Puede solicitar una ampliación en cualquier momento; PayPal se añadirá próximamente.",
+          "PayPal está disponible para Starter y Professional. Enterprise se gestiona con el equipo comercial.",
         planLabel: "Plan",
         planNames: {
           trial: "Prueba gratuita",
@@ -99,10 +99,10 @@ export default function SettingsPage() {
         usageRecruiters: "Reclutadores",
         usageUnlimited: "sin límite",
         paymentMethodLabel: "Facturación manual",
-        paymentMethodValue: "Pago gestionado por el equipo comercial · PayPal próximamente",
+        paymentMethodValue: "Starter y Professional se suscriben con PayPal · Enterprise se gestiona con ventas",
         existingDataSafe: "Sus proyectos, candidatos e informes existentes permanecen accesibles aunque se alcance un límite.",
         contactSales: "Contactar con ventas",
-        requestUpgrade: "Solicitar ampliación",
+        requestUpgrade: "Actualizar plan",
         planLoading: "Cargando plan...",
         notifications: "Preferencias de notificación",
         notificationItems: [
@@ -135,7 +135,7 @@ export default function SettingsPage() {
           professional: ["3 proyectos activos", "50 candidatos al mes", "3 reclutadores"],
           enterprise: ["Límites personalizados", "Soporte comercial", "Configuración a medida"],
         },
-        choosePlan: "Solicitar plan",
+        choosePlan: "Suscribirse con PayPal",
       }
     : {
         english: "English",
@@ -159,7 +159,7 @@ export default function SettingsPage() {
         passwordResetError: "Could not send password reset link.",
         billing: "Plan and billing",
         billingText:
-          "During launch, billing is handled manually. You can request an extension at any time; PayPal will be added soon.",
+          "PayPal is available for Starter and Professional. Enterprise is handled by the commercial team.",
         planLabel: "Plan",
         planNames: {
           trial: "Free trial",
@@ -187,10 +187,10 @@ export default function SettingsPage() {
         usageRecruiters: "Recruiters",
         usageUnlimited: "unlimited",
         paymentMethodLabel: "Manual billing",
-        paymentMethodValue: "Payment handled by the commercial team · PayPal coming soon",
+        paymentMethodValue: "Starter and Professional subscribe with PayPal · Enterprise is handled by sales",
         existingDataSafe: "Existing projects, candidates, and reports remain accessible even when a limit is reached.",
         contactSales: "Contact sales",
-        requestUpgrade: "Request extension",
+        requestUpgrade: "Upgrade plan",
         planLoading: "Loading plan...",
         notifications: "Notification Preferences",
         notificationItems: [
@@ -223,7 +223,7 @@ export default function SettingsPage() {
           professional: ["3 active projects", "50 candidates per month", "3 recruiters"],
           enterprise: ["Custom limits", "Commercial support", "Tailored setup"],
         },
-        choosePlan: "Request plan",
+        choosePlan: "Subscribe with PayPal",
       };
   const [saved, setSaved] = useState(false);
   // Workspace language is fixed at signup; settings no longer change it.
@@ -385,7 +385,7 @@ export default function SettingsPage() {
     { href: "#security", label: copy.password, description: copy.passwordText },
     { href: "#notifications", label: copy.notifications, description: es ? "Alertas y resúmenes del espacio de trabajo" : "Workspace alerts and summaries" },
     { href: "#team", label: copy.teamMembers, description: es ? "Usuarios y acceso del equipo" : "Users and team access" },
-    { href: "#billing", label: copy.billing, description: es ? "Plan, uso y facturación" : "Plan, usage, and billing" },
+    { href: currentLocale === "es" ? "/es/settings/billing" : "/settings/billing", label: copy.billing, description: es ? "Plan, uso y facturación" : "Plan, usage, and billing" },
     { href: "#danger", label: copy.dangerZone, description: es ? "Acciones sensibles" : "Sensitive actions" },
   ];
   const availablePlanCards = [
@@ -398,14 +398,14 @@ export default function SettingsPage() {
     },
     {
       id: "starter" as const,
-      name: billingT("starterPlanLabel"),
+      name: copy.planNames.starter,
       price: es ? "29 €/mes" : "€29/month",
       description: copy.planDescriptions.starter,
       features: copy.planFeatures.starter,
     },
     {
       id: "professional" as const,
-      name: billingT("professionalPlanLabel"),
+      name: copy.planNames.professional,
       price: es ? "79 €/mes" : "€79/month",
       description: copy.planDescriptions.professional,
       features: copy.planFeatures.professional,
@@ -696,7 +696,7 @@ export default function SettingsPage() {
                           href={contactHref}
                           className="mt-auto inline-flex h-10 cursor-pointer items-center justify-center rounded-lg bg-[#1D4ED8] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
                         >
-                          {copy.choosePlan}
+                          {plan.id === "enterprise" ? copy.contactSales : copy.choosePlan}
                         </a>
                       )}
                     </div>

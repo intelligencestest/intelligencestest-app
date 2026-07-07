@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { PlanUsageSummary } from "@/lib/plan/limits";
+import { localePath } from "@/lib/i18n/locales";
 import { PlanBadge } from "./PlanBadge";
 
 interface TrialBannerProps {
@@ -34,6 +35,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
   const t = await getTranslations("billing");
   const isTrial = summary.planId === "trial";
   const isMeteredPlan = isTrial || summary.planId === "starter" || summary.planId === "professional";
+  const billingHref = localePath("/settings/billing", locale);
 
   if (!isMeteredPlan) return null;
 
@@ -52,7 +54,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
           <UsageStat label={t("usageProjects")} used={summary.usage.projects} limit={summary.limits.projects} />
         </div>
         <Link
-          href="/contact"
+          href={billingHref}
           className="flex-shrink-0 rounded-lg bg-[#1D4ED8] px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1e40af]"
         >
           {t("contactSales")}
@@ -81,7 +83,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
         <UsageStat label={t("usageProjects")} used={summary.usage.projects} limit={summary.limits.projects} />
       </div>
       <Link
-        href="/contact"
+        href={billingHref}
         className="flex-shrink-0 rounded-lg border border-[#1D4ED8]/40 bg-[#1D4ED8]/10 px-3.5 py-1.5 text-xs font-semibold text-[#9BB8FF] transition-colors hover:bg-[#1D4ED8]/20"
       >
         {isTrial ? t("upgradeNow") : t("contactSales")}
