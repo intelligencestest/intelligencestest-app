@@ -119,6 +119,23 @@ export default function SettingsPage() {
         deleteData: "Eliminar todos los datos de evaluación",
         closeAccount: "Cerrar cuenta",
         saveChanges: "Guardar cambios",
+        settingsNavTitle: "Configuración",
+        currentPlan: "Plan actual",
+        availablePlans: "Planes disponibles",
+        availablePlansText: "Compare las opciones comerciales disponibles durante el lanzamiento.",
+        planDescriptions: {
+          trial: "Acceso completo para validar el flujo con un equipo pequeño.",
+          starter: "Para equipos que empiezan a usar evaluaciones estructuradas.",
+          professional: "Para equipos de selección con mayor volumen y seguimiento.",
+          enterprise: "Para agencias, consultoras y equipos con necesidades avanzadas.",
+        },
+        planFeatures: {
+          trial: ["1 proyecto activo", "10 candidatos", "1 reclutador"],
+          starter: ["1 proyecto activo", "10 candidatos al mes", "1 reclutador"],
+          professional: ["3 proyectos activos", "50 candidatos al mes", "3 reclutadores"],
+          enterprise: ["Límites personalizados", "Soporte comercial", "Configuración a medida"],
+        },
+        choosePlan: "Solicitar plan",
       }
     : {
         english: "English",
@@ -190,6 +207,23 @@ export default function SettingsPage() {
         deleteData: "Delete All Assessment Data",
         closeAccount: "Close Account",
         saveChanges: "Save Changes",
+        settingsNavTitle: "Settings",
+        currentPlan: "Current plan",
+        availablePlans: "Available plans",
+        availablePlansText: "Compare the commercial options available during launch.",
+        planDescriptions: {
+          trial: "Full access to validate the workflow with a small team.",
+          starter: "For teams starting with structured assessments.",
+          professional: "For recruiting teams with higher volume and follow-up.",
+          enterprise: "For agencies, consultancies, and teams with advanced needs.",
+        },
+        planFeatures: {
+          trial: ["1 active project", "10 candidates", "1 recruiter"],
+          starter: ["1 active project", "10 candidates per month", "1 recruiter"],
+          professional: ["3 active projects", "50 candidates per month", "3 recruiters"],
+          enterprise: ["Custom limits", "Commercial support", "Tailored setup"],
+        },
+        choosePlan: "Request plan",
       };
   const [saved, setSaved] = useState(false);
   // Workspace language is fixed at signup; settings no longer change it.
@@ -346,9 +380,48 @@ export default function SettingsPage() {
         { label: copy.usageRecruiters, used: planData.usage.recruiters, limit: planData.limits.recruiters },
       ]
     : [];
+  const settingsSections = [
+    { href: "#account", label: copy.profile, description: copy.companyInfo },
+    { href: "#security", label: copy.password, description: copy.passwordText },
+    { href: "#notifications", label: copy.notifications, description: es ? "Alertas y resúmenes del espacio de trabajo" : "Workspace alerts and summaries" },
+    { href: "#team", label: copy.teamMembers, description: es ? "Usuarios y acceso del equipo" : "Users and team access" },
+    { href: "#billing", label: copy.billing, description: es ? "Plan, uso y facturación" : "Plan, usage, and billing" },
+    { href: "#danger", label: copy.dangerZone, description: es ? "Acciones sensibles" : "Sensitive actions" },
+  ];
+  const availablePlanCards = [
+    {
+      id: "trial" as const,
+      name: copy.planNames.trial,
+      price: es ? "0 €/3 días" : "€0/3 days",
+      description: copy.planDescriptions.trial,
+      features: copy.planFeatures.trial,
+    },
+    {
+      id: "starter" as const,
+      name: billingT("starterPlanLabel"),
+      price: es ? "29 €/mes" : "€29/month",
+      description: copy.planDescriptions.starter,
+      features: copy.planFeatures.starter,
+    },
+    {
+      id: "professional" as const,
+      name: billingT("professionalPlanLabel"),
+      price: es ? "79 €/mes" : "€79/month",
+      description: copy.planDescriptions.professional,
+      features: copy.planFeatures.professional,
+    },
+    {
+      id: "enterprise" as const,
+      name: copy.planNames.enterprise,
+      price: copy.priceContact,
+      description: copy.planDescriptions.enterprise,
+      features: copy.planFeatures.enterprise,
+    },
+  ];
+  const contactHref = currentLocale === "es" ? "/es/contact" : "/contact";
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">{t("title")}</h1>
         <p className="text-slate-500 text-sm mt-1">{t("description")}</p>
@@ -362,6 +435,27 @@ export default function SettingsPage() {
           {t("saved")}
         </div>
       )}
+
+      <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)] lg:items-start">
+        <aside className="premium-card sticky top-24 hidden rounded-xl p-3 lg:block">
+          <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">
+            {copy.settingsNavTitle}
+          </p>
+          <nav className="mt-1 space-y-1">
+            {settingsSections.map((section) => (
+              <a
+                key={section.href}
+                href={section.href}
+                className="group block rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.035]"
+              >
+                <span className="block text-sm font-semibold text-slate-200 group-hover:text-white">{section.label}</span>
+                <span className="mt-0.5 block truncate text-xs text-[var(--it-faint)]">{section.description}</span>
+              </a>
+            ))}
+          </nav>
+        </aside>
+
+        <div className="space-y-6">
 
       {/* Language is a workspace property chosen at signup */}
       <div className="premium-card rounded-xl p-6">
@@ -377,7 +471,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Profile and company section */}
-      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-6">
+      <div id="account" className="scroll-mt-28 bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-6">
         <div className="border-b border-[#1E2240] pb-4">
           <h2 className="text-base font-semibold text-white">{copy.profile}</h2>
           <p className="mt-1 text-sm text-slate-500">{copy.companyInfo}</p>
@@ -451,7 +545,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Password */}
-      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
+      <div id="security" className="scroll-mt-28 bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-base font-semibold text-white">{copy.password}</h2>
@@ -478,7 +572,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Notifications */}
-      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-4">
+      <div id="notifications" className="scroll-mt-28 bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-4">
         <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3">{copy.notifications}</h2>
         {copy.notificationItems.map((item) => (
           <div key={item.key} className="flex items-start justify-between gap-4 py-3 border-b border-[#1E2240] last:border-0 last:pb-0">
@@ -501,13 +595,13 @@ export default function SettingsPage() {
       </div>
 
       {/* Team members */}
-      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
+      <div id="team" className="scroll-mt-28 bg-[#0D1020] border border-[#1E2240] rounded-xl p-6">
         <h2 className="text-base font-semibold text-white border-b border-[#1E2240] pb-3 mb-4">{copy.teamMembers}</h2>
         <p className="text-sm leading-6 text-slate-500">{copy.teamMembersComingSoon}</p>
       </div>
 
       {/* Billing / Plan */}
-      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-6">
+      <div id="billing" className="scroll-mt-28 bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-6">
         <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#1E2240] pb-4">
           <div>
             <h2 className="text-base font-semibold text-white">{copy.billing}</h2>
@@ -556,6 +650,63 @@ export default function SettingsPage() {
 
             <div>
               <div className="flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <p className="text-xs uppercase tracking-wider text-slate-600">{copy.availablePlans}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">{copy.availablePlansText}</p>
+                </div>
+              </div>
+              <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {availablePlanCards.map((plan) => {
+                  const active = planData.planId === plan.id;
+                  return (
+                    <div
+                      key={plan.id}
+                      className={`flex min-h-[220px] flex-col rounded-xl border px-4 py-4 transition-colors ${
+                        active
+                          ? "border-[#3f5fba] bg-[#0b1430]"
+                          : "border-[#1E2240] bg-[#07080F]/55"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-100">{plan.name}</p>
+                          <p className="mt-1 text-lg font-semibold text-white">{plan.price}</p>
+                        </div>
+                        {active && (
+                          <span className="rounded-full border border-[#3f5fba] bg-[#1D4ED8]/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9BB8FF]">
+                            {copy.currentPlan}
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-3 min-h-[44px] text-sm leading-5 text-slate-500">{plan.description}</p>
+                      <ul className="mt-4 space-y-2 text-sm text-slate-300">
+                        {plan.features.map((feature) => (
+                          <li key={feature} className="flex gap-2">
+                            <span className="mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#7897c5]" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {active ? (
+                        <span className="mt-auto inline-flex h-10 items-center justify-center rounded-lg border border-[#1E2240] bg-transparent px-3 text-sm font-semibold text-slate-300">
+                          {copy.currentPlan}
+                        </span>
+                      ) : (
+                        <a
+                          href={contactHref}
+                          className="mt-auto inline-flex h-10 cursor-pointer items-center justify-center rounded-lg bg-[#1D4ED8] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+                        >
+                          {copy.choosePlan}
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex flex-wrap items-end justify-between gap-2">
                 <p className="text-xs uppercase tracking-wider text-slate-600">{copy.usageLabel}</p>
                 <p className="text-xs text-slate-500">{copy.existingDataSafe}</p>
               </div>
@@ -588,7 +739,7 @@ export default function SettingsPage() {
                 <p className="mt-1 text-sm leading-6 text-slate-300">{copy.paymentMethodValue}</p>
               </div>
               <a
-                href="/contact"
+                href={contactHref}
                 className="flex-shrink-0 rounded-lg bg-[#1D4ED8] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
               >
                 {planData.planId === "trial" ? copy.requestUpgrade : copy.contactSales}
@@ -599,7 +750,7 @@ export default function SettingsPage() {
       </div>
 
       {/* Danger zone */}
-      <div className="bg-[#0D1020] border border-red-500/20 rounded-xl p-6">
+      <div id="danger" className="scroll-mt-28 bg-[#0D1020] border border-red-500/20 rounded-xl p-6">
         <h2 className="text-base font-semibold text-red-400 mb-3">{copy.dangerZone}</h2>
         <p className="text-sm text-slate-500 mb-4">{copy.dangerText}</p>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -631,6 +782,8 @@ export default function SettingsPage() {
         >
           {profileSaving ? t("savingLanguage") : copy.saveChanges}
         </button>
+      </div>
+        </div>
       </div>
     </div>
   );

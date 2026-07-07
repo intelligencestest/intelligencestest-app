@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { localePath, stripLocalePrefix, toAppLocale } from "@/lib/i18n/locales";
-import { createClient } from "@/lib/supabase";
 
 const navItems = [
   {
@@ -75,21 +74,16 @@ const navItems = [
 ];
 
 interface SidebarProps {
-  userEmail?: string;
-  userName?: string;
   /** Candidates waiting for review — the Inbox workload badge. */
   reviewCount?: number;
 }
 
-export default function Sidebar({ userEmail, userName, reviewCount = 0 }: SidebarProps) {
+export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const nav = useTranslations("nav");
-  const auth = useTranslations("auth");
   const locale = toAppLocale(useLocale());
   const es = locale === "es";
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
 
   // Compare against the logical path so /es/projects highlights the same item
   // as /projects. Links themselves keep the /es prefix for Spanish workspaces.
@@ -98,18 +92,6 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
     if (href === "/dashboard") return logicalPath === "/dashboard";
     return logicalPath.startsWith(href);
   };
-
-  const handleLogout = async () => {
-    setLoggingOut(true);
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push(localePath("/login", locale));
-    router.refresh();
-  };
-
-  const initials = userName
-    ? userName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : userEmail?.slice(0, 2).toUpperCase() ?? "HR";
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
@@ -158,27 +140,10 @@ export default function Sidebar({ userEmail, userName, reviewCount = 0 }: Sideba
         })}
       </nav>
 
-      {/* User section + logout */}
-      <div className="px-3 py-4 border-t enterprise-divider space-y-2">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-black/12">
-          <div className="w-8 h-8 rounded-full bg-white/[0.04] border border-[var(--it-border)] flex items-center justify-center text-xs font-semibold text-slate-300 flex-shrink-0">
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="text-sm font-medium text-slate-200 truncate">{userName ?? (es ? "Administrador" : "Admin")}</div>
-            <div className="text-xs text-[var(--it-faint)] truncate">{userEmail ?? ""}</div>
-          </div>
-        </div>
-        <button
-          onClick={handleLogout}
-          disabled={loggingOut}
-          className="w-full cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-red-300 hover:bg-red-500/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          {loggingOut ? auth("signingOut") : auth("signOut")}
-        </button>
+      <div className="border-t enterprise-divider px-6 py-4">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">
+          {es ? "Espacio de trabajo" : "Workspace"}
+        </p>
       </div>
     </div>
   );
