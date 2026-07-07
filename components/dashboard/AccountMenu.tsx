@@ -4,21 +4,33 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Bell, ChevronDown, ChevronRight, CreditCard, LogOut, User } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 import { initialsFor } from "@/lib/user-display";
+import { cn } from "@/lib/utils";
 
 interface AccountMenuProps {
   userEmail?: string;
   userName?: string;
+  /** "topbar" — avatar pill with chevron. "sidebar" — full profile row (used in the sidebar footer). */
+  variant?: "topbar" | "sidebar";
+  /** Sidebar variant only: hide the name/email text when the rail is collapsed to icons. */
+  collapsed?: boolean;
 }
 
-export function AccountMenu({ userEmail, userName }: AccountMenuProps) {
+export function AccountMenu({ userEmail, userName, variant = "topbar", collapsed = false }: AccountMenuProps) {
   const locale = toAppLocale(useLocale());
   const auth = useTranslations("auth");
   const router = useRouter();
   const es = locale === "es";
-  const [open, setOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const initials = initialsFor(userName, userEmail);
   const displayName = userName ?? (es ? "Administrador" : "Admin");
@@ -50,85 +62,88 @@ export function AccountMenu({ userEmail, userName }: AccountMenuProps) {
   };
 
   const links = [
-    { href: "/settings", label: copy.account },
-    { href: "/settings/billing", label: copy.billing },
-    { href: "/settings#notifications", label: copy.notifications },
+    { href: "/settings", label: copy.account, icon: User },
+    { href: "/settings/billing", label: copy.billing, icon: CreditCard },
+    { href: "/settings#notifications", label: copy.notifications, icon: Bell },
   ];
 
   return (
-    <div className="relative">
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
-        className="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--it-border)] bg-[var(--it-card)]/92 p-1.5 text-left shadow-[0_18px_45px_rgba(0,0,0,0.2)] transition-colors hover:border-[#2f3a62] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/50"
-      >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#2f3a62] bg-[#11182b] text-xs font-semibold text-slate-100">
-          {initials}
-        </span>
-        <svg className={`h-4 w-4 text-[var(--it-faint)] transition-transform ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="m6 9 6 6 6-6" />
-        </svg>
-      </button>
-
-      {open && (
-        <>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        {variant === "sidebar" ? (
           <button
             type="button"
-            aria-label={es ? "Cerrar menú de cuenta" : "Close account menu"}
-            className="fixed inset-0 z-40 cursor-default"
-            onClick={() => setOpen(false)}
-          />
-          <div
-            role="menu"
             aria-label={copy.menu}
-            className="absolute right-0 top-[calc(100%+0.75rem)] z-50 w-[min(21rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-[var(--it-border)] bg-[#0D1020] shadow-[0_28px_70px_rgba(0,0,0,0.42)]"
+            className={cn(
+              "group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)]",
+              collapsed && "justify-center"
+            )}
           >
-            <div className="border-b border-[var(--it-border)] px-4 py-4">
-              <p className="truncate text-sm font-semibold text-white">{displayName}</p>
-              <p className="mt-0.5 truncate text-xs text-[var(--it-muted)]">{userEmail}</p>
-            </div>
-
-            <div className="py-2">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  href={localePath(link.href, locale)}
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="flex cursor-pointer items-center justify-between gap-4 px-4 py-3 text-sm font-medium text-slate-300 transition-colors hover:bg-white/[0.035] hover:text-white"
-                >
-                  <span>{link.label}</span>
-                  <svg className="h-4 w-4 text-[var(--it-faint)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="m9 6 6 6-6 6" />
-                  </svg>
-                </Link>
-              ))}
-            </div>
-
-            <div className="border-t border-[var(--it-border)] px-4 py-3">
-              <div className="flex items-center justify-between gap-4 text-sm">
-                <span className="text-[var(--it-muted)]">{copy.language}</span>
-                <span className="font-medium text-slate-200">{copy.languageValue}</span>
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-border)] bg-white/[0.03] text-[11px] font-semibold text-slate-200">
+              {initials}
+            </span>
+            {!collapsed && (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13px] font-medium text-slate-200">{displayName}</p>
+                {userEmail && <p className="truncate text-[11px] text-[var(--it-faint)]">{userEmail}</p>}
               </div>
-            </div>
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            aria-label={copy.menu}
+            className="group inline-flex cursor-pointer items-center gap-2 rounded-full border border-[var(--it-border)] bg-[var(--it-surface)]/92 p-1.5 text-left shadow-[0_18px_45px_rgba(0,0,0,0.2)] transition-colors hover:border-[#2f3a62] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)]/50"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-[#2f3a62] bg-[#11182b] text-xs font-semibold text-slate-100">
+              {initials}
+            </span>
+            <ChevronDown className="h-4 w-4 text-[var(--it-faint)] transition-transform group-data-[state=open]:rotate-180" />
+          </button>
+        )}
+      </DropdownMenuTrigger>
 
-            <button
-              type="button"
-              onClick={handleLogout}
-              disabled={loggingOut}
-              role="menuitem"
-              className="flex w-full cursor-pointer items-center justify-between border-t border-[var(--it-border)] px-4 py-3 text-left text-sm font-semibold text-slate-300 transition-colors hover:bg-red-500/10 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <span>{loggingOut ? auth("signingOut") : auth("signOut")}</span>
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1" />
-              </svg>
-            </button>
+      <DropdownMenuContent
+        align={variant === "sidebar" ? "start" : "end"}
+        side={variant === "sidebar" ? "right" : "bottom"}
+        sideOffset={variant === "sidebar" ? 8 : 12}
+        className="w-[min(21rem,calc(100vw-2rem))] rounded-2xl p-0"
+      >
+        <div className="-mx-px -mt-px border-b border-[var(--it-border-soft)] px-4 py-4">
+          <p className="truncate text-sm font-semibold text-white">{displayName}</p>
+          <p className="mt-0.5 truncate text-xs text-[var(--it-muted)]">{userEmail}</p>
+        </div>
+
+        <div className="py-2">
+          {links.map((link) => (
+            <DropdownMenuItem key={link.href} asChild className="rounded-none px-4 py-3 focus:bg-white/[0.035]">
+              <Link href={localePath(link.href, locale)} className="flex items-center gap-3 text-sm font-medium text-slate-300">
+                <link.icon className="h-4 w-4 flex-shrink-0 text-[var(--it-faint)]" />
+                <span className="min-w-0 flex-1 truncate">{link.label}</span>
+                <ChevronRight className="h-4 w-4 flex-shrink-0 text-[var(--it-faint)]" />
+              </Link>
+            </DropdownMenuItem>
+          ))}
+        </div>
+
+        <div className="border-t border-[var(--it-border-soft)] px-4 py-3">
+          <div className="flex items-center justify-between gap-4 text-sm">
+            <span className="text-[var(--it-muted)]">{copy.language}</span>
+            <span className="font-medium text-slate-200">{copy.languageValue}</span>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+
+        <DropdownMenuSeparator className="m-0 bg-[var(--it-border-soft)]" />
+
+        <DropdownMenuItem
+          onClick={handleLogout}
+          disabled={loggingOut}
+          className="cursor-pointer justify-between rounded-none px-4 py-3 text-sm font-semibold text-slate-300 focus:bg-red-500/10 focus:text-red-200"
+        >
+          <span>{loggingOut ? auth("signingOut") : auth("signOut")}</span>
+          <LogOut className="h-4 w-4" />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

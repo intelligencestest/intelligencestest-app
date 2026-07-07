@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { Briefcase, Check, ChevronDown, Clock, Hourglass, XCircle, type LucideIcon } from "lucide-react";
 import { relativeTime } from "@/lib/dashboard/format";
 
 export interface AlertCandidate {
@@ -30,22 +31,19 @@ const SEVERITY_STYLE = {
   info: { text: "text-[#9bb7d2]", bg: "bg-[rgba(82,122,163,0.08)]", ring: "ring-[rgba(82,122,163,0.28)]" },
 } as const;
 
-const ICON_PATHS: Record<string, string> = {
-  expiring: "M12 8v4l2.5 2.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
-  expired: "M9.75 9.75l4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
-  stalled: "M10 9v6m4-6v6M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z",
-  project: "M3 21v-4m0 0V5a2 2 0 0 1 2-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 0 0-2 2Z",
+const ALERT_ICONS: Record<string, LucideIcon> = {
+  expiring: Clock,
+  expired: XCircle,
+  stalled: Hourglass,
+  project: Briefcase,
 };
 
 const MAX_VISIBLE_ALERTS = 5;
 const MAX_INLINE_CANDIDATES = 5;
 
 function AlertIcon({ kind }: { kind: string }) {
-  return (
-    <svg className="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={ICON_PATHS[kind]} />
-    </svg>
-  );
+  const Icon = ALERT_ICONS[kind];
+  return <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />;
 }
 
 /** Per-candidate inline resolution: extend the invite link by 7 days. */
@@ -73,9 +71,7 @@ function ExtendButton({ candidateId, onDone }: { candidateId: string; onDone: ()
   if (state === "done") {
     return (
       <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#91c7ad]">
-        <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-        </svg>
+        <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
         {t("attnExtended")}
       </span>
     );
@@ -222,9 +218,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
       {alerts.length === 0 ? (
         <div className="px-6 py-8 text-center">
           <div className="enterprise-chip-success mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+            <Check className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </div>
           <p className="text-sm font-medium text-slate-200">{t("allClearTitle")}</p>
           <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("allClearBody")}</p>
@@ -250,15 +244,11 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                 {expandable ? (
                   <span className="enterprise-link flex flex-shrink-0 items-center gap-1.5 whitespace-nowrap text-[13px] font-medium">
                     {isOpen ? t("attnHideCandidates") : t("attnShowCandidates")}
-                    <svg
+                    <ChevronDown
                       className={`h-3.5 w-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
+                      strokeWidth={2}
                       aria-hidden="true"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                    />
                   </span>
                 ) : (
                   <span className="enterprise-link flex-shrink-0 whitespace-nowrap text-[13px] font-medium">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Plus } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
 import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
@@ -330,9 +331,7 @@ export default async function DashboardPage({
               href="/candidates?invite=1"
               className="enterprise-button inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <Plus className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               {t("inviteCandidate")}
             </Link>
           </div>
@@ -362,9 +361,7 @@ export default async function DashboardPage({
               href="/projects/new"
               className="enterprise-button inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold"
             >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
+              <Plus className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               {t("firstProject")}
             </Link>
           </div>

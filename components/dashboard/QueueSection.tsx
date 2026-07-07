@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { ArrowRight, Check } from "lucide-react";
 import { sortQueueEntries, type QueueEntry, type QueueSort } from "@/lib/dashboard/queue";
 import QueueRow from "./QueueRow";
 
@@ -67,9 +68,7 @@ export default async function QueueSection({
               className="enterprise-button inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9fb3e5]"
             >
               {t("queueStartSession")}
-              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
             </Link>
           )}
         </div>
@@ -78,9 +77,7 @@ export default async function QueueSection({
       {visible.length === 0 ? (
         <div className="px-6 py-10 text-center">
           <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full enterprise-chip-success">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+            <Check className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
           </div>
           <p className="text-sm font-medium text-slate-200">{t("queueEmptyTitle")}</p>
           <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("queueEmptyBody")}</p>

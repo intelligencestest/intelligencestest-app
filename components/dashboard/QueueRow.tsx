@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { AlertTriangle, MessageSquare, TrendingUp } from "lucide-react";
 import type { QueueEntry } from "@/lib/dashboard/queue";
 import type { ConfidenceLevel, RecommendationLevel } from "@/lib/dashboard/queue-intelligence";
 import { REVIEW_SLA_MS, shortDuration } from "@/lib/dashboard/format";
@@ -106,31 +107,23 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
       <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
         {intel.topCompetency && (
           <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-slate-300">
-            <svg className="h-3.5 w-3.5 flex-shrink-0 text-[#91c7ad]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-6 6m6-6l6 6" />
-            </svg>
+            <TrendingUp className="h-3.5 w-3.5 flex-shrink-0 text-[#91c7ad]" strokeWidth={2} aria-hidden="true" />
             <span className="truncate">{intel.topCompetency}</span>
           </span>
         )}
         <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-slate-400">
-          <svg
+          <AlertTriangle
             className={`h-3.5 w-3.5 flex-shrink-0 ${intel.primaryRisk ? "text-[#d2b174]" : "text-[var(--it-faint)]"}`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+            strokeWidth={2}
             aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v4m0 4h.01M4.5 19.5h15L12 4.5l-7.5 15Z" />
-          </svg>
+          />
           <span className={`truncate ${intel.primaryRisk ? "text-[#d2b174]" : ""}`}>
             {intel.primaryRisk ? intel.primaryRisk.label : t("queueRiskNone")}
           </span>
         </span>
         {intel.interviewKitReady && (
           <span className="hidden items-center gap-1.5 text-[13px] text-[var(--it-muted)] sm:inline-flex">
-            <svg className="h-3.5 w-3.5 flex-shrink-0 text-[#9bb7d2]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12a8.96 8.96 0 0 1-1.5 5L21 21l-4.35-1.45A9 9 0 1 1 21 12Z" />
-            </svg>
+            <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 text-[#9bb7d2]" strokeWidth={2} aria-hidden="true" />
             {t("queueInterviewKit")}
           </span>
         )}

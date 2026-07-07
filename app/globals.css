@@ -1,13 +1,26 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   --color-surface: #07080F;
   --color-card: #0D1020;
   --color-panel: #1E2240;
-  --color-accent: #1D4ED8;
   --color-accent-hover: #1e40af;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* shadcn/Radix semantic bridge — aliased to the --it-* tokens below so
+     imported primitives (dropdown-menu, tooltip, ...) theme themselves
+     automatically. "accent" here is shadcn's neutral hover/highlight tone,
+     not the brand color — brand blue stays on --it-primary. */
+  --color-background: var(--it-bg);
+  --color-foreground: var(--it-text);
+  --color-popover: var(--it-surface-raised);
+  --color-popover-foreground: var(--it-text);
+  --color-border: var(--it-border);
+  --color-muted-foreground: var(--it-muted);
+  --color-accent: rgba(255, 255, 255, 0.045);
+  --color-accent-foreground: var(--it-text);
 }
 
 :root {
