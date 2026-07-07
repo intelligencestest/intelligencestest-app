@@ -79,7 +79,7 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
         <div className="min-w-0">
           <Link
             href={`/projects/${project.id}`}
-            className="block truncate text-[15px] font-semibold text-white transition-colors hover:text-[#d7e1ff]"
+            className="block truncate text-[15px] font-semibold tracking-[-0.01em] text-white transition-colors hover:text-[#d7e1ff]"
           >
             {project.name}
           </Link>

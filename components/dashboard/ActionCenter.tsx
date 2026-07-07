@@ -211,7 +211,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
   return (
     <section id="attention" className="enterprise-card overflow-hidden rounded-xl">
       <div className="flex items-center justify-between border-b enterprise-divider px-5 py-3.5">
-        <h2 className="text-[13px] font-semibold uppercase text-[var(--it-muted)]">{t("needsAttention")}</h2>
+        <h2 className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--it-muted)]">{t("needsAttention")}</h2>
         {alerts.length > 0 && (
           <span className="enterprise-chip rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums">
             {alerts.length}

@@ -69,7 +69,7 @@ export default async function WorkloadTiles({ data }: { data: WorkloadData }) {
           href={tile.href}
           className="enterprise-card-hover flex min-h-[122px] flex-col border-b border-[var(--it-border-soft)] p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)] sm:odd:border-r xl:border-b-0 xl:border-r xl:last:border-r-0"
         >
-          <p className="text-[12px] font-medium uppercase text-[var(--it-faint)]">{tile.label}</p>
+          <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--it-faint)]">{tile.label}</p>
           <div className="mt-2 flex items-baseline gap-2">
             {/* Cleared queues recede; only live work reads bright. */}
             <span

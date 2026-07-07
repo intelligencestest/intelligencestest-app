@@ -16,7 +16,7 @@ export default async function PipelineStrip({ counts }: { counts: StageCounts })
   return (
     <section className="enterprise-card overflow-hidden rounded-xl">
       <div className="border-b enterprise-divider px-4 py-3.5">
-        <h2 className="text-[13px] font-semibold uppercase text-[var(--it-muted)]">{t("pipelineTitle")}</h2>
+        <h2 className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--it-muted)]">{t("pipelineTitle")}</h2>
       </div>
       {total === 0 ? (
         <div className="px-5 py-8 text-center text-[13px] text-[var(--it-muted)]">{t("pipelineEmpty")}</div>

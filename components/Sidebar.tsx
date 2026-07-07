@@ -3,8 +3,12 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { localePath, stripLocalePrefix, toAppLocale } from "@/lib/i18n/locales";
+import { initialsFor } from "@/lib/user-display";
+import { cn } from "@/lib/cn";
+
+const COLLAPSE_KEY = "it-sidebar-collapsed";
 
 const navItems = [
   {
@@ -76,14 +80,31 @@ const navItems = [
 interface SidebarProps {
   /** Candidates waiting for review — the Inbox workload badge. */
   reviewCount?: number;
+  userName?: string;
+  userEmail?: string;
 }
 
-export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
+export default function Sidebar({ reviewCount = 0, userName, userEmail }: SidebarProps) {
   const pathname = usePathname();
   const nav = useTranslations("nav");
   const locale = toAppLocale(useLocale());
   const es = locale === "es";
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+
+  // Read the persisted collapse state after mount to avoid an SSR/client markup
+  // mismatch (localStorage isn't available on the server).
+  useEffect(() => {
+    setCollapsed(window.localStorage.getItem(COLLAPSE_KEY) === "1");
+  }, []);
+
+  const toggleCollapsed = () => {
+    setCollapsed((prev) => {
+      const next = !prev;
+      window.localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
+      return next;
+    });
+  };
 
   // Compare against the logical path so /es/projects highlights the same item
   // as /projects. Links themselves keep the /es prefix for Spanish workspaces.
@@ -93,60 +114,120 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
     return logicalPath.startsWith(href);
   };
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b enterprise-divider">
-        <div className="w-9 h-9 rounded-lg bg-[var(--it-primary)] border border-white/10 flex items-center justify-center flex-shrink-0">
-          <svg className="w-5 h-5 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
-          </svg>
-        </div>
-        <div>
-          <div className="text-sm font-semibold text-white leading-tight">Intelligences Test</div>
-          <div className="text-xs text-[var(--it-faint)] leading-tight">{es ? "Sistema de evaluación" : "Assessment OS"}</div>
-        </div>
-      </div>
+  const displayName = userName ?? (es ? "Administrador" : "Admin");
+  const initials = initialsFor(userName, userEmail);
 
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1.5">
-        {navItems.map((item) => {
-          const active = isActive(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={localePath(item.href, locale)}
-              onClick={() => setMobileOpen(false)}
-              className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                active
-                  ? "bg-white/[0.045] text-white border border-[var(--it-border)]"
-                  : "border border-transparent text-[var(--it-muted)] hover:text-slate-100 hover:bg-white/[0.025]"
-              }`}
-            >
-              <span className={`transition-colors ${active ? "text-[#b7c5e6]" : "text-[var(--it-faint)] group-hover:text-slate-300"}`}>{item.icon}</span>
-              <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
-              {item.href === "/inbox" && reviewCount > 0 && (
-                <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums ${
+  const SidebarContent = ({ collapsible = false }: { collapsible?: boolean }) => {
+    const isCollapsed = collapsible && collapsed;
+    return (
+      <div className="flex flex-col h-full">
+        {/* Logo */}
+        <div className={cn("flex items-center gap-3 border-b enterprise-divider py-5", isCollapsed ? "justify-center px-3" : "px-6")}>
+          <div className="w-9 h-9 rounded-lg bg-[var(--it-primary)] border border-white/10 flex items-center justify-center flex-shrink-0">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
+            </svg>
+          </div>
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <div className="truncate text-[13px] font-semibold leading-tight text-white">Intelligences Test</div>
+              <div className="truncate text-[11px] leading-tight text-[var(--it-faint)]">{es ? "Sistema de evaluación" : "Assessment OS"}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-4 space-y-1">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={localePath(item.href, locale)}
+                onClick={() => setMobileOpen(false)}
+                title={isCollapsed ? nav(item.labelKey) : undefined}
+                className={cn(
+                  "group flex items-center gap-3 rounded-lg border-l-2 px-2.5 py-2 text-[13px] font-medium tracking-[0.005em] transition-all duration-200",
+                  isCollapsed && "justify-center",
                   active
-                    ? "border-white/10 bg-white/[0.06] text-slate-100"
-                    : "border-[var(--it-border)] bg-[var(--it-bg)] text-[var(--it-muted)] group-hover:text-slate-200"
-                }`}>
-                  {reviewCount}
+                    ? "border-[var(--it-primary)] bg-white/[0.04] text-white"
+                    : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.02] hover:text-slate-100"
+                )}
+              >
+                <span className={cn("transition-colors", active ? "text-[#b7c5e6]" : "text-[var(--it-faint)] group-hover:text-slate-300")}>
+                  {item.icon}
                 </span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
+                {!isCollapsed && (
+                  <>
+                    <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
+                    {item.href === "/inbox" && reviewCount > 0 && (
+                      <span
+                        className={cn(
+                          "rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+                          active
+                            ? "border-white/10 bg-white/[0.06] text-slate-100"
+                            : "border-[var(--it-border)] bg-[var(--it-bg)] text-[var(--it-muted)] group-hover:text-slate-200"
+                        )}
+                      >
+                        {reviewCount}
+                      </span>
+                    )}
+                  </>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
 
-      <div className="border-t enterprise-divider px-6 py-4">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">
-          {es ? "Espacio de trabajo" : "Workspace"}
-        </p>
+        {/* Collapse toggle — desktop rail only */}
+        {collapsible && (
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            title={isCollapsed ? (es ? "Expandir" : "Expand") : es ? "Contraer" : "Collapse"}
+            className={cn(
+              "mx-3 mb-2 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-[var(--it-faint)] transition-colors hover:bg-white/[0.02] hover:text-slate-300 cursor-pointer",
+              isCollapsed && "justify-center"
+            )}
+          >
+            <svg
+              className={cn("h-4 w-4 flex-shrink-0 transition-transform", isCollapsed && "rotate-180")}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
+            </svg>
+            {!isCollapsed && <span>{es ? "Contraer" : "Collapse"}</span>}
+          </button>
+        )}
+
+        {/* Footer — profile card */}
+        <div className="border-t enterprise-divider px-3 py-3">
+          <Link
+            href={localePath("/settings", locale)}
+            onClick={() => setMobileOpen(false)}
+            title={isCollapsed ? displayName : undefined}
+            className={cn(
+              "flex items-center gap-2.5 rounded-lg px-2 py-2 transition-colors hover:bg-white/[0.025]",
+              isCollapsed && "justify-center"
+            )}
+          >
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-border)] bg-white/[0.03] text-[11px] font-semibold text-slate-200">
+              {initials}
+            </span>
+            {!isCollapsed && (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[13px] font-medium text-slate-200">{displayName}</p>
+                {userEmail && <p className="truncate text-[11px] text-[var(--it-faint)]">{userEmail}</p>}
+              </div>
+            )}
+          </Link>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <>
@@ -177,8 +258,13 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
         <SidebarContent />
       </aside>
 
-      <aside className="hidden lg:flex print:hidden flex-col w-64 flex-shrink-0 h-full bg-[var(--it-sidebar)] border-r enterprise-divider">
-        <SidebarContent />
+      <aside
+        className={cn(
+          "hidden lg:flex print:hidden flex-col flex-shrink-0 h-full bg-[var(--it-sidebar)] border-r enterprise-divider transition-[width] duration-200 ease-out motion-reduce:transition-none",
+          collapsed ? "w-[76px]" : "w-64"
+        )}
+      >
+        <SidebarContent collapsible />
       </aside>
     </>
   );

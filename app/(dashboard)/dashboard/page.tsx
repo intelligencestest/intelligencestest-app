@@ -298,7 +298,7 @@ export default async function DashboardPage({
   const emptyWorkspace = all.length === 0 && (projects ?? []).length === 0;
 
   return (
-    <div className="mx-auto max-w-[1180px] space-y-7 animate-fade-up">
+    <div className="mx-auto max-w-[1180px] space-y-8 animate-fade-up">
       {/* Zone A — Morning brief */}
       <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
@@ -388,8 +388,8 @@ export default async function DashboardPage({
           />
 
           {/* Zones D–H — queue + projects | pipeline + activity */}
-          <div className="grid grid-cols-1 gap-7 xl:grid-cols-[minmax(0,2.05fr)_minmax(300px,0.95fr)] xl:items-start">
-            <div className="space-y-7">
+          <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,2.05fr)_minmax(300px,0.95fr)] xl:items-start">
+            <div className="space-y-8">
               {/* Zone D — Candidate queue (hero) */}
               <QueueSection
                 entries={reviewQueue.entries}
@@ -402,7 +402,7 @@ export default async function DashboardPage({
               {/* Zone E — Project health */}
               <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-[13px] font-semibold uppercase text-[var(--it-muted)]">{t("activeProjectsTitle")}</h2>
+                  <h2 className="text-[13px] font-semibold uppercase tracking-[0.04em] text-[var(--it-muted)]">{t("activeProjectsTitle")}</h2>
                   {sortedProjects.length > 4 && (
                     <Link href="/projects" className="enterprise-link text-[13px] font-medium">
                       {t("viewAllProjects", { count: sortedProjects.length })} →
@@ -431,7 +431,7 @@ export default async function DashboardPage({
             </div>
 
             {/* Zones F + H — right rail */}
-            <div className="space-y-7">
+            <div className="space-y-8">
               <PipelineStrip counts={stageCounts} />
               <ActivityRail items={activity.slice(0, 8)} />
             </div>

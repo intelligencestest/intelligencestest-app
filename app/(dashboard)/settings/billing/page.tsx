@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 
+const PAYPAL_MANAGE_URL = "https://www.paypal.com/myaccount/autopay/";
+
 type PlanId = "trial" | "starter" | "professional" | "enterprise";
 
 interface PlanData {
@@ -28,11 +30,11 @@ function usagePercent(used: number, limit: number | null) {
 }
 
 function usageTone(used: number, limit: number | null) {
-  if (limit === null || limit <= 0) return "bg-[#7897c5]";
+  if (limit === null || limit <= 0) return "bg-[var(--it-info)]";
   const ratio = used / limit;
-  if (ratio >= 1) return "bg-[#d99792]";
-  if (ratio >= 0.8) return "bg-[#d2b174]";
-  return "bg-[#7897c5]";
+  if (ratio >= 1) return "bg-[var(--it-danger)]";
+  if (ratio >= 0.8) return "bg-[var(--it-warning)]";
+  return "bg-[var(--it-info)]";
 }
 
 export default function BillingSettingsPage() {
@@ -91,6 +93,13 @@ export default function BillingSettingsPage() {
           professional: ["3 proyectos activos", "50 candidatos al mes", "3 reclutadores"],
           enterprise: ["Límites personalizados", "Soporte comercial", "Configuración a medida"],
         },
+        billingHistory: "Historial de facturación",
+        billingHistoryText:
+          "Sus facturas y recibos de PayPal están disponibles directamente en su cuenta de PayPal.",
+        paymentMethod: "Método de pago",
+        paymentMethodText:
+          "El método de pago de esta suscripción se gestiona de forma segura en PayPal, no lo almacenamos aquí.",
+        manageInPayPal: "Gestionar en PayPal",
       }
     : {
         title: "Plan and billing",
@@ -140,6 +149,12 @@ export default function BillingSettingsPage() {
           professional: ["3 active projects", "50 candidates per month", "3 recruiters"],
           enterprise: ["Custom limits", "Commercial support", "Tailored setup"],
         },
+        billingHistory: "Billing history",
+        billingHistoryText: "Your PayPal invoices and receipts are available directly in your PayPal account.",
+        paymentMethod: "Payment method",
+        paymentMethodText:
+          "The payment method for this subscription is managed securely by PayPal — we don't store it here.",
+        manageInPayPal: "Manage in PayPal",
       };
 
   useEffect(() => {
@@ -225,26 +240,27 @@ export default function BillingSettingsPage() {
       features: copy.features.enterprise,
     },
   ];
+  const hasPayPalSubscription = planData?.billingProvider === "paypal" && planData.subscriptionStatus === "active";
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
         <p className="text-sm font-medium text-[var(--it-faint)]">{es ? "Configuración" : "Settings"}</p>
-        <h1 className="mt-2 text-2xl font-bold text-white">{copy.title}</h1>
-        <p className="mt-1 max-w-2xl text-sm leading-6 text-slate-500">{copy.description}</p>
+        <h1 className="mt-2 text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
+        <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start">
-        <aside className="premium-card sticky top-24 hidden rounded-xl p-3 lg:block">
+      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
+        <aside className="enterprise-card sticky top-24 hidden rounded-xl p-3 lg:block">
           <nav className="space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={localePath(item.href, locale)}
-                className={`block rounded-lg px-3 py-2.5 text-sm font-semibold transition-colors ${
+                className={`block rounded-lg border-l-2 px-3 py-2.5 text-[13px] font-medium transition-colors ${
                   item.active
-                    ? "bg-white/[0.055] text-white"
-                    : "text-slate-400 hover:bg-white/[0.035] hover:text-white"
+                    ? "border-[var(--it-primary)] bg-white/[0.04] text-white"
+                    : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.02] hover:text-slate-100"
                 }`}
               >
                 {item.label}
@@ -254,41 +270,45 @@ export default function BillingSettingsPage() {
         </aside>
 
         <section className="space-y-6">
-          <div className="premium-card rounded-xl p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#1E2240] pb-5">
+          <div className="enterprise-card rounded-xl p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b enterprise-divider pb-5">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
                   {copy.currentSubscription}
                 </p>
                 <h2 className="mt-2 text-xl font-semibold text-white">{loading ? copy.loading : planName}</h2>
               </div>
               {effectivePlanId && (
-                <span className="rounded-full border border-[#3f5fba] bg-[#1D4ED8]/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#9BB8FF]">
+                <span className="enterprise-chip-info inline-flex items-center rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em]">
                   {effectivePlanId === "trial" ? copy.freeTrial : copy.currentPlan}
                 </span>
               )}
             </div>
 
             {loading ? (
-              <p className="mt-5 text-sm text-slate-500">{copy.loading}</p>
+              <p className="mt-5 text-sm text-[var(--it-muted)]">{copy.loading}</p>
             ) : planData ? (
               <div className="mt-5 grid gap-3 md:grid-cols-3">
-                <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
-                  <p className="text-xs uppercase tracking-wider text-slate-600">{copy.status}</p>
+                <div className="enterprise-panel rounded-lg px-4 py-3.5">
+                  <p className="text-[11px] uppercase tracking-wider text-[var(--it-faint)]">{copy.status}</p>
                   <p className="mt-1 text-lg font-semibold text-slate-100">{subscriptionLabel}</p>
                 </div>
-                <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
-                  <p className="text-xs uppercase tracking-wider text-slate-600">{copy.provider}</p>
+                <div className="enterprise-panel rounded-lg px-4 py-3.5">
+                  <p className="text-[11px] uppercase tracking-wider text-[var(--it-faint)]">{copy.provider}</p>
                   <p className="mt-1 text-lg font-semibold text-slate-100">
                     {planData.billingProvider === "paypal" ? copy.paypal : copy.manual}
                   </p>
                 </div>
                 {planData.trialEndsAt ? (
-                  <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
-                    <p className="text-xs uppercase tracking-wider text-slate-600">
+                  <div className="enterprise-panel rounded-lg px-4 py-3.5">
+                    <p className="text-[11px] uppercase tracking-wider text-[var(--it-faint)]">
                       {planData.isTrialExpired ? copy.trialEnded : copy.trialEnds}
                     </p>
-                    <p className={`mt-1 text-lg font-semibold ${planData.isTrialExpired ? "text-[#d99792]" : "text-slate-100"}`}>
+                    <p
+                      className={`mt-1 text-lg font-semibold ${
+                        planData.isTrialExpired ? "text-[#d99792]" : "text-slate-100"
+                      }`}
+                    >
                       {new Date(planData.trialEndsAt).toLocaleDateString(es ? "es-ES" : "en-US", {
                         day: "numeric",
                         month: "short",
@@ -296,7 +316,7 @@ export default function BillingSettingsPage() {
                       })}
                     </p>
                     {activeTrial && planData.trialDaysLeft !== null ? (
-                      <p className="mt-0.5 text-sm text-slate-500">{copy.daysLeft(planData.trialDaysLeft)}</p>
+                      <p className="mt-0.5 text-sm text-[var(--it-muted)]">{copy.daysLeft(planData.trialDaysLeft)}</p>
                     ) : null}
                   </div>
                 ) : null}
@@ -305,21 +325,23 @@ export default function BillingSettingsPage() {
           </div>
 
           {planData ? (
-            <div className="premium-card rounded-xl p-6">
+            <div className="enterprise-card rounded-xl p-6">
               <div className="flex flex-wrap items-end justify-between gap-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">{copy.usage}</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">{copy.usageNote}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                    {copy.usage}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.usageNote}</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-3 md:grid-cols-3">
                 {usageRows.map((row) => (
-                  <div key={row.label} className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-3.5 py-3">
+                  <div key={row.label} className="enterprise-panel rounded-lg px-3.5 py-3">
                     <div className="flex items-baseline justify-between gap-3">
-                      <p className="text-xs text-slate-500">{row.label}</p>
+                      <p className="text-[13px] text-[var(--it-muted)]">{row.label}</p>
                       <p className="text-sm font-semibold tabular-nums text-slate-100">
                         {row.used}
-                        <span className="font-normal text-slate-500">/{row.limit ?? copy.unlimited}</span>
+                        <span className="font-normal text-[var(--it-faint)]">/{row.limit ?? copy.unlimited}</span>
                       </p>
                     </div>
                     {row.limit !== null ? (
@@ -336,13 +358,13 @@ export default function BillingSettingsPage() {
             </div>
           ) : null}
 
-          <div className="premium-card rounded-xl p-6">
-            <div className="border-b border-[#1E2240] pb-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">
+          <div className="enterprise-card rounded-xl p-6">
+            <div className="border-b enterprise-divider pb-5">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
                 {copy.availablePlans}
               </p>
               <h2 className="mt-2 text-xl font-semibold text-white">{copy.availablePlansText}</h2>
-              <p className="mt-1 text-sm leading-6 text-slate-500">{copy.paymentMode}</p>
+              <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMode}</p>
             </div>
 
             <div className="mt-5 grid gap-4 xl:grid-cols-4">
@@ -352,7 +374,9 @@ export default function BillingSettingsPage() {
                   <div
                     key={plan.id}
                     className={`flex min-h-[260px] flex-col rounded-xl border px-4 py-4 ${
-                      active ? "border-[#3f5fba] bg-[#0b1430]" : "border-[#1E2240] bg-[#07080F]/55"
+                      active
+                        ? "border-[var(--it-primary)] bg-[var(--it-primary-soft)]"
+                        : "border-[var(--it-border-soft)] bg-[var(--it-surface-muted)]"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -361,7 +385,7 @@ export default function BillingSettingsPage() {
                         <p className="mt-2 text-2xl font-semibold text-white">{plan.price}</p>
                       </div>
                       {active ? (
-                        <span className="rounded-full border border-[#3f5fba] bg-[#1D4ED8]/15 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#9BB8FF]">
+                        <span className="enterprise-chip-info inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em]">
                           {copy.current}
                         </span>
                       ) : null}
@@ -370,7 +394,7 @@ export default function BillingSettingsPage() {
                     <ul className="mt-5 space-y-2 text-sm text-slate-300">
                       {plan.features.map((feature) => (
                         <li key={feature} className="flex gap-2">
-                          <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#7897c5]" />
+                          <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--it-info)]" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -378,12 +402,12 @@ export default function BillingSettingsPage() {
 
                     <div className="mt-auto pt-5">
                       {active ? (
-                        <span className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-[#1E2240] bg-transparent px-3 text-sm font-semibold text-slate-300">
+                        <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold">
                           {copy.currentPlan}
                         </span>
                       ) : plan.id === "starter" || plan.id === "professional" ? (
                         <div>
-                          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--it-faint)]">
                             {copy.subscribe}
                           </p>
                           <PayPalSubscribeButton plan={plan.id} locale={locale} />
@@ -391,12 +415,12 @@ export default function BillingSettingsPage() {
                       ) : plan.id === "enterprise" ? (
                         <Link
                           href={localePath("/contact", locale)}
-                          className="inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg bg-[#1D4ED8] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+                          className="enterprise-button inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-semibold"
                         >
                           {copy.contactSales}
                         </Link>
                       ) : (
-                        <span className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-[#1E2240] bg-transparent px-3 text-sm font-semibold text-slate-500">
+                        <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold opacity-70">
                           {copy.freeTrial}
                         </span>
                       )}
@@ -406,6 +430,39 @@ export default function BillingSettingsPage() {
               })}
             </div>
           </div>
+
+          {hasPayPalSubscription ? (
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="enterprise-card rounded-xl p-6">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                  {copy.billingHistory}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--it-muted)]">{copy.billingHistoryText}</p>
+                <a
+                  href={PAYPAL_MANAGE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="enterprise-button-secondary mt-4 inline-flex h-9 items-center justify-center rounded-lg px-4 text-[13px] font-semibold"
+                >
+                  {copy.manageInPayPal}
+                </a>
+              </div>
+              <div className="enterprise-card rounded-xl p-6">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                  {copy.paymentMethod}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMethodText}</p>
+                <a
+                  href={PAYPAL_MANAGE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="enterprise-button-secondary mt-4 inline-flex h-9 items-center justify-center rounded-lg px-4 text-[13px] font-semibold"
+                >
+                  {copy.manageInPayPal}
+                </a>
+              </div>
+            </div>
+          ) : null}
         </section>
       </div>
     </div>
