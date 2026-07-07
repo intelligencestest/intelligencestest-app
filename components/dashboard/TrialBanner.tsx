@@ -40,10 +40,16 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
   if (isTrial && summary.isTrialExpired) {
     const sev = SEVERITY.serious;
     return (
-      <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 ring-1 ${sev.bg} ${sev.ring}`}>
-        <div className="flex items-center gap-3">
+      <div
+        className={`flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 ring-1 ${sev.bg} ${sev.ring}`}
+        aria-live="polite"
+      >
+        <div className="flex flex-wrap items-center gap-3">
           <PlanBadge planId={summary.planId} plan={summary.plan} locale={locale} />
           <p className={`text-sm font-medium ${sev.text}`}>{t("trialExpiredTitle")}</p>
+          <span className="hidden h-4 w-px bg-white/10 sm:block" aria-hidden="true" />
+          <UsageStat label={t("usageCandidates")} used={summary.usage.candidates} limit={summary.limits.candidates} />
+          <UsageStat label={t("usageProjects")} used={summary.usage.projects} limit={summary.limits.projects} />
         </div>
         <Link
           href="/contact"
@@ -59,7 +65,10 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
   const severity = isTrial ? (days !== null && days <= 1 ? SEVERITY.serious : SEVERITY.warning) : SEVERITY.info;
 
   return (
-    <div className={`flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 ring-1 ${severity.bg} ${severity.ring}`}>
+    <div
+      className={`flex flex-wrap items-center justify-between gap-3 rounded-xl px-4 py-3 ring-1 ${severity.bg} ${severity.ring}`}
+      aria-live="polite"
+    >
       <div className="flex flex-wrap items-center gap-3">
         <PlanBadge planId={summary.planId} plan={summary.plan} locale={locale} />
         {isTrial && days !== null ? (

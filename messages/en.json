@@ -443,10 +443,10 @@
     "trialDaysLeft": "{days} days left in your trial",
     "trialOneDayLeft": "1 day left in your trial",
     "trialLastDay": "Last day of your trial",
-    "trialExpiredTitle": "Your trial has ended — contact sales to keep going",
+    "trialExpiredTitle": "Your trial has ended. Request an extension to continue.",
     "usageCandidates": "Candidates",
     "usageProjects": "Projects",
-    "upgradeNow": "Upgrade now",
+    "upgradeNow": "Request extension",
     "contactSales": "Contact sales"
   }
 }

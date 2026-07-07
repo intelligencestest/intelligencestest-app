@@ -68,7 +68,7 @@ export default async function AdminCompaniesPage({
       logo_url: company.logo_url,
       created_at: company.created_at,
       status: company.status ?? "active",
-      plan: company.plan ?? "standard",
+      plan: company.plan ?? "trial",
       activeUsers: stats?.recruiters ?? 0,
       projects: stats?.activeProjects ?? 0,
       assessmentsUsed: stats?.completed30d ?? 0,

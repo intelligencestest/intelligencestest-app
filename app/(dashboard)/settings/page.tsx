@@ -22,9 +22,25 @@ interface PlanData {
   trialDaysLeft: number | null;
   isTrialExpired: boolean;
   subscriptionStatus: string;
+  billingProvider: string;
   limits: { candidates: number | null; projects: number | null; recruiters: number | null };
   usage: { candidates: number; projects: number; recruiters: number };
   priceEur: number | null;
+}
+
+type PlanId = NonNullable<PlanData["planId"]>;
+
+function usagePercent(used: number, limit: number | null) {
+  if (limit === null || limit <= 0) return 0;
+  return Math.min(100, Math.round((used / limit) * 100));
+}
+
+function usageTone(used: number, limit: number | null) {
+  if (limit === null || limit <= 0) return "bg-[#7897c5]";
+  const ratio = used / limit;
+  if (ratio >= 1) return "bg-[#d99792]";
+  if (ratio >= 0.8) return "bg-[#d2b174]";
+  return "bg-[#7897c5]";
 }
 
 export default function SettingsPage() {
@@ -52,23 +68,40 @@ export default function SettingsPage() {
         sendingPasswordReset: "Enviando enlace...",
         passwordResetSent: "Enlace de restablecimiento enviado.",
         passwordResetError: "No se pudo enviar el enlace de restablecimiento.",
-        billing: "Facturación",
-        billingText: "La facturación se integrará más adelante. Por ahora, los planes se gestionan desde el panel interno.",
-        planLabel: "Plan actual",
+        billing: "Plan y facturación",
+        billingText:
+          "Durante la fase de lanzamiento, la facturación se gestiona manualmente. Puede solicitar una ampliación en cualquier momento; PayPal se añadirá próximamente.",
+        planLabel: "Plan",
+        planNames: {
+          trial: "Prueba gratuita",
+          starter: "Starter",
+          professional: "Professional",
+          enterprise: "Enterprise",
+        },
+        legacyPlan: (plan: string) => `Plan anterior (${plan})`,
         priceMonthly: (amount: number) => `${amount} €/mes`,
-        priceContact: "Contactar con ventas",
-        trialEndsLabel: "Su prueba termina el",
+        priceContact: "A medida",
+        trialEndsLabel: "Prueba activa hasta",
         trialExpiredLabel: "Su prueba finalizó el",
         trialDaysLeft: (days: number) => (days === 1 ? "Queda 1 día de prueba" : `Quedan ${days} días de prueba`),
-        usageLabel: "Uso este mes",
-        usageCandidates: "Candidatos",
+        subscriptionLabel: "Estado",
+        subscriptionLabels: {
+          manual: "Manual",
+          pending_payment: "Pago pendiente",
+          active: "Activo",
+          past_due: "Pago pendiente",
+          cancelled: "Cancelado",
+        },
+        usageLabel: "Uso del plan",
+        usageCandidates: "Candidatos este mes",
         usageProjects: "Proyectos activos",
         usageRecruiters: "Reclutadores",
         usageUnlimited: "sin límite",
-        paymentMethodLabel: "Método de pago",
-        paymentMethodValue: "Facturación manual · PayPal próximamente",
+        paymentMethodLabel: "Facturación manual",
+        paymentMethodValue: "Pago gestionado por el equipo comercial · PayPal próximamente",
+        existingDataSafe: "Sus proyectos, candidatos e informes existentes permanecen accesibles aunque se alcance un límite.",
         contactSales: "Contactar con ventas",
-        requestUpgrade: "Solicitar ampliación de plan",
+        requestUpgrade: "Solicitar ampliación",
         planLoading: "Cargando plan...",
         notifications: "Preferencias de notificación",
         notificationItems: [
@@ -106,23 +139,40 @@ export default function SettingsPage() {
         sendingPasswordReset: "Sending reset link...",
         passwordResetSent: "Password reset link sent.",
         passwordResetError: "Could not send password reset link.",
-        billing: "Billing",
-        billingText: "Billing will be integrated later. For now, plans are managed from the internal admin panel.",
-        planLabel: "Current plan",
+        billing: "Plan and billing",
+        billingText:
+          "During launch, billing is handled manually. You can request an extension at any time; PayPal will be added soon.",
+        planLabel: "Plan",
+        planNames: {
+          trial: "Free trial",
+          starter: "Starter",
+          professional: "Professional",
+          enterprise: "Enterprise",
+        },
+        legacyPlan: (plan: string) => `Legacy plan (${plan})`,
         priceMonthly: (amount: number) => `€${amount}/month`,
-        priceContact: "Contact sales",
-        trialEndsLabel: "Your trial ends on",
+        priceContact: "Custom",
+        trialEndsLabel: "Trial active until",
         trialExpiredLabel: "Your trial ended on",
         trialDaysLeft: (days: number) => (days === 1 ? "1 day left in your trial" : `${days} days left in your trial`),
-        usageLabel: "Usage this month",
-        usageCandidates: "Candidates",
+        subscriptionLabel: "Status",
+        subscriptionLabels: {
+          manual: "Manual",
+          pending_payment: "Pending payment",
+          active: "Active",
+          past_due: "Past due",
+          cancelled: "Cancelled",
+        },
+        usageLabel: "Plan usage",
+        usageCandidates: "Candidates this month",
         usageProjects: "Active projects",
         usageRecruiters: "Recruiters",
         usageUnlimited: "unlimited",
-        paymentMethodLabel: "Payment method",
-        paymentMethodValue: "Manual billing · PayPal coming soon",
+        paymentMethodLabel: "Manual billing",
+        paymentMethodValue: "Payment handled by the commercial team · PayPal coming soon",
+        existingDataSafe: "Existing projects, candidates, and reports remain accessible even when a limit is reached.",
         contactSales: "Contact sales",
-        requestUpgrade: "Request upgrade",
+        requestUpgrade: "Request extension",
         planLoading: "Loading plan...",
         notifications: "Notification Preferences",
         notificationItems: [
@@ -266,6 +316,24 @@ export default function SettingsPage() {
       window.setTimeout(() => setPasswordMessage(null), 3000);
     }
   };
+
+  const planName = planData
+    ? planData.planId
+      ? copy.planNames[planData.planId as PlanId]
+      : copy.legacyPlan(planData.plan)
+    : "";
+  const subscriptionStatusKey = planData?.subscriptionStatus as keyof typeof copy.subscriptionLabels | undefined;
+  const subscriptionStatusLabel =
+    subscriptionStatusKey && copy.subscriptionLabels[subscriptionStatusKey]
+      ? copy.subscriptionLabels[subscriptionStatusKey]
+      : planData?.subscriptionStatus.replace(/_/g, " ") ?? "";
+  const planUsageRows = planData
+    ? [
+        { label: copy.usageCandidates, used: planData.usage.candidates, limit: planData.limits.candidates },
+        { label: copy.usageProjects, used: planData.usage.projects, limit: planData.limits.projects },
+        { label: copy.usageRecruiters, used: planData.usage.recruiters, limit: planData.limits.recruiters },
+      ]
+    : [];
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -427,15 +495,15 @@ export default function SettingsPage() {
       </div>
 
       {/* Billing / Plan */}
-      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#1E2240] pb-4">
+      <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-6 space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#1E2240] pb-4">
           <div>
             <h2 className="text-base font-semibold text-white">{copy.billing}</h2>
-            <p className="mt-1 text-sm text-slate-500">{copy.billingText}</p>
+            <p className="mt-1 max-w-xl text-sm leading-6 text-slate-500">{copy.billingText}</p>
           </div>
           {planData && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-3 py-1.5 text-sm font-semibold capitalize text-[#9BB8FF]">
-              {planData.plan}
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-3 py-1.5 text-sm font-semibold text-[#9BB8FF]">
+              {planName}
             </span>
           )}
         </div>
@@ -443,20 +511,26 @@ export default function SettingsPage() {
         {planLoading ? (
           <p className="text-sm text-slate-500">{copy.planLoading}</p>
         ) : planData ? (
-          <div className="space-y-5">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
+          <div className="space-y-6">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
                 <p className="text-xs uppercase tracking-wider text-slate-600">{copy.planLabel}</p>
-                <p className="mt-1 text-sm font-medium text-slate-200">
+                <p className="mt-1 text-lg font-semibold text-slate-100">{planName}</p>
+                <p className="mt-0.5 text-sm text-slate-500">
                   {planData.priceEur !== null ? copy.priceMonthly(planData.priceEur) : copy.priceContact}
                 </p>
               </div>
+              <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
+                <p className="text-xs uppercase tracking-wider text-slate-600">{copy.subscriptionLabel}</p>
+                <p className="mt-1 text-lg font-semibold text-slate-100">{subscriptionStatusLabel}</p>
+                <p className="mt-0.5 text-sm text-slate-500">{copy.paymentMethodLabel}</p>
+              </div>
               {planData.planId === "trial" && planData.trialEndsAt && (
-                <div>
+                <div className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
                   <p className="text-xs uppercase tracking-wider text-slate-600">
                     {planData.isTrialExpired ? copy.trialExpiredLabel : copy.trialEndsLabel}
                   </p>
-                  <p className={`mt-1 text-sm font-medium ${planData.isTrialExpired ? "text-red-400" : "text-slate-200"}`}>
+                  <p className={`mt-1 text-lg font-semibold ${planData.isTrialExpired ? "text-[#d99792]" : "text-slate-100"}`}>
                     {new Date(planData.trialEndsAt).toLocaleDateString(es ? "es-ES" : "en-US", {
                       day: "numeric",
                       month: "short",
@@ -471,36 +545,43 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <p className="text-xs uppercase tracking-wider text-slate-600">{copy.usageLabel}</p>
-              <div className="mt-2 grid gap-3 sm:grid-cols-3">
-                {(
-                  [
-                    ["usageCandidates", planData.usage.candidates, planData.limits.candidates],
-                    ["usageProjects", planData.usage.projects, planData.limits.projects],
-                    ["usageRecruiters", planData.usage.recruiters, planData.limits.recruiters],
-                  ] as const
-                ).map(([key, used, limit]) => (
-                  <div key={key} className="rounded-lg border border-[#1E2240] bg-[#07080F]/60 px-3 py-2.5">
-                    <p className="text-xs text-slate-500">{copy[key]}</p>
-                    <p className="mt-0.5 text-sm font-semibold text-slate-100">
-                      {used}
-                      <span className="font-normal text-slate-500">/{limit ?? copy.usageUnlimited}</span>
-                    </p>
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <p className="text-xs uppercase tracking-wider text-slate-600">{copy.usageLabel}</p>
+                <p className="text-xs text-slate-500">{copy.existingDataSafe}</p>
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                {planUsageRows.map((row) => (
+                  <div key={row.label} className="rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-3.5 py-3">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="text-xs text-slate-500">{row.label}</p>
+                      <p className="text-sm font-semibold tabular-nums text-slate-100">
+                        {row.used}
+                        <span className="font-normal text-slate-500">/{row.limit ?? copy.usageUnlimited}</span>
+                      </p>
+                    </div>
+                    {row.limit !== null ? (
+                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                        <span
+                          className={`block h-full rounded-full ${usageTone(row.used, row.limit)}`}
+                          style={{ width: `${usagePercent(row.used, row.limit)}%` }}
+                        />
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#1E2240] bg-[#07080F]/60 px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[#1E2240] bg-[#07080F]/55 px-4 py-3.5">
               <div>
                 <p className="text-xs uppercase tracking-wider text-slate-600">{copy.paymentMethodLabel}</p>
-                <p className="mt-1 text-sm text-slate-300">{copy.paymentMethodValue}</p>
+                <p className="mt-1 text-sm leading-6 text-slate-300">{copy.paymentMethodValue}</p>
               </div>
               <a
                 href="/contact"
                 className="flex-shrink-0 rounded-lg bg-[#1D4ED8] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
               >
-                {planData.planId === "trial" ? copy.contactSales : copy.requestUpgrade}
+                {planData.planId === "trial" ? copy.requestUpgrade : copy.contactSales}
               </a>
             </div>
           </div>

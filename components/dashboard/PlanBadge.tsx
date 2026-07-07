@@ -1,7 +1,7 @@
 import type { PlanId } from "@/lib/plan/limits";
 
 const PLAN_LABEL: Record<PlanId, { en: string; es: string }> = {
-  trial: { en: "Trial", es: "Prueba" },
+  trial: { en: "Free trial", es: "Prueba gratuita" },
   starter: { en: "Starter", es: "Starter" },
   professional: { en: "Professional", es: "Professional" },
   enterprise: { en: "Enterprise", es: "Enterprise" },

@@ -36,12 +36,12 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
     return {
       subject: es ? "Su prueba de 3 días ha comenzado" : "Your 3-day trial has started",
       preheader: es
-        ? "Invite a su primer candidato y vea los resultados en minutos."
+        ? "Cree su primer proyecto e invite candidatos para revisar un informe ejecutivo."
         : "Invite your first candidate and see results in minutes.",
       greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
       title: es ? "Su espacio de trabajo está listo" : "Your workspace is ready",
       intro: es
-        ? "Tiene 3 días para crear un proyecto e invitar hasta 10 candidatos, sin necesidad de tarjeta de crédito. Empiece ahora para no perder tiempo de prueba."
+        ? "Su prueba gratuita está activa durante 3 días. Puede crear 1 proyecto e invitar hasta 10 candidatos, sin necesidad de tarjeta de crédito."
         : "You have 3 days to create a project and invite up to 10 candidates — no credit card required. Start now to make the most of your trial.",
       cta: es ? "Ir al panel" : "Go to dashboard",
       ctaUrl: DASHBOARD_URL,
@@ -54,12 +54,12 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
 
   if (kind === "trial_day1") {
     return {
-      subject: es ? "¿Ya invitó a su primer candidato?" : "Have you invited your first candidate yet?",
+      subject: es ? "¿Ha invitado ya a su primer candidato?" : "Have you invited your first candidate yet?",
       preheader: es ? "Quedan 2 días de su prueba gratuita." : "2 days left in your free trial.",
       greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
       title: es ? "Aproveche su prueba gratuita" : "Make the most of your free trial",
       intro: es
-        ? "Cree un proyecto de contratación e invite a un candidato para ver un informe ejecutivo real antes de que termine su prueba."
+        ? "Cree un proyecto de contratación e invite a un candidato para ver un informe ejecutivo real antes de que finalice su prueba."
         : "Create a hiring project and invite a candidate to see a real executive report before your trial ends.",
       cta: es ? "Invitar a un candidato" : "Invite a candidate",
       ctaUrl: DASHBOARD_URL,
@@ -77,7 +77,7 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
       greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
       title: es ? "Su prueba termina mañana" : "Your trial ends tomorrow",
       intro: es
-        ? "Mañana finaliza su periodo de prueba. Si le está funcionando, hable con nuestro equipo para continuar sin interrupciones."
+        ? "Mañana finaliza su periodo de prueba. Si la plataforma encaja con su proceso, hable con nuestro equipo para continuar sin interrupciones."
         : "Your trial period ends tomorrow. If it's working for you, talk to our team to keep going without interruption.",
       cta: es ? "Hablar con ventas" : "Talk to sales",
       ctaUrl: CONTACT_URL,
@@ -91,7 +91,7 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
   if (kind === "trial_ending") {
     return {
       subject: es ? "Su prueba termina hoy" : "Your trial ends today",
-      preheader: es ? "Actualice su plan para continuar sin interrupciones." : "Upgrade to keep going without interruption.",
+      preheader: es ? "Solicite una ampliación para continuar sin interrupciones." : "Request an extension to keep going without interruption.",
       greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
       title: es ? "Su prueba termina hoy" : "Your trial ends today",
       intro: es
@@ -110,8 +110,8 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
   return {
     subject: es ? "Su periodo de prueba ha finalizado" : "Your trial has ended",
     preheader: es
-      ? "Contacte con ventas para continuar usando la plataforma."
-      : "Contact sales to keep using the platform.",
+      ? "Solicite una ampliación para continuar usando la plataforma."
+      : "Request an extension to keep using the platform.",
     greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
     title: es ? "Su periodo de prueba ha finalizado" : "Your trial has ended",
     intro: es

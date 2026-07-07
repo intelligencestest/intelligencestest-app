@@ -18,6 +18,18 @@ import {
 } from "@/components/admin/actions";
 import { Chip, EmptyRow, Section, StatCard, statusTone } from "@/components/admin/ui";
 
+const PLAN_LABELS: Record<string, string> = {
+  trial: "Trial",
+  starter: "Starter · €29/mo",
+  professional: "Professional · €79/mo",
+  enterprise: "Enterprise · custom",
+};
+
+function formatPlan(plan: string | null) {
+  if (!plan) return "Trial";
+  return PLAN_LABELS[plan] ?? `Legacy · ${plan}`;
+}
+
 /**
  * Company 360: is this customer healthy, what did they touch last, and what
  * changed recently — one screen, no SQL.
@@ -99,7 +111,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
             <div className="flex flex-wrap items-center gap-2.5">
               <h1 className="text-2xl font-semibold tracking-tight text-white">{company.name}</h1>
               <Chip tone={statusTone(company.status ?? "active")}>{company.status ?? "active"}</Chip>
-              <Chip tone="info">{company.plan ?? "standard"}</Chip>
+              <Chip tone="info">{formatPlan(company.plan)}</Chip>
               <Chip>{company.language ?? "es"}</Chip>
               {health && <Chip tone={health.level === "healthy" ? "good" : health.level === "attention" ? "warn" : "bad"}>{health.level}</Chip>}
             </div>
@@ -140,7 +152,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
       {/* Plan & trial */}
       <Section title="Plan & trial">
         <div className="flex flex-wrap items-center gap-2 px-5 pt-4">
-          <Chip tone="info">{company.plan ?? "trial"}</Chip>
+          <Chip tone="info">{formatPlan(company.plan)}</Chip>
           <Chip tone={company.trial_status === "expired" ? "bad" : company.trial_status === "active" ? "warn" : "good"}>
             trial: {company.trial_status ?? "—"}
           </Chip>

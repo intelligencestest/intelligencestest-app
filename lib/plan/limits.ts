@@ -140,23 +140,23 @@ function limitKeyFor(kind: LimitKind): keyof PlanLimits {
 function limitMessage(kind: LimitKind, used: number, limit: number) {
   const es: Record<LimitKind, string> = {
     candidate:
-      `Ha alcanzado el límite de ${limit} candidatos este mes (${used}/${limit}). Solicite una ampliación de plan para invitar a más candidatos.`,
+      `Ha alcanzado el límite de su plan (${used}/${limit} candidatos este mes). Solicite una ampliación para continuar invitando candidatos.`,
     project:
-      `Ha alcanzado el límite de ${limit} proyecto(s) activos de su plan (${used}/${limit}). Solicite una ampliación de plan para crear más proyectos.`,
+      `Ha alcanzado el límite de su plan (${used}/${limit} proyectos activos). Solicite una ampliación para continuar creando proyectos.`,
     recruiter:
-      `Ha alcanzado el límite de ${limit} reclutador(es) de su plan (${used}/${limit}).`,
+      `Ha alcanzado el límite de su plan (${used}/${limit} reclutadores). Solicite una ampliación para continuar.`,
   };
   const en: Record<LimitKind, string> = {
-    candidate: `You've reached your plan's limit of ${limit} candidates this month (${used}/${limit}). Request an upgrade to invite more candidates.`,
-    project: `You've reached your plan's limit of ${limit} active project(s) (${used}/${limit}). Request an upgrade to create more projects.`,
-    recruiter: `You've reached your plan's limit of ${limit} recruiter(s) (${used}/${limit}).`,
+    candidate: `You've reached your plan limit (${used}/${limit} candidates this month). Request an extension to keep inviting candidates.`,
+    project: `You've reached your plan limit (${used}/${limit} active projects). Request an extension to keep creating projects.`,
+    recruiter: `You've reached your plan limit (${used}/${limit} recruiters). Request an extension to continue.`,
   };
   return { es: es[kind], en: en[kind] };
 }
 
 const TRIAL_EXPIRED_MESSAGE = {
-  es: "Su periodo de prueba ha finalizado. Contacte con nuestro equipo comercial para continuar usando la plataforma.",
-  en: "Your trial has ended. Contact our sales team to keep using the platform.",
+  es: "Su prueba ha finalizado. Sus datos siguen disponibles; solicite una ampliación para continuar creando proyectos e invitando candidatos.",
+  en: "Your trial has ended. Your existing data remains available; request an extension to keep creating projects and inviting candidates.",
 };
 
 export interface LimitCheckResult {

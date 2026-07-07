@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   const companyName = clean(body?.company_name);
   const adminEmail = clean(body?.admin_email).toLowerCase();
   const adminName = clean(body?.admin_name) || "Workspace Admin";
-  const plan = clean(body?.plan) || "standard";
+  const plan = clean(body?.plan) || "trial";
   const status = clean(body?.status) || "active";
   const language = toAppLocale(body?.language);
   const industry = clean(body?.industry);

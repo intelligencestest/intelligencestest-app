@@ -443,10 +443,10 @@
     "trialDaysLeft": "Quedan {days} días de prueba",
     "trialOneDayLeft": "Queda 1 día de prueba",
     "trialLastDay": "Último día de su prueba",
-    "trialExpiredTitle": "Su prueba ha finalizado — contacte con ventas para continuar",
+    "trialExpiredTitle": "Su prueba ha finalizado. Solicite una ampliación para continuar.",
     "usageCandidates": "Candidatos",
     "usageProjects": "Proyectos",
-    "upgradeNow": "Ampliar plan",
+    "upgradeNow": "Solicitar ampliación",
     "contactSales": "Contactar con ventas"
   }
 }

@@ -21,12 +21,21 @@ export type AdminCompanyRow = {
 
 type BusyState = { id: string; action: string } | null;
 
-const plans = ["standard", "growth", "enterprise", "custom"];
+const plans = [
+  { value: "trial", label: "Trial" },
+  { value: "starter", label: "Starter · €29/mo" },
+  { value: "professional", label: "Professional · €79/mo" },
+  { value: "enterprise", label: "Enterprise · custom" },
+] as const;
 const statuses = ["active", "disabled"];
 const languages = [
   { value: "es", label: "Español" },
   { value: "en", label: "English" },
 ];
+
+function planLabel(plan: string) {
+  return plans.find((item) => item.value === plan)?.label ?? `Legacy · ${plan}`;
+}
 
 async function requestJson(url: string, init: RequestInit) {
   const response = await fetch(url, {
@@ -155,8 +164,8 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
           <input name="admin_name" required placeholder="Admin name" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
           <input name="admin_email" required type="email" placeholder="Admin email" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
           <input name="industry" placeholder="Industry" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-          <select name="plan" defaultValue="standard" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
-            {plans.map((plan) => <option key={plan} value={plan}>{plan}</option>)}
+          <select name="plan" defaultValue="trial" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
+            {plans.map((plan) => <option key={plan.value} value={plan.value}>{plan.label}</option>)}
           </select>
           <select name="language" defaultValue="es" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
             {languages.map((language) => <option key={language.value} value={language.value}>{language.label}</option>)}
@@ -191,7 +200,7 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                 }`}>
                   {row.status}
                 </span>
-                <span className="text-sm text-slate-300">{row.plan}</span>
+                <span className="text-sm text-slate-300">{planLabel(row.plan)}</span>
                 <span className="text-sm text-slate-300">{row.activeUsers} users</span>
                 <span className="text-sm text-slate-400">
                   {row.projects} projects · {row.assessmentsUsed} completions 30d
@@ -212,7 +221,10 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                   <input name="industry" defaultValue={row.industry ?? ""} placeholder="Industry" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
                   <input name="logo_url" defaultValue={row.logo_url ?? ""} placeholder="Logo URL" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
                   <select name="plan" defaultValue={row.plan} className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
-                    {plans.map((plan) => <option key={plan} value={plan}>{plan}</option>)}
+                    {!plans.some((plan) => plan.value === row.plan) && (
+                      <option value={row.plan}>{planLabel(row.plan)}</option>
+                    )}
+                    {plans.map((plan) => <option key={plan.value} value={plan.value}>{plan.label}</option>)}
                   </select>
                   <select name="language" defaultValue={row.language} className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
                     {languages.map((language) => <option key={language.value} value={language.value}>{language.label}</option>)}
