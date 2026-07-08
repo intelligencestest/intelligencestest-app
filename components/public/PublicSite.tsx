@@ -32,6 +32,7 @@ export async function PublicHeader({ copy }: { copy: PublicCopy }) {
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-400 lg:flex" aria-label={copy.nav.primaryAria}>
           <a href={`${home}#features`} className="transition hover:text-white">{copy.nav.features}</a>
           <a href={`${home}#assessments`} className="transition hover:text-white">{copy.nav.assessments}</a>
+          <Link href={localePath("/pricing", locale)} className="transition hover:text-white">{copy.nav.pricing}</Link>
           <a href={`${home}#faq`} className="transition hover:text-white">{copy.nav.faq}</a>
           <Link href={localePath("/contact", locale)} className="transition hover:text-white">{copy.nav.contact}</Link>
         </nav>
@@ -62,6 +63,7 @@ export async function PublicFooter({ copy }: { copy: PublicCopy }) {
           <ul className="mt-4 space-y-3 text-sm text-slate-400">
             <li><Link href={localePath("/signup", locale)} className="hover:text-white">{copy.nav.signup}</Link></li>
             <li><Link href={localePath("/login", locale)} className="hover:text-white">{copy.nav.login}</Link></li>
+            <li><Link href={localePath("/pricing", locale)} className="hover:text-white">{copy.nav.pricing}</Link></li>
             <li><Link href={localePath("/contact", locale)} className="hover:text-white">{copy.nav.contact}</Link></li>
           </ul>
         </div>

@@ -7,6 +7,7 @@ type PublicCopyInternal = {
     primaryAria: string;
     features: string;
     assessments: string;
+    pricing: string;
     faq: string;
     contact: string;
     demo: string;
@@ -83,6 +84,29 @@ type PublicCopyInternal = {
     terms: LegalSection[];
     cookies: LegalSection[];
   };
+  pricing: {
+    eyebrow: string;
+    title: string;
+    body: string;
+    billedNote: string;
+    highlightLabel: string;
+    plans: Array<{
+      id: string;
+      name: string;
+      price: string;
+      priceSuffix: string;
+      description: string;
+      features: string[];
+      ctaLabel: string;
+      ctaHref: "/signup" | "/contact";
+      highlighted?: boolean;
+    }>;
+    faqEyebrow: string;
+    faqTitle: string;
+    faq: Array<{ question: string; answer: string }>;
+    finalTitle: string;
+    finalBody: string;
+  };
 };
 
 const signalBars = {
@@ -97,6 +121,7 @@ const es: PublicCopyInternal = {
     primaryAria: "Navegación principal",
     features: "Plataforma",
     assessments: "Evaluaciones",
+    pricing: "Precios",
     faq: "FAQ",
     contact: "Contacto",
     demo: "Comenzar",
@@ -240,6 +265,78 @@ const es: PublicCopyInternal = {
       { title: "Gestión", body: ["Puede borrar cookies desde su navegador. Al hacerlo, es posible que deba volver a iniciar sesión o seleccionar idioma nuevamente."] },
     ],
   },
+  pricing: {
+    eyebrow: "Precios",
+    title: "Un plan para cada volumen de contratación",
+    body: "Empiece con una prueba gratuita de 3 días y pase a Starter o Professional cuando su equipo lo necesite. Enterprise se adapta a operaciones de mayor volumen.",
+    billedNote: "Precios en euros, facturación mensual con PayPal. Cancele cuando quiera.",
+    highlightLabel: "Recomendado",
+    plans: [
+      {
+        id: "trial",
+        name: "Prueba gratuita",
+        price: "0 €",
+        priceSuffix: "/3 días",
+        description: "Para probar el flujo completo antes de decidir.",
+        features: ["3 días de acceso", "1 proyecto activo", "10 candidatos", "1 reclutador"],
+        ctaLabel: "Comenzar prueba",
+        ctaHref: "/signup",
+      },
+      {
+        id: "starter",
+        name: "Starter",
+        price: "29 €",
+        priceSuffix: "/mes",
+        description: "Para equipos pequeños con procesos puntuales.",
+        features: ["1 proyecto activo", "10 candidatos al mes", "1 reclutador"],
+        ctaLabel: "Comenzar ahora",
+        ctaHref: "/signup",
+      },
+      {
+        id: "professional",
+        name: "Professional",
+        price: "79 €",
+        priceSuffix: "/mes",
+        description: "Para equipos que gestionan varios procesos a la vez.",
+        features: ["3 proyectos activos", "50 candidatos al mes", "3 reclutadores"],
+        ctaLabel: "Comenzar ahora",
+        ctaHref: "/signup",
+        highlighted: true,
+      },
+      {
+        id: "enterprise",
+        name: "Enterprise",
+        price: "A medida",
+        priceSuffix: "",
+        description: "Para operaciones de alto volumen con necesidades específicas.",
+        features: ["Límites personalizados", "Soporte comercial", "Configuración a medida"],
+        ctaLabel: "Contactar con ventas",
+        ctaHref: "/contact",
+      },
+    ],
+    faqEyebrow: "Preguntas frecuentes",
+    faqTitle: "Antes de elegir un plan",
+    faq: [
+      {
+        question: "¿Qué pasa si supero el límite de candidatos de mi plan?",
+        answer: "Sus candidatos y proyectos existentes siguen siendo accesibles. Para invitar nuevos candidatos por encima del límite, deberá pasar al siguiente plan.",
+      },
+      {
+        question: "¿Puedo cambiar de plan más adelante?",
+        answer: "Sí. Puede pasar de Starter a Professional (o a Enterprise) cuando su volumen de contratación crezca.",
+      },
+      {
+        question: "¿Qué incluye la prueba gratuita?",
+        answer: "3 días de acceso completo con los mismos límites que Starter: 1 proyecto activo, 10 candidatos y 1 reclutador.",
+      },
+      {
+        question: "¿Cómo funciona la facturación?",
+        answer: "Starter y Professional se facturan mensualmente a través de PayPal. Enterprise se gestiona directamente con el equipo comercial.",
+      },
+    ],
+    finalTitle: "¿Aún decidiendo? Hablemos de su volumen de contratación.",
+    finalBody: "Cuéntenos cuántos procesos gestiona al mes y le recomendamos el plan adecuado.",
+  },
 };
 
 const en: PublicCopyInternal = {
@@ -247,6 +344,7 @@ const en: PublicCopyInternal = {
     primaryAria: "Primary navigation",
     features: "Platform",
     assessments: "Assessments",
+    pricing: "Pricing",
     faq: "FAQ",
     contact: "Contact",
     demo: "Get started",
@@ -389,6 +487,78 @@ const en: PublicCopyInternal = {
       { title: "Analytics", body: ["If we add analytics tools in the future, they will be used to understand performance and aggregate site usage. We will update this policy when appropriate."] },
       { title: "Management", body: ["You can delete cookies from your browser. If you do, you may need to sign in again or select your language again."] },
     ],
+  },
+  pricing: {
+    eyebrow: "Pricing",
+    title: "One plan for every hiring volume",
+    body: "Start with a free 3-day trial, then move to Starter or Professional as your team grows. Enterprise adapts to higher-volume operations.",
+    billedNote: "Prices in EUR, billed monthly via PayPal. Cancel anytime.",
+    highlightLabel: "Recommended",
+    plans: [
+      {
+        id: "trial",
+        name: "Free trial",
+        price: "€0",
+        priceSuffix: "/3 days",
+        description: "Try the full workflow before deciding.",
+        features: ["3 days access", "1 active project", "10 candidates", "1 recruiter"],
+        ctaLabel: "Start trial",
+        ctaHref: "/signup",
+      },
+      {
+        id: "starter",
+        name: "Starter",
+        price: "€29",
+        priceSuffix: "/month",
+        description: "For small teams running occasional hiring.",
+        features: ["1 active project", "10 candidates per month", "1 recruiter"],
+        ctaLabel: "Start now",
+        ctaHref: "/signup",
+      },
+      {
+        id: "professional",
+        name: "Professional",
+        price: "€79",
+        priceSuffix: "/month",
+        description: "For teams running several hiring processes at once.",
+        features: ["3 active projects", "50 candidates per month", "3 recruiters"],
+        ctaLabel: "Start now",
+        ctaHref: "/signup",
+        highlighted: true,
+      },
+      {
+        id: "enterprise",
+        name: "Enterprise",
+        price: "Tailored",
+        priceSuffix: "",
+        description: "For high-volume operations with specific needs.",
+        features: ["Custom limits", "Commercial support", "Tailored setup"],
+        ctaLabel: "Contact sales",
+        ctaHref: "/contact",
+      },
+    ],
+    faqEyebrow: "FAQ",
+    faqTitle: "Before you choose a plan",
+    faq: [
+      {
+        question: "What happens if I go over my plan's candidate limit?",
+        answer: "Existing candidates and projects stay accessible. To invite new candidates beyond the limit, you'll need to move to the next plan.",
+      },
+      {
+        question: "Can I change plans later?",
+        answer: "Yes. You can move from Starter to Professional (or Enterprise) as your hiring volume grows.",
+      },
+      {
+        question: "What does the free trial include?",
+        answer: "3 days of full access with the same limits as Starter: 1 active project, 10 candidates, and 1 recruiter.",
+      },
+      {
+        question: "How does billing work?",
+        answer: "Starter and Professional are billed monthly through PayPal. Enterprise is arranged directly with our commercial team.",
+      },
+    ],
+    finalTitle: "Still deciding? Let's talk about your hiring volume.",
+    finalBody: "Tell us how many hiring processes you run each month and we'll recommend the right plan.",
   },
 };
 
