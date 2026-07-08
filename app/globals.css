@@ -41,6 +41,9 @@
   --it-warning: #b8862f;
   --it-danger: #b9524c;
   --it-info: #527aa3;
+
+  /* Design-system hairline: the default border weight per docs/design/design-system.md */
+  --it-hairline: rgba(255, 255, 255, 0.08);
 }
 
 body {

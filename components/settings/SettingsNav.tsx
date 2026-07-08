@@ -23,7 +23,7 @@ export function SettingsNav() {
   const logicalPath = stripLocalePrefix(pathname);
 
   return (
-    <aside className="sticky top-24 hidden rounded-lg border border-[var(--it-border-soft)] bg-[var(--it-surface)] p-2 lg:block">
+    <aside className="sticky top-24 hidden rounded-lg border border-[var(--it-hairline)] bg-[var(--it-surface)] p-2 lg:block">
       <p className="px-2.5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">
         {es ? "Configuración" : "Settings"}
       </p>
@@ -37,11 +37,14 @@ export function SettingsNav() {
               className={cn(
                 "group flex h-10 items-center gap-2.5 rounded-md border-l-2 px-2.5 text-[13px] font-medium transition-colors",
                 active
-                  ? "border-[#673de6] bg-[#673de6]/10 text-white"
+                  ? "border-[var(--it-primary)] bg-[var(--it-primary-soft)] text-white"
                   : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.03] hover:text-slate-100"
               )}
             >
-              <item.icon className={cn("h-4 w-4 flex-shrink-0", active ? "text-[#a78bfa]" : "")} strokeWidth={1.8} />
+              <item.icon
+                className={cn("h-4 w-4 flex-shrink-0", active ? "text-[var(--it-primary-hover)]" : "")}
+                strokeWidth={1.8}
+              />
               <span>{es ? item.es : item.en}</span>
             </Link>
           );

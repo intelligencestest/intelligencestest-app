@@ -74,20 +74,10 @@ export default function BillingSettingsPage() {
     ? {
         title: "Plan y facturación",
         description: "Gestione su prueba, límites de uso y suscripción de IntelligencesTest.",
-        account: "Cuenta",
-        billing: "Facturación",
-        security: "Seguridad",
-        notifications: "Notificaciones",
-        currentSubscription: "Suscripción actual",
-        currentPlan: "Plan actual",
-        status: "Estado",
-        provider: "Proveedor",
         trialEnds: "La prueba finaliza",
         trialEnded: "La prueba finalizó",
         daysLeft: (days: number) => (days === 1 ? "Queda 1 día" : `Quedan ${days} días`),
         paymentMode: "PayPal está disponible para Starter y Professional. Enterprise se gestiona con el equipo comercial.",
-        usage: "Uso del plan",
-        usageNote: "Sus proyectos, candidatos e informes existentes permanecen accesibles aunque se alcance un límite.",
         candidates: "Candidatos este mes",
         projects: "Proyectos activos",
         recruiters: "Reclutadores",
@@ -99,14 +89,11 @@ export default function BillingSettingsPage() {
         starter: "Starter",
         professional: "Professional",
         enterprise: "Enterprise",
-        tailored: "A medida",
         trialPrice: "14 días gratis",
         starterPrice: "49 €/mes",
         professionalPrice: "149 €/mes",
         enterprisePrice: "Contactar con ventas",
-        action: "Acción",
         current: "Actual",
-        subscribe: "Suscribirse con PayPal",
         contactSales: "Contactar con ventas",
         loading: "Cargando facturación...",
         billingUnavailable: "No se pudo cargar la información actual del plan.",
@@ -120,7 +107,6 @@ export default function BillingSettingsPage() {
           past_due: "Pago pendiente",
           cancelled: "Cancelado",
         },
-        feature: "Función",
         included: "Incluido",
         notIncluded: "No incluido",
         featureRecruiters: "Reclutadores",
@@ -130,31 +116,17 @@ export default function BillingSettingsPage() {
         featureAssessments: "Evaluaciones",
         featureTeamCollaboration: "Colaboración de equipo",
         featurePrioritySupport: "Soporte prioritario",
-        billingHistory: "Historial de facturación",
         billingHistoryText:
           "Sus facturas y recibos de PayPal están disponibles directamente en su cuenta de PayPal.",
-        paymentMethod: "Método de pago",
-        paymentMethodText:
-          "El método de pago de esta suscripción se gestiona de forma segura en PayPal, no lo almacenamos aquí.",
         manageInPayPal: "Gestionar en PayPal",
       }
     : {
         title: "Plan and billing",
         description: "Manage your trial, usage limits, and IntelligencesTest subscription.",
-        account: "Account",
-        billing: "Billing",
-        security: "Security",
-        notifications: "Notifications",
-        currentSubscription: "Current subscription",
-        currentPlan: "Current plan",
-        status: "Status",
-        provider: "Provider",
         trialEnds: "Trial ends",
         trialEnded: "Trial ended",
         daysLeft: (days: number) => (days === 1 ? "1 day left" : `${days} days left`),
         paymentMode: "PayPal is available for Starter and Professional. Enterprise is handled by the commercial team.",
-        usage: "Plan usage",
-        usageNote: "Existing projects, candidates, and reports remain accessible even when a limit is reached.",
         candidates: "Candidates this month",
         projects: "Active projects",
         recruiters: "Recruiters",
@@ -166,14 +138,11 @@ export default function BillingSettingsPage() {
         starter: "Starter",
         professional: "Professional",
         enterprise: "Enterprise",
-        tailored: "Tailored",
         trialPrice: "14-day free trial",
         starterPrice: "€49/month",
         professionalPrice: "€149/month",
         enterprisePrice: "Contact Sales",
-        action: "Action",
         current: "Current",
-        subscribe: "Subscribe with PayPal",
         contactSales: "Contact sales",
         loading: "Loading billing...",
         billingUnavailable: "We could not load your current plan information.",
@@ -187,7 +156,6 @@ export default function BillingSettingsPage() {
           past_due: "Past due",
           cancelled: "Cancelled",
         },
-        feature: "Feature",
         included: "Included",
         notIncluded: "Not included",
         featureRecruiters: "Recruiters",
@@ -197,11 +165,7 @@ export default function BillingSettingsPage() {
         featureAssessments: "Assessments",
         featureTeamCollaboration: "Team collaboration",
         featurePrioritySupport: "Priority support",
-        billingHistory: "Billing history",
         billingHistoryText: "Your PayPal invoices and receipts are available directly in your PayPal account.",
-        paymentMethod: "Payment method",
-        paymentMethodText:
-          "The payment method for this subscription is managed securely by PayPal — we don't store it here.",
         manageInPayPal: "Manage in PayPal",
       };
 
@@ -310,244 +274,149 @@ export default function BillingSettingsPage() {
   ];
   const hasPayPalSubscription = planData?.billingProvider === "paypal" && planData.subscriptionStatus === "active";
 
+  const metaParts: Array<{ text: string; tone?: "danger" }> = [];
+  if (planData) {
+    metaParts.push({ text: subscriptionLabel });
+    metaParts.push({ text: planData.billingProvider === "paypal" ? copy.paypal : copy.manual });
+    if (planData.trialEndsAt) {
+      const trialDateLabel = new Date(planData.trialEndsAt).toLocaleDateString(es ? "es-ES" : "en-US", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+      if (activeTrial && planData.trialDaysLeft !== null) {
+        metaParts.push({ text: copy.daysLeft(planData.trialDaysLeft) });
+      } else {
+        metaParts.push({
+          text: `${planData.isTrialExpired ? copy.trialEnded : copy.trialEnds} ${trialDateLabel}`,
+          tone: planData.isTrialExpired ? "danger" : undefined,
+        });
+      }
+    }
+  }
+
   return (
-    <div className="mx-auto max-w-[1248px] space-y-4">
+    <div className="mx-auto max-w-[1248px]">
       <div>
-        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
-        <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
+        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[216px_minmax(0,1fr)] lg:items-start">
+      <div className="mt-8 grid gap-8 lg:grid-cols-[216px_minmax(0,1fr)] lg:items-start">
         <SettingsNav />
 
-        <section className="space-y-4">
-          <div className="enterprise-card rounded-xl p-4">
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b enterprise-divider pb-4">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
-                  {copy.currentSubscription}
-                </p>
-                <h2 className="mt-2 text-xl font-semibold text-white">{loading ? copy.loading : planName}</h2>
-              </div>
-              {effectivePlanId && (
-                <span className="enterprise-chip-info inline-flex items-center rounded-full px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.1em]">
-                  {effectivePlanId === "trial" ? copy.freeTrial : copy.currentPlan}
-                </span>
-              )}
-            </div>
+        <section>
+          {/* Account summary — one typographic block, no cards */}
+          <div className="border-b border-[var(--it-hairline)] pb-8">
+            <h2 className="text-2xl font-semibold text-white">{loading ? copy.loading : planName}</h2>
 
-            {loading ? (
-              <p className="mt-5 text-sm text-[var(--it-muted)]">{copy.loading}</p>
-            ) : planData ? (
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
-                <div className="enterprise-panel rounded-lg px-4 py-3.5">
-                  <p className="text-[11px] uppercase tracking-wider text-[var(--it-faint)]">{copy.status}</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-100">{subscriptionLabel}</p>
-                </div>
-                <div className="enterprise-panel rounded-lg px-4 py-3.5">
-                  <p className="text-[11px] uppercase tracking-wider text-[var(--it-faint)]">{copy.provider}</p>
-                  <p className="mt-1 text-lg font-semibold text-slate-100">
-                    {planData.billingProvider === "paypal" ? copy.paypal : copy.manual}
-                  </p>
-                </div>
-                {planData.trialEndsAt ? (
-                  <div className="enterprise-panel rounded-lg px-4 py-3.5">
-                    <p className="text-[11px] uppercase tracking-wider text-[var(--it-faint)]">
-                      {planData.isTrialExpired ? copy.trialEnded : copy.trialEnds}
-                    </p>
-                    <p
-                      className={`mt-1 text-lg font-semibold ${
-                        planData.isTrialExpired ? "text-[#d99792]" : "text-slate-100"
-                      }`}
-                    >
-                      {new Date(planData.trialEndsAt).toLocaleDateString(es ? "es-ES" : "en-US", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </p>
-                    {activeTrial && planData.trialDaysLeft !== null ? (
-                      <p className="mt-0.5 text-sm text-[var(--it-muted)]">{copy.daysLeft(planData.trialDaysLeft)}</p>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
-            ) : (
-              <p className="mt-5 text-sm text-[var(--it-muted)]">{copy.billingUnavailable}</p>
-            )}
-          </div>
+            {!loading && planData ? (
+              <p className="mt-1.5 text-[13px] text-[var(--it-muted)]">
+                {metaParts.map((part, i) => (
+                  <span key={part.text}>
+                    {i > 0 && <span className="mx-1.5 text-[var(--it-faint)]">·</span>}
+                    <span className={part.tone === "danger" ? "text-[#d99792]" : undefined}>{part.text}</span>
+                  </span>
+                ))}
+              </p>
+            ) : !loading ? (
+              <p className="mt-1.5 text-[13px] text-[var(--it-muted)]">{copy.billingUnavailable}</p>
+            ) : null}
 
-          {planData ? (
-            <div className="enterprise-card rounded-xl p-4">
-              <div className="flex flex-wrap items-end justify-between gap-2">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
-                    {copy.usage}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.usageNote}</p>
-                </div>
-              </div>
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {planData ? (
+              <div className="mt-6 max-w-xl space-y-3">
                 {usageRows.map((row) => (
-                  <div key={row.label} className="enterprise-panel rounded-lg px-3.5 py-3">
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="text-[13px] text-[var(--it-muted)]">{row.label}</p>
-                      <p className="text-sm font-semibold tabular-nums text-slate-100">
-                        {row.used}
-                        <span className="font-normal text-[var(--it-faint)]">/{row.limit ?? copy.unlimited}</span>
-                      </p>
-                    </div>
-                    {row.limit !== null ? (
-                      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div key={row.label} className="flex items-center gap-4">
+                    <span className="w-40 shrink-0 text-[13px] text-[var(--it-muted)]">{row.label}</span>
+                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                      {row.limit !== null ? (
                         <span
                           className={`block h-full rounded-full ${usageTone(row.used, row.limit)}`}
                           style={{ width: `${usagePercent(row.used, row.limit)}%` }}
                         />
-                      </div>
-                    ) : null}
+                      ) : null}
+                    </div>
+                    <span className="w-20 shrink-0 text-right text-[13px] tabular-nums text-slate-300">
+                      {row.used}/{row.limit ?? copy.unlimited}
+                    </span>
                   </div>
                 ))}
               </div>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
 
-          <div className="enterprise-card rounded-xl p-4">
-            <div className="border-b enterprise-divider pb-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
-                {copy.availablePlans}
-              </p>
-              <h2 className="mt-2 text-xl font-semibold text-white">{copy.availablePlansText}</h2>
-              <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMode}</p>
-            </div>
+          {/* Plans — cards, not a table */}
+          <div className="mt-10">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--it-faint)]">
+              {copy.availablePlans}
+            </p>
+            <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMode}</p>
 
-            <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--it-border-soft)]">
-              <table className="w-full min-w-[760px] table-fixed border-collapse text-left">
-                <thead className="bg-[var(--it-surface-muted)]">
-                  <tr>
-                    <th className="w-[23%] px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
-                      {copy.feature}
-                    </th>
-                    {planColumns.map((plan) => {
-                      const active = effectivePlanId === plan.id;
-                      return (
-                        <th
-                          key={plan.id}
-                          className={`w-[19.25%] border-l border-[var(--it-border-soft)] px-3.5 py-3.5 align-top ${
-                            active ? "bg-[#673de6]/10" : ""
-                          }`}
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {planColumns.map((plan) => {
+                const active = effectivePlanId === plan.id;
+                return (
+                  <div
+                    key={plan.id}
+                    className={`flex h-full flex-col rounded-lg border p-6 ${
+                      active ? "border-[var(--it-primary)]/50 bg-[var(--it-primary-soft)]" : "border-[var(--it-hairline)]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-[13px] font-semibold text-slate-100">{plan.name}</p>
+                      {active ? (
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--it-primary-hover)]">
+                          {copy.current}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-3 text-2xl font-semibold leading-tight text-white">{plan.price}</p>
+
+                    <ul className="mt-6 space-y-2.5 text-[13px] text-[var(--it-muted)]">
+                      {pricingRows.map((row) => (
+                        <li key={row.label} className="flex items-center justify-between gap-3">
+                          <span>{row.label}</span>
+                          <FeatureValue
+                            value={row.values[plan.id]}
+                            includedLabel={copy.included}
+                            excludedLabel={copy.notIncluded}
+                          />
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-6 min-h-[40px]">
+                      {active ? (
+                        <p className="text-[13px] font-medium text-[var(--it-muted)]">{copy.current}</p>
+                      ) : plan.id === "starter" || plan.id === "professional" ? (
+                        <PayPalSubscribeButton plan={plan.id} locale={locale} />
+                      ) : plan.id === "enterprise" ? (
+                        <Link
+                          href={localePath("/contact", locale)}
+                          className="enterprise-button inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-semibold"
                         >
-                          <div className="flex min-h-[58px] flex-col justify-between gap-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <span className="text-[13px] font-semibold text-slate-100">{plan.name}</span>
-                              {active ? (
-                                <span className="inline-flex items-center rounded-full border border-[#673de6]/30 bg-[#673de6]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#c4b5fd]">
-                                  {copy.current}
-                                </span>
-                              ) : null}
-                            </div>
-                            <span className="text-sm font-semibold leading-5 text-white">{plan.price}</span>
-                          </div>
-                        </th>
-                      );
-                    })}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--it-border-soft)]">
-                  {pricingRows.map((row) => (
-                    <tr key={row.label}>
-                      <th scope="row" className="bg-[var(--it-surface)] px-4 py-3 text-sm font-medium text-[var(--it-muted)]">
-                        {row.label}
-                      </th>
-                      {planColumns.map((plan) => {
-                        const active = effectivePlanId === plan.id;
-                        return (
-                          <td
-                            key={`${row.label}-${plan.id}`}
-                            className={`border-l border-[var(--it-border-soft)] px-3.5 py-3 ${
-                              active ? "bg-[#673de6]/10" : "bg-[var(--it-bg)]"
-                            }`}
-                          >
-                            <FeatureValue
-                              value={row.values[plan.id]}
-                              includedLabel={copy.included}
-                              excludedLabel={copy.notIncluded}
-                            />
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                  <tr className="bg-[var(--it-surface-muted)]/70">
-                    <th className="px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
-                      {copy.action}
-                    </th>
-                    {planColumns.map((plan) => {
-                      const active = effectivePlanId === plan.id;
-                      return (
-                        <td key={`${plan.id}-action`} className="border-l border-[var(--it-border-soft)] px-3.5 py-3.5 align-top">
-                          {active ? (
-                            <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold">
-                              {copy.current}
-                            </span>
-                          ) : plan.id === "starter" || plan.id === "professional" ? (
-                            <div className="min-w-0">
-                              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--it-faint)]">
-                                {copy.subscribe}
-                              </p>
-                              <PayPalSubscribeButton plan={plan.id} locale={locale} />
-                            </div>
-                          ) : plan.id === "enterprise" ? (
-                            <Link
-                              href={localePath("/contact", locale)}
-                              className="enterprise-button inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-semibold"
-                            >
-                              {copy.contactSales}
-                            </Link>
-                          ) : (
-                            <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold opacity-70">
-                              {copy.trialPrice}
-                            </span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                </tbody>
-              </table>
+                          {copy.contactSales}
+                        </Link>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {hasPayPalSubscription ? (
-            <div className="grid gap-6 md:grid-cols-2">
-              <div className="enterprise-card rounded-xl p-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
-                  {copy.billingHistory}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--it-muted)]">{copy.billingHistoryText}</p>
-                <a
-                  href={PAYPAL_MANAGE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="enterprise-button-secondary mt-4 inline-flex h-9 items-center justify-center rounded-lg px-4 text-[13px] font-semibold"
-                >
-                  {copy.manageInPayPal}
-                </a>
-              </div>
-              <div className="enterprise-card rounded-xl p-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
-                  {copy.paymentMethod}
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMethodText}</p>
-                <a
-                  href={PAYPAL_MANAGE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="enterprise-button-secondary mt-4 inline-flex h-9 items-center justify-center rounded-lg px-4 text-[13px] font-semibold"
-                >
-                  {copy.manageInPayPal}
-                </a>
-              </div>
-            </div>
+            <p className="mt-10 text-sm leading-6 text-[var(--it-muted)]">
+              {copy.billingHistoryText}{" "}
+              <a
+                href={PAYPAL_MANAGE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[var(--it-primary-hover)] underline-offset-4 hover:underline"
+              >
+                {copy.manageInPayPal}
+              </a>
+            </p>
           ) : null}
         </section>
       </div>
