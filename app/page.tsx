@@ -1,22 +1,12 @@
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
+import { ArrowRight, BarChart3, Brain, ChevronDown, Compass, FolderKanban, Languages, Mail, Wrench } from "lucide-react";
 import { PublicFooter, PublicHeader, SignalBoard } from "@/components/public/PublicSite";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { getPublicCopy } from "@/lib/public-site-copy";
 
-function FeatureIcon({ index }: { index: string }) {
-  const paths: Record<string, string> = {
-    "01": "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z",
-    "02": "M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5",
-    "03": "M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2Zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2",
-    "04": "M9 12h6m-6 4h6M9 8h6m-9 12h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z",
-  };
-  return (
-    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d={paths[index] ?? paths["01"]} />
-    </svg>
-  );
-}
+const FEATURE_ICONS = [FolderKanban, Mail, BarChart3, Languages] as const;
+const ASSESSMENT_ICONS = [Brain, Compass, BarChart3, Wrench] as const;
 
 export default async function Home() {
   const locale = toAppLocale(await getLocale());
@@ -41,11 +31,11 @@ export default async function Home() {
         />
         <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
           <div className="animate-fade-up">
-            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020]/80 px-3.5 py-1.5 text-xs font-medium text-[#9BB8FF]">
+            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020]/80 px-3.5 py-1.5 text-xs font-medium tracking-[0.01em] text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#6B9FFF]" aria-hidden="true" />
               {copy.home.eyebrow}
             </p>
-            <h1 className="headline-gradient max-w-2xl text-[2.6rem] font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
+            <h1 className="headline-gradient max-w-2xl text-[2.6rem] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-5xl lg:text-[3.4rem]">
               {copy.home.heroTitle}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-slate-400">
@@ -57,9 +47,7 @@ export default async function Home() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(29,78,216,0.4)] transition hover:bg-[#1e40af] focus:outline-none focus:ring-2 focus:ring-[#8CB1FF]/70"
               >
                 {copy.home.primaryCta}
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
+                <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               </Link>
               <Link
                 href={`${localePath("/", locale)}#assessments`}
@@ -90,23 +78,26 @@ export default async function Home() {
       <section id="features" className="scroll-mt-20 border-b border-[#1E2240] bg-[#0A0C16] py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <p className="text-[13px] font-semibold text-[#8CB1FF]">{copy.home.featuresEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.featuresTitle}</h2>
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#8CB1FF]">{copy.home.featuresEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">{copy.home.featuresTitle}</h2>
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-            {copy.home.features.map((feature) => (
-              <article
-                key={feature.title}
-                className="group relative overflow-hidden rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 transition-colors duration-200 hover:border-[#1D4ED8]/40"
-              >
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#1D4ED8]/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
-                <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 text-[#8CB1FF] ring-1 ring-inset ring-white/5">
-                  <FeatureIcon index={feature.index} />
-                </div>
-                <h3 className="text-[17px] font-semibold text-white">{feature.title}</h3>
-                <p className="mt-2.5 text-sm leading-6 text-slate-400">{feature.body}</p>
-              </article>
-            ))}
+            {copy.home.features.map((feature, i) => {
+              const Icon = FEATURE_ICONS[i] ?? FEATURE_ICONS[0];
+              return (
+                <article
+                  key={feature.title}
+                  className="group relative overflow-hidden rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 transition-colors duration-200 hover:border-[#1D4ED8]/40"
+                >
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#1D4ED8]/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
+                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 text-[#8CB1FF] ring-1 ring-inset ring-white/5">
+                    <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
+                  </div>
+                  <h3 className="text-[17px] font-semibold text-white">{feature.title}</h3>
+                  <p className="mt-2.5 text-sm leading-6 text-slate-400">{feature.body}</p>
+                </article>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -115,30 +106,33 @@ export default async function Home() {
       <section id="assessments" className="scroll-mt-20 border-b border-[#1E2240] py-20 sm:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:px-8">
           <div className="lg:sticky lg:top-24">
-            <p className="text-[13px] font-semibold text-[#8CB1FF]">{copy.home.assessmentsEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.assessmentsTitle}</h2>
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#8CB1FF]">{copy.home.assessmentsEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">{copy.home.assessmentsTitle}</h2>
             <p className="mt-5 text-base leading-7 text-slate-400">{copy.home.assessmentsBody}</p>
             <Link
               href={localePath("/signup", locale)}
               className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#8CB1FF] transition hover:text-white"
             >
               {copy.home.primaryCta}
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-              </svg>
+              <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </Link>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            {copy.home.assessmentGroups.map((group) => (
-              <div
-                key={group.title}
-                className="rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 transition-colors duration-200 hover:border-[#2d3a70]"
-              >
-                <div className="mb-3 h-1.5 w-8 rounded-full bg-gradient-to-r from-[#1D4ED8] to-[#6B9FFF]/40" aria-hidden="true" />
-                <p className="text-[15px] font-semibold text-white">{group.title}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-400">{group.body}</p>
-              </div>
-            ))}
+            {copy.home.assessmentGroups.map((group, i) => {
+              const Icon = ASSESSMENT_ICONS[i] ?? ASSESSMENT_ICONS[0];
+              return (
+                <div
+                  key={group.title}
+                  className="rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 transition-colors duration-200 hover:border-[#2d3a70]"
+                >
+                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg border border-[#1D4ED8]/25 bg-[#1D4ED8]/[0.08] text-[#8CB1FF]">
+                    <Icon className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
+                  </div>
+                  <p className="text-[15px] font-semibold text-white">{group.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">{group.body}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -147,20 +141,19 @@ export default async function Home() {
       <section id="faq" className="scroll-mt-20 border-b border-[#1E2240] bg-[#0A0C16] py-20 sm:py-28">
         <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-[13px] font-semibold text-[#8CB1FF]">{copy.home.faqEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">{copy.home.faqTitle}</h2>
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#8CB1FF]">{copy.home.faqEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">{copy.home.faqTitle}</h2>
           </div>
           <div className="mt-10 space-y-3">
             {copy.home.faq.map((item) => (
               <details key={item.question} className="group rounded-2xl border border-[#1E2240] bg-[#0D1020] px-6 py-5 open:border-[#2d3a70]">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#8CB1FF]/50 [&::-webkit-details-marker]:hidden">
                   {item.question}
-                  <svg
+                  <ChevronDown
                     className="h-4 w-4 flex-shrink-0 text-slate-500 transition-transform duration-200 group-open:rotate-180"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
                 </summary>
                 <p className="mt-3 pr-8 text-sm leading-7 text-slate-400">{item.answer}</p>
               </details>
@@ -175,7 +168,7 @@ export default async function Home() {
           <div className="gradient-ring relative overflow-hidden rounded-3xl px-6 py-16 text-center sm:px-16">
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_-10%,rgba(29,78,216,0.28),transparent_70%)]" aria-hidden="true" />
             <div className="relative">
-              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">
                 {copy.home.finalTitle}
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-400">{copy.home.finalBody}</p>
@@ -185,9 +178,7 @@ export default async function Home() {
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(29,78,216,0.4)] transition hover:bg-[#1e40af]"
                 >
                   {copy.home.primaryCta}
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                  </svg>
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                 </Link>
                 <Link
                   href={localePath("/contact", locale)}
