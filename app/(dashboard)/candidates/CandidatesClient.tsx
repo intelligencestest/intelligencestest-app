@@ -3,17 +3,8 @@
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
-import { Check, Copy, Link2, Loader2, Mail, Search, UserPlus, Users, X } from "lucide-react";
+import { Check, Copy, Link2, Loader2, Mail, Search, UserPlus, X } from "lucide-react";
 import { PIPELINE_STAGES, STATUS_CHIP_STYLE } from "@/lib/dashboard/stages";
-
-const avatarColors = [
-  "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  "bg-violet-500/20 text-violet-300 border-violet-500/30",
-  "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  "bg-amber-500/20 text-amber-300 border-amber-500/30",
-  "bg-pink-500/20 text-pink-300 border-pink-500/30",
-  "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
-];
 
 interface Candidate {
   id: string;
@@ -68,7 +59,6 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
   const dateLocale = es ? "es-ES" : "en-US";
   const copy = es
     ? {
-        roster: "Lista de candidatos",
         title: "Candidatos",
         across: (count: number) => `${count} candidato${count === 1 ? "" : "s"} en todos los proyectos`,
         inviteCandidate: "Invitar candidato",
@@ -121,7 +111,6 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         sendEmail: "Enviar correo",
       }
     : {
-        roster: "Candidate roster",
         title: "Candidates",
         across: (count: number) => `${count} candidate${count !== 1 ? "s" : ""} across all projects`,
         inviteCandidate: "Invite Candidate",
@@ -314,22 +303,16 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
     completed: candidates.filter((c) => c.pipeline_stage === "completed").length,
   };
 
-  const inputClass = "w-full rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
-  const selectClass = "w-full cursor-pointer rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
+  const inputClass = "w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
+  const selectClass = "w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--it-border)] bg-[var(--it-surface)] px-3 py-1 text-xs font-medium text-[#9fb3e5]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--it-primary)] animate-soft-pulse" />
-            {copy.roster}
-          </div>
-          <h1 className="text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
-          <p className="mt-1 text-sm text-[var(--it-muted)]">
-            {copy.across(candidates.length)}
-          </p>
+          <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+          <p className="mt-2 text-sm text-[var(--it-muted)]">{copy.across(candidates.length)}</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
@@ -341,58 +324,54 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
       </div>
 
       {/* Status stats */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="flex flex-wrap items-center gap-8 border-t border-[var(--it-hairline)] pt-4">
         {[
           { key: "invited", label: copy.status.invited, count: counts.invited },
           { key: "started", label: copy.status.started, count: counts.started },
           { key: "completed", label: copy.status.completed, count: counts.completed },
-        ].map((s, index) => {
+        ].map((s) => {
           const style = STATUS_CHIP_STYLE[s.key];
           return (
-            <div key={s.label} className="enterprise-card animate-fade-up rounded-xl p-4" style={{ animationDelay: `${index * 60}ms` }}>
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wider text-[var(--it-faint)]">{s.label}</p>
-                <span className={`h-2 w-2 rounded-full ${style.dot}`} />
-              </div>
-              <p className={`mt-2 text-3xl font-semibold tracking-tight ${style.text}`}>{s.count}</p>
+            <div key={s.label} className="flex items-baseline gap-2">
+              <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden="true" />
+              <p className="text-2xl font-semibold tabular-nums text-white">{s.count}</p>
+              <p className="text-xs font-medium uppercase tracking-wider text-[var(--it-faint)]">{s.label}</p>
             </div>
           );
         })}
       </div>
 
       {/* Filters */}
-      <div className="enterprise-card rounded-xl p-4">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--it-faint)]" strokeWidth={2} />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={copy.search}
-              className="w-full rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] py-2.5 pl-9 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
-            />
-          </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="cursor-pointer rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
-          >
-            <option value="all">{copy.allStatuses}</option>
-            {PIPELINE_STAGES.map((stage) => (
-              <option key={stage} value={stage}>{copy.status[stage]}</option>
-            ))}
-          </select>
-          <select
-            value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="cursor-pointer rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
-          >
-            <option value="all">{copy.allProjects}</option>
-            {projects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+      <div className="flex flex-col gap-3 border-t border-[var(--it-hairline)] pt-4 sm:flex-row">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--it-faint)]" strokeWidth={2} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={copy.search}
+            className="w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] py-2.5 pl-9 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
+          />
         </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="cursor-pointer rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
+        >
+          <option value="all">{copy.allStatuses}</option>
+          {PIPELINE_STAGES.map((stage) => (
+            <option key={stage} value={stage}>{copy.status[stage]}</option>
+          ))}
+        </select>
+        <select
+          value={projectFilter}
+          onChange={(e) => setProjectFilter(e.target.value)}
+          className="cursor-pointer rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
+        >
+          <option value="all">{copy.allProjects}</option>
+          {projects.map((p) => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
       </div>
 
       {/* Candidate table */}
@@ -405,24 +384,22 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         </div>
 
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-[var(--it-muted)]">
-            <Users className="mx-auto mb-3 h-10 w-10 text-[var(--it-faint)]" strokeWidth={1.5} />
-            <p className="text-sm">{candidates.length === 0 ? copy.noCandidates : copy.noMatches}</p>
-          </div>
+          <p className="px-6 py-10 text-sm text-[var(--it-muted)]">
+            {candidates.length === 0 ? copy.noCandidates : copy.noMatches}
+          </p>
         ) : (
-          <div className="divide-y divide-[var(--it-border-soft)]">
-            {filtered.map((candidate, i) => {
+          <div className="divide-y divide-[var(--it-hairline)]">
+            {filtered.map((candidate) => {
               // A closed outcome (rejected / withdrawn / expired) overrides the stage chip.
               const closed = candidate.outcome !== "pending" ? candidate.outcome : null;
               const chipKey = closed ?? candidate.pipeline_stage;
               const style = STATUS_CHIP_STYLE[chipKey] ?? STATUS_CHIP_STYLE.invited;
-              const avatarClass = avatarColors[i % avatarColors.length];
               const name = candidate.full_name?.trim() || copy.anonymous;
               const initials = name === copy.anonymous ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
               return (
                 <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="group grid gap-4 px-4 py-4 transition-colors hover:bg-white/[0.025] md:grid-cols-12 md:items-center md:px-6">
                   <div className="flex min-w-0 items-center gap-3 md:col-span-5">
-                    <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${avatarClass}`}>
+                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-xs font-semibold text-white">
                       {initials}
                     </div>
                     <div className="min-w-0">
@@ -496,7 +473,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                         <p className="text-xs text-[var(--it-muted)]">{copy.validShare}</p>
                       </div>
                     </div>
-                    <div className="rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] p-3">
+                    <div className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] p-3">
                       <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-[var(--it-faint)]">{copy.inviteLink}</p>
                       <div className="flex items-center gap-2">
                         <p className="flex-1 break-all font-mono text-xs text-[#9fb3e5]">{success.url}</p>
@@ -518,7 +495,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="w-full cursor-pointer rounded-xl border border-[var(--it-border)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
+                  className="w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
                 >
                   {copy.inviteAnother}
                 </button>
@@ -562,7 +539,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.project}</label>
                   {projects.length === 0 ? (
-                    <p className="rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
+                    <p className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
                       {copy.noProjects} — <a href="/projects/new" className="text-[#8CB1FF] hover:underline">{copy.createFirst}</a>
                     </p>
                   ) : (
@@ -581,7 +558,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.assessment}</label>
                   {currentAssessments.length === 0 ? (
-                    <p className="rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
+                    <p className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
                       {form.project_id ? copy.noLinked : copy.selectProjectFirst}
                     </p>
                   ) : (
