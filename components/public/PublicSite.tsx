@@ -120,6 +120,31 @@ export function SignalBoard({ copy }: { copy: PublicCopy }) {
             </div>
           ))}
         </div>
+
+        {/* Competency evidence — emphasis-form bar chart: one accent bar (the
+            standout signal), the rest de-emphasized gray. Real product logic,
+            not decoration. */}
+        <div className="mt-4 rounded-md border border-white/10 bg-black p-4">
+          <p className="mb-3.5 text-xs font-semibold uppercase tracking-[0.1em] text-zinc-500">{copy.home.competencyTitle}</p>
+          <div className="space-y-2.5">
+            {copy.home.competencyItems.map((item) => (
+              <div key={item.label} className="flex items-center gap-3">
+                <span className={`w-[108px] flex-shrink-0 truncate text-xs ${item.emphasis ? "font-medium text-white" : "text-zinc-400"}`}>
+                  {item.label}
+                </span>
+                <span className="relative h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                  <span
+                    className={`absolute inset-y-0 left-0 rounded-full ${item.emphasis ? "bg-[#3B82F6]" : "bg-zinc-600"}`}
+                    style={{ width: `${item.score}%` }}
+                  />
+                </span>
+                <span className="w-6 flex-shrink-0 text-right text-xs font-semibold tabular-nums text-zinc-300">
+                  {item.score}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

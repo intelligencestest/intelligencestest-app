@@ -32,6 +32,11 @@ type PublicCopyInternal = {
       tone: string;
       bars: Array<{ flex: number; className: string }>;
     }>;
+    competencyTitle: string;
+    competencyItems: Array<{ label: string; score: number; emphasis?: boolean }>;
+    howItWorksEyebrow: string;
+    howItWorksTitle: string;
+    howItWorksSteps: Array<{ title: string; body: string }>;
     featuresEyebrow: string;
     featuresTitle: string;
     features: Array<{ index: string; title: string; body: string }>;
@@ -152,6 +157,21 @@ const es: PublicCopyInternal = {
           { flex: 1, className: signalBars.expired },
         ],
       },
+    ],
+    competencyTitle: "Evidencia por competencia",
+    competencyItems: [
+      { label: "Resolución de problemas", score: 92, emphasis: true },
+      { label: "Fiabilidad", score: 85 },
+      { label: "Comunicación", score: 78 },
+      { label: "Adaptabilidad", score: 71 },
+      { label: "Liderazgo", score: 64 },
+    ],
+    howItWorksEyebrow: "Cómo funciona",
+    howItWorksTitle: "De la invitación a la decisión, en un solo flujo",
+    howItWorksSteps: [
+      { title: "Invite candidatos", body: "Envíe un enlace de evaluación seguro por correo o cópielo directamente. El candidato no necesita crear una cuenta." },
+      { title: "Aplique evaluaciones", body: "El candidato completa pruebas cognitivas y conductuales validadas, cronometradas y en su idioma." },
+      { title: "Decida con evidencia", body: "Compare resultados puntuados por competencia, revise el informe ejecutivo y tome una decisión trazable." },
     ],
     featuresEyebrow: "Lo que resuelve",
     featuresTitle: "Una plataforma práctica para equipos que evalúan talento todos los días",
@@ -302,6 +322,21 @@ const en: PublicCopyInternal = {
           { flex: 1, className: signalBars.expired },
         ],
       },
+    ],
+    competencyTitle: "Evidence by competency",
+    competencyItems: [
+      { label: "Problem solving", score: 92, emphasis: true },
+      { label: "Reliability", score: 85 },
+      { label: "Communication", score: 78 },
+      { label: "Adaptability", score: 71 },
+      { label: "Leadership", score: 64 },
+    ],
+    howItWorksEyebrow: "How it works",
+    howItWorksTitle: "From invitation to decision, in one flow",
+    howItWorksSteps: [
+      { title: "Invite candidates", body: "Send a secure assessment link by email or copy it directly. The candidate never needs to create an account." },
+      { title: "Run assessments", body: "The candidate completes validated cognitive and behavioral tests, timed and in their language." },
+      { title: "Decide with evidence", body: "Compare scored results by competency, review the executive report, and make a traceable decision." },
     ],
     featuresEyebrow: "What it solves",
     featuresTitle: "A practical platform for teams evaluating talent every day",

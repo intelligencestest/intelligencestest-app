@@ -16,9 +16,15 @@ export default async function Home() {
     <main className="min-h-screen bg-black text-zinc-100">
       <PublicHeader copy={copy} />
 
-      {/* Hero — no glow, no gradient text, no grid overlay. Restraint is the point. */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 py-24 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-32">
+      {/* Hero — one soft, offset, low-opacity light source (ambient, not a
+          centered "AI glow" blob), pure black otherwise. */}
+      <section className="relative overflow-hidden border-b border-white/10">
+        <div
+          className="pointer-events-none absolute -right-40 -top-56 h-[620px] w-[620px] rounded-full opacity-[0.14] blur-[140px]"
+          style={{ background: "radial-gradient(circle, #3B82F6, transparent 70%)" }}
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-24 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-32">
           <div className="animate-fade-up">
             <p className="mb-7 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
               <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
@@ -60,6 +66,29 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* How it works — real product flow, not filler. Ties the abstract
+          pitch above to what actually happens after signup. */}
+      <section className="border-b border-white/10 bg-[#050507] py-24 sm:py-28">
+        <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
+          <div className="max-w-2xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{copy.home.howItWorksEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">{copy.home.howItWorksTitle}</h2>
+          </div>
+          <div className="relative mt-14 grid gap-10 sm:grid-cols-3">
+            <div className="absolute top-5 left-0 right-0 hidden h-px bg-white/10 sm:block" aria-hidden="true" />
+            {copy.home.howItWorksSteps.map((step, i) => (
+              <div key={step.title} className="relative">
+                <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#050507] text-sm font-semibold text-[#3B82F6]">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="mt-5 text-[15px] font-semibold text-white">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-500">{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features */}
       <section id="features" className="scroll-mt-20 border-b border-white/10 py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
@@ -75,7 +104,7 @@ export default async function Home() {
                   key={feature.title}
                   className="bg-black p-6 transition-colors duration-200 hover:bg-[#0A0A0A]"
                 >
-                  <div className="mb-6 flex h-9 w-9 items-center justify-center rounded-md border border-white/15 text-zinc-300">
+                  <div className="mb-6 flex h-9 w-9 items-center justify-center rounded-md border border-[#3B82F6]/25 bg-[#3B82F6]/[0.08] text-[#6EA0FF]">
                     <Icon className="h-[17px] w-[17px]" strokeWidth={1.6} aria-hidden="true" />
                   </div>
                   <h3 className="text-[15px] font-semibold text-white">{feature.title}</h3>
@@ -88,7 +117,7 @@ export default async function Home() {
       </section>
 
       {/* Assessments */}
-      <section id="assessments" className="scroll-mt-20 border-b border-white/10 py-24 sm:py-32">
+      <section id="assessments" className="scroll-mt-20 border-b border-white/10 bg-[#050507] py-24 sm:py-32">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:px-8">
           <div className="lg:sticky lg:top-24">
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{copy.home.assessmentsEyebrow}</p>
@@ -107,7 +136,7 @@ export default async function Home() {
               const Icon = ASSESSMENT_ICONS[i] ?? ASSESSMENT_ICONS[0];
               return (
                 <div key={group.title} className="bg-black p-6 transition-colors duration-200 hover:bg-[#0A0A0A]">
-                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-md border border-white/15 text-zinc-300">
+                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-md border border-[#3B82F6]/25 bg-[#3B82F6]/[0.08] text-[#6EA0FF]">
                     <Icon className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
                   </div>
                   <p className="text-[15px] font-semibold text-white">{group.title}</p>
@@ -144,9 +173,14 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Final CTA — plain bordered panel, no radial glow ring */}
-      <section className="py-24 sm:py-32">
-        <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
+      {/* Final CTA — same restrained ambient light as the hero, echoed once more */}
+      <section className="relative overflow-hidden py-24 sm:py-32">
+        <div
+          className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full opacity-[0.10] blur-[140px]"
+          style={{ background: "radial-gradient(circle, #3B82F6, transparent 70%)" }}
+          aria-hidden="true"
+        />
+        <div className="relative mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
           <div className="rounded-lg border border-white/10 bg-[#0A0A0A] px-6 py-16 text-center sm:px-16">
             <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">
               {copy.home.finalTitle}
