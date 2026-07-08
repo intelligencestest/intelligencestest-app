@@ -28,7 +28,7 @@ function UsageStat({ label, used, limit }: { label: string; used: number; limit:
  * Trial urgency + usage strip for the dashboard shell. Silent for
  * Enterprise/legacy plans (nothing usage-limited to surface); a quiet
  * usage readout for Starter/Professional; an urgent, reddening banner as
- * a trial's 3 days run out, and a blocking "contact sales" banner once
+ * a trial runs out, and a blocking "contact sales" banner once
  * it's expired.
  */
 export async function TrialBanner({ summary, locale }: TrialBannerProps) {

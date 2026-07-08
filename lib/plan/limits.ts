@@ -10,7 +10,7 @@ export type LimitKind = "candidate" | "project" | "recruiter";
 
 const PLAN_IDS: readonly PlanId[] = ["trial", "starter", "professional", "enterprise"];
 
-export const TRIAL_DURATION_DAYS = 3;
+export const TRIAL_DURATION_DAYS = 14;
 
 export interface PlanLimits {
   candidates: number | null;
@@ -18,18 +18,18 @@ export interface PlanLimits {
   recruiters: number | null;
 }
 
-/** Trial and Starter share the same caps by design — the trial is a time-boxed preview of Starter. */
+/** Public plan caps used by signup, billing, and enforcement. Candidate limits are monthly invitations. */
 export const PLAN_LIMITS: Record<PlanId, PlanLimits> = {
-  trial: { candidates: 10, projects: 1, recruiters: 1 },
-  starter: { candidates: 10, projects: 1, recruiters: 1 },
-  professional: { candidates: 50, projects: 3, recruiters: 3 },
+  trial: { candidates: 10, projects: 2, recruiters: 1 },
+  starter: { candidates: 50, projects: 2, recruiters: 1 },
+  professional: { candidates: 250, projects: 10, recruiters: 5 },
   enterprise: { candidates: null, projects: null, recruiters: null },
 };
 
 export const PLAN_PRICE_EUR: Record<PlanId, number | null> = {
   trial: null,
-  starter: 29,
-  professional: 79,
+  starter: 49,
+  professional: 149,
   enterprise: null,
 };
 

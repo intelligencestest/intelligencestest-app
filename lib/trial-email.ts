@@ -4,7 +4,7 @@ import { Resend } from "resend";
  * Trial lifecycle email templates. Mirrors lib/auth-email.ts (same visual
  * template, same escaping, same Resend call shape) so the two stay visually
  * consistent. Nothing here is scheduled — each kind is a plain callable
- * function; wiring a cron/queue to call these on day 1 / day 2 / expiry is
+ * function; wiring a cron/queue to call these during the trial and at expiry is
  * a later, separate decision.
  */
 
@@ -34,28 +34,28 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
 
   if (kind === "trial_started") {
     return {
-      subject: es ? "Su prueba de 3 días ha comenzado" : "Your 3-day trial has started",
+      subject: es ? "Su prueba de 14 días ha comenzado" : "Your 14-day trial has started",
       preheader: es
         ? "Cree su primer proyecto e invite candidatos para revisar un informe ejecutivo."
         : "Invite your first candidate and see results in minutes.",
       greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
       title: es ? "Su espacio de trabajo está listo" : "Your workspace is ready",
       intro: es
-        ? "Su prueba gratuita está activa durante 3 días. Puede crear 1 proyecto e invitar hasta 10 candidatos, sin necesidad de tarjeta de crédito."
-        : "You have 3 days to create a project and invite up to 10 candidates — no credit card required. Start now to make the most of your trial.",
+        ? "Su prueba gratuita está activa durante 14 días. Puede crear 2 proyectos e invitar hasta 10 candidatos, sin necesidad de tarjeta de crédito."
+        : "You have 14 days to create up to 2 projects and invite up to 10 candidates — no credit card required. Start now to make the most of your trial.",
       cta: es ? "Ir al panel" : "Go to dashboard",
       ctaUrl: DASHBOARD_URL,
       noticeTitle: es ? "Su prueba" : "Your trial",
       notice: es
-        ? "Incluye 1 reclutador, 1 proyecto y 10 candidatos durante 3 días."
-        : "Includes 1 recruiter, 1 project, and 10 candidates for 3 days.",
+        ? "Incluye 1 reclutador, 2 proyectos y 10 invitaciones de candidatos durante 14 días."
+        : "Includes 1 recruiter, 2 projects, and 10 candidate invitations for 14 days.",
     };
   }
 
   if (kind === "trial_day1") {
     return {
       subject: es ? "¿Ha invitado ya a su primer candidato?" : "Have you invited your first candidate yet?",
-      preheader: es ? "Quedan 2 días de su prueba gratuita." : "2 days left in your free trial.",
+      preheader: es ? "Aproveche su prueba gratuita de 14 días." : "Make the most of your 14-day free trial.",
       greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
       title: es ? "Aproveche su prueba gratuita" : "Make the most of your free trial",
       intro: es
@@ -63,28 +63,28 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
         : "Create a hiring project and invite a candidate to see a real executive report before your trial ends.",
       cta: es ? "Invitar a un candidato" : "Invite a candidate",
       ctaUrl: DASHBOARD_URL,
-      noticeTitle: es ? "Quedan 2 días" : "2 days left",
+      noticeTitle: es ? "Prueba gratuita activa" : "Free trial active",
       notice: es
-        ? "Su prueba termina en 2 días. Sin tarjeta de crédito requerida."
-        : "Your trial ends in 2 days. No credit card required.",
+        ? "Su prueba incluye 2 proyectos, 10 invitaciones de candidatos e informes ejecutivos. Sin tarjeta de crédito requerida."
+        : "Your trial includes 2 projects, 10 candidate invitations, and executive reports. No credit card required.",
     };
   }
 
   if (kind === "trial_day2") {
     return {
-      subject: es ? "Su prueba termina mañana" : "Your trial ends tomorrow",
-      preheader: es ? "Último día para probar la plataforma sin compromiso." : "Last day to try the platform, no commitment.",
+      subject: es ? "Continúe construyendo señales de selección" : "Keep building hiring signal",
+      preheader: es ? "Todavía tiene tiempo para probar la plataforma con candidatos reales." : "You still have time to test the platform with real candidates.",
       greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
-      title: es ? "Su prueba termina mañana" : "Your trial ends tomorrow",
+      title: es ? "Saque más valor de su prueba" : "Get more value from your trial",
       intro: es
-        ? "Mañana finaliza su periodo de prueba. Si la plataforma encaja con su proceso, hable con nuestro equipo para continuar sin interrupciones."
-        : "Your trial period ends tomorrow. If it's working for you, talk to our team to keep going without interruption.",
-      cta: es ? "Hablar con ventas" : "Talk to sales",
-      ctaUrl: CONTACT_URL,
-      noticeTitle: es ? "Último día" : "Last day",
+        ? "Use su prueba para comparar candidatos en un proyecto real y revisar informes ejecutivos antes de elegir un plan."
+        : "Use your trial to compare candidates in a real project and review executive reports before choosing a plan.",
+      cta: es ? "Ir al panel" : "Go to dashboard",
+      ctaUrl: DASHBOARD_URL,
+      noticeTitle: es ? "Límites incluidos" : "Included limits",
       notice: es
-        ? "Después de mañana, no podrá invitar nuevos candidatos ni crear proyectos hasta actualizar su plan."
-        : "After tomorrow, you won't be able to invite new candidates or create projects until you upgrade your plan.",
+        ? "Puede crear hasta 2 proyectos e invitar hasta 10 candidatos durante la prueba."
+        : "You can create up to 2 projects and invite up to 10 candidates during the trial.",
     };
   }
 
@@ -101,8 +101,8 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
       ctaUrl: CONTACT_URL,
       noticeTitle: es ? "Termina hoy" : "Ends today",
       notice: es
-        ? "Starter desde 29 €/mes, Professional desde 79 €/mes. Enterprise a medida — contacte con ventas."
-        : "Starter from €29/month, Professional from €79/month. Custom Enterprise — contact sales.",
+        ? "Starter desde 49 €/mes, Professional desde 149 €/mes. Enterprise a medida — contacte con ventas."
+        : "Starter from €49/month, Professional from €149/month. Custom Enterprise — contact sales.",
     };
   }
 

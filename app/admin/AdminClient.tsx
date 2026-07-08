@@ -23,8 +23,8 @@ type BusyState = { id: string; action: string } | null;
 
 const plans = [
   { value: "trial", label: "Trial" },
-  { value: "starter", label: "Starter · €29/mo" },
-  { value: "professional", label: "Professional · €79/mo" },
+  { value: "starter", label: "Starter · €49/mo" },
+  { value: "professional", label: "Professional · €149/mo" },
   { value: "enterprise", label: "Enterprise · custom" },
 ] as const;
 const statuses = ["active", "disabled"];

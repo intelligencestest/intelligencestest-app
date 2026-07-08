@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Check, Minus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
@@ -38,6 +39,30 @@ function usageTone(used: number, limit: number | null) {
   return "bg-[var(--it-info)]";
 }
 
+function FeatureValue({
+  value,
+  includedLabel,
+  excludedLabel,
+}: {
+  value: string | boolean;
+  includedLabel: string;
+  excludedLabel: string;
+}) {
+  if (typeof value === "boolean") {
+    return value ? (
+      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] p-1 text-[#91c7ad]">
+        <Check className="h-3.5 w-3.5" aria-label={includedLabel} />
+      </span>
+    ) : (
+      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-border)] bg-white/[0.025] p-1 text-[var(--it-faint)]">
+        <Minus className="h-3.5 w-3.5" aria-label={excludedLabel} />
+      </span>
+    );
+  }
+
+  return <span className="text-sm font-semibold tabular-nums text-slate-100">{value}</span>;
+}
+
 export default function BillingSettingsPage() {
   const locale = toAppLocale(useLocale());
   const billingT = useTranslations("billing");
@@ -67,6 +92,7 @@ export default function BillingSettingsPage() {
         projects: "Proyectos activos",
         recruiters: "Reclutadores",
         unlimited: "sin límite",
+        unlimitedShort: "Sin límite",
         availablePlans: "Planes disponibles",
         availablePlansText: "Elija el plan que corresponde a su volumen actual.",
         freeTrial: "Prueba gratuita",
@@ -74,10 +100,16 @@ export default function BillingSettingsPage() {
         professional: "Professional",
         enterprise: "Enterprise",
         tailored: "A medida",
+        trialPrice: "14 días gratis",
+        starterPrice: "49 €/mes",
+        professionalPrice: "149 €/mes",
+        enterprisePrice: "Contactar con ventas",
+        action: "Acción",
         current: "Actual",
         subscribe: "Suscribirse con PayPal",
         contactSales: "Contactar con ventas",
         loading: "Cargando facturación...",
+        billingUnavailable: "No se pudo cargar la información actual del plan.",
         manual: "Manual",
         paypal: "PayPal",
         legacy: (plan: string) => `Plan anterior (${plan})`,
@@ -88,12 +120,16 @@ export default function BillingSettingsPage() {
           past_due: "Pago pendiente",
           cancelled: "Cancelado",
         },
-        features: {
-          trial: ["3 días de acceso", "1 proyecto activo", "10 candidatos", "1 reclutador"],
-          starter: ["1 proyecto activo", "10 candidatos al mes", "1 reclutador"],
-          professional: ["3 proyectos activos", "50 candidatos al mes", "3 reclutadores"],
-          enterprise: ["Límites personalizados", "Soporte comercial", "Configuración a medida"],
-        },
+        feature: "Función",
+        included: "Incluido",
+        notIncluded: "No incluido",
+        featureRecruiters: "Reclutadores",
+        featureCandidateInvitations: "Invitaciones de candidatos",
+        featureProjects: "Proyectos",
+        featureExecutiveReports: "Informes ejecutivos",
+        featureAssessments: "Evaluaciones",
+        featureTeamCollaboration: "Colaboración de equipo",
+        featurePrioritySupport: "Soporte prioritario",
         billingHistory: "Historial de facturación",
         billingHistoryText:
           "Sus facturas y recibos de PayPal están disponibles directamente en su cuenta de PayPal.",
@@ -123,6 +159,7 @@ export default function BillingSettingsPage() {
         projects: "Active projects",
         recruiters: "Recruiters",
         unlimited: "unlimited",
+        unlimitedShort: "Unlimited",
         availablePlans: "Available plans",
         availablePlansText: "Choose the plan that matches your current hiring volume.",
         freeTrial: "Free trial",
@@ -130,10 +167,16 @@ export default function BillingSettingsPage() {
         professional: "Professional",
         enterprise: "Enterprise",
         tailored: "Tailored",
+        trialPrice: "14-day free trial",
+        starterPrice: "€49/month",
+        professionalPrice: "€149/month",
+        enterprisePrice: "Contact Sales",
+        action: "Action",
         current: "Current",
         subscribe: "Subscribe with PayPal",
         contactSales: "Contact sales",
         loading: "Loading billing...",
+        billingUnavailable: "We could not load your current plan information.",
         manual: "Manual",
         paypal: "PayPal",
         legacy: (plan: string) => `Legacy plan (${plan})`,
@@ -144,12 +187,16 @@ export default function BillingSettingsPage() {
           past_due: "Past due",
           cancelled: "Cancelled",
         },
-        features: {
-          trial: ["3 days access", "1 active project", "10 candidates", "1 recruiter"],
-          starter: ["1 active project", "10 candidates per month", "1 recruiter"],
-          professional: ["3 active projects", "50 candidates per month", "3 recruiters"],
-          enterprise: ["Custom limits", "Commercial support", "Tailored setup"],
-        },
+        feature: "Feature",
+        included: "Included",
+        notIncluded: "Not included",
+        featureRecruiters: "Recruiters",
+        featureCandidateInvitations: "Candidate invitations",
+        featureProjects: "Projects",
+        featureExecutiveReports: "Executive reports",
+        featureAssessments: "Assessments",
+        featureTeamCollaboration: "Team collaboration",
+        featurePrioritySupport: "Priority support",
         billingHistory: "Billing history",
         billingHistoryText: "Your PayPal invoices and receipts are available directly in your PayPal account.",
         paymentMethod: "Payment method",
@@ -209,46 +256,72 @@ export default function BillingSettingsPage() {
         { label: copy.recruiters, used: planData.usage.recruiters, limit: planData.limits.recruiters },
       ]
     : [];
-  const planCards = [
+  const planColumns = [
     {
       id: "trial" as const,
       name: copy.freeTrial,
-      price: es ? "0 €/3 días" : "€0/3 days",
-      features: copy.features.trial,
+      price: copy.trialPrice,
     },
     {
       id: "starter" as const,
       name: copy.starter,
-      price: es ? "29 €/mes" : "€29/month",
-      features: copy.features.starter,
+      price: copy.starterPrice,
     },
     {
       id: "professional" as const,
       name: copy.professional,
-      price: es ? "79 €/mes" : "€79/month",
-      features: copy.features.professional,
+      price: copy.professionalPrice,
     },
     {
       id: "enterprise" as const,
       name: copy.enterprise,
-      price: copy.tailored,
-      features: copy.features.enterprise,
+      price: copy.enterprisePrice,
+    },
+  ];
+  const pricingRows: Array<{ label: string; values: Record<PlanId, string | boolean> }> = [
+    {
+      label: copy.featureRecruiters,
+      values: { trial: "1", starter: "1", professional: "5", enterprise: copy.unlimitedShort },
+    },
+    {
+      label: copy.featureCandidateInvitations,
+      values: { trial: "10", starter: "50", professional: "250", enterprise: copy.unlimitedShort },
+    },
+    {
+      label: copy.featureProjects,
+      values: { trial: "2", starter: "2", professional: "10", enterprise: copy.unlimitedShort },
+    },
+    {
+      label: copy.featureExecutiveReports,
+      values: { trial: true, starter: true, professional: true, enterprise: true },
+    },
+    {
+      label: copy.featureAssessments,
+      values: { trial: true, starter: true, professional: true, enterprise: true },
+    },
+    {
+      label: copy.featureTeamCollaboration,
+      values: { trial: false, starter: false, professional: true, enterprise: true },
+    },
+    {
+      label: copy.featurePrioritySupport,
+      values: { trial: false, starter: false, professional: true, enterprise: true },
     },
   ];
   const hasPayPalSubscription = planData?.billingProvider === "paypal" && planData.subscriptionStatus === "active";
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-[1220px] space-y-5">
       <div>
         <h1 className="text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
+      <div className="grid gap-5 lg:grid-cols-[192px_minmax(0,1fr)] lg:items-start">
         <SettingsNav />
 
-        <section className="space-y-6">
-          <div className="enterprise-card rounded-xl p-6">
+        <section className="space-y-5">
+          <div className="enterprise-card rounded-xl p-5">
             <div className="flex flex-wrap items-start justify-between gap-4 border-b enterprise-divider pb-5">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
@@ -299,11 +372,13 @@ export default function BillingSettingsPage() {
                   </div>
                 ) : null}
               </div>
-            ) : null}
+            ) : (
+              <p className="mt-5 text-sm text-[var(--it-muted)]">{copy.billingUnavailable}</p>
+            )}
           </div>
 
           {planData ? (
-            <div className="enterprise-card rounded-xl p-6">
+            <div className="enterprise-card rounded-xl p-5">
               <div className="flex flex-wrap items-end justify-between gap-2">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
@@ -336,8 +411,8 @@ export default function BillingSettingsPage() {
             </div>
           ) : null}
 
-          <div className="enterprise-card rounded-xl p-6">
-            <div className="border-b enterprise-divider pb-5">
+          <div className="enterprise-card rounded-xl p-5">
+            <div className="border-b enterprise-divider pb-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
                 {copy.availablePlans}
               </p>
@@ -345,67 +420,100 @@ export default function BillingSettingsPage() {
               <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMode}</p>
             </div>
 
-            <div className="mt-5 grid gap-4 xl:grid-cols-4">
-              {planCards.map((plan) => {
-                const active = effectivePlanId === plan.id;
-                return (
-                  <div
-                    key={plan.id}
-                    className={`flex min-h-[260px] flex-col rounded-xl border px-4 py-4 ${
-                      active
-                        ? "border-[var(--it-primary)] bg-[var(--it-primary-soft)]"
-                        : "border-[var(--it-border-soft)] bg-[var(--it-surface-muted)]"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-sm font-semibold text-slate-100">{plan.name}</p>
-                        <p className="mt-2 text-2xl font-semibold text-white">{plan.price}</p>
-                      </div>
-                      {active ? (
-                        <span className="enterprise-chip-info inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.1em]">
-                          {copy.current}
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <ul className="mt-5 space-y-2 text-sm text-slate-300">
-                      {plan.features.map((feature) => (
-                        <li key={feature} className="flex gap-2">
-                          <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--it-info)]" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-auto pt-5">
-                      {active ? (
-                        <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold">
-                          {copy.currentPlan}
-                        </span>
-                      ) : plan.id === "starter" || plan.id === "professional" ? (
-                        <div>
-                          <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--it-faint)]">
-                            {copy.subscribe}
-                          </p>
-                          <PayPalSubscribeButton plan={plan.id} locale={locale} />
-                        </div>
-                      ) : plan.id === "enterprise" ? (
-                        <Link
-                          href={localePath("/contact", locale)}
-                          className="enterprise-button inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-semibold"
+            <div className="mt-5 overflow-x-auto rounded-xl border border-[var(--it-border-soft)]">
+              <table className="w-full min-w-[820px] border-collapse text-left">
+                <thead className="bg-[var(--it-surface-muted)]">
+                  <tr>
+                    <th className="w-[26%] px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                      {copy.feature}
+                    </th>
+                    {planColumns.map((plan) => {
+                      const active = effectivePlanId === plan.id;
+                      return (
+                        <th
+                          key={plan.id}
+                          className={`border-l border-[var(--it-border-soft)] px-4 py-4 align-top ${
+                            active ? "bg-[var(--it-primary-soft)]" : ""
+                          }`}
                         >
-                          {copy.contactSales}
-                        </Link>
-                      ) : (
-                        <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold opacity-70">
-                          {copy.freeTrial}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                          <div className="flex min-h-[62px] flex-col justify-between gap-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="text-sm font-semibold text-slate-100">{plan.name}</span>
+                              {active ? (
+                                <span className="enterprise-chip-info inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em]">
+                                  {copy.current}
+                                </span>
+                              ) : null}
+                            </div>
+                            <span className="text-base font-semibold leading-5 text-white">{plan.price}</span>
+                          </div>
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--it-border-soft)]">
+                  {pricingRows.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row" className="bg-[var(--it-surface)] px-4 py-3.5 text-sm font-medium text-[var(--it-muted)]">
+                        {row.label}
+                      </th>
+                      {planColumns.map((plan) => {
+                        const active = effectivePlanId === plan.id;
+                        return (
+                          <td
+                            key={`${row.label}-${plan.id}`}
+                            className={`border-l border-[var(--it-border-soft)] px-4 py-3.5 ${
+                              active ? "bg-[var(--it-primary-soft)]/60" : "bg-[var(--it-bg)]"
+                            }`}
+                          >
+                            <FeatureValue
+                              value={row.values[plan.id]}
+                              includedLabel={copy.included}
+                              excludedLabel={copy.notIncluded}
+                            />
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  <tr className="bg-[var(--it-surface-muted)]/70">
+                    <th className="px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                      {copy.action}
+                    </th>
+                    {planColumns.map((plan) => {
+                      const active = effectivePlanId === plan.id;
+                      return (
+                        <td key={`${plan.id}-action`} className="border-l border-[var(--it-border-soft)] px-4 py-4 align-top">
+                          {active ? (
+                            <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold">
+                              {copy.current}
+                            </span>
+                          ) : plan.id === "starter" || plan.id === "professional" ? (
+                            <div className="min-w-0">
+                              <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--it-faint)]">
+                                {copy.subscribe}
+                              </p>
+                              <PayPalSubscribeButton plan={plan.id} locale={locale} />
+                            </div>
+                          ) : plan.id === "enterprise" ? (
+                            <Link
+                              href={localePath("/contact", locale)}
+                              className="enterprise-button inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-semibold"
+                            >
+                              {copy.contactSales}
+                            </Link>
+                          ) : (
+                            <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold opacity-70">
+                              {copy.trialPrice}
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 

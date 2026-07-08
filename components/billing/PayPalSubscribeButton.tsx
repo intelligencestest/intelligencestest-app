@@ -12,6 +12,8 @@ interface PayPalSubscribeButtonProps {
 
 interface PayPalConfig {
   clientId: string | null;
+  configured: boolean;
+  missing?: string[];
   plans: Record<PayPalPlan, string | null>;
 }
 
@@ -79,20 +81,21 @@ function loadPayPalSdk(clientId: string) {
 export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "configured" | "error" | "success">("loading");
+  const [missingConfig, setMissingConfig] = useState<string[]>([]);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const es = locale === "es";
 
   const copy = es
     ? {
         loading: "Cargando PayPal...",
-        missing: "PayPal aún no está configurado para este entorno.",
+        missing: "El pago con PayPal se está configurando. Contacte con ventas para activar este plan.",
         error: "No pudimos cargar PayPal. Inténtelo de nuevo.",
         success: "Suscripción creada. El equipo comercial confirmará la activación.",
         subscription: "ID de suscripción",
       }
     : {
         loading: "Loading PayPal...",
-        missing: "PayPal is not configured for this environment yet.",
+        missing: "PayPal checkout is being configured. Contact sales to activate this plan.",
         error: "We could not load PayPal. Please try again.",
         success: "Subscription created. The commercial team will confirm activation.",
         subscription: "Subscription ID",
@@ -108,8 +111,15 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
         const config = (await response.json()) as PayPalConfig;
         const planId = config.plans[plan];
 
-        if (!config.clientId || !planId) {
-          if (!cancelled) setStatus("configured");
+        if (!config.configured || !config.clientId || !planId) {
+          if (!cancelled) {
+            const missing = config.missing ?? [];
+            setMissingConfig(missing);
+            if (missing.length > 0) {
+              console.warn(`PayPal subscription checkout is missing config: ${missing.join(", ")}`);
+            }
+            setStatus("configured");
+          }
           return;
         }
 
@@ -150,7 +160,11 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
     <div className="space-y-2">
       <div ref={containerRef} />
       {status === "loading" && <p className="text-xs text-slate-500">{copy.loading}</p>}
-      {status === "configured" && <p className="text-xs text-amber-300">{copy.missing}</p>}
+      {status === "configured" && (
+        <p className="text-xs leading-5 text-amber-300" title={missingConfig.join(", ") || undefined}>
+          {copy.missing}
+        </p>
+      )}
       {status === "error" && <p className="text-xs text-red-300">{copy.error}</p>}
       {status === "success" && (
         <p className="text-xs leading-5 text-emerald-300">
