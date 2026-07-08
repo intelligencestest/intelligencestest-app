@@ -422,7 +422,12 @@
     "fallbackSample": "A sample question preview will appear here once the question bank is published.",
     "active": "Active",
     "close": "Close",
-    "activeOf": "{active} active / {total} total"
+    "activeOf": "{active} active / {total} total",
+    "addToProjectTitle": "Add to project",
+    "noActiveProjects": "No active projects yet.",
+    "createNewProject": "Create new project",
+    "added": "Added",
+    "add": "Add"
   },
   "settings": {
     "title": "Settings",

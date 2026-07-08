@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
+import { Check, Clock, ListChecks, Loader2, Plus, X } from "lucide-react";
 
 interface Assessment {
   id: string;
@@ -13,131 +14,6 @@ interface Assessment {
   question_count: number | null;
   status: string;
 }
-
-type Tone = {
-  text: string;
-  bg: string;
-  border: string;
-  dot: string;
-  iconBg: string;
-  iconBorder: string;
-};
-
-const categoryTones: Record<string, Tone> = {
-  Cognitive: {
-    text: "text-blue-300",
-    bg: "bg-blue-500/10",
-    border: "border-blue-500/25",
-    dot: "bg-blue-400",
-    iconBg: "bg-blue-500/10",
-    iconBorder: "border-blue-500/25",
-  },
-  Personality: {
-    text: "text-pink-300",
-    bg: "bg-pink-500/10",
-    border: "border-pink-500/25",
-    dot: "bg-pink-400",
-    iconBg: "bg-pink-500/10",
-    iconBorder: "border-pink-500/25",
-  },
-  "Workplace Judgment": {
-    text: "text-indigo-300",
-    bg: "bg-indigo-500/10",
-    border: "border-indigo-500/25",
-    dot: "bg-indigo-400",
-    iconBg: "bg-indigo-500/10",
-    iconBorder: "border-indigo-500/25",
-  },
-  Leadership: {
-    text: "text-emerald-300",
-    bg: "bg-emerald-500/10",
-    border: "border-emerald-500/25",
-    dot: "bg-emerald-400",
-    iconBg: "bg-emerald-500/10",
-    iconBorder: "border-emerald-500/25",
-  },
-  Resilience: {
-    text: "text-orange-300",
-    bg: "bg-orange-500/10",
-    border: "border-orange-500/25",
-    dot: "bg-orange-400",
-    iconBg: "bg-orange-500/10",
-    iconBorder: "border-orange-500/25",
-  },
-  Communication: {
-    text: "text-cyan-300",
-    bg: "bg-cyan-500/10",
-    border: "border-cyan-500/25",
-    dot: "bg-cyan-400",
-    iconBg: "bg-cyan-500/10",
-    iconBorder: "border-cyan-500/25",
-  },
-  "Work Style": {
-    text: "text-violet-300",
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/25",
-    dot: "bg-violet-400",
-    iconBg: "bg-violet-500/10",
-    iconBorder: "border-violet-500/25",
-  },
-  Mechanical: {
-    text: "text-amber-300",
-    bg: "bg-amber-500/10",
-    border: "border-amber-500/25",
-    dot: "bg-amber-400",
-    iconBg: "bg-amber-500/10",
-    iconBorder: "border-amber-500/25",
-  },
-  Sales: {
-    text: "text-green-300",
-    bg: "bg-green-500/10",
-    border: "border-green-500/25",
-    dot: "bg-green-400",
-    iconBg: "bg-green-500/10",
-    iconBorder: "border-green-500/25",
-  },
-  "Customer Service": {
-    text: "text-sky-300",
-    bg: "bg-sky-500/10",
-    border: "border-sky-500/25",
-    dot: "bg-sky-400",
-    iconBg: "bg-sky-500/10",
-    iconBorder: "border-sky-500/25",
-  },
-  Teamwork: {
-    text: "text-teal-300",
-    bg: "bg-teal-500/10",
-    border: "border-teal-500/25",
-    dot: "bg-teal-400",
-    iconBg: "bg-teal-500/10",
-    iconBorder: "border-teal-500/25",
-  },
-  Productivity: {
-    text: "text-yellow-300",
-    bg: "bg-yellow-500/10",
-    border: "border-yellow-500/25",
-    dot: "bg-yellow-400",
-    iconBg: "bg-yellow-500/10",
-    iconBorder: "border-yellow-500/25",
-  },
-  Character: {
-    text: "text-violet-300",
-    bg: "bg-violet-500/10",
-    border: "border-violet-500/25",
-    dot: "bg-violet-400",
-    iconBg: "bg-violet-500/10",
-    iconBorder: "border-violet-500/25",
-  },
-};
-
-const fallbackTone: Tone = {
-  text: "text-slate-300",
-  bg: "bg-slate-500/10",
-  border: "border-slate-500/20",
-  dot: "bg-slate-500",
-  iconBg: "bg-slate-500/10",
-  iconBorder: "border-slate-500/20",
-};
 
 const CATEGORY_NAMES_ES: Record<string, string> = {
   "Cognitive": "Cognitivo",
@@ -450,10 +326,6 @@ function slugForAssessment(name: string) {
   return mapped.find(([pattern]) => pattern.test(normalized))?.[1] ?? normalized.replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-function getTone(category: string) {
-  return categoryTones[category] ?? fallbackTone;
-}
-
 function getSortIndex(name: string) {
   const index = preferredOrder.findIndex((item) => item.toLowerCase() === name.toLowerCase());
   return index === -1 ? preferredOrder.length : index;
@@ -567,46 +439,37 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
     <div className="mx-auto max-w-7xl space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-soft-pulse" />
-            {t("badge")}
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{t("title")}</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>
+          <p className="mt-2 text-sm text-[var(--it-muted)]">
             {t("subtitle", { count: activeCount, categories: grouped.length })}
           </p>
         </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl border border-[#1E2240] bg-[#0D1020] px-4 py-3">
-            <p className="text-xs text-slate-500">{t("availableNow")}</p>
-            <p className="mt-1 text-sm font-semibold text-white">{activeCount} {t("testsLabel")}</p>
+        <div className="flex items-center gap-6 border-t border-[var(--it-hairline)] pt-4 sm:border-t-0 sm:pt-0">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-lg font-semibold text-white">{activeCount}</span>
+            <span className="text-xs text-[var(--it-faint)]">{t("availableNow")}</span>
           </div>
-          <div className="rounded-xl border border-[#1E2240] bg-[#0D1020] px-4 py-3">
-            <p className="text-xs text-slate-500">{t("totalBattery")}</p>
-            <p className="mt-1 text-sm font-semibold text-white">{totalMinutes} min</p>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-lg font-semibold text-white">{totalMinutes} min</span>
+            <span className="text-xs text-[var(--it-faint)]">{t("totalBattery")}</span>
           </div>
         </div>
       </div>
 
       {grouped.map((group) => {
-        const tone = getTone(group.category);
         const activeInCategory = group.items.filter(isActive).length;
         return (
           <section key={group.category} className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className={`${tone.bg} ${tone.border} inline-flex items-center gap-2 rounded-full border px-3 py-1.5`}>
-                <span className={`h-1.5 w-1.5 rounded-full ${tone.dot}`} />
-                <h2 className={`text-sm font-semibold ${tone.text}`}>{localCategory(group.category)}</h2>
-              </div>
-              <span className="text-xs font-medium text-slate-500">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--it-hairline)] pt-4">
+              <h2 className="text-lg font-semibold text-white">{localCategory(group.category)}</h2>
+              <span className="text-xs font-medium text-[var(--it-faint)]">
                 {t("activeOf", { active: activeInCategory, total: group.items.length })}
               </span>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {group.items.map((assessment, index) => {
+              {group.items.map((assessment) => {
                 const active = isActive(assessment);
-                const route = slugForAssessment(assessment.name);
                 return (
                   <div
                     key={assessment.id}
@@ -616,64 +479,52 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") setPreview(assessment);
                     }}
-                    className={`group flex min-h-[320px] cursor-pointer flex-col rounded-xl border p-5 transition-colors animate-fade-up ${
+                    className={`group flex min-h-[280px] cursor-pointer flex-col rounded-xl border p-5 transition-colors ${
                       active
-                        ? "premium-card premium-card-hover"
-                        : "border-[#1E2240] bg-[#0D1020]/68 hover:border-slate-600/40"
+                        ? "enterprise-card enterprise-card-hover"
+                        : "border-[var(--it-hairline)] bg-white/[0.015] hover:border-[var(--it-border)]"
                     }`}
-                    style={{ animationDelay: `${index * 45}ms` }}
                   >
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                      <div className={`${active ? tone.bg : "bg-slate-500/10"} ${active ? tone.border : "border-slate-500/20"} inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${active ? tone.dot : "bg-slate-500"}`} />
-                        <span className={`text-xs font-medium ${active ? tone.text : "text-slate-400"}`}>{localCategory(assessment.category)}</span>
-                      </div>
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <span className="text-xs font-medium text-[var(--it-faint)]">{localCategory(assessment.category)}</span>
                       <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
                         active
-                          ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-300"
-                          : "border-slate-500/20 bg-slate-500/10 text-slate-400"
+                          ? "border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] text-[#91c7ad]"
+                          : "border-[var(--it-hairline)] bg-white/[0.03] text-[var(--it-muted)]"
                       }`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-emerald-400" : "bg-slate-500"}`} />
+                        <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--it-success)]" : "bg-[var(--it-faint)]"}`} />
                         {active ? t("active") : t("comingSoon")}
                       </span>
                     </div>
 
-                    <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl border ${active ? `${tone.iconBorder} ${tone.iconBg} ${tone.text}` : "border-[#1E2240] bg-[#07080F] text-slate-500"}`}>
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 4.5h6m-8.25 3h10.5m-12 3h13.5M7.5 21h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 16.5 7.5h-9a2.25 2.25 0 0 0-2.25 2.25v9A2.25 2.25 0 0 0 7.5 21Z" />
-                      </svg>
-                    </div>
-
                     <h3 className={`mb-2 text-base font-semibold ${active ? "text-white" : "text-slate-300"}`}>{localName(assessment)}</h3>
-                    <p className={`flex-1 text-sm leading-relaxed ${active ? "text-slate-500" : "text-slate-600"}`}>
+                    <p className={`flex-1 text-sm leading-relaxed ${active ? "text-[var(--it-muted)]" : "text-[var(--it-faint)]"}`}>
                       {localDesc(assessment, t("fallbackDescription"))}
                     </p>
 
-                    <div className="mt-5 grid grid-cols-2 gap-3">
-                      <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-3">
-                        <p className="text-xs text-slate-600">{t("duration")}</p>
-                        <p className="mt-1 text-sm font-semibold text-white">{assessment.duration_minutes ?? "-"} min</p>
+                    <div className="mt-4 flex items-center gap-6">
+                      <div className="flex items-baseline gap-1.5">
+                        <Clock className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
+                        <span className="text-sm font-semibold text-white">{assessment.duration_minutes ?? "-"} min</span>
                       </div>
-                      <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-3">
-                        <p className="text-xs text-slate-600">{t("questions")}</p>
-                        <p className="mt-1 text-sm font-semibold text-white">{assessment.question_count ?? "-"}</p>
+                      <div className="flex items-baseline gap-1.5">
+                        <ListChecks className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
+                        <span className="text-sm font-semibold text-white">{assessment.question_count ?? "-"}</span>
                       </div>
                     </div>
 
-                    <div className="mt-4 border-t border-[#1E2240] pt-4">
+                    <div className="mt-4 border-t border-[var(--it-hairline)] pt-4">
                       {active ? (
                         <button
                           type="button"
                           onClick={(event) => { event.stopPropagation(); setProjectPickerFor(assessment.id); }}
-                          className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-950/25 transition-colors hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/50 focus:ring-offset-2 focus:ring-offset-[#0D1020]"
+                          className="enterprise-button inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
                         >
+                          <Plus className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                           {t("addToProject")}
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
-                          </svg>
                         </button>
                       ) : (
-                        <span className="inline-flex w-full items-center justify-center rounded-xl border border-slate-500/20 bg-slate-500/10 px-4 py-2.5 text-sm font-semibold text-slate-400">
+                        <span className="inline-flex w-full items-center justify-center rounded-xl border border-[var(--it-hairline)] bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-[var(--it-muted)]">
                           {t("comingSoon")}
                         </span>
                       )}
@@ -689,47 +540,45 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
       {preview && sample && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onClick={() => setPreview(null)}>
           <div
-            className="w-full max-w-2xl rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 shadow-2xl shadow-black/40"
+            className="enterprise-card w-full max-w-2xl rounded-2xl p-6 shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#07080F] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-                  {localCategory(preview.category)}
-                </div>
-                <h3 className="text-xl font-semibold text-white">{localName(preview)}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-slate-400">{localDesc(preview, t("fallbackDescription"))}</p>
+                <p className="text-xs font-medium text-[var(--it-faint)]">{localCategory(preview.category)}</p>
+                <h3 className="mt-1 text-xl font-semibold text-white">{localName(preview)}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--it-muted)]">{localDesc(preview, t("fallbackDescription"))}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setPreview(null)}
-                className="cursor-pointer rounded-lg p-2 text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
-                aria-label="Close preview"
+                className="cursor-pointer rounded-lg p-2 text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
+                aria-label={t("close")}
               >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18 18 6M6 6l12 12" />
-                </svg>
+                <X className="h-5 w-5" strokeWidth={2} />
               </button>
             </div>
 
-            <div className="mb-5 grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-4">
-                <p className="text-xs text-slate-500">{t("duration")}</p>
-                <p className="mt-1 text-lg font-semibold text-white">{preview.duration_minutes ?? "-"} min</p>
+            <div className="mb-5 flex items-center gap-6 border-t border-[var(--it-hairline)] pt-4">
+              <div className="flex items-baseline gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
+                <span className="text-base font-semibold text-white">{preview.duration_minutes ?? "-"} min</span>
+                <span className="text-xs text-[var(--it-faint)]">{t("duration")}</span>
               </div>
-              <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-4">
-                <p className="text-xs text-slate-500">{t("questions")}</p>
-                <p className="mt-1 text-lg font-semibold text-white">{preview.question_count ?? "-"}</p>
+              <div className="flex items-baseline gap-1.5">
+                <ListChecks className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
+                <span className="text-base font-semibold text-white">{preview.question_count ?? "-"}</span>
+                <span className="text-xs text-[var(--it-faint)]">{t("questions")}</span>
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#1E2240] bg-[#07080F] p-4">
-              <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{t("sampleQuestion")}</p>
+            <div className="rounded-xl border border-[var(--it-hairline)] bg-white/[0.02] p-4">
+              <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-[var(--it-faint)]">{t("sampleQuestion")}</p>
               <p className="text-sm font-medium leading-relaxed text-white">{sample.text}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {sample.options.map((option, index) => (
-                  <div key={option} className="rounded-lg border border-[#1E2240] bg-[#0D1020] px-3 py-2 text-sm text-slate-400">
-                    <span className="mr-2 font-semibold text-slate-500">{String.fromCharCode(65 + index)}.</span>
+                  <div key={option} className="rounded-lg border border-[var(--it-hairline)] px-3 py-2 text-sm text-[var(--it-muted)]">
+                    <span className="mr-2 font-semibold text-[var(--it-faint)]">{String.fromCharCode(65 + index)}.</span>
                     {option}
                   </div>
                 ))}
@@ -740,7 +589,7 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
               <button
                 type="button"
                 onClick={() => setPreview(null)}
-                className="cursor-pointer rounded-xl border border-[#1E2240] px-4 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
+                className="enterprise-button-secondary cursor-pointer rounded-xl px-4 py-2.5 text-sm font-medium"
               >
                 {t("close")}
               </button>
@@ -748,15 +597,13 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                 <button
                   type="button"
                   onClick={() => { setPreview(null); setProjectPickerFor(preview.id); }}
-                  className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                  className="enterprise-button inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
                 >
+                  <Plus className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                   {t("addToProject")}
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
-                  </svg>
                 </button>
               ) : (
-                <span className="inline-flex items-center justify-center rounded-xl border border-slate-500/20 bg-slate-500/10 px-4 py-2.5 text-sm font-semibold text-slate-400">
+                <span className="inline-flex items-center justify-center rounded-xl border border-[var(--it-hairline)] bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-[var(--it-muted)]">
                   {t("comingSoon")}
                 </span>
               )}
@@ -772,30 +619,28 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
           onClick={() => setProjectPickerFor(null)}
         >
           <div
-            className="w-full max-w-sm rounded-2xl border border-[#1E2240] bg-[#0D1020] p-6 shadow-2xl"
+            className="enterprise-card w-full max-w-sm rounded-2xl p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-white">Add to project</h2>
+              <h2 className="text-base font-semibold text-white">{t("addToProjectTitle")}</h2>
               <button
                 type="button"
                 onClick={() => setProjectPickerFor(null)}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-4 w-4" strokeWidth={2} />
               </button>
             </div>
 
             {projects.length === 0 ? (
-              <div className="py-4 text-center">
-                <p className="mb-4 text-sm text-slate-500">No active projects yet.</p>
+              <div className="py-2">
+                <p className="mb-4 text-sm text-[var(--it-muted)]">{t("noActiveProjects")}</p>
                 <Link
                   href={`/projects/new?assessment=${projectPickerFor}`}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600"
+                  className="enterprise-button inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
                 >
-                  Create new project
+                  {t("createNewProject")}
                 </Link>
               </div>
             ) : (
@@ -806,32 +651,27 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                     type="button"
                     disabled={addingToProject === project.id || justAdded === project.id}
                     onClick={() => addToProject(project.id)}
-                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[#1E2240] bg-[#07080F]/55 px-4 py-3 text-left transition-colors hover:bg-[#1E2240]/60 disabled:cursor-not-allowed"
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[var(--it-hairline)] bg-white/[0.02] px-4 py-3 text-left transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed"
                   >
                     <span className="truncate text-sm text-slate-300">{project.name}</span>
                     {justAdded === project.id ? (
-                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-emerald-300">
-                        <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                        </svg>
-                        Added
+                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-[#91c7ad]">
+                        <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
+                        {t("added")}
                       </span>
                     ) : addingToProject === project.id ? (
-                      <svg className="h-4 w-4 shrink-0 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-                      </svg>
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[var(--it-muted)]" strokeWidth={2} aria-hidden="true" />
                     ) : (
-                      <span className="shrink-0 text-xs font-medium text-[#8CB1FF]">Add →</span>
+                      <span className="shrink-0 text-xs font-medium text-[#9fb3e5]">{t("add")}</span>
                     )}
                   </button>
                 ))}
-                <div className="border-t border-[#1E2240] pt-2">
+                <div className="border-t border-[var(--it-hairline)] pt-2">
                   <Link
                     href={`/projects/new?assessment=${projectPickerFor}`}
-                    className="block px-1 py-1 text-xs text-slate-500 transition-colors hover:text-slate-300"
+                    className="block px-1 py-1 text-xs text-[var(--it-muted)] transition-colors hover:text-slate-300"
                   >
-                    + Create new project
+                    + {t("createNewProject")}
                   </Link>
                 </div>
               </div>

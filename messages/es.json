@@ -422,7 +422,12 @@
     "fallbackSample": "La vista previa de una pregunta de ejemplo aparecerá aquí cuando el banco de preguntas sea publicado.",
     "active": "Activo",
     "close": "Cerrar",
-    "activeOf": "{active} activos / {total} en total"
+    "activeOf": "{active} activos / {total} en total",
+    "addToProjectTitle": "Agregar al proyecto",
+    "noActiveProjects": "Aún no hay proyectos activos.",
+    "createNewProject": "Crear nuevo proyecto",
+    "added": "Agregado",
+    "add": "Agregar"
   },
   "settings": {
     "title": "Configuración",
