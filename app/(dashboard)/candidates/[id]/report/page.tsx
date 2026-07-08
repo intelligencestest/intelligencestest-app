@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import type { ReactNode } from "react";
+import { ChevronLeft } from "lucide-react";
 import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { analyzeResult } from "@/lib/report-scoring";
@@ -14,6 +15,8 @@ import type {
   RiskSeverity,
 } from "@/lib/assessment-intelligence";
 import type { EvidenceDirection } from "@/lib/assessment-intelligence/types";
+import { ConfidenceGauge } from "@/components/dashboard/ConfidenceGauge";
+import ExportPdfButton from "../ExportPdfButton";
 
 type ReportLang = "es" | "en";
 type Band = "high" | "medium" | "low";
@@ -27,57 +30,45 @@ type ResultRow = {
   assessments: { id: string; name: string; category: string | null } | null;
 };
 
+// Three-tone system driven by the app's shared --it-success/warning/danger
+// tokens, so band/recommendation/confidence colors match the rest of the
+// enterprise dashboard instead of this page's own bespoke palette.
 const BAND_STYLE: Record<Band, { label: Record<ReportLang, string>; text: string; bg: string; bar: string; border: string }> = {
   high: {
     label: { es: "Alto", en: "High" },
-    text: "text-[#2f8f6b]",
-    bg: "bg-[#2f8f6b]/10",
-    bar: "bg-[#2f8f6b]",
-    border: "border-[#2f8f6b]/20",
+    text: "text-[#91c7ad]",
+    bg: "bg-[rgba(63,143,107,0.1)]",
+    bar: "bg-[var(--it-success)]",
+    border: "border-[var(--it-success)]/20",
   },
   medium: {
     label: { es: "Medio", en: "Medium" },
-    text: "text-[#b8812f]",
-    bg: "bg-[#b8812f]/10",
-    bar: "bg-[#b8812f]",
-    border: "border-[#b8812f]/20",
+    text: "text-[#d2b174]",
+    bg: "bg-[rgba(184,134,47,0.1)]",
+    bar: "bg-[var(--it-warning)]",
+    border: "border-[var(--it-warning)]/20",
   },
   low: {
     label: { es: "Bajo", en: "Low" },
-    text: "text-[#c44f4f]",
-    bg: "bg-[#c44f4f]/10",
-    bar: "bg-[#c44f4f]",
-    border: "border-[#c44f4f]/20",
+    text: "text-[#d99792]",
+    bg: "bg-[rgba(185,82,76,0.1)]",
+    bar: "bg-[var(--it-danger)]",
+    border: "border-[var(--it-danger)]/20",
   },
 };
 
 const RECOMMENDATION_STYLE: Record<IntelligenceRecommendation["level"], { dot: string; text: string; bg: string; border: string }> = {
-  strong: { dot: "bg-[#2f8f6b]", text: "text-[#b9e6d3]", bg: "bg-[#2f8f6b]/10", border: "border-[#2f8f6b]/25" },
-  proceed: { dot: "bg-[#2f8f6b]", text: "text-[#b9e6d3]", bg: "bg-[#2f8f6b]/10", border: "border-[#2f8f6b]/25" },
-  review: { dot: "bg-[#c7a15a]", text: "text-[#ead6ad]", bg: "bg-[#c7a15a]/10", border: "border-[#c7a15a]/25" },
-  caution: { dot: "bg-[#c44f4f]", text: "text-[#f0b9b9]", bg: "bg-[#c44f4f]/10", border: "border-[#c44f4f]/25" },
-  notRecommended: { dot: "bg-[#c44f4f]", text: "text-[#f0b9b9]", bg: "bg-[#c44f4f]/10", border: "border-[#c44f4f]/25" },
+  strong: { dot: "bg-[var(--it-success)]", text: "text-[#b9e6d3]", bg: "bg-[rgba(63,143,107,0.1)]", border: "border-[var(--it-success)]/25" },
+  proceed: { dot: "bg-[var(--it-success)]", text: "text-[#b9e6d3]", bg: "bg-[rgba(63,143,107,0.1)]", border: "border-[var(--it-success)]/25" },
+  review: { dot: "bg-[var(--it-warning)]", text: "text-[#ead6ad]", bg: "bg-[rgba(184,134,47,0.1)]", border: "border-[var(--it-warning)]/25" },
+  caution: { dot: "bg-[var(--it-danger)]", text: "text-[#f0b9b9]", bg: "bg-[rgba(185,82,76,0.1)]", border: "border-[var(--it-danger)]/25" },
+  notRecommended: { dot: "bg-[var(--it-danger)]", text: "text-[#f0b9b9]", bg: "bg-[rgba(185,82,76,0.1)]", border: "border-[var(--it-danger)]/25" },
 };
 
-const CONFIDENCE_STYLE: Record<ConfidenceLevel, { label: Record<ReportLang, string>; text: string; bg: string; border: string }> = {
-  high: {
-    label: { es: "Alta", en: "High" },
-    text: "text-[#b9e6d3]",
-    bg: "bg-[#2f8f6b]/10",
-    border: "border-[#2f8f6b]/20",
-  },
-  moderate: {
-    label: { es: "Media", en: "Moderate" },
-    text: "text-[#ead6ad]",
-    bg: "bg-[#c7a15a]/10",
-    border: "border-[#c7a15a]/20",
-  },
-  low: {
-    label: { es: "Baja", en: "Low" },
-    text: "text-[#f0b9b9]",
-    bg: "bg-[#c44f4f]/10",
-    border: "border-[#c44f4f]/20",
-  },
+const CONFIDENCE_STYLE: Record<ConfidenceLevel, { label: Record<ReportLang, string>; tone: "high" | "moderate" | "low" }> = {
+  high: { label: { es: "Alta", en: "High" }, tone: "high" },
+  moderate: { label: { es: "Media", en: "Moderate" }, tone: "moderate" },
+  low: { label: { es: "Baja", en: "Low" }, tone: "low" },
 };
 
 const DIRECTION_LABEL: Record<EvidenceDirection, Record<ReportLang, string>> = {
@@ -220,10 +211,10 @@ function SectionShell({
   aside?: ReactNode;
 }) {
   return (
-    <section className="border-t border-white/[0.08] py-10">
+    <section className="border-t enterprise-divider py-10">
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#71809d]">{eyebrow}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">{eyebrow}</p>
           <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">{title}</h2>
           {aside}
         </div>
@@ -253,14 +244,14 @@ function ScoreLine({ score, tone }: { score: number; tone: Band }) {
 }
 
 function EmptyLine({ children }: { children: React.ReactNode }) {
-  return <p className="rounded-xl border border-dashed border-white/[0.1] px-4 py-3 text-sm leading-6 text-[#8b98b3]">{children}</p>;
+  return <p className="rounded-xl border border-dashed border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-[var(--it-muted)]">{children}</p>;
 }
 
 function directionBorder(direction: EvidenceDirection) {
-  if (direction === "positive") return "border-[#2f8f6b]/25";
-  if (direction === "risk") return "border-[#c44f4f]/25";
-  if (direction === "mixed") return "border-[#c7a15a]/25";
-  return "border-white/[0.1]";
+  if (direction === "positive") return "border-[var(--it-success)]/25";
+  if (direction === "risk") return "border-[var(--it-danger)]/25";
+  if (direction === "mixed") return "border-[var(--it-warning)]/25";
+  return "border-[var(--it-border)]";
 }
 
 function topEvidence(report: AssessmentIntelligenceReport) {
@@ -376,31 +367,47 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   );
 
   return (
-    <main className="min-h-screen bg-[#07080F] text-[#eef3ff]">
+    <main className="min-h-screen bg-[var(--it-bg)] text-[var(--it-text)]">
       <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 lg:px-10">
         <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href={`/candidates/${candidate.id}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-[#8b98b3] transition-colors hover:text-white"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ChevronLeft className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
             {L.back as string}
           </Link>
-          <Link
-            href={`/candidates/${candidate.id}`}
-            className="inline-flex items-center justify-center rounded-lg bg-[#e8edf7] px-4 py-2.5 text-sm font-semibold text-[#0b1020] transition-colors hover:bg-white"
-          >
-            {L.reviewCandidate as string}
-          </Link>
+          <div className="flex flex-col-reverse items-stretch gap-2.5 sm:flex-row sm:items-center">
+            <ExportPdfButton
+              candidateName={name}
+              candidateEmail={candidate.email || ""}
+              companyName={companyName}
+              projectName={projectName}
+              candidateId={candidate.id}
+              assessments={myResults.map((r) => ({
+                id: r.id,
+                assessmentId: r.assessment_id,
+                name: r.assessments?.name ?? "—",
+                score: r.score,
+                completedAt: r.completed_at,
+                category: r.assessments?.category ?? undefined,
+                rawAnswers: r.raw_answers,
+              }))}
+            />
+            <Link
+              href={`/candidates/${candidate.id}`}
+              className="enterprise-button inline-flex items-center justify-center rounded-lg px-4 py-2.5 text-sm font-semibold"
+            >
+              {L.reviewCandidate as string}
+            </Link>
+          </div>
         </div>
 
-        <section className="rounded-[28px] border border-white/[0.08] bg-[#0b0f1a] px-6 py-7 shadow-[0_30px_120px_rgba(0,0,0,0.38)] sm:px-8 lg:px-10">
+        <section className="enterprise-card relative overflow-hidden rounded-[28px] px-6 py-7 sm:px-8 lg:px-10">
           <div className="grid gap-10 lg:grid-cols-[1.35fr_0.65fr]">
             <div>
               <div className="flex flex-wrap items-center gap-3">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#71809d]">{L.eyebrow as string}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--it-faint)]">{L.eyebrow as string}</p>
                 <Pill className={`${recommendationStyle.bg} ${recommendationStyle.text} ${recommendationStyle.border}`}>
                   <span className={`mr-2 h-1.5 w-1.5 rounded-full ${recommendationStyle.dot}`} aria-hidden="true" />
                   {intelligence.recommendation.title}
@@ -409,43 +416,43 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl">
                 {intelligence.recommendation.title}
               </h1>
-              <p className="mt-4 max-w-3xl text-lg leading-8 text-[#a8b3ca]">{intelligence.recommendation.rationale}</p>
+              <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{intelligence.recommendation.rationale}</p>
 
-              <div className="mt-8 flex min-w-0 items-center gap-4 rounded-2xl border border-white/[0.08] bg-white/[0.025] p-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/[0.09] bg-[#07080F] text-sm font-semibold text-white">
+              <div className="mt-8 flex min-w-0 items-center gap-4 rounded-2xl border enterprise-divider bg-white/[0.025] p-4">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-border)] bg-[var(--it-bg)] text-sm font-semibold text-white">
                   {initials}
                 </div>
                 <div className="min-w-0">
                   <p className="break-words text-base font-semibold text-white">{name}</p>
-                  <p className="mt-0.5 break-words text-sm text-[#8b98b3]">{candidate.email || "—"}</p>
+                  <p className="mt-0.5 break-words text-sm text-[var(--it-muted)]">{candidate.email || "—"}</p>
                 </div>
               </div>
 
-              <div className="mt-9 grid gap-4 border-t border-white/[0.08] pt-6 md:grid-cols-3">
+              <div className="mt-9 grid gap-4 border-t enterprise-divider pt-6 md:grid-cols-3">
                 {[
                   { label: L.project as string, value: projectName },
                   { label: L.company as string, value: companyName },
                   { label: L.reportDate as string, value: reportDate },
                 ].map((item) => (
                   <div key={item.label}>
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#71809d]">{item.label}</p>
-                    <p className="mt-1 truncate text-sm font-medium text-[#d9e2f2]">{item.value}</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{item.label}</p>
+                    <p className="mt-1 truncate text-sm font-medium text-slate-200">{item.value}</p>
                   </div>
                 ))}
               </div>
             </div>
 
-            <aside className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5">
+            <aside className="enterprise-panel rounded-2xl p-5">
               <div className="flex items-start justify-between gap-5">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#71809d]">{L.overall as string}</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.overall as string}</p>
                   <p className={`mt-3 text-6xl font-semibold tracking-[-0.05em] ${BAND_STYLE[overallBand].text}`}>{overall}</p>
-                  <p className="mt-1 text-xs font-medium text-[#71809d]">{L.of100 as string}</p>
+                  <p className="mt-1 text-xs font-medium text-[var(--it-faint)]">{L.of100 as string}</p>
                 </div>
               </div>
               <div className="mt-6 space-y-3">
                 <div>
-                  <div className="mb-2 flex items-center justify-between text-xs text-[#8b98b3]">
+                  <div className="mb-2 flex items-center justify-between text-xs text-[var(--it-muted)]">
                     <span>{BAND_STYLE[overallBand].label[locale]}</span>
                     <span>{overall}%</span>
                   </div>
@@ -453,15 +460,18 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     <div className={`h-full rounded-full ${BAND_STYLE[overallBand].bar}`} style={{ width: `${overall}%` }} />
                   </div>
                 </div>
-                <div className={`rounded-xl border px-4 py-3 ${confidenceStyle.bg} ${confidenceStyle.border}`}>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#71809d]">{L.confidence as string}</p>
-                  <p className={`mt-1 text-sm font-semibold ${confidenceStyle.text}`}>
-                    {confidenceStyle.label[locale]} · {intelligence.confidence.score}/100
-                  </p>
+                <div className="rounded-xl border border-[var(--it-border)] px-4 py-3">
+                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--it-faint)]">{L.confidence as string}</p>
+                  <ConfidenceGauge
+                    score={intelligence.confidence.score}
+                    tone={confidenceStyle.tone}
+                    label={confidenceStyle.label[locale]}
+                    sublabel={`${intelligence.confidence.score}/100`}
+                  />
                 </div>
-                <div className="rounded-xl border border-white/[0.08] px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#71809d]">{L.coverage as string}</p>
-                  <p className="mt-1 text-sm font-semibold text-[#d9e2f2]">
+                <div className="rounded-xl border border-[var(--it-border)] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--it-faint)]">{L.coverage as string}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-200">
                     {(L.coverageText as (done: number, total: number, pending: number) => string)(myResults.length, totalAssigned, pending.length)}
                   </p>
                 </div>
@@ -470,25 +480,25 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </div>
         </section>
 
-        <div className="mt-10 rounded-[28px] border border-white/[0.08] bg-[#0b0f1a] px-6 sm:px-8 lg:px-10">
+        <div className="enterprise-card mt-10 rounded-[28px] px-6 sm:px-8 lg:px-10">
           <SectionShell
             eyebrow="01"
             title={L.executiveSummary as string}
             aside={
-              <p className="mt-4 text-sm leading-6 text-[#8b98b3]">
+              <p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">
                 {(L.invitedOn as (date: string) => string)(invitedDate)}
               </p>
             }
           >
             <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
               <div className="rounded-2xl bg-white/[0.03] p-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#71809d]">{L.keyMessage as string}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.keyMessage as string}</p>
                 <p className="mt-3 text-2xl font-semibold leading-snug tracking-tight text-white">{intelligence.executiveSummary.headline}</p>
-                <p className="mt-4 text-sm leading-7 text-[#a8b3ca]">{intelligence.executiveSummary.summary}</p>
+                <p className="mt-4 text-sm leading-7 text-slate-300">{intelligence.executiveSummary.summary}</p>
               </div>
               <div className="space-y-3">
                 {intelligence.executiveSummary.evidence.slice(0, 4).map((item) => (
-                  <div key={item} className="rounded-xl border border-white/[0.08] px-4 py-3 text-sm leading-6 text-[#d9e2f2]">
+                  <div key={item} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-200">
                     {item}
                   </div>
                 ))}
@@ -499,7 +509,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           <SectionShell
             eyebrow="02"
             title={L.evidenceTitle as string}
-            aside={<p className="mt-4 text-sm leading-6 text-[#8b98b3]">{L.evidenceSubtitle as string}</p>}
+            aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.evidenceSubtitle as string}</p>}
           >
             <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
               <div>
@@ -508,16 +518,16 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   {competencies.map((competency) => {
                     const tone = band(competency.score);
                     return (
-                      <article key={competency.competencyId} className="rounded-2xl border border-white/[0.08] p-4">
+                      <article key={competency.competencyId} className="rounded-2xl border border-[var(--it-border)] p-4">
                         <div className="mb-3 flex items-start justify-between gap-4">
                           <div>
                             <p className="text-sm font-semibold text-white">{competency.label}</p>
-                            <p className="mt-0.5 text-xs text-[#71809d]">{competency.category}</p>
+                            <p className="mt-0.5 text-xs text-[var(--it-faint)]">{competency.category}</p>
                           </div>
                           <span className={`text-lg font-semibold ${BAND_STYLE[tone].text}`}>{competency.score}</span>
                         </div>
                         <ScoreLine score={competency.score} tone={tone} />
-                        <p className="mt-3 text-sm leading-6 text-[#a8b3ca]">{competency.summary}</p>
+                        <p className="mt-3 text-sm leading-6 text-slate-300">{competency.summary}</p>
                       </article>
                     );
                   })}
@@ -531,11 +541,11 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     {evidenceSignals.map((signal) => (
                       <article key={signal.id} className={`rounded-2xl border p-4 ${directionBorder(signal.direction)}`}>
                         <div className="flex flex-wrap items-center gap-2">
-                          <Pill className="border-white/[0.08] bg-white/[0.03] text-[#a8b3ca]">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
-                          <span className="text-xs text-[#71809d]">{termName(signal.assessmentName, locale)}</span>
+                          <Pill className="border-[var(--it-border)] bg-white/[0.03] text-slate-300">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
+                          <span className="text-xs text-[var(--it-faint)]">{termName(signal.assessmentName, locale)}</span>
                         </div>
                         <p className="mt-3 text-sm font-medium leading-6 text-white">{signal.statement}</p>
-                        <p className="mt-2 text-sm leading-6 text-[#a8b3ca]">{signal.businessImpact}</p>
+                        <p className="mt-2 text-sm leading-6 text-slate-300">{signal.businessImpact}</p>
                       </article>
                     ))}
                   </div>
@@ -547,13 +557,13 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     {intelligence.risks.length ? (
                       <div className="space-y-3">
                         {intelligence.risks.slice(0, 4).map((risk) => (
-                          <article key={risk.id} className="rounded-2xl border border-[#c44f4f]/20 bg-[#c44f4f]/[0.04] p-4">
+                          <article key={risk.id} className="rounded-2xl border border-[var(--it-danger)]/20 bg-[rgba(185,82,76,0.04)] p-4">
                             <div className="flex items-center justify-between gap-3">
                               <p className="text-sm font-semibold text-white">{risk.competencyLabel}</p>
-                              <Pill className="border-[#c44f4f]/20 bg-[#c44f4f]/10 text-[#f0b9b9]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
+                              <Pill className="border-[var(--it-danger)]/20 bg-[rgba(185,82,76,0.1)] text-[#f0b9b9]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-[#a8b3ca]">{risk.statement}</p>
-                            <p className="mt-2 text-xs leading-5 text-[#8b98b3]">{risk.businessImpact}</p>
+                            <p className="mt-2 text-sm leading-6 text-slate-300">{risk.statement}</p>
+                            <p className="mt-2 text-xs leading-5 text-[var(--it-muted)]">{risk.businessImpact}</p>
                           </article>
                         ))}
                       </div>
@@ -565,11 +575,11 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   <div>
                     <h3 className="mb-3 text-sm font-semibold text-white">{L.contradictions as string}</h3>
                     {hasContradiction ? (
-                      <div className="rounded-2xl border border-[#c7a15a]/20 bg-[#c7a15a]/[0.05] p-4">
+                      <div className="rounded-2xl border border-[var(--it-warning)]/20 bg-[rgba(184,134,47,0.05)] p-4">
                         <p className="text-sm leading-6 text-[#ead6ad]">
                           {mixedSignals[0]?.statement ?? (L.mixedSignal as string)}
                         </p>
-                        {mixedSignals[0]?.businessImpact && <p className="mt-2 text-xs leading-5 text-[#a8b3ca]">{mixedSignals[0].businessImpact}</p>}
+                        {mixedSignals[0]?.businessImpact && <p className="mt-2 text-xs leading-5 text-slate-300">{mixedSignals[0].businessImpact}</p>}
                       </div>
                     ) : (
                       <EmptyLine>{L.noContradictions as string}</EmptyLine>
@@ -587,7 +597,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 {intelligence.strengths.length ? (
                   <ul className="space-y-3">
                     {intelligence.strengths.map((strength) => (
-                      <li key={strength} className="rounded-xl border border-white/[0.08] px-4 py-3 text-sm leading-6 text-[#d9e2f2]">
+                      <li key={strength} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-200">
                         {strength}
                       </li>
                     ))}
@@ -601,7 +611,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 {intelligence.developmentAreas.length ? (
                   <ul className="space-y-3">
                     {intelligence.developmentAreas.map((area) => (
-                      <li key={area} className="rounded-xl border border-white/[0.08] px-4 py-3 text-sm leading-6 text-[#d9e2f2]">
+                      <li key={area} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-200">
                         {area}
                       </li>
                     ))}
@@ -614,7 +624,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 <h3 className="mb-3 text-sm font-semibold text-white">{L.limitations as string}</h3>
                 <ul className="space-y-3">
                   {Array.from(new Set([L.roleFitLimit as string, ...intelligence.methodologyLimitations])).map((limitation) => (
-                    <li key={limitation} className="rounded-xl border border-white/[0.08] px-4 py-3 text-sm leading-6 text-[#a8b3ca]">
+                    <li key={limitation} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-300">
                       {limitation}
                     </li>
                   ))}
@@ -626,22 +636,22 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           <SectionShell
             eyebrow="04"
             title={L.interviewTitle as string}
-            aside={<p className="mt-4 text-sm leading-6 text-[#8b98b3]">{L.interviewSubtitle as string}</p>}
+            aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.interviewSubtitle as string}</p>}
           >
             <div className="space-y-4">
               {intelligence.interviewQuestions.map((question, index) => (
-                <article key={`${question.competency}-${index}`} className="rounded-2xl border border-white/[0.08] p-5">
+                <article key={`${question.competency}-${index}`} className="rounded-2xl border border-[var(--it-border)] p-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#71809d]">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">
                         {L.validates as string}: {question.competency}
                       </p>
                       <p className="mt-3 text-base font-semibold leading-7 text-white">{question.question}</p>
                     </div>
-                    <span className="text-sm font-semibold text-[#71809d]">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="text-sm font-semibold text-[var(--it-faint)]">{String(index + 1).padStart(2, "0")}</span>
                   </div>
-                  <p className="mt-4 border-t border-white/[0.08] pt-4 text-sm leading-6 text-[#a8b3ca]">
-                    <span className="font-semibold text-[#d9e2f2]">{L.whyItMatters as string}: </span>
+                  <p className="mt-4 border-t enterprise-divider pt-4 text-sm leading-6 text-slate-300">
+                    <span className="font-semibold text-slate-200">{L.whyItMatters as string}: </span>
                     {question.reason}
                   </p>
                 </article>
@@ -654,7 +664,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               {rows.map(({ result, displayName, category, detail, band: resultBand }) => {
                 const dimMax = detail?.dimensions?.length ? Math.max(...detail.dimensions.map((d) => d.max ?? d.value), 1) : 1;
                 return (
-                  <article key={result.id} className="rounded-2xl border border-white/[0.08] p-5">
+                  <article key={result.id} className="rounded-2xl border border-[var(--it-border)] p-5">
                     <div className="grid gap-5 lg:grid-cols-[1fr_180px]">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -663,11 +673,11 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                             {BAND_STYLE[resultBand].label[locale]}
                           </Pill>
                         </div>
-                        <p className="mt-1 text-sm text-[#8b98b3]">
+                        <p className="mt-1 text-sm text-[var(--it-muted)]">
                           {category} · {(L.completedOn as (date: string) => string)(new Date(result.completed_at).toLocaleDateString(dateLocale, { day: "numeric", month: "short" }))}
                         </p>
                         {detail?.correct && (
-                          <p className="mt-3 text-sm text-[#a8b3ca]">
+                          <p className="mt-3 text-sm text-slate-300">
                             {(L.correct as (correct: number, total: number) => string)(detail.correct.correct, detail.correct.total)}
                           </p>
                         )}
@@ -679,8 +689,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     </div>
 
                     {detail?.dimensions && detail.dimensions.length > 0 && (
-                      <div className="mt-5 border-t border-white/[0.08] pt-5">
-                        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#71809d]">{L.dimensions as string}</p>
+                      <div className="mt-5 border-t enterprise-divider pt-5">
+                        <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.dimensions as string}</p>
                         <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
                           {detail.dimensions.map((dimension) => {
                             const max = dimension.max ?? dimMax;
@@ -688,14 +698,14 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                             return (
                               <div key={dimension.label}>
                                 <div className="mb-1 flex items-center justify-between gap-3 text-xs">
-                                  <span className="truncate text-[#a8b3ca]">{termDimension(dimension.label, locale)}</span>
-                                  <span className="font-semibold text-[#d9e2f2]">
+                                  <span className="truncate text-slate-300">{termDimension(dimension.label, locale)}</span>
+                                  <span className="font-semibold text-slate-200">
                                     {dimension.value}
                                     {dimension.max ? `/${dimension.max}` : ""}
                                   </span>
                                 </div>
                                 <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
-                                  <div className="h-full rounded-full bg-[#6f8fbf]" style={{ width: `${Math.min(pct, 100)}%` }} />
+                                  <div className="h-full rounded-full bg-[var(--it-primary)]" style={{ width: `${Math.min(pct, 100)}%` }} />
                                 </div>
                               </div>
                             );
@@ -711,25 +721,25 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
 
           <SectionShell eyebrow="06" title={L.methodologyTitle as string}>
             <div className="grid gap-5 lg:grid-cols-3">
-              <div className="rounded-2xl border border-white/[0.08] p-5">
+              <div className="rounded-2xl border border-[var(--it-border)] p-5">
                 <p className="text-sm font-semibold text-white">{L.confidenceExplanation as string}</p>
                 <ul className="mt-4 space-y-3">
                   {[...intelligence.confidence.factors, ...intelligence.confidence.limitations].map((factor) => (
-                    <li key={factor} className="text-sm leading-6 text-[#a8b3ca]">{factor}</li>
+                    <li key={factor} className="text-sm leading-6 text-slate-300">{factor}</li>
                   ))}
                 </ul>
               </div>
-              <div className="rounded-2xl border border-white/[0.08] p-5">
+              <div className="rounded-2xl border border-[var(--it-border)] p-5">
                 <p className="text-sm font-semibold text-white">{L.evidenceSources as string}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {sourceAssessments.map((source) => (
-                    <Pill key={source} className="border-white/[0.08] bg-white/[0.03] text-[#a8b3ca]">{source}</Pill>
+                    <Pill key={source} className="border-[var(--it-border)] bg-white/[0.03] text-slate-300">{source}</Pill>
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/[0.08] p-5">
+              <div className="rounded-2xl border border-[var(--it-border)] p-5">
                 <p className="text-sm font-semibold text-white">{L.engineVersion as string}</p>
-                <p className="mt-4 break-all rounded-xl bg-white/[0.035] px-3 py-2 font-mono text-xs text-[#a8b3ca]">
+                <p className="mt-4 break-all rounded-xl bg-white/[0.035] px-3 py-2 font-mono text-xs text-slate-300">
                   {intelligence.engineVersion}
                 </p>
               </div>
