@@ -200,12 +200,10 @@ function band(score: number): Band {
 }
 
 function SectionShell({
-  eyebrow,
   title,
   children,
   aside,
 }: {
-  eyebrow: string;
   title: string;
   children: ReactNode;
   aside?: ReactNode;
@@ -214,8 +212,7 @@ function SectionShell({
     <section className="border-t enterprise-divider py-10">
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">{eyebrow}</p>
-          <h2 className="mt-2 text-xl font-semibold tracking-tight text-white">{title}</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-white">{title}</h2>
           {aside}
         </div>
         <div>{children}</div>
@@ -244,14 +241,27 @@ function ScoreLine({ score, tone }: { score: number; tone: Band }) {
 }
 
 function EmptyLine({ children }: { children: React.ReactNode }) {
-  return <p className="rounded-xl border border-dashed border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-[var(--it-muted)]">{children}</p>;
+  return <p className="text-sm leading-6 text-[var(--it-muted)]">{children}</p>;
+}
+
+function MarkerList({ items, tone = "text-slate-200" }: { items: string[]; tone?: string }) {
+  return (
+    <ul className="space-y-3">
+      {items.map((item) => (
+        <li key={item} className="flex gap-3">
+          <span className="mt-2 h-1 w-1 flex-shrink-0 rounded-full bg-[var(--it-faint)]" aria-hidden="true" />
+          <span className={`text-sm leading-6 ${tone}`}>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 function directionBorder(direction: EvidenceDirection) {
   if (direction === "positive") return "border-[var(--it-success)]/25";
   if (direction === "risk") return "border-[var(--it-danger)]/25";
   if (direction === "mixed") return "border-[var(--it-warning)]/25";
-  return "border-[var(--it-border)]";
+  return "border-[var(--it-hairline)]";
 }
 
 function topEvidence(report: AssessmentIntelligenceReport) {
@@ -419,8 +429,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               </h1>
               <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{intelligence.recommendation.rationale}</p>
 
-              <div className="mt-8 flex min-w-0 items-center gap-4 rounded-2xl border enterprise-divider bg-white/[0.025] p-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-border)] bg-[var(--it-bg)] text-sm font-semibold text-white">
+              <div className="mt-8 flex min-w-0 items-center gap-4">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-white">
                   {initials}
                 </div>
                 <div className="min-w-0">
@@ -443,47 +453,42 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               </div>
             </div>
 
-            <aside className="enterprise-panel rounded-2xl p-5">
-              <div className="flex items-start justify-between gap-5">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.overall as string}</p>
-                  <p className={`mt-3 text-6xl font-semibold tracking-[-0.05em] ${BAND_STYLE[overallBand].text}`}>{overall}</p>
-                  <p className="mt-1 text-xs font-medium text-[var(--it-faint)]">{L.of100 as string}</p>
+            <aside className="lg:border-l lg:border-[var(--it-hairline)] lg:pl-8">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.overall as string}</p>
+              <p className={`mt-3 text-6xl font-semibold tracking-[-0.05em] ${BAND_STYLE[overallBand].text}`}>{overall}</p>
+              <p className="mt-1 text-xs font-medium text-[var(--it-faint)]">{L.of100 as string}</p>
+              <div className="mt-4">
+                <div className="mb-2 flex items-center justify-between text-xs text-[var(--it-muted)]">
+                  <span>{BAND_STYLE[overallBand].label[locale]}</span>
+                  <span>{overall}%</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+                  <div className={`h-full rounded-full ${BAND_STYLE[overallBand].bar}`} style={{ width: `${overall}%` }} />
                 </div>
               </div>
-              <div className="mt-6 space-y-3">
-                <div>
-                  <div className="mb-2 flex items-center justify-between text-xs text-[var(--it-muted)]">
-                    <span>{BAND_STYLE[overallBand].label[locale]}</span>
-                    <span>{overall}%</span>
-                  </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
-                    <div className={`h-full rounded-full ${BAND_STYLE[overallBand].bar}`} style={{ width: `${overall}%` }} />
-                  </div>
-                </div>
-                <div className="rounded-xl border border-[var(--it-border)] px-4 py-3">
-                  <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--it-faint)]">{L.confidence as string}</p>
-                  <ConfidenceGauge
-                    score={intelligence.confidence.score}
-                    tone={confidenceStyle.tone}
-                    label={confidenceStyle.label[locale]}
-                    sublabel={`${intelligence.confidence.score}/100`}
-                  />
-                </div>
-                <div className="rounded-xl border border-[var(--it-border)] px-4 py-3">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--it-faint)]">{L.coverage as string}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-200">
-                    {(L.coverageText as (done: number, total: number, pending: number) => string)(myResults.length, totalAssigned, pending.length)}
-                  </p>
-                </div>
+
+              <div className="mt-6 border-t border-[var(--it-hairline)] pt-5">
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--it-faint)]">{L.confidence as string}</p>
+                <ConfidenceGauge
+                  score={intelligence.confidence.score}
+                  tone={confidenceStyle.tone}
+                  label={confidenceStyle.label[locale]}
+                  sublabel={`${intelligence.confidence.score}/100`}
+                />
+              </div>
+
+              <div className="mt-6 border-t border-[var(--it-hairline)] pt-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--it-faint)]">{L.coverage as string}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-200">
+                  {(L.coverageText as (done: number, total: number, pending: number) => string)(myResults.length, totalAssigned, pending.length)}
+                </p>
               </div>
             </aside>
           </div>
         </section>
 
-        <div className="enterprise-card mt-10 rounded-[28px] px-6 sm:px-8 lg:px-10">
+        <div className="mt-2">
           <SectionShell
-            eyebrow="01"
             title={L.executiveSummary as string}
             aside={
               <p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">
@@ -497,18 +502,11 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 <p className="mt-3 text-2xl font-semibold leading-snug tracking-tight text-white">{intelligence.executiveSummary.headline}</p>
                 <p className="mt-4 text-sm leading-7 text-slate-300">{intelligence.executiveSummary.summary}</p>
               </div>
-              <div className="space-y-3">
-                {intelligence.executiveSummary.evidence.slice(0, 4).map((item) => (
-                  <div key={item} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-200">
-                    {item}
-                  </div>
-                ))}
-              </div>
+              <MarkerList items={intelligence.executiveSummary.evidence.slice(0, 4)} />
             </div>
           </SectionShell>
 
           <SectionShell
-            eyebrow="02"
             title={L.evidenceTitle as string}
             aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.evidenceSubtitle as string}</p>}
           >
@@ -519,7 +517,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   {competencies.map((competency) => {
                     const tone = band(competency.score);
                     return (
-                      <article key={competency.competencyId} className="rounded-2xl border border-[var(--it-border)] p-4">
+                      <article key={competency.competencyId} className="rounded-2xl border border-[var(--it-hairline)] p-4">
                         <div className="mb-3 flex items-start justify-between gap-4">
                           <div>
                             <p className="text-sm font-semibold text-white">{competency.label}</p>
@@ -542,7 +540,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     {evidenceSignals.map((signal) => (
                       <article key={signal.id} className={`rounded-2xl border p-4 ${directionBorder(signal.direction)}`}>
                         <div className="flex flex-wrap items-center gap-2">
-                          <Pill className="border-[var(--it-border)] bg-white/[0.03] text-slate-300">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
+                          <Pill className="border-[var(--it-hairline)] bg-white/[0.03] text-slate-300">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
                           <span className="text-xs text-[var(--it-faint)]">{termName(signal.assessmentName, locale)}</span>
                         </div>
                         <p className="mt-3 text-sm font-medium leading-6 text-white">{signal.statement}</p>
@@ -591,18 +589,12 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             </div>
           </SectionShell>
 
-          <SectionShell eyebrow="03" title={L.businessTitle as string}>
+          <SectionShell title={L.businessTitle as string}>
             <div className="grid gap-5 lg:grid-cols-3">
               <div>
                 <h3 className="mb-3 text-sm font-semibold text-white">{L.strengths as string}</h3>
                 {intelligence.strengths.length ? (
-                  <ul className="space-y-3">
-                    {intelligence.strengths.map((strength) => (
-                      <li key={strength} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-200">
-                        {strength}
-                      </li>
-                    ))}
-                  </ul>
+                  <MarkerList items={intelligence.strengths} />
                 ) : (
                   <EmptyLine>{L.noStrengths as string}</EmptyLine>
                 )}
@@ -610,38 +602,28 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               <div>
                 <h3 className="mb-3 text-sm font-semibold text-white">{L.development as string}</h3>
                 {intelligence.developmentAreas.length ? (
-                  <ul className="space-y-3">
-                    {intelligence.developmentAreas.map((area) => (
-                      <li key={area} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-200">
-                        {area}
-                      </li>
-                    ))}
-                  </ul>
+                  <MarkerList items={intelligence.developmentAreas} />
                 ) : (
                   <EmptyLine>{L.noDevelopment as string}</EmptyLine>
                 )}
               </div>
               <div>
                 <h3 className="mb-3 text-sm font-semibold text-white">{L.limitations as string}</h3>
-                <ul className="space-y-3">
-                  {Array.from(new Set([L.roleFitLimit as string, ...intelligence.methodologyLimitations])).map((limitation) => (
-                    <li key={limitation} className="rounded-xl border border-[var(--it-border)] px-4 py-3 text-sm leading-6 text-slate-300">
-                      {limitation}
-                    </li>
-                  ))}
-                </ul>
+                <MarkerList
+                  tone="text-slate-300"
+                  items={Array.from(new Set([L.roleFitLimit as string, ...intelligence.methodologyLimitations]))}
+                />
               </div>
             </div>
           </SectionShell>
 
           <SectionShell
-            eyebrow="04"
             title={L.interviewTitle as string}
             aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.interviewSubtitle as string}</p>}
           >
             <div className="space-y-4">
               {intelligence.interviewQuestions.map((question, index) => (
-                <article key={`${question.competency}-${index}`} className="rounded-2xl border border-[var(--it-border)] p-5">
+                <article key={`${question.competency}-${index}`} className="rounded-2xl border border-[var(--it-hairline)] p-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">
@@ -660,12 +642,12 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             </div>
           </SectionShell>
 
-          <SectionShell eyebrow="05" title={L.breakdownTitle as string}>
+          <SectionShell title={L.breakdownTitle as string}>
             <div className="space-y-4">
               {rows.map(({ result, displayName, category, detail, band: resultBand }) => {
                 const dimMax = detail?.dimensions?.length ? Math.max(...detail.dimensions.map((d) => d.max ?? d.value), 1) : 1;
                 return (
-                  <article key={result.id} className="rounded-2xl border border-[var(--it-border)] p-5">
+                  <article key={result.id} className="rounded-2xl border border-[var(--it-hairline)] p-5">
                     <div className="grid gap-5 lg:grid-cols-[1fr_180px]">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
@@ -720,9 +702,9 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             </div>
           </SectionShell>
 
-          <SectionShell eyebrow="06" title={L.methodologyTitle as string}>
-            <div className="grid gap-5 lg:grid-cols-3">
-              <div className="rounded-2xl border border-[var(--it-border)] p-5">
+          <SectionShell title={L.methodologyTitle as string}>
+            <div className="grid gap-8 lg:grid-cols-3">
+              <div>
                 <p className="text-sm font-semibold text-white">{L.confidenceExplanation as string}</p>
                 <ul className="mt-4 space-y-3">
                   {[...intelligence.confidence.factors, ...intelligence.confidence.limitations].map((factor) => (
@@ -730,19 +712,17 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   ))}
                 </ul>
               </div>
-              <div className="rounded-2xl border border-[var(--it-border)] p-5">
+              <div>
                 <p className="text-sm font-semibold text-white">{L.evidenceSources as string}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {sourceAssessments.map((source) => (
-                    <Pill key={source} className="border-[var(--it-border)] bg-white/[0.03] text-slate-300">{source}</Pill>
+                    <Pill key={source} className="border-[var(--it-hairline)] bg-white/[0.03] text-slate-300">{source}</Pill>
                   ))}
                 </div>
               </div>
-              <div className="rounded-2xl border border-[var(--it-border)] p-5">
+              <div>
                 <p className="text-sm font-semibold text-white">{L.engineVersion as string}</p>
-                <p className="mt-4 break-all rounded-xl bg-white/[0.035] px-3 py-2 font-mono text-xs text-slate-300">
-                  {intelligence.engineVersion}
-                </p>
+                <p className="mt-4 break-all font-mono text-xs text-[var(--it-muted)]">{intelligence.engineVersion}</p>
               </div>
             </div>
           </SectionShell>
