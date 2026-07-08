@@ -3,7 +3,6 @@ export default function InboxLoading() {
   return (
     <div className="mx-auto max-w-[960px] space-y-6" role="status" aria-label="Loading inbox">
       <div className="space-y-2.5">
-        <div className="h-6 w-28 animate-pulse rounded-full bg-[var(--it-border)]" />
         <div className="h-8 w-56 animate-pulse rounded bg-[var(--it-border)]" />
         <div className="h-4 w-72 max-w-full animate-pulse rounded bg-[var(--it-border-soft)]" />
       </div>

@@ -28,21 +28,18 @@ export default async function InboxPage({
     .eq("id", user!.id)
     .single();
 
+  // Server component, one render per request; the queue's "waiting since" math needs the real request-time clock.
   const { entries, totalCount } = await loadReviewQueue(
     admin,
     profile?.company_id,
     locale === "es" ? "es" : "en",
-    Date.now()
+    Date.now() // eslint-disable-line react-hooks/purity
   );
 
   return (
     <div className="mx-auto max-w-[960px] space-y-6 animate-fade-up">
       <header>
-        <div className="enterprise-chip mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--it-info)] animate-soft-pulse" />
-          {t("inboxBadge")}
-        </div>
-        <h1 className="text-3xl font-semibold text-white">{t("inboxTitle")}</h1>
+        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("inboxTitle")}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{t("inboxSubtitle", { count: totalCount })}</p>
       </header>
 

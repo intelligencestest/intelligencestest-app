@@ -75,12 +75,12 @@ export default async function QueueSection({
       </div>
 
       {visible.length === 0 ? (
-        <div className="px-6 py-10 text-center">
-          <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full enterprise-chip-success">
-            <Check className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+        <div className="flex items-start gap-2.5 px-6 py-8">
+          <Check className="mt-0.5 h-4 w-4 flex-shrink-0 text-[var(--it-success)]" strokeWidth={2} aria-hidden="true" />
+          <div>
+            <p className="text-sm font-medium text-slate-200">{t("queueEmptyTitle")}</p>
+            <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("queueEmptyBody")}</p>
           </div>
-          <p className="text-sm font-medium text-slate-200">{t("queueEmptyTitle")}</p>
-          <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("queueEmptyBody")}</p>
         </div>
       ) : (
         <>
