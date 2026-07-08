@@ -62,34 +62,35 @@
 
 /* Verdant Sky (21st.dev, @serafim) — scoped to the public marketing site
    only via this wrapper class (see app/page.tsx, components/public/
-   PublicSite.tsx). Dark-mode values only; the app has no light/dark
-   toggle. The dashboard is never given this class, so its --it-* tokens
-   and every enterprise-* class are completely unaffected. */
+   PublicSite.tsx). These are the theme's actual light-mode values (its
+   :root block, not .dark) — the real colors as shared, not a dark
+   reinterpretation. The dashboard is never given this class, so its
+   --it-* tokens and every enterprise-* class are completely unaffected. */
 .theme-verdant-sky {
-  --color-background: #02080e;
-  --color-foreground: #e9f0f5;
-  --color-card: #09131a;
-  --color-card-foreground: #e9f0f5;
-  --color-popover: #09131a;
-  --color-popover-foreground: #e9f0f5;
-  --color-primary: #2fbc5b;
-  --color-primary-foreground: #000408;
-  --color-secondary: #172128;
-  --color-secondary-foreground: #e9f0f5;
-  --color-muted: #172128;
-  --color-muted-foreground: #85919a;
-  --color-accent: #32c364;
-  --color-accent-foreground: #000408;
+  --color-background: #f3faff;
+  --color-foreground: #09131a;
+  --color-card: #ffffff;
+  --color-card-foreground: #09131a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #09131a;
+  --color-primary: #00a33d;
+  --color-primary-foreground: #f3faff;
+  --color-secondary: #e0edf8;
+  --color-secondary-foreground: #202a32;
+  --color-muted: #e0edf8;
+  --color-muted-foreground: #4c575f;
+  --color-accent: #28bc5e;
+  --color-accent-foreground: #f3faff;
   --color-destructive: #f22a36;
   --color-destructive-foreground: #f3faff;
-  --color-border: #202a32;
-  --color-input: #202a32;
-  --color-ring: #2fbc5b;
-  --color-chart-1: #2fbc5b;
-  --color-chart-2: #319cfc;
-  --color-chart-3: #ff7f16;
-  --color-chart-4: #b478ff;
-  --color-chart-5: #ff5969;
+  --color-border: #d3e0ea;
+  --color-input: #d3e0ea;
+  --color-ring: #00a33d;
+  --color-chart-1: #00a33d;
+  --color-chart-2: #0083e0;
+  --color-chart-3: #f46800;
+  --color-chart-4: #a264f6;
+  --color-chart-5: #f83e54;
   --font-sans: var(--font-space-grotesk), ui-sans-serif, sans-serif, system-ui;
   --font-serif: var(--font-pt-serif), ui-serif, serif;
   --font-mono: var(--font-space-mono), ui-monospace, monospace;
