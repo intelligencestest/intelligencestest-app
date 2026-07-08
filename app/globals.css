@@ -102,11 +102,10 @@ body {
 }
 
 .enterprise-card {
+  /* Design-system: shadows are for real elevation (dropdowns, modals) only.
+     A static in-flow card gets a border, never a drop shadow. */
   background: var(--it-surface);
-  border: 1px solid var(--it-border-soft);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.026),
-    0 16px 36px rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--it-hairline);
 }
 
 .enterprise-card-hover {
