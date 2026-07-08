@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { ArrowRight, Check, CheckCircle2, Link2, Loader2, Mail, Plus, Users, X } from "lucide-react";
 import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 
 interface Assessment {
@@ -33,10 +34,10 @@ type SuccessState =
   | { type: "link"; url: string }
   | { type: "email"; to: string };
 
-const statusConfig: Record<string, { label: string; class: string; dot: string }> = {
-  active: { label: "Active", class: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400" },
-  draft: { label: "Draft", class: "bg-slate-500/10 text-slate-300 border-slate-500/25", dot: "bg-slate-400" },
-  archived: { label: "Archived", class: "bg-amber-500/10 text-amber-300 border-amber-500/25", dot: "bg-amber-400" },
+const statusConfig: Record<string, { class: string; dot: string }> = {
+  active: { class: "border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] text-[#91c7ad]", dot: "bg-[var(--it-success)]" },
+  draft: { class: "border-[var(--it-hairline)] bg-white/[0.03] text-[var(--it-muted)]", dot: "bg-[var(--it-faint)]" },
+  archived: { class: "border-[var(--it-warning)]/25 bg-[rgba(184,134,47,0.1)] text-[#d2b174]", dot: "bg-[var(--it-warning)]" },
 };
 
 export default function ProjectsClient({ projects, countsByProject, projectAssessments, activeCount, totalCandidates }: Props) {
@@ -52,22 +53,6 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
 
   const availableAssessments = inviteProjectId ? (projectAssessments[inviteProjectId] ?? []) : [];
 
-  useEffect(() => {
-    if (inviteProjectId) {
-      const first = (projectAssessments[inviteProjectId] ?? [])[0];
-      setForm({ full_name: "", email: "", assessment_id: first?.id ?? "" });
-      setError("");
-      setSuccess(null);
-    }
-  }, [inviteProjectId, projectAssessments]);
-
-  useEffect(() => {
-    if (!inviteProjectId) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") closeModal(); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [inviteProjectId]);
-
   const closeModal = () => {
     setInviteProjectId(null);
     setForm({ full_name: "", email: "", assessment_id: "" });
@@ -75,6 +60,21 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
     setSuccess(null);
     setLoadingMode(null);
   };
+
+  const openModal = (projectId: string) => {
+    const first = (projectAssessments[projectId] ?? [])[0];
+    setInviteProjectId(projectId);
+    setForm({ full_name: "", email: "", assessment_id: first?.id ?? "" });
+    setError("");
+    setSuccess(null);
+  };
+
+  useEffect(() => {
+    if (!inviteProjectId) return;
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") closeModal(); };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [inviteProjectId]);
 
   const resetForm = () => {
     const first = inviteProjectId ? (projectAssessments[inviteProjectId] ?? [])[0] : undefined;
@@ -132,107 +132,82 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-soft-pulse" />
-            {t("badge")}
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{t("title")}</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            {t("summary", { activeCount, totalCandidates })}
-          </p>
+          <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>
+          <p className="mt-2 text-sm text-[var(--it-muted)]">{t("summary", { activeCount, totalCandidates })}</p>
         </div>
         <Link
           href="/projects/new"
-          className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(29,78,216,0.22)] transition-colors hover:bg-[#1e40af]"
+          className="enterprise-button inline-flex cursor-pointer items-center gap-2 self-start rounded-xl px-4 py-2.5 text-sm font-semibold sm:self-auto"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus className="h-4 w-4" strokeWidth={2} />
           {t("newProject")}
         </Link>
       </div>
 
       {/* Empty state */}
       {projects.length === 0 ? (
-        <div className="premium-card rounded-xl py-20 text-center">
-          <svg className="w-12 h-12 mx-auto mb-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2Zm0 0V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-          </svg>
-          <h3 className="text-white font-medium mb-1">{t("noProjects")}</h3>
-          <p className="text-slate-500 text-sm mb-6">{t("noProjectsDescription")}</p>
-          <Link href="/projects/new" className="inline-flex items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white">
+        <div className="border-t border-[var(--it-hairline)] pt-10">
+          <p className="text-sm font-medium text-slate-200">{t("noProjects")}</p>
+          <p className="mt-1 text-sm text-[var(--it-muted)]">{t("noProjectsDescription")}</p>
+          <Link href="/projects/new" className="enterprise-button mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold">
             {t("createProject")}
           </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {projects.map((project, index) => {
+          {projects.map((project) => {
             const counts = countsByProject[project.id] ?? { total: 0, completed: 0 };
             const progress = counts.total > 0 ? Math.round((counts.completed / counts.total) * 100) : 0;
             const cfg = statusConfig[project.status] ?? statusConfig.draft;
             const hasAssessments = (projectAssessments[project.id] ?? []).length > 0;
             return (
-              <div
-                key={project.id}
-                className="premium-card premium-card-hover group rounded-xl p-5 animate-fade-up"
-                style={{ animationDelay: `${index * 55}ms` }}
-              >
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-3">
-                      <h3 className="text-base font-semibold text-white group-hover:text-[#8CB1FF] transition-colors truncate">
-                        {project.name}
-                      </h3>
-                      <span className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                        {t(project.status === "active" ? "statusActive" : project.status === "archived" ? "statusArchived" : "statusDraft")}
-                      </span>
-                    </div>
-                    <p className="mt-2 text-xs text-slate-600">
-                      {t("createdPrefix")} {new Date(project.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
-                    </p>
+              <div key={project.id} className="enterprise-card enterprise-card-hover group rounded-xl p-5">
+                <div className="min-w-0">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="truncate text-base font-semibold text-white transition-colors group-hover:text-[#9fb3e5]">
+                      {project.name}
+                    </h3>
+                    <span className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+                      {t(project.status === "active" ? "statusActive" : project.status === "archived" ? "statusArchived" : "statusDraft")}
+                    </span>
                   </div>
+                  <p className="mt-2 text-xs text-[var(--it-faint)]">
+                    {t("createdPrefix")} {new Date(project.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
+                  </p>
                 </div>
 
-                <p className="text-sm text-slate-500 leading-relaxed mb-4 line-clamp-2">
+                <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-[var(--it-muted)]">
                   {project.description ?? t("noDescription")}
                 </p>
 
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-slate-600">{t("candidatesLabel")}</p>
-                      <svg className="h-4 w-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M23 21v-2a4 4 0 0 0-3-3.87" />
-                      </svg>
-                    </div>
-                    <p className="mt-2 text-2xl font-semibold text-white">{counts.total}</p>
+                <div className="mt-4 flex items-center gap-6">
+                  <div className="flex items-baseline gap-1.5">
+                    <Users className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
+                    <span className="text-lg font-semibold text-white">{counts.total}</span>
+                    <span className="text-xs text-[var(--it-faint)]">{t("candidatesLabel")}</span>
                   </div>
-                  <div className="rounded-xl border border-[#1E2240] bg-[#07080F]/55 p-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-slate-600">{t("completedLabel")}</p>
-                      <svg className="h-4 w-4 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                      </svg>
-                    </div>
-                    <p className="mt-2 text-2xl font-semibold text-white">{counts.completed}</p>
+                  <div className="flex items-baseline gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
+                    <span className="text-lg font-semibold text-white">{counts.completed}</span>
+                    <span className="text-xs text-[var(--it-faint)]">{t("completedLabel")}</span>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <div className="flex justify-between text-xs text-slate-600 mb-1.5">
+                <div className="mt-4">
+                  <div className="mb-1.5 flex justify-between text-xs text-[var(--it-faint)]">
                     <span>{t("completionLabel")}</span>
                     <span>{progress}%</span>
                   </div>
-                  <div className="w-full h-2 bg-[#1E2240] rounded-full overflow-hidden">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
                     <div
-                      className="h-2 bg-[#1D4ED8] rounded-full shadow-[0_0_16px_rgba(29,78,216,0.45)] transition-all duration-500"
+                      className="h-full rounded-full bg-[var(--it-primary)] transition-all duration-500"
                       style={{ width: `${progress}%` }}
                     />
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-3 border-t border-[#1E2240] pt-3 text-xs text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-4 flex flex-col gap-3 border-t border-[var(--it-hairline)] pt-3 text-xs text-[var(--it-faint)] sm:flex-row sm:items-center sm:justify-between">
                   <span>
                     {project.deadline
                       ? `${t("deadlinePrefix")} ${new Date(project.deadline).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}`
@@ -242,20 +217,16 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     <button
                       type="button"
                       disabled={!hasAssessments}
-                      onClick={() => setInviteProjectId(project.id)}
+                      onClick={() => openModal(project.id)}
                       title={hasAssessments ? undefined : t("noAssessmentsLinked")}
-                      className="inline-flex items-center gap-1 font-medium text-slate-400 transition-colors hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
+                      className="inline-flex items-center gap-1.5 font-medium text-[var(--it-muted)] transition-colors hover:text-slate-200 disabled:cursor-not-allowed disabled:opacity-40"
                     >
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                      </svg>
+                      <Link2 className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                       {t("inviteButton")}
                     </button>
-                    <Link href={`/reports?project=${project.id}`} className="inline-flex items-center gap-1 font-medium text-[#8CB1FF] transition-colors hover:text-blue-200">
+                    <Link href={`/reports?project=${project.id}`} className="enterprise-link inline-flex items-center gap-1 font-medium">
                       {t("viewReport")}
-                      <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14m-6-6 6 6-6 6" />
-                      </svg>
+                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                     </Link>
                   </div>
                 </div>
@@ -272,22 +243,20 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
           onClick={closeModal}
         >
           <div
-            className="premium-card w-full max-w-md rounded-2xl p-6"
+            className="enterprise-card w-full max-w-md rounded-2xl p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
                 <h2 className="text-base font-semibold text-white">{t("inviteTitle")}</h2>
-                <p className="mt-0.5 text-xs text-slate-500">{t("inviteDescription")}</p>
+                <p className="mt-0.5 text-xs text-[var(--it-muted)]">{t("inviteDescription")}</p>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-4 w-4" strokeWidth={2} />
               </button>
             </div>
 
@@ -295,38 +264,34 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
               <div className="space-y-4">
                 {success.type === "link" ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                        <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
+                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
+                        <Check className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-emerald-300">{t("linkCopied")}</p>
-                        <p className="text-xs text-slate-500">{t("linkValid")}</p>
+                        <p className="text-sm font-medium text-[#91c7ad]">{t("linkCopied")}</p>
+                        <p className="text-xs text-[var(--it-muted)]">{t("linkValid")}</p>
                       </div>
                     </div>
-                    <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
-                      <p className="break-all font-mono text-xs text-blue-300">{success.url}</p>
+                    <div className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] p-3">
+                      <p className="break-all font-mono text-xs text-[#9fb3e5]">{success.url}</p>
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
-                      </svg>
+                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
+                      <Mail className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-emerald-300">{t("emailSent")}</p>
-                      <p className="truncate text-xs text-slate-500">{success.to}</p>
+                      <p className="text-sm font-medium text-[#91c7ad]">{t("emailSent")}</p>
+                      <p className="truncate text-xs text-[var(--it-muted)]">{success.to}</p>
                     </div>
                   </div>
                 )}
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
+                  className="w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
                 >
                   {t("inviteAnother")}
                 </button>
@@ -334,33 +299,33 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
             ) : (
               <div className="space-y-4">
                 {error && (
-                  <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(185,82,76,0.1)] p-3 text-sm text-[#d99792]">
                     {error}
                   </div>
                 )}
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">
                     {t("candidateName")}
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">({t("optional")})</span>
+                    <span className="ml-1.5 text-xs font-normal text-[var(--it-faint)]">({t("optional")})</span>
                   </label>
                   <input
                     value={form.full_name}
                     onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
                     placeholder={locale === "es" ? "María García" : "Jane Smith"}
-                    className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                    className="w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
                   />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">
                     {t("emailAddress")}
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">{t("emailOptionalHint")}</span>
+                    <span className="ml-1.5 text-xs font-normal text-[var(--it-faint)]">{t("emailOptionalHint")}</span>
                   </label>
                   <input
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
                     placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
-                    className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                    className="w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
                   />
                 </div>
                 <div>
@@ -368,7 +333,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                   <select
                     value={form.assessment_id}
                     onChange={(e) => setForm((f) => ({ ...f, assessment_id: e.target.value }))}
-                    className="w-full cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-300 outline-none transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                    className="w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-300 outline-none transition-colors focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
                   >
                     {availableAssessments.map((a) => (
                       <option key={a.id} value={a.id}>
@@ -382,17 +347,12 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     type="button"
                     disabled={loadingMode !== null}
                     onClick={() => handleInvite("link")}
-                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#1E2240] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    className="enterprise-button-secondary flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loadingMode === "link" ? (
-                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-                      </svg>
+                      <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
                     ) : (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                      </svg>
+                      <Link2 className="h-4 w-4" strokeWidth={2} />
                     )}
                     {loadingMode === "link" ? t("generating") : t("copyLink")}
                   </button>
@@ -400,17 +360,12 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     type="button"
                     disabled={loadingMode !== null}
                     onClick={() => handleInvite("email")}
-                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="enterprise-button flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loadingMode === "email" ? (
-                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-                      </svg>
+                      <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
                     ) : (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
-                      </svg>
+                      <Mail className="h-4 w-4" strokeWidth={2} />
                     )}
                     {loadingMode === "email" ? t("sendingEmail") : t("sendEmail")}
                   </button>
