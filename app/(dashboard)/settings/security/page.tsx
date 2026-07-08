@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { AlertTriangle, Check, KeyRound, Mail } from "lucide-react";
+import { AlertTriangle, Check } from "lucide-react";
 import { SettingsNav } from "@/components/settings/SettingsNav";
 import { createClient } from "@/lib/supabase";
 
@@ -119,29 +119,22 @@ export default function SecuritySettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl">
       <div>
-        <h1 className="text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
-        <p className="mt-1 text-sm text-[var(--it-muted)]">{copy.description}</p>
+        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+        <p className="mt-2 text-sm text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
+      <div className="mt-8 grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
         <SettingsNav />
 
-        <div className="space-y-6">
+        <div>
           {/* Change password */}
-          <div className="enterprise-card rounded-xl p-6">
-            <div className="flex items-start gap-3 border-b enterprise-divider pb-4">
-              <div className="enterprise-panel flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg">
-                <KeyRound className="h-4 w-4 text-[var(--it-muted)]" strokeWidth={1.8} />
-              </div>
-              <div>
-                <h2 className="text-base font-semibold text-white">{copy.changePasswordTitle}</h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.changePasswordText}</p>
-              </div>
-            </div>
+          <div className="border-t border-[var(--it-hairline)] pt-4">
+            <h2 className="text-lg font-semibold text-white">{copy.changePasswordTitle}</h2>
+            <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.changePasswordText}</p>
 
-            <form onSubmit={handleChangePassword} className="mt-5 grid gap-4 sm:grid-cols-2">
+            <form onSubmit={handleChangePassword} className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">{flow("newPassword")}</label>
                 <input
@@ -150,7 +143,7 @@ export default function SecuritySettingsPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={flow("passwordMinPlaceholder")}
-                  className="w-full rounded-lg border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-3 text-sm text-slate-100 placeholder-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--it-primary)]"
+                  className="w-full rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-3 text-sm text-slate-100 placeholder-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--it-primary)]"
                 />
               </div>
               <div>
@@ -161,7 +154,7 @@ export default function SecuritySettingsPage() {
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
                   placeholder={flow("passwordRepeatPlaceholder")}
-                  className="w-full rounded-lg border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-3 text-sm text-slate-100 placeholder-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--it-primary)]"
+                  className="w-full rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-3 text-sm text-slate-100 placeholder-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--it-primary)]"
                 />
               </div>
 
@@ -195,16 +188,11 @@ export default function SecuritySettingsPage() {
           </div>
 
           {/* Reset link (unchanged behavior) */}
-          <div className="enterprise-card rounded-xl p-6">
+          <div className="mt-10 border-t border-[var(--it-hairline)] pt-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-3">
-                <div className="enterprise-panel flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg">
-                  <Mail className="h-4 w-4 text-[var(--it-muted)]" strokeWidth={1.8} />
-                </div>
-                <div>
-                  <h2 className="text-base font-semibold text-white">{copy.resetLinkTitle}</h2>
-                  <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.resetLinkText}</p>
-                </div>
+              <div>
+                <h2 className="text-lg font-semibold text-white">{copy.resetLinkTitle}</h2>
+                <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.resetLinkText}</p>
               </div>
               <button
                 type="button"
@@ -217,7 +205,7 @@ export default function SecuritySettingsPage() {
             </div>
             {resetMessage && (
               <div
-                className={`mt-4 rounded-xl border px-3 py-2 text-xs font-medium ${
+                className={`mt-4 max-w-sm rounded-xl border px-3 py-2 text-xs font-medium ${
                   resetMessage.type === "success"
                     ? "border-[var(--it-success)]/30 bg-[rgba(63,143,107,0.08)] text-[#91c7ad]"
                     : "border-[var(--it-danger)]/30 bg-[rgba(185,82,76,0.08)] text-[#d99792]"
@@ -228,8 +216,9 @@ export default function SecuritySettingsPage() {
             )}
           </div>
 
-          {/* Danger zone */}
-          <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[var(--it-surface)] p-6">
+          {/* Danger zone — the one place a tinted, bordered container is warranted:
+              it needs to read as a distinct, high-caution area, not a settings section. */}
+          <div className="mt-10 rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(185,82,76,0.04)] p-6">
             <h2 className="mb-3 text-base font-semibold text-[#d99792]">{copy.dangerZone}</h2>
             <p className="mb-4 text-sm text-[var(--it-muted)]">{copy.dangerText}</p>
             <div className="flex flex-col gap-3 sm:flex-row">
