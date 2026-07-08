@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { FileText } from "lucide-react";
 import { assessmentName as termName, assessmentShort as termShort } from "@/lib/i18n/assessment-terms";
 
 interface Project {
@@ -23,12 +24,11 @@ interface Result {
   assessments: { name: string; category: string | null } | null;
 }
 
-const avatarColors = [
-  "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  "bg-violet-500/20 text-violet-400 border-violet-500/30",
-  "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
-  "bg-amber-500/20 text-amber-400 border-amber-500/30",
-];
+function scoreTone(score: number) {
+  if (score >= 80) return { text: "text-[#91c7ad]", bar: "bg-[var(--it-success)]" };
+  if (score >= 60) return { text: "text-[#d2b174]", bar: "bg-[var(--it-warning)]" };
+  return { text: "text-[#d99792]", bar: "bg-[var(--it-danger)]" };
+}
 
 export default function ReportsClient({
   projects,
@@ -48,8 +48,6 @@ export default function ReportsClient({
     ? {
         unknown: "Sin nombre",
         assessment: "Evaluación",
-        projectFallback: "Proyecto de evaluación",
-        pdfError: "No se pudo generar el informe completo. Intente de nuevo.",
         title: "Informes",
         subtitle: "Ranking de candidatos y desglose de puntuaciones por proyecto",
         noProjects: "Aún no hay proyectos. Cree un proyecto e invite candidatos para ver informes.",
@@ -81,8 +79,6 @@ export default function ReportsClient({
     : {
         unknown: "Unknown",
         assessment: "Assessment",
-        projectFallback: "Assessment Project",
-        pdfError: "Could not generate the comprehensive report. Please try again.",
         title: "Reports",
         subtitle: "Candidate rankings and score breakdowns by project",
         noProjects: "No projects yet. Create a project and invite candidates to see reports.",
@@ -141,10 +137,10 @@ export default function ReportsClient({
   }, [results]);
 
   const scoreBands = [
-    { label: "90-100", color: "bg-emerald-500" },
-    { label: "75-89", color: "bg-blue-500" },
-    { label: "60-74", color: "bg-amber-500" },
-    { label: "< 60", color: "bg-red-500" },
+    { label: "90-100", tone: "bg-[var(--it-success)]" },
+    { label: "75-89", tone: "bg-[var(--it-info)]" },
+    { label: "60-74", tone: "bg-[var(--it-warning)]" },
+    { label: "< 60", tone: "bg-[var(--it-danger)]" },
   ];
 
   function selectProject(id: string) {
@@ -153,30 +149,26 @@ export default function ReportsClient({
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-white">{copy.title}</h1>
-          <p className="text-slate-500 text-sm mt-1">{copy.subtitle}</p>
-        </div>
+      <div>
+        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+        <p className="mt-2 text-sm text-[var(--it-muted)]">{copy.subtitle}</p>
       </div>
 
       {projects.length === 0 ? (
-        <div className="text-center py-20 bg-[#0D1020] border border-[#1E2240] rounded-xl">
-          <p className="text-slate-500 text-sm">{copy.noProjects}</p>
-        </div>
+        <p className="border-t border-[var(--it-hairline)] pt-10 text-sm text-[var(--it-muted)]">{copy.noProjects}</p>
       ) : (
         <>
-          <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-4">
-            <label className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3 block">{copy.selectProject}</label>
+          <div className="border-t border-[var(--it-hairline)] pt-4">
+            <label className="mb-3 block text-xs font-medium uppercase tracking-wider text-[var(--it-faint)]">{copy.selectProject}</label>
             <div className="flex flex-wrap gap-2">
               {projects.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => selectProject(p.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                  className={`cursor-pointer rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                     selectedProjectId === p.id
-                      ? "bg-[#1D4ED8] text-white"
-                      : "bg-[#07080F] border border-[#1E2240] text-slate-400 hover:text-slate-200 hover:border-[#2d3a70]"
+                      ? "enterprise-button"
+                      : "border border-[var(--it-hairline)] text-[var(--it-muted)] hover:border-[var(--it-border)] hover:text-slate-200"
                   }`}
                 >
                   {p.name}
@@ -185,77 +177,74 @@ export default function ReportsClient({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="flex flex-wrap items-center gap-8 border-t border-[var(--it-hairline)] pt-4">
             {[
-              { label: copy.stats.totalScored, value: results.length, color: "text-white" },
-              { label: copy.stats.averageScore, value: results.length ? `${avgScore}` : "-", color: "text-blue-400" },
-              { label: copy.stats.topScore, value: results.length ? `${topScore}` : "-", color: "text-amber-400" },
-              { label: copy.stats.passRate, value: results.length ? `${Math.round((results.filter(r => r.score >= 60).length / results.length) * 100)}%` : "-", color: "text-emerald-400" },
+              { label: copy.stats.totalScored, value: results.length ? String(results.length) : "-" },
+              { label: copy.stats.averageScore, value: results.length ? String(avgScore) : "-" },
+              { label: copy.stats.topScore, value: results.length ? String(topScore) : "-" },
+              {
+                label: copy.stats.passRate,
+                value: results.length ? `${Math.round((results.filter(r => r.score >= 60).length / results.length) * 100)}%` : "-",
+              },
             ].map((s) => (
-              <div key={s.label} className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-4 text-center">
-                <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
-                <p className="text-xs text-slate-500 mt-1">{s.label}</p>
+              <div key={s.label}>
+                <p className="text-2xl font-semibold tabular-nums text-white">{s.value}</p>
+                <p className="mt-0.5 text-xs text-[var(--it-faint)]">{s.label}</p>
               </div>
             ))}
           </div>
 
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2 bg-[#0D1020] border border-[#1E2240] rounded-xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#1E2240] flex items-center justify-between">
+            <div className="enterprise-card xl:col-span-2 rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[var(--it-hairline)] px-6 py-4">
                 <h2 className="text-base font-semibold text-white">{copy.rankings}</h2>
-                <span className="text-xs bg-emerald-400/10 text-emerald-400 border border-emerald-400/20 px-2.5 py-1 rounded-full">
+                <span className="rounded-full border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] px-2.5 py-1 text-xs text-[#91c7ad]">
                   {results.length} {copy.scored}
                 </span>
               </div>
 
               {results.length === 0 ? (
-                <div className="text-center py-16 text-slate-500">
-                  <svg className="w-10 h-10 mx-auto mb-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2" />
-                  </svg>
-                  <p className="text-sm">{copy.noCompleted}</p>
-                </div>
+                <p className="px-6 py-10 text-sm text-[var(--it-muted)]">{copy.noCompleted}</p>
               ) : (
-                <div className="divide-y divide-[#1E2240]">
+                <div className="divide-y divide-[var(--it-hairline)]">
                   {results.map((result, i) => {
                     const candidate = result.candidates;
                     const initials = candidate?.full_name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "??";
-                    const scoreColor = result.score >= 80 ? "text-emerald-400" : result.score >= 60 ? "text-amber-400" : "text-red-400";
-                    const barColor = result.score >= 80 ? "bg-emerald-500" : result.score >= 60 ? "bg-amber-500" : "bg-red-500";
+                    const tone = scoreTone(result.score);
                     return (
-                      <div key={result.id} className="px-6 py-4 hover:bg-[#1E2240]/30 transition-colors">
+                      <div key={result.id} className="px-6 py-4 transition-colors hover:bg-white/[0.02]">
                         <div className="flex items-center gap-4">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
-                            i === 0 ? "bg-amber-400/20 text-amber-400" :
-                            i === 1 ? "bg-slate-400/20 text-slate-300" :
-                            i === 2 ? "bg-amber-700/20 text-amber-600" :
-                            "bg-[#1E2240] text-slate-500"
+                          <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                            i === 0 ? "bg-[rgba(184,134,47,0.15)] text-[#d2b174]" :
+                            i === 1 ? "bg-white/[0.06] text-slate-300" :
+                            i === 2 ? "bg-[rgba(184,134,47,0.08)] text-[#b8862f]" :
+                            "bg-white/[0.03] text-[var(--it-faint)]"
                           }`}>
                             {i + 1}
                           </div>
-                          <div className={`w-9 h-9 rounded-full border flex items-center justify-center text-xs font-semibold flex-shrink-0 ${avatarColors[i % avatarColors.length]}`}>
+                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-xs font-semibold text-white">
                             {initials}
                           </div>
                           <div className="flex-1 min-w-0">
                             {result.candidate_id ? (
-                              <Link href={`/candidates/${result.candidate_id}`} className="text-sm font-medium text-white truncate block hover:text-[#8CB1FF] transition-colors">
+                              <Link href={`/candidates/${result.candidate_id}`} className="block truncate text-sm font-medium text-white transition-colors hover:text-[#9fb3e5]">
                                 {candidate?.full_name ?? copy.unknown}
                               </Link>
                             ) : (
-                              <p className="text-sm font-medium text-white truncate">{candidate?.full_name ?? copy.unknown}</p>
+                              <p className="truncate text-sm font-medium text-white">{candidate?.full_name ?? copy.unknown}</p>
                             )}
-                            <p className="text-xs text-slate-500 truncate">{result.assessments ? termName(result.assessments.name, es ? "es" : "en") : copy.assessment}</p>
+                            <p className="truncate text-xs text-[var(--it-muted)]">{result.assessments ? termName(result.assessments.name, es ? "es" : "en") : copy.assessment}</p>
                           </div>
                           <div className="text-right flex-shrink-0">
-                            <p className={`text-xl font-bold ${scoreColor}`}>{result.score}</p>
-                            <p className="text-xs text-slate-600">
+                            <p className={`text-xl font-semibold ${tone.text}`}>{result.score}</p>
+                            <p className="text-xs text-[var(--it-faint)]">
                               {new Date(result.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                             </p>
                           </div>
                         </div>
                         <div className="mt-3 ml-[88px]">
-                          <div className="w-full h-1.5 bg-[#1E2240] rounded-full overflow-hidden">
-                            <div className={`h-1.5 ${barColor} rounded-full`} style={{ width: `${Math.min(result.score, 100)}%` }} />
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                            <div className={`h-1.5 rounded-full ${tone.bar}`} style={{ width: `${Math.min(result.score, 100)}%` }} />
                           </div>
                         </div>
                       </div>
@@ -267,16 +256,11 @@ export default function ReportsClient({
 
             <div className="space-y-4">
               {results.length > 0 && (
-                <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-5">
-                  <div className="flex items-center gap-2 mb-3">
-                    <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <h3 className="text-sm font-semibold text-emerald-400">{copy.topRecommendation}</h3>
-                  </div>
-                  <p className="text-sm text-slate-400 leading-relaxed">
-                    <span className="text-white font-medium">{results[0].candidates?.full_name ?? copy.topCandidate}</span> {copy.scoredText}{" "}
-                    <span className="text-emerald-400 font-medium">{results[0].score}</span> {copy.onAssessment}{" "}
+                <div className="rounded-xl border border-[var(--it-success)]/20 bg-[rgba(63,143,107,0.05)] p-5">
+                  <h3 className="mb-3 text-sm font-semibold text-[#91c7ad]">{copy.topRecommendation}</h3>
+                  <p className="text-sm leading-relaxed text-[var(--it-muted)]">
+                    <span className="font-medium text-white">{results[0].candidates?.full_name ?? copy.topCandidate}</span> {copy.scoredText}{" "}
+                    <span className="font-medium text-[#91c7ad]">{results[0].score}</span> {copy.onAssessment}{" "}
                     {results[0].assessments?.name ?? copy.assessment}.
                     {results[0].score >= 75
                       ? copy.advance
@@ -285,10 +269,10 @@ export default function ReportsClient({
                 </div>
               )}
 
-              <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl p-5">
-                <h3 className="text-sm font-semibold text-white mb-4">{copy.distribution}</h3>
+              <div className="enterprise-card rounded-xl p-5">
+                <h3 className="mb-4 text-sm font-semibold text-white">{copy.distribution}</h3>
                 {results.length === 0 ? (
-                  <p className="text-sm text-slate-500">{copy.noData}</p>
+                  <p className="text-sm text-[var(--it-muted)]">{copy.noData}</p>
                 ) : (
                   <div className="space-y-2">
                     {scoreBands.map((band) => {
@@ -301,11 +285,11 @@ export default function ReportsClient({
                       const pct = results.length ? Math.round((count / results.length) * 100) : 0;
                       return (
                         <div key={band.label} className="flex items-center gap-3">
-                          <span className="text-xs text-slate-500 w-14">{band.label}</span>
-                          <div className="flex-1 h-2 bg-[#1E2240] rounded-full overflow-hidden">
-                            <div className={`h-2 ${band.color} rounded-full`} style={{ width: `${pct}%` }} />
+                          <span className="w-14 text-xs text-[var(--it-faint)]">{band.label}</span>
+                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                            <div className={`h-2 rounded-full ${band.tone}`} style={{ width: `${pct}%` }} />
                           </div>
-                          <span className="text-xs text-slate-500 w-4 text-right">{count}</span>
+                          <span className="w-4 text-right text-xs text-[var(--it-faint)]">{count}</span>
                         </div>
                       );
                     })}
@@ -317,40 +301,40 @@ export default function ReportsClient({
 
           {/* Per-Candidate Full Reports */}
           {candidateGroups.length > 0 && (
-            <div className="bg-[#0D1020] border border-[#1E2240] rounded-xl overflow-hidden">
-              <div className="px-6 py-4 border-b border-[#1E2240] flex items-center justify-between">
+            <div className="enterprise-card rounded-xl overflow-hidden">
+              <div className="flex items-center justify-between border-b border-[var(--it-hairline)] px-6 py-4">
                 <div>
                   <h2 className="text-base font-semibold text-white">{copy.comprehensive}</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">{copy.comprehensiveSubtitle}</p>
+                  <p className="mt-0.5 text-xs text-[var(--it-muted)]">{copy.comprehensiveSubtitle}</p>
                 </div>
-                <span className="text-xs bg-blue-400/10 text-blue-400 border border-blue-400/20 px-2.5 py-1 rounded-full">
+                <span className="rounded-full border border-[var(--it-primary)]/25 bg-[var(--it-primary-soft)] px-2.5 py-1 text-xs text-[#9fb3e5]">
                   {copy.candidates(candidateGroups.length)}
                 </span>
               </div>
-              <div className="divide-y divide-[#1E2240]">
+              <div className="divide-y divide-[var(--it-hairline)]">
                 {candidateGroups.map(([candidateKey, group]) => {
                   const groupAvg = Math.round(group.results.reduce((s, r) => s + r.score, 0) / group.results.length);
-                  const avgColor = groupAvg >= 80 ? "text-emerald-400" : groupAvg >= 60 ? "text-amber-400" : "text-red-400";
+                  const avgTone = scoreTone(groupAvg).text;
                   const initials = group.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
                   return (
-                    <div key={candidateKey} className="px-6 py-4 hover:bg-[#1E2240]/20 transition-colors">
+                    <div key={candidateKey} className="px-6 py-4 transition-colors hover:bg-white/[0.02]">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                         <div className="flex min-w-0 flex-1 items-center gap-4">
-                          <div className="w-10 h-10 rounded-full bg-[#1D4ED8]/20 border border-[#1D4ED8]/30 flex items-center justify-center text-sm font-semibold text-blue-400 flex-shrink-0">
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-white">
                             {initials}
                           </div>
                           <div className="min-w-0 flex-1">
                             {group.id ? (
-                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-white hover:text-[#8CB1FF] transition-colors">
+                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-white transition-colors hover:text-[#9fb3e5]">
                                 {group.name}
                               </Link>
                             ) : (
                               <p className="break-words text-sm font-medium text-white">{group.name}</p>
                             )}
-                            <p className="text-xs text-slate-500 truncate">{group.email || copy.noEmail}</p>
-                            <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            <p className="truncate text-xs text-[var(--it-muted)]">{group.email || copy.noEmail}</p>
+                            <div className="mt-1.5 flex flex-wrap gap-1.5">
                               {group.results.map(r => (
-                                <span key={r.id} className="text-xs bg-[#1E2240] text-slate-400 px-2 py-0.5 rounded">
+                                <span key={r.id} className="rounded bg-white/[0.04] px-2 py-0.5 text-xs text-[var(--it-muted)]">
                                   {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
                                 </span>
                               ))}
@@ -358,22 +342,20 @@ export default function ReportsClient({
                           </div>
                         </div>
                         <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
-                          <div className="text-left sm:text-right sm:mr-4">
-                            <p className={`text-2xl font-bold ${avgColor}`}>{groupAvg}</p>
-                            <p className="text-xs text-slate-500">{copy.avgScore}</p>
+                          <div className="text-left sm:mr-4 sm:text-right">
+                            <p className={`text-2xl font-semibold ${avgTone}`}>{groupAvg}</p>
+                            <p className="text-xs text-[var(--it-faint)]">{copy.avgScore}</p>
                           </div>
                           {group.id ? (
                             <Link
                               href={`/candidates/${group.id}/report`}
-                              className="flex flex-shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 px-3 py-2 text-xs font-medium text-[#8CB1FF] transition-colors hover:border-[#1D4ED8]/50 hover:bg-[#1D4ED8]/20"
+                              className="flex flex-shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-3 py-2 text-xs font-medium text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary)]/25"
                             >
-                              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                              </svg>
+                              <FileText className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                               {copy.fullReport}
                             </Link>
                           ) : (
-                            <span className="flex-shrink-0 rounded-lg border border-[#1E2240] px-3 py-2 text-xs font-medium text-slate-500">
+                            <span className="flex-shrink-0 rounded-lg border border-[var(--it-hairline)] px-3 py-2 text-xs font-medium text-[var(--it-muted)]">
                               {copy.fullReport}
                             </span>
                           )}

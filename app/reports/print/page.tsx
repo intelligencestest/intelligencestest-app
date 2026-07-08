@@ -56,7 +56,7 @@ export default async function PrintReportPage({
   const generatedAt = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
   return (
-    <main className="min-h-screen bg-[#07080F] px-4 py-8 text-slate-900 print:bg-white print:p-0">
+    <main className="min-h-screen bg-[var(--it-bg)] px-4 py-8 text-slate-900 print:bg-white print:p-0">
       <style>{`
         @page { size: A4; margin: 14mm; }
         @media print {
