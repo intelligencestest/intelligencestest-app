@@ -2,25 +2,42 @@
 @import "tw-animate-css";
 
 @theme {
-  --color-surface: #07080F;
-  --color-card: #0D1020;
-  --color-panel: #1E2240;
-  --color-accent-hover: #1e40af;
   --font-sans: var(--font-geist-sans);
+  --font-serif: var(--font-marketing-serif), ui-serif, serif;
   --font-mono: var(--font-geist-mono);
 
-  /* shadcn/Radix semantic bridge — aliased to the --it-* tokens below so
-     imported primitives (dropdown-menu, tooltip, ...) theme themselves
-     automatically. "accent" here is shadcn's neutral hover/highlight tone,
-     not the brand color — brand blue stays on --it-primary. */
+  /* shadcn/Radix semantic bridge — every color token a shadcn/21st.dev
+     component expects, aliased to the --it-* tokens below so imported
+     primitives (dropdown-menu, tooltip, button, sheet, separator, ...)
+     theme themselves automatically. "accent" here is shadcn's neutral
+     hover/highlight tone, not the brand color — brand blue stays on
+     --it-primary. A scoped wrapper (.theme-verdant-sky, further down)
+     overrides this whole set for the public marketing site only — the
+     dashboard never gets that class, so none of this changes its look. */
   --color-background: var(--it-bg);
   --color-foreground: var(--it-text);
+  --color-card: var(--it-surface);
+  --color-card-foreground: var(--it-text);
   --color-popover: var(--it-surface-raised);
   --color-popover-foreground: var(--it-text);
-  --color-border: var(--it-border);
+  --color-primary: var(--it-primary);
+  --color-primary-foreground: var(--it-text);
+  --color-secondary: var(--it-surface-muted);
+  --color-secondary-foreground: var(--it-text);
+  --color-muted: var(--it-surface-muted);
   --color-muted-foreground: var(--it-muted);
   --color-accent: rgba(255, 255, 255, 0.045);
   --color-accent-foreground: var(--it-text);
+  --color-destructive: var(--it-danger);
+  --color-destructive-foreground: var(--it-text);
+  --color-border: var(--it-border);
+  --color-input: var(--it-border);
+  --color-ring: var(--it-primary);
+  --color-chart-1: var(--it-primary);
+  --color-chart-2: var(--it-info);
+  --color-chart-3: var(--it-warning);
+  --color-chart-4: var(--it-success);
+  --color-chart-5: var(--it-danger);
 }
 
 :root {
@@ -41,6 +58,43 @@
   --it-warning: #b8862f;
   --it-danger: #b9524c;
   --it-info: #527aa3;
+}
+
+/* Verdant Sky (21st.dev, @serafim) — scoped to the public marketing site
+   only via this wrapper class (see app/page.tsx, components/public/
+   PublicSite.tsx). Dark-mode values only; the app has no light/dark
+   toggle. The dashboard is never given this class, so its --it-* tokens
+   and every enterprise-* class are completely unaffected. */
+.theme-verdant-sky {
+  --color-background: #02080e;
+  --color-foreground: #e9f0f5;
+  --color-card: #09131a;
+  --color-card-foreground: #e9f0f5;
+  --color-popover: #09131a;
+  --color-popover-foreground: #e9f0f5;
+  --color-primary: #2fbc5b;
+  --color-primary-foreground: #000408;
+  --color-secondary: #172128;
+  --color-secondary-foreground: #e9f0f5;
+  --color-muted: #172128;
+  --color-muted-foreground: #85919a;
+  --color-accent: #32c364;
+  --color-accent-foreground: #000408;
+  --color-destructive: #f22a36;
+  --color-destructive-foreground: #f3faff;
+  --color-border: #202a32;
+  --color-input: #202a32;
+  --color-ring: #2fbc5b;
+  --color-chart-1: #2fbc5b;
+  --color-chart-2: #319cfc;
+  --color-chart-3: #ff7f16;
+  --color-chart-4: #b478ff;
+  --color-chart-5: #ff5969;
+  --font-sans: var(--font-space-grotesk), ui-sans-serif, sans-serif, system-ui;
+  --font-serif: var(--font-pt-serif), ui-serif, serif;
+  --font-mono: var(--font-space-mono), ui-monospace, monospace;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
 }
 
 body {

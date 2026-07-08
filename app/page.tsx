@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import { ArrowRight, BarChart3, Brain, ChevronDown, Compass, FolderKanban, Languages, Mail, Wrench } from "lucide-react";
-import { PublicFooter, PublicHeader, SignalBoard } from "@/components/public/PublicSite";
+import { MarketingHero } from "@/components/public/MarketingHero";
+import { PublicFooter, PublicHeader } from "@/components/public/PublicSite";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { getPublicCopy } from "@/lib/public-site-copy";
 
@@ -13,76 +14,28 @@ export default async function Home() {
   const copy = getPublicCopy(locale);
 
   return (
-    <main className="min-h-screen bg-black text-zinc-100">
+    <main className="theme-verdant-sky min-h-screen bg-background text-foreground">
       <PublicHeader copy={copy} />
 
-      {/* Hero — one soft, offset, low-opacity light source (ambient, not a
-          centered "AI glow" blob), pure black otherwise. */}
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div
-          className="pointer-events-none absolute -right-40 -top-56 h-[620px] w-[620px] rounded-full opacity-[0.14] blur-[140px]"
-          style={{ background: "radial-gradient(circle, #3B82F6, transparent 70%)" }}
-          aria-hidden="true"
-        />
-        <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-24 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-32">
-          <div className="animate-fade-up">
-            <p className="mb-7 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#3B82F6]" aria-hidden="true" />
-              {copy.home.eyebrow}
-            </p>
-            <h1 className="max-w-2xl text-[2.75rem] font-semibold leading-[1.05] tracking-[-0.035em] text-white sm:text-6xl lg:text-[4.2rem]">
-              {copy.home.heroTitle}
-            </h1>
-            <p className="mt-7 max-w-xl text-lg leading-8 text-zinc-400">
-              {copy.home.heroBody}
-            </p>
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href={localePath("/signup", locale)}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-6 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white/40"
-              >
-                {copy.home.primaryCta}
-                <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
-              </Link>
-              <Link
-                href={`${localePath("/", locale)}#assessments`}
-                className="inline-flex items-center justify-center rounded-md border border-white/15 px-6 py-3.5 text-sm font-semibold text-zinc-200 transition-colors hover:border-white/30 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/20"
-              >
-                {copy.home.secondaryCta}
-              </Link>
-            </div>
-            <dl className="mt-14 flex max-w-xl divide-x divide-white/10 border-t border-white/10 pt-7">
-              {copy.home.stats.map((stat, i) => (
-                <div key={stat.label} className={i === 0 ? "pr-8" : "px-8"}>
-                  <dt className="text-2xl font-semibold tracking-[-0.02em] text-white">{stat.value}</dt>
-                  <dd className="mt-1 text-[13px] leading-5 text-zinc-500">{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          <div className="hidden lg:block">
-            <SignalBoard copy={copy} />
-          </div>
-        </div>
-      </section>
+      <MarketingHero copy={copy} locale={locale} />
 
       {/* How it works — real product flow, not filler. Ties the abstract
           pitch above to what actually happens after signup. */}
-      <section className="border-b border-white/10 bg-[#050507] py-24 sm:py-28">
+      <section className="border-t border-border bg-secondary/40 py-24 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{copy.home.howItWorksEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">{copy.home.howItWorksTitle}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{copy.home.howItWorksEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-foreground sm:text-4xl">{copy.home.howItWorksTitle}</h2>
           </div>
           <div className="relative mt-14 grid gap-10 sm:grid-cols-3">
-            <div className="absolute top-5 left-0 right-0 hidden h-px bg-white/10 sm:block" aria-hidden="true" />
+            <div className="absolute top-5 left-0 right-0 hidden h-px bg-border sm:block" aria-hidden="true" />
             {copy.home.howItWorksSteps.map((step, i) => (
               <div key={step.title} className="relative">
-                <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-[#050507] text-sm font-semibold text-[#3B82F6]">
+                <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-border bg-background text-sm font-semibold text-primary">
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <h3 className="mt-5 text-[15px] font-semibold text-white">{step.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-zinc-500">{step.body}</p>
+                <h3 className="mt-5 text-[15px] font-semibold text-foreground">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{step.body}</p>
               </div>
             ))}
           </div>
@@ -90,25 +43,25 @@ export default async function Home() {
       </section>
 
       {/* Features */}
-      <section id="features" className="scroll-mt-20 border-b border-white/10 py-24 sm:py-32">
+      <section id="features" className="scroll-mt-24 border-t border-border py-24 sm:py-32">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{copy.home.featuresEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">{copy.home.featuresTitle}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{copy.home.featuresEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-foreground sm:text-4xl">{copy.home.featuresTitle}</h2>
           </div>
-          <div className="mt-14 grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-14 grid gap-px overflow-hidden rounded-lg border border-border bg-border md:grid-cols-2 lg:grid-cols-4">
             {copy.home.features.map((feature, i) => {
               const Icon = FEATURE_ICONS[i] ?? FEATURE_ICONS[0];
               return (
                 <article
                   key={feature.title}
-                  className="bg-black p-6 transition-colors duration-200 hover:bg-[#0A0A0A]"
+                  className="bg-background p-6 transition-colors duration-200 hover:bg-secondary/40"
                 >
-                  <div className="mb-6 flex h-9 w-9 items-center justify-center rounded-md border border-[#3B82F6]/25 bg-[#3B82F6]/[0.08] text-[#6EA0FF]">
+                  <div className="mb-6 flex h-9 w-9 items-center justify-center rounded-md border border-primary/25 bg-primary/[0.08] text-primary">
                     <Icon className="h-[17px] w-[17px]" strokeWidth={1.6} aria-hidden="true" />
                   </div>
-                  <h3 className="text-[15px] font-semibold text-white">{feature.title}</h3>
-                  <p className="mt-2.5 text-sm leading-6 text-zinc-500">{feature.body}</p>
+                  <h3 className="text-[15px] font-semibold text-foreground">{feature.title}</h3>
+                  <p className="mt-2.5 text-sm leading-6 text-muted-foreground">{feature.body}</p>
                 </article>
               );
             })}
@@ -117,30 +70,30 @@ export default async function Home() {
       </section>
 
       {/* Assessments */}
-      <section id="assessments" className="scroll-mt-20 border-b border-white/10 bg-[#050507] py-24 sm:py-32">
+      <section id="assessments" className="scroll-mt-24 border-t border-border bg-secondary/40 py-24 sm:py-32">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:px-8">
           <div className="lg:sticky lg:top-24">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{copy.home.assessmentsEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">{copy.home.assessmentsTitle}</h2>
-            <p className="mt-5 text-base leading-7 text-zinc-400">{copy.home.assessmentsBody}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{copy.home.assessmentsEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-foreground sm:text-4xl">{copy.home.assessmentsTitle}</h2>
+            <p className="mt-5 text-base leading-7 text-muted-foreground">{copy.home.assessmentsBody}</p>
             <Link
               href={localePath("/signup", locale)}
-              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-white transition-colors hover:text-zinc-300"
+              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-primary"
             >
               {copy.home.primaryCta}
               <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </Link>
           </div>
-          <div className="grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/10 sm:grid-cols-2">
+          <div className="grid gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
             {copy.home.assessmentGroups.map((group, i) => {
               const Icon = ASSESSMENT_ICONS[i] ?? ASSESSMENT_ICONS[0];
               return (
-                <div key={group.title} className="bg-black p-6 transition-colors duration-200 hover:bg-[#0A0A0A]">
-                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-md border border-[#3B82F6]/25 bg-[#3B82F6]/[0.08] text-[#6EA0FF]">
+                <div key={group.title} className="bg-background p-6 transition-colors duration-200 hover:bg-secondary/40">
+                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-md border border-primary/25 bg-primary/[0.08] text-primary">
                     <Icon className="h-4 w-4" strokeWidth={1.6} aria-hidden="true" />
                   </div>
-                  <p className="text-[15px] font-semibold text-white">{group.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-zinc-500">{group.body}</p>
+                  <p className="text-[15px] font-semibold text-foreground">{group.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{group.body}</p>
                 </div>
               );
             })}
@@ -149,54 +102,54 @@ export default async function Home() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="scroll-mt-20 border-b border-white/10 py-24 sm:py-32">
+      <section id="faq" className="scroll-mt-24 border-t border-border py-24 sm:py-32">
         <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">{copy.home.faqEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">{copy.home.faqTitle}</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">{copy.home.faqEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.02em] text-foreground sm:text-4xl">{copy.home.faqTitle}</h2>
           </div>
-          <div className="mt-10 divide-y divide-white/10 rounded-lg border border-white/10">
+          <div className="mt-10 divide-y divide-border rounded-lg border border-border">
             {copy.home.faq.map((item) => (
               <details key={item.question} className="group px-6 py-5">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 [&::-webkit-details-marker]:hidden">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 [&::-webkit-details-marker]:hidden">
                   {item.question}
                   <ChevronDown
-                    className="h-4 w-4 flex-shrink-0 text-zinc-500 transition-transform duration-200 group-open:rotate-180"
+                    className="h-4 w-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 group-open:rotate-180"
                     strokeWidth={2}
                     aria-hidden="true"
                   />
                 </summary>
-                <p className="mt-3 pr-8 text-sm leading-7 text-zinc-400">{item.answer}</p>
+                <p className="mt-3 pr-8 text-sm leading-7 text-muted-foreground">{item.answer}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA — same restrained ambient light as the hero, echoed once more */}
-      <section className="relative overflow-hidden py-24 sm:py-32">
+      {/* Final CTA */}
+      <section className="relative overflow-hidden border-t border-border py-24 sm:py-32">
         <div
-          className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 rounded-full opacity-[0.10] blur-[140px]"
-          style={{ background: "radial-gradient(circle, #3B82F6, transparent 70%)" }}
+          className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[820px] -translate-x-1/2 -z-10 rounded-full opacity-[0.10] blur-[140px]"
+          style={{ background: "radial-gradient(circle, var(--color-primary), transparent 70%)" }}
           aria-hidden="true"
         />
         <div className="relative mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
-          <div className="rounded-lg border border-white/10 bg-[#0A0A0A] px-6 py-16 text-center sm:px-16">
-            <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">
+          <div className="rounded-lg border border-border bg-card px-6 py-16 text-center sm:px-16">
+            <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-[-0.02em] text-foreground sm:text-4xl">
               {copy.home.finalTitle}
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-zinc-400">{copy.home.finalBody}</p>
+            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">{copy.home.finalBody}</p>
             <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 href={localePath("/signup", locale)}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-6 py-3.5 text-sm font-semibold text-black transition-colors hover:bg-zinc-200"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
               >
                 {copy.home.primaryCta}
                 <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               </Link>
               <Link
                 href={localePath("/contact", locale)}
-                className="inline-flex items-center justify-center rounded-md border border-white/15 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:border-white/30"
+                className="inline-flex items-center justify-center rounded-md border border-border px-6 py-3.5 text-sm font-semibold text-foreground transition-colors hover:border-primary/40"
               >
                 {copy.nav.contact}
               </Link>
