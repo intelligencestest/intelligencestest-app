@@ -11,9 +11,17 @@ interface ExportPdfButtonProps {
   projectName: string;
   candidateId: string;
   assessments: { id?: string; assessmentId?: string; name: string; score: number; completedAt: string; category?: string; rawAnswers?: unknown }[];
+  /**
+   * "standalone" (default) — full-width filled button, used on the candidate
+   * profile page where it's the only action in its own card.
+   * "toolbar" — outlined/muted button for use alongside other actions (e.g.
+   * the executive report's header), so the PDF export never reads as more
+   * prominent than staying on the in-platform report itself.
+   */
+  variant?: "standalone" | "toolbar";
 }
 
-export default function ExportPdfButton(props: ExportPdfButtonProps) {
+export default function ExportPdfButton({ variant = "standalone", ...props }: ExportPdfButtonProps) {
   const t = useTranslations("report");
   const locale = useLocale();
   const [loading, setLoading] = useState(false);
@@ -46,12 +54,18 @@ export default function ExportPdfButton(props: ExportPdfButtonProps) {
     }
   };
 
+  const isToolbar = variant === "toolbar";
+
   return (
     <div>
       <button
         onClick={handleExport}
         disabled={loading || props.assessments.length === 0}
-        className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-50"
+        className={
+          isToolbar
+            ? "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--it-border)] px-4 py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:border-[#2d3a70] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            : "inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-50"
+        }
       >
         {loading ? (
           <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
@@ -65,7 +79,7 @@ export default function ExportPdfButton(props: ExportPdfButtonProps) {
         )}
         {loading ? t("exportingPdf") : t("exportPdf")}
       </button>
-      <p className="mt-2 text-xs text-slate-400">{t("exportNote")}</p>
+      {!isToolbar && <p className="mt-2 text-xs text-slate-400">{t("exportNote")}</p>}
       {error && <p className="mt-2 text-xs text-[#f28b8b]">{t("exportError")}</p>}
     </div>
   );

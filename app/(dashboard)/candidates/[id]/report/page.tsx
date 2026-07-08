@@ -379,6 +379,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </Link>
           <div className="flex flex-col-reverse items-stretch gap-2.5 sm:flex-row sm:items-center">
             <ExportPdfButton
+              variant="toolbar"
               candidateName={name}
               candidateEmail={candidate.email || ""}
               companyName={companyName}
