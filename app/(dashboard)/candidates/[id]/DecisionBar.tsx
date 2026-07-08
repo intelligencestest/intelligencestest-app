@@ -100,7 +100,7 @@ export default function DecisionBar({
               <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${
                 outcome === "rejected"
                   ? "bg-[rgba(185,82,76,0.1)] text-[#d99792] ring-[rgba(185,82,76,0.25)]"
-                  : "bg-white/[0.04] text-slate-300 ring-[var(--it-border)]"
+                  : "bg-white/[0.04] text-slate-300 ring-[var(--it-hairline)]"
               }`}>
                 {outcome === "rejected" ? t("outcomeRejected") : outcome === "withdrawn" ? t("outcomeWithdrawn") : t("outcomeExpired")}
               </span>
@@ -148,7 +148,7 @@ export default function DecisionBar({
                     <MoreHorizontal className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                   </button>
                   {moreOpen && (
-                    <div className="absolute bottom-full left-0 mb-2 w-44 overflow-hidden rounded-xl border border-[var(--it-border)] bg-[var(--it-surface-raised)] shadow-2xl">
+                    <div className="absolute bottom-full left-0 mb-2 w-44 overflow-hidden rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface-raised)] shadow-2xl">
                       <button
                         className="block w-full cursor-pointer px-4 py-2.5 text-left text-sm text-slate-300 transition-colors hover:bg-white/[0.05]"
                         disabled={busy !== null}

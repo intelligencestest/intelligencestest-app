@@ -201,7 +201,7 @@ export default async function CandidateReportPage({
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--it-primary)]/60 to-transparent" aria-hidden="true" />
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
-            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] text-lg font-semibold text-[#9fb3e5]">
+            <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-lg font-semibold text-white">
               {initials}
             </div>
             <div className="min-w-0">
@@ -258,7 +258,7 @@ export default async function CandidateReportPage({
           <h2 className="text-sm font-semibold text-white">{t("evidenceTitle")}</h2>
 
           {myResults.length === 0 && (
-            <div className="enterprise-card rounded-xl p-8 text-center">
+            <div>
               <p className="text-sm font-medium text-slate-200">{t("noResultsTitle")}</p>
               <p className="mt-1 text-[13px] text-[var(--it-muted)]">{t("noResultsBody")}</p>
             </div>
@@ -340,13 +340,13 @@ export default async function CandidateReportPage({
           })}
 
           {pending.map((pa) => (
-            <article key={pa.assessment_id} className="rounded-xl border border-dashed border-[var(--it-border)] p-5">
+            <article key={pa.assessment_id} className="rounded-xl border border-dashed border-[var(--it-hairline)] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="truncate text-[15px] font-medium text-[var(--it-muted)]">{pa.assessments ? termName(pa.assessments.name, locale) : "—"}</h3>
                   {pa.assessments?.category && <p className="mt-0.5 text-[13px] text-[var(--it-faint)]">{termCategory(pa.assessments.category, locale)}</p>}
                 </div>
-                <span className="inline-flex flex-shrink-0 items-center rounded-full border border-[var(--it-border)] px-2.5 py-1 text-xs font-medium text-[var(--it-muted)]">
+                <span className="inline-flex flex-shrink-0 items-center rounded-full border border-[var(--it-hairline)] px-2.5 py-1 text-xs font-medium text-[var(--it-muted)]">
                   {t("pendingChip")}
                 </span>
               </div>
