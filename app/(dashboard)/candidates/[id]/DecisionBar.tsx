@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Check, ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
 interface DecisionBarProps {
   candidateId: string;
@@ -86,22 +87,20 @@ export default function DecisionBar({
     return () => window.removeEventListener("keydown", handler);
   }, [nextHref, prevHref, canReview, canInterview, canReject, busy, patch, router]);
 
-  const primaryBtn =
-    "inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-50";
-  const ghostBtn =
-    "inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#1E2240] px-3.5 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:border-[#2d3a70] hover:text-white disabled:cursor-not-allowed disabled:opacity-50";
+  const primaryBtn = "enterprise-button inline-flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50";
+  const ghostBtn = "enterprise-button-secondary inline-flex cursor-pointer items-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50";
 
   return (
     <div className="sticky bottom-4 z-30">
-      <div className="premium-card flex flex-wrap items-center gap-3 rounded-2xl border-[#2d3a70]/60 px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.5)]">
+      <div className="enterprise-card flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.5)]">
         {/* State / actions */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2.5">
           {closed ? (
             <>
               <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${
                 outcome === "rejected"
-                  ? "bg-[#d03b3b]/10 text-[#f28b8b] ring-[#d03b3b]/25"
-                  : "bg-[#1E2240]/60 text-slate-300 ring-[#1E2240]"
+                  ? "bg-[rgba(185,82,76,0.1)] text-[#d99792] ring-[rgba(185,82,76,0.25)]"
+                  : "bg-white/[0.04] text-slate-300 ring-[var(--it-border)]"
               }`}>
                 {outcome === "rejected" ? t("outcomeRejected") : outcome === "withdrawn" ? t("outcomeWithdrawn") : t("outcomeExpired")}
               </span>
@@ -112,18 +111,14 @@ export default function DecisionBar({
           ) : (
             <>
               {stage === "hired" && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-3 py-1.5 text-xs font-medium text-emerald-300 ring-1 ring-emerald-400/25">
-                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(63,143,107,0.1)] px-3 py-1.5 text-xs font-medium text-[#91c7ad] ring-1 ring-[rgba(63,143,107,0.25)]">
+                  <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                   {t("statusHired")}
                 </span>
               )}
               {canReview && (
                 <button className={primaryBtn} disabled={busy !== null} onClick={() => patch("review", { stage: "reviewed" }, true)} title="R">
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
+                  <Check className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                   {busy === "review" ? t("decisionSaving") : t("decisionCompleteReview")}
                 </button>
               )}
@@ -139,7 +134,7 @@ export default function DecisionBar({
               )}
               {canReject && (
                 <button
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#d03b3b]/30 px-3.5 py-2.5 text-sm font-medium text-[#f28b8b] transition-colors hover:bg-[#d03b3b]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--it-danger)]/30 px-3.5 py-2.5 text-sm font-medium text-[#d99792] transition-colors hover:bg-[rgba(185,82,76,0.1)] disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={busy !== null}
                   onClick={() => patch("reject", { outcome: "rejected" })}
                   title="X"
@@ -150,12 +145,12 @@ export default function DecisionBar({
               {!closed && stage !== "hired" && (
                 <div className="relative">
                   <button className={ghostBtn} onClick={() => setMoreOpen((v) => !v)} aria-expanded={moreOpen} aria-haspopup="true">
-                    ⋯
+                    <MoreHorizontal className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                   </button>
                   {moreOpen && (
-                    <div className="absolute bottom-full left-0 mb-2 w-44 overflow-hidden rounded-xl border border-[#1E2240] bg-[#0D1020] shadow-2xl">
+                    <div className="absolute bottom-full left-0 mb-2 w-44 overflow-hidden rounded-xl border border-[var(--it-border)] bg-[var(--it-surface-raised)] shadow-2xl">
                       <button
-                        className="block w-full cursor-pointer px-4 py-2.5 text-left text-sm text-slate-300 transition-colors hover:bg-[#1E2240]/50"
+                        className="block w-full cursor-pointer px-4 py-2.5 text-left text-sm text-slate-300 transition-colors hover:bg-white/[0.05]"
                         disabled={busy !== null}
                         onClick={() => patch("withdraw", { outcome: "withdrawn" })}
                       >
@@ -167,40 +162,32 @@ export default function DecisionBar({
               )}
             </>
           )}
-          {error && <span className="text-[13px] text-[#f28b8b]">{t("decisionError")}</span>}
+          {error && <span className="text-[13px] text-[#d99792]">{t("decisionError")}</span>}
         </div>
 
         {/* Queue navigation */}
         <div className="flex flex-shrink-0 items-center gap-2">
           {position !== null && total !== null && (
-            <span className="hidden text-[13px] text-slate-400 sm:inline">
+            <span className="hidden text-[13px] text-[var(--it-muted)] sm:inline">
               {queueLabel} · {t("queuePosition", { pos: position, total })}
             </span>
           )}
           {prevHref ? (
             <Link href={prevHref} className={ghostBtn} aria-label={t("queuePrev")} title="K">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </Link>
           ) : (
             <span className={`${ghostBtn} pointer-events-none opacity-40`}>
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronLeft className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </span>
           )}
           {nextHref ? (
             <Link href={nextHref} className={ghostBtn} aria-label={t("queueNext")} title="J">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </Link>
           ) : (
             <span className={`${ghostBtn} pointer-events-none opacity-40`}>
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <ChevronRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
             </span>
           )}
         </div>

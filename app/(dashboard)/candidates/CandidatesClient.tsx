@@ -3,24 +3,8 @@
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
-
-// Six-stage pipeline chips (candidates.pipeline_stage) + closed-outcome chips.
-const PIPELINE_STAGES = ["invited", "started", "completed", "reviewed", "interview", "hired"] as const;
-
-const stageConfig: Record<string, { label: string; class: string; dot: string; text: string }> = {
-  invited: { label: "Invited", class: "bg-amber-500/10 text-amber-300 border-amber-500/25", dot: "bg-amber-400", text: "text-amber-300" },
-  started: { label: "Started", class: "bg-blue-500/10 text-blue-300 border-blue-500/25", dot: "bg-blue-400", text: "text-blue-300" },
-  completed: { label: "Completed", class: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25", dot: "bg-emerald-400", text: "text-emerald-300" },
-  reviewed: { label: "Reviewed", class: "bg-violet-500/10 text-violet-300 border-violet-500/25", dot: "bg-violet-400", text: "text-violet-300" },
-  interview: { label: "Interview", class: "bg-[#1D4ED8]/15 text-[#9BB8FF] border-[#1D4ED8]/35", dot: "bg-[#6B9FFF]", text: "text-[#9BB8FF]" },
-  hired: { label: "Hired", class: "bg-emerald-500/15 text-emerald-200 border-emerald-400/40", dot: "bg-emerald-300", text: "text-emerald-200" },
-};
-
-const outcomeConfig: Record<string, { label: string; class: string; dot: string }> = {
-  rejected: { label: "Rejected", class: "bg-[#d03b3b]/10 text-[#f28b8b] border-[#d03b3b]/25", dot: "bg-[#e05252]" },
-  withdrawn: { label: "Withdrawn", class: "bg-[#1E2240]/60 text-slate-300 border-[#1E2240]", dot: "bg-slate-400" },
-  expired: { label: "Expired", class: "bg-[#ec835a]/10 text-[#ec835a] border-[#ec835a]/25", dot: "bg-[#ec835a]" },
-};
+import { Check, Copy, Link2, Loader2, Mail, Search, UserPlus, Users, X } from "lucide-react";
+import { PIPELINE_STAGES, STATUS_CHIP_STYLE } from "@/lib/dashboard/stages";
 
 const avatarColors = [
   "bg-blue-500/20 text-blue-300 border-blue-500/30",
@@ -71,11 +55,9 @@ function CopyButton({ text }: { text: string }) {
         });
       }}
       aria-label={es ? "Copiar enlace" : "Copy link"}
-      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#1D4ED8]/40 px-3 py-1.5 text-xs font-medium text-[#A9C2FF] transition-colors hover:bg-[#1D4ED8]/10"
+      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--it-primary)]/40 px-3 py-1.5 text-xs font-medium text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary-soft)]"
     >
-      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
-      </svg>
+      <Copy className="h-3.5 w-3.5" strokeWidth={2} />
       {copied ? (es ? "Copiado" : "Copied!") : (es ? "Copiar" : "Copy")}
     </button>
   );
@@ -332,30 +314,28 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
     completed: candidates.filter((c) => c.pipeline_stage === "completed").length,
   };
 
-  const inputClass = "w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25";
-  const selectClass = "w-full cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-300 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25";
+  const inputClass = "w-full rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
+  const selectClass = "w-full cursor-pointer rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-soft-pulse" />
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[var(--it-border)] bg-[var(--it-surface)] px-3 py-1 text-xs font-medium text-[#9fb3e5]">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--it-primary)] animate-soft-pulse" />
             {copy.roster}
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{copy.title}</h1>
-          <p className="text-slate-500 text-sm mt-1">
+          <h1 className="text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
+          <p className="mt-1 text-sm text-[var(--it-muted)]">
             {copy.across(candidates.length)}
           </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex cursor-pointer items-center gap-2 self-start rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(29,78,216,0.22)] transition-colors hover:bg-[#1e40af] sm:self-auto"
+          className="enterprise-button inline-flex cursor-pointer items-center gap-2 self-start rounded-xl px-4 py-2.5 text-sm font-semibold sm:self-auto"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5" />
-          </svg>
+          <UserPlus className="h-4 w-4" strokeWidth={2} />
           {copy.inviteCandidate}
         </button>
       </div>
@@ -367,37 +347,35 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           { key: "started", label: copy.status.started, count: counts.started },
           { key: "completed", label: copy.status.completed, count: counts.completed },
         ].map((s, index) => {
-          const cfg = stageConfig[s.key];
+          const style = STATUS_CHIP_STYLE[s.key];
           return (
-            <div key={s.label} className="premium-card rounded-xl p-4 animate-fade-up" style={{ animationDelay: `${index * 60}ms` }}>
+            <div key={s.label} className="enterprise-card animate-fade-up rounded-xl p-4" style={{ animationDelay: `${index * 60}ms` }}>
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">{s.label}</p>
-                <span className={`h-2 w-2 rounded-full ${cfg.dot}`} />
+                <p className="text-xs font-medium uppercase tracking-wider text-[var(--it-faint)]">{s.label}</p>
+                <span className={`h-2 w-2 rounded-full ${style.dot}`} />
               </div>
-              <p className={`mt-2 text-3xl font-semibold tracking-tight ${cfg.text}`}>{s.count}</p>
+              <p className={`mt-2 text-3xl font-semibold tracking-tight ${style.text}`}>{s.count}</p>
             </div>
           );
         })}
       </div>
 
       {/* Filters */}
-      <div className="premium-card rounded-xl p-4">
+      <div className="enterprise-card rounded-xl p-4">
         <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
-            </svg>
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--it-faint)]" strokeWidth={2} />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={copy.search}
-              className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] py-2.5 pl-9 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+              className="w-full rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] py-2.5 pl-9 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
             />
           </div>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+            className="cursor-pointer rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
           >
             <option value="all">{copy.allStatuses}</option>
             {PIPELINE_STAGES.map((stage) => (
@@ -407,7 +385,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
-            className="cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+            className="cursor-pointer rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
           >
             <option value="all">{copy.allProjects}</option>
             {projects.map((p) => (
@@ -418,8 +396,8 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
       </div>
 
       {/* Candidate table */}
-      <div className="premium-card overflow-hidden rounded-xl">
-        <div className="hidden grid-cols-12 gap-4 border-b border-[#1E2240] px-6 py-3 text-xs font-medium uppercase tracking-wider text-slate-500 md:grid">
+      <div className="enterprise-card overflow-hidden rounded-xl">
+        <div className="hidden grid-cols-12 gap-4 border-b enterprise-divider px-6 py-3 text-xs font-medium uppercase tracking-wider text-[var(--it-faint)] md:grid">
           <div className="col-span-5">{copy.candidate}</div>
           <div className="col-span-4">{copy.project}</div>
           <div className="col-span-2">{copy.statusHeader}</div>
@@ -427,47 +405,45 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         </div>
 
         {filtered.length === 0 ? (
-          <div className="text-center py-16 text-slate-500">
-            <svg className="w-10 h-10 mx-auto mb-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8" />
-            </svg>
+          <div className="py-16 text-center text-[var(--it-muted)]">
+            <Users className="mx-auto mb-3 h-10 w-10 text-[var(--it-faint)]" strokeWidth={1.5} />
             <p className="text-sm">{candidates.length === 0 ? copy.noCandidates : copy.noMatches}</p>
           </div>
         ) : (
-          <div className="divide-y divide-[#1E2240]">
+          <div className="divide-y divide-[var(--it-border-soft)]">
             {filtered.map((candidate, i) => {
               // A closed outcome (rejected / withdrawn / expired) overrides the stage chip.
-              const closed = candidate.outcome !== "pending" ? outcomeConfig[candidate.outcome] : null;
-              const cfg = closed ?? stageConfig[candidate.pipeline_stage] ?? stageConfig.invited;
-              const chipKey = closed ? candidate.outcome : candidate.pipeline_stage;
+              const closed = candidate.outcome !== "pending" ? candidate.outcome : null;
+              const chipKey = closed ?? candidate.pipeline_stage;
+              const style = STATUS_CHIP_STYLE[chipKey] ?? STATUS_CHIP_STYLE.invited;
               const avatarClass = avatarColors[i % avatarColors.length];
               const name = candidate.full_name?.trim() || copy.anonymous;
               const initials = name === copy.anonymous ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
               return (
-                <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="grid gap-4 px-4 py-4 transition-colors hover:bg-[#1E2240]/30 md:grid-cols-12 md:px-6 md:items-center group">
+                <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="group grid gap-4 px-4 py-4 transition-colors hover:bg-white/[0.025] md:grid-cols-12 md:items-center md:px-6">
                   <div className="flex min-w-0 items-center gap-3 md:col-span-5">
-                    <div className={`w-10 h-10 rounded-full border flex items-center justify-center text-xs font-semibold flex-shrink-0 ${avatarClass}`}>
+                    <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${avatarClass}`}>
                       {initials}
                     </div>
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-white transition-colors group-hover:text-[#8CB1FF]">{name}</p>
-                      <p className="truncate text-xs text-slate-500">{candidate.email || "—"}</p>
+                      <p className="truncate text-xs text-[var(--it-muted)]">{candidate.email || "—"}</p>
                     </div>
                   </div>
                   <div className="min-w-0 md:col-span-4">
-                    <p className="truncate text-sm text-slate-400">{candidate.hiring_projects?.name ?? copy.unassigned}</p>
-                    <p className="mt-1 text-xs text-slate-600 md:hidden">
+                    <p className="truncate text-sm text-[var(--it-muted)]">{candidate.hiring_projects?.name ?? copy.unassigned}</p>
+                    <p className="mt-1 text-xs text-[var(--it-faint)] md:hidden">
                       {copy.invitedAt} {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
                   <div className="md:col-span-2">
-                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                      {copy.status[chipKey] ?? cfg.label}
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${style.bg} ${style.text} ${style.ring}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+                      {copy.status[chipKey] ?? chipKey}
                     </span>
                   </div>
                   <div className="hidden text-right md:col-span-1 md:block">
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[var(--it-muted)]">
                       {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
                     </p>
                   </div>
@@ -477,7 +453,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           </div>
         )}
 
-        <div className="border-t border-[#1E2240] px-6 py-3 text-xs text-slate-600">
+        <div className="border-t enterprise-divider px-6 py-3 text-xs text-[var(--it-faint)]">
           {copy.showing(filtered.length, candidates.length)}
         </div>
       </div>
@@ -489,22 +465,20 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           onClick={closeModal}
         >
           <div
-            className="premium-card w-full max-w-md rounded-2xl p-6 shadow-2xl"
+            className="enterprise-card w-full max-w-md rounded-2xl p-6 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
                 <h3 className="text-base font-semibold text-white">{copy.modalTitle}</h3>
-                <p className="mt-0.5 text-xs text-slate-500">{copy.modalDescription}</p>
+                <p className="mt-0.5 text-xs text-[var(--it-muted)]">{copy.modalDescription}</p>
               </div>
               <button
                 onClick={closeModal}
-                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
               >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X className="h-4 w-4" strokeWidth={2} />
               </button>
             </div>
 
@@ -513,42 +487,38 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               <div className="space-y-4">
                 {success.type === "link" ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                        <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
+                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
+                        <Check className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-emerald-300">{copy.copied}</p>
-                        <p className="text-xs text-slate-500">{copy.validShare}</p>
+                        <p className="text-sm font-medium text-[#91c7ad]">{copy.copied}</p>
+                        <p className="text-xs text-[var(--it-muted)]">{copy.validShare}</p>
                       </div>
                     </div>
-                    <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
-                      <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{copy.inviteLink}</p>
+                    <div className="rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] p-3">
+                      <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-[var(--it-faint)]">{copy.inviteLink}</p>
                       <div className="flex items-center gap-2">
-                        <p className="flex-1 break-all font-mono text-xs text-blue-300">{success.url}</p>
+                        <p className="flex-1 break-all font-mono text-xs text-[#9fb3e5]">{success.url}</p>
                         <CopyButton text={success.url} />
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
-                      </svg>
+                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
+                      <Mail className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-emerald-300">{copy.emailSent}</p>
-                      <p className="truncate text-xs text-slate-500">{success.to}</p>
+                      <p className="text-sm font-medium text-[#91c7ad]">{copy.emailSent}</p>
+                      <p className="truncate text-xs text-[var(--it-muted)]">{success.to}</p>
                     </div>
                   </div>
                 )}
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
+                  className="w-full cursor-pointer rounded-xl border border-[var(--it-border)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
                 >
                   {copy.inviteAnother}
                 </button>
@@ -557,7 +527,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               /* Form state */
               <div className="space-y-4">
                 {error && (
-                  <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(185,82,76,0.1)] p-3 text-sm text-[#d99792]">
                     {error}
                   </div>
                 )}
@@ -565,7 +535,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">
                     {copy.candidateName}
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.optional})</span>
+                    <span className="ml-1.5 text-xs font-normal text-[var(--it-faint)]">({copy.optional})</span>
                   </label>
                   <input
                     value={form.full_name}
@@ -578,7 +548,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">
                     {copy.emailAddress}
-                    <span className="ml-1.5 text-xs font-normal text-slate-500">({copy.requiredEmail})</span>
+                    <span className="ml-1.5 text-xs font-normal text-[var(--it-faint)]">({copy.requiredEmail})</span>
                   </label>
                   <input
                     type="email"
@@ -592,7 +562,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.project}</label>
                   {projects.length === 0 ? (
-                    <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
+                    <p className="rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
                       {copy.noProjects} — <a href="/projects/new" className="text-[#8CB1FF] hover:underline">{copy.createFirst}</a>
                     </p>
                   ) : (
@@ -611,7 +581,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.assessment}</label>
                   {currentAssessments.length === 0 ? (
-                    <p className="rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-500">
+                    <p className="rounded-xl border border-[var(--it-border)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
                       {form.project_id ? copy.noLinked : copy.selectProjectFirst}
                     </p>
                   ) : (
@@ -632,17 +602,12 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                     type="button"
                     disabled={loadingMode !== null || projects.length === 0 || currentAssessments.length === 0}
                     onClick={() => handleInvite("link")}
-                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#1E2240] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                    className="enterprise-button-secondary flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loadingMode === "link" ? (
-                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-                      </svg>
+                      <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
                     ) : (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-                      </svg>
+                      <Link2 className="h-4 w-4" strokeWidth={2} />
                     )}
                     {loadingMode === "link" ? copy.copying : copy.copyLink}
                   </button>
@@ -650,17 +615,12 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                     type="button"
                     disabled={loadingMode !== null || projects.length === 0 || currentAssessments.length === 0}
                     onClick={() => handleInvite("email")}
-                    className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="enterprise-button flex cursor-pointer items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {loadingMode === "email" ? (
-                      <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z" />
-                      </svg>
+                      <Loader2 className="h-4 w-4 animate-spin" strokeWidth={2} />
                     ) : (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
-                      </svg>
+                      <Mail className="h-4 w-4" strokeWidth={2} />
                     )}
                     {loadingMode === "email" ? copy.sending : copy.sendEmail}
                   </button>
