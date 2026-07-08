@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
+import { SettingsNav } from "@/components/settings/SettingsNav";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 
 const PAYPAL_MANAGE_URL = "https://www.paypal.com/myaccount/autopay/";
@@ -208,12 +209,6 @@ export default function BillingSettingsPage() {
         { label: copy.recruiters, used: planData.usage.recruiters, limit: planData.limits.recruiters },
       ]
     : [];
-  const navItems = [
-    { href: "/settings", label: copy.account },
-    { href: "/settings/billing", label: copy.billing, active: true },
-    { href: "/settings#security", label: copy.security },
-    { href: "/settings#notifications", label: copy.notifications },
-  ];
   const planCards = [
     {
       id: "trial" as const,
@@ -245,29 +240,12 @@ export default function BillingSettingsPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-6">
       <div>
-        <p className="text-sm font-medium text-[var(--it-faint)]">{es ? "Configuración" : "Settings"}</p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
+        <h1 className="text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
-        <aside className="enterprise-card sticky top-24 hidden rounded-xl p-3 lg:block">
-          <nav className="space-y-1">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={localePath(item.href, locale)}
-                className={`block rounded-lg border-l-2 px-3 py-2.5 text-[13px] font-medium transition-colors ${
-                  item.active
-                    ? "border-[var(--it-primary)] bg-white/[0.04] text-white"
-                    : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.02] hover:text-slate-100"
-                }`}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </aside>
+        <SettingsNav />
 
         <section className="space-y-6">
           <div className="enterprise-card rounded-xl p-6">
