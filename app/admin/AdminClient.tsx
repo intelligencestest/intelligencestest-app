@@ -152,7 +152,7 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
         </div>
       )}
 
-      <section className="rounded-lg border border-[#1E2240] bg-[#0D1020] p-5">
+      <section className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-surface)] p-5">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-white">Create workspace</h2>
@@ -160,32 +160,32 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
           </div>
         </div>
         <form action={createWorkspace} className="mt-5 grid gap-4 md:grid-cols-3">
-          <input name="company_name" required placeholder="Company name" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-          <input name="admin_name" required placeholder="Admin name" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-          <input name="admin_email" required type="email" placeholder="Admin email" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-          <input name="industry" placeholder="Industry" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-          <select name="plan" defaultValue="trial" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
+          <input name="company_name" required placeholder="Company name" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+          <input name="admin_name" required placeholder="Admin name" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+          <input name="admin_email" required type="email" placeholder="Admin email" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+          <input name="industry" placeholder="Industry" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+          <select name="plan" defaultValue="trial" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]">
             {plans.map((plan) => <option key={plan.value} value={plan.value}>{plan.label}</option>)}
           </select>
-          <select name="language" defaultValue="es" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
+          <select name="language" defaultValue="es" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]">
             {languages.map((language) => <option key={language.value} value={language.value}>{language.label}</option>)}
           </select>
           <button
             type="submit"
             disabled={busy?.id === "new"}
-            className="rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1e40af] disabled:cursor-wait disabled:opacity-70 md:col-span-3"
+            className="rounded-lg bg-[#8b5cf6] px-4 py-3 text-sm font-semibold text-white hover:bg-[#7c4deb] disabled:cursor-wait disabled:opacity-70 md:col-span-3"
           >
             {busy?.id === "new" ? "Creating..." : "Create workspace"}
           </button>
         </form>
       </section>
 
-      <section className="rounded-lg border border-[#1E2240] bg-[#0D1020]">
-        <div className="border-b border-[#1E2240] p-5">
+      <section className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-surface)]">
+        <div className="border-b border-[var(--it-hairline)] p-5">
           <h2 className="text-xl font-semibold text-white">Companies</h2>
           <p className="mt-1 text-sm text-slate-400">{rows.length} workspaces found.</p>
         </div>
-        <div className="divide-y divide-[#1E2240]">
+        <div className="divide-y divide-[var(--it-hairline)]">
           {rows.map((row) => (
             <details key={row.id} className="group p-5">
               <summary className="grid cursor-pointer list-none gap-4 lg:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr_1fr_auto] lg:items-center">
@@ -208,7 +208,7 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                 <Link
                   href={`/admin/companies/${row.id}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-fit rounded-lg border border-[#1E2240] px-3 py-1.5 text-xs font-semibold text-[#a78bfa] transition-colors hover:border-[#8b5cf6]/60"
+                  className="w-fit rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs font-semibold text-[#a78bfa] transition-colors hover:border-[#8b5cf6]/60"
                 >
                   Open →
                 </Link>
@@ -216,37 +216,37 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
 
               <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_300px]">
                 <form action={(formData) => updateWorkspace(row.id, formData)} className="grid gap-4 md:grid-cols-2">
-                  <input name="company_name" defaultValue={row.name} className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-                  <input name="email" type="email" defaultValue={row.email} className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-                  <input name="industry" defaultValue={row.industry ?? ""} placeholder="Industry" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-                  <input name="logo_url" defaultValue={row.logo_url ?? ""} placeholder="Logo URL" className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]" />
-                  <select name="plan" defaultValue={row.plan} className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
+                  <input name="company_name" defaultValue={row.name} className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+                  <input name="email" type="email" defaultValue={row.email} className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+                  <input name="industry" defaultValue={row.industry ?? ""} placeholder="Industry" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+                  <input name="logo_url" defaultValue={row.logo_url ?? ""} placeholder="Logo URL" className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]" />
+                  <select name="plan" defaultValue={row.plan} className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]">
                     {!plans.some((plan) => plan.value === row.plan) && (
                       <option value={row.plan}>{planLabel(row.plan)}</option>
                     )}
                     {plans.map((plan) => <option key={plan.value} value={plan.value}>{plan.label}</option>)}
                   </select>
-                  <select name="language" defaultValue={row.language} className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
+                  <select name="language" defaultValue={row.language} className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]">
                     {languages.map((language) => <option key={language.value} value={language.value}>{language.label}</option>)}
                   </select>
-                  <select name="status" defaultValue={row.status} className="rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-3 text-sm text-white outline-none focus:border-[#1D4ED8]">
+                  <select name="status" defaultValue={row.status} className="rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-3 text-sm text-white outline-none focus:border-[#8b5cf6]">
                     {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
                   </select>
                   <button
                     type="submit"
                     disabled={busy?.id === row.id}
-                    className="rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white hover:bg-[#1e40af] disabled:cursor-wait disabled:opacity-70"
+                    className="rounded-lg bg-[#8b5cf6] px-4 py-3 text-sm font-semibold text-white hover:bg-[#7c4deb] disabled:cursor-wait disabled:opacity-70"
                   >
                     {busy?.id === row.id && busy.action === "update" ? "Saving..." : "Save changes"}
                   </button>
                 </form>
 
-                <div className="space-y-3 rounded-lg border border-[#1E2240] bg-[#07080F] p-4">
+                <div className="space-y-3 rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] p-4">
                   <button
                     type="button"
                     onClick={() => setWorkspaceStatus(row.id, row.status === "disabled" ? "active" : "disabled")}
                     disabled={busy?.id === row.id}
-                    className="w-full rounded-lg border border-[#1E2240] px-4 py-3 text-sm font-semibold text-slate-100 hover:border-[#1D4ED8]/70 disabled:cursor-wait disabled:opacity-70"
+                    className="w-full rounded-lg border border-[var(--it-hairline)] px-4 py-3 text-sm font-semibold text-slate-100 hover:border-[#8b5cf6]/70 disabled:cursor-wait disabled:opacity-70"
                   >
                     {row.status === "disabled" ? "Enable workspace" : "Disable workspace"}
                   </button>
@@ -254,7 +254,7 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                     type="button"
                     onClick={() => resetPassword(row.id)}
                     disabled={busy?.id === row.id}
-                    className="w-full rounded-lg border border-[#1E2240] px-4 py-3 text-sm font-semibold text-slate-100 hover:border-[#1D4ED8]/70 disabled:cursor-wait disabled:opacity-70"
+                    className="w-full rounded-lg border border-[var(--it-hairline)] px-4 py-3 text-sm font-semibold text-slate-100 hover:border-[#8b5cf6]/70 disabled:cursor-wait disabled:opacity-70"
                   >
                     Send admin reset email
                   </button>

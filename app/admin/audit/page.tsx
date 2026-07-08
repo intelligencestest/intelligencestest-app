@@ -53,7 +53,7 @@ export default async function AdminAuditPage({
   const { data: typeRows } = await admin.from("admin_actions").select("action_type").limit(1000);
   const types = [...new Set((typeRows ?? []).map((r) => r.action_type))].sort();
 
-  const nowMs = Date.now();
+  const nowMs = Date.now(); // eslint-disable-line react-hooks/purity -- server component, one render per request; relative-time math needs the real request-time clock.
   const makeHref = (p: number) => {
     const sp = new URLSearchParams();
     if (typeFilter) sp.set("type", typeFilter);
@@ -73,7 +73,7 @@ export default async function AdminAuditPage({
           <select
             name="type"
             defaultValue={typeFilter}
-            className="cursor-pointer rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[#8b5cf6]"
+            className="cursor-pointer rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[#8b5cf6]"
           >
             <option value="">All actions</option>
             {types.map((t) => (
@@ -86,9 +86,9 @@ export default async function AdminAuditPage({
             name="admin"
             defaultValue={adminFilter}
             placeholder="Filter by operator email…"
-            className="min-w-0 flex-1 rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-white outline-none focus:border-[#8b5cf6] sm:w-56"
+            className="min-w-0 flex-1 rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-white outline-none focus:border-[#8b5cf6] sm:w-56"
           />
-          <button className="rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white">Filter</button>
+          <button className="rounded-lg bg-[#8b5cf6] px-4 py-2.5 text-sm font-semibold text-white">Filter</button>
         </form>
       </div>
 
@@ -100,10 +100,10 @@ export default async function AdminAuditPage({
         ) : (rows ?? []).length === 0 ? (
           <EmptyRow>No actions match these filters.</EmptyRow>
         ) : (
-          <div className="divide-y divide-[#1E2240]">
+          <div className="divide-y divide-[var(--it-hairline)]">
             {(rows ?? []).map((row) => (
               <div key={row.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3">
-                <code className="rounded bg-[#07080F] px-2 py-0.5 font-mono text-xs text-[#a78bfa]">{row.action_type}</code>
+                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#a78bfa]">{row.action_type}</code>
                 <span className="text-sm text-slate-300">{row.admin_email}</span>
                 {row.entity_type && (
                   <span className="text-xs text-slate-500">

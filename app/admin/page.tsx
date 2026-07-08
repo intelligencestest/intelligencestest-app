@@ -17,7 +17,7 @@ export default async function AdminHomePage() {
   if (!adminCtx) return null; // layout renders the access screen
 
   const admin = createAdminClient();
-  const nowMs = Date.now();
+  const nowMs = Date.now(); // eslint-disable-line react-hooks/purity -- server component, one render per request; the "quiet tenant"/recency math needs the real request-time clock.
   const dayAgo = new Date(nowMs - DAY).toISOString();
   const weekAgo = new Date(nowMs - 7 * DAY).toISOString();
 
@@ -87,7 +87,7 @@ export default async function AdminHomePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-white">Operations home</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Triage first, then browse. <kbd className="rounded border border-[#1E2240] bg-[#0D1020] px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd> finds anything.
+          Triage first, then browse. <kbd className="rounded border border-[var(--it-hairline)] bg-[var(--it-surface)] px-1.5 py-0.5 font-mono text-[10px]">⌘K</kbd> finds anything.
         </p>
       </div>
 
@@ -111,12 +111,12 @@ export default async function AdminHomePage() {
         {attention.length === 0 ? (
           <EmptyRow>{statsMap === null ? "Unavailable until migration 021 is applied." : "All tenants look active."}</EmptyRow>
         ) : (
-          <div className="divide-y divide-[#1E2240]">
+          <div className="divide-y divide-[var(--it-hairline)]">
             {attention.slice(0, 8).map((item) => (
               <Link
                 key={item.companyId}
                 href={`/admin/companies/${item.companyId}`}
-                className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-[#1E2240]/30"
+                className="flex items-center gap-4 px-5 py-3 transition-colors hover:bg-white/[0.03]"
               >
                 <Chip tone="warn">attention</Chip>
                 <span className="min-w-0 flex-1">
@@ -144,10 +144,10 @@ export default async function AdminHomePage() {
         ) : (recentActions ?? []).length === 0 ? (
           <EmptyRow>No console actions recorded yet.</EmptyRow>
         ) : (
-          <div className="divide-y divide-[#1E2240]">
+          <div className="divide-y divide-[var(--it-hairline)]">
             {(recentActions ?? []).map((a) => (
               <div key={a.id} className="flex items-center gap-4 px-5 py-3">
-                <code className="rounded bg-[#07080F] px-2 py-0.5 font-mono text-xs text-[#a78bfa]">{a.action_type}</code>
+                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#a78bfa]">{a.action_type}</code>
                 <span className="min-w-0 flex-1 truncate text-sm text-slate-300">
                   {a.admin_email}
                   {a.reason ? <span className="text-slate-500"> — {a.reason}</span> : null}

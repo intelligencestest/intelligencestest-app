@@ -97,18 +97,18 @@ export default async function AdminCompaniesPage({
             name="q"
             defaultValue={q}
             placeholder="Search name or email…"
-            className="min-w-0 flex-1 rounded-lg border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-white outline-none focus:border-[#8b5cf6]"
+            className="min-w-0 flex-1 rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-white outline-none focus:border-[#8b5cf6]"
           />
           <select
             name="status"
             defaultValue={statusFilter ?? ""}
-            className="cursor-pointer rounded-lg border border-[#1E2240] bg-[#07080F] px-2 py-2.5 text-sm text-slate-300 outline-none focus:border-[#8b5cf6]"
+            className="cursor-pointer rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-2 py-2.5 text-sm text-slate-300 outline-none focus:border-[#8b5cf6]"
           >
             <option value="">All</option>
             <option value="active">Active</option>
             <option value="disabled">Disabled</option>
           </select>
-          <button className="rounded-lg bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white">Search</button>
+          <button className="rounded-lg bg-[#8b5cf6] px-4 py-2.5 text-sm font-semibold text-white">Search</button>
         </form>
       </div>
 

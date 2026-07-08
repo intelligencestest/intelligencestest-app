@@ -25,31 +25,38 @@ export default function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
+  const openPalette = useCallback(() => {
+    setQuery("");
+    setHits([]);
+    setActive(0);
+    setOpen(true);
+  }, []);
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setOpen((v) => !v);
+        if (open) setOpen(false);
+        else openPalette();
       } else if (e.key === "Escape") {
         setOpen(false);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [open, openPalette]);
 
+  // Focus the input once the palette actually mounts — a real DOM side
+  // effect (not a state reset, that lives in openPalette above).
   useEffect(() => {
-    if (open) {
-      setQuery("");
-      setHits([]);
-      setActive(0);
-      setTimeout(() => inputRef.current?.focus(), 10);
-    }
+    if (!open) return;
+    const id = setTimeout(() => inputRef.current?.focus(), 10);
+    return () => clearTimeout(id);
   }, [open]);
 
   useEffect(() => {
     if (!open || query.trim().length < 2) {
-      setHits([]);
+      setHits([]); // eslint-disable-line react-hooks/set-state-in-effect -- clearing stale results is part of syncing with the debounced search API below, not derived render state.
       return;
     }
     const timer = setTimeout(async () => {
@@ -88,14 +95,14 @@ export default function CommandPalette() {
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
-        className="flex cursor-pointer items-center gap-2 rounded-lg border border-[#1E2240] px-3 py-1.5 text-xs text-slate-400 transition-colors hover:border-[#2d3a70] hover:text-slate-200"
+        onClick={openPalette}
+        className="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs text-slate-400 transition-colors hover:border-[#2d3a70] hover:text-slate-200"
       >
         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
         </svg>
         Search everything…
-        <kbd className="rounded border border-[#1E2240] bg-[#07080F] px-1.5 py-0.5 font-mono text-[10px] text-slate-500">⌘K</kbd>
+        <kbd className="rounded border border-[var(--it-hairline)] bg-[var(--it-bg)] px-1.5 py-0.5 font-mono text-[10px] text-slate-500">⌘K</kbd>
       </button>
 
       {open && (
@@ -104,7 +111,7 @@ export default function CommandPalette() {
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-xl overflow-hidden rounded-xl border border-[#2d3a70] bg-[#0D1020] shadow-2xl"
+            className="w-full max-w-xl overflow-hidden rounded-xl border border-[#2d3a70] bg-[var(--it-surface)] shadow-2xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-label="Console search"
@@ -126,7 +133,7 @@ export default function CommandPalette() {
                 }
               }}
               placeholder="Company, recruiter, candidate, project — or paste an invite link…"
-              className="w-full border-b border-[#1E2240] bg-transparent px-4 py-3.5 text-sm text-white outline-none placeholder:text-slate-600"
+              className="w-full border-b border-[var(--it-hairline)] bg-transparent px-4 py-3.5 text-sm text-white outline-none placeholder:text-slate-600"
             />
             <div className="max-h-80 overflow-y-auto">
               {hits.length === 0 ? (
@@ -141,7 +148,7 @@ export default function CommandPalette() {
                     onMouseEnter={() => setActive(i)}
                     onClick={() => go(hit)}
                     className={`flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 text-left ${
-                      i === active ? "bg-[#1E2240]/60" : ""
+                      i === active ? "bg-[var(--it-hairline)]/60" : ""
                     }`}
                   >
                     <span className={`rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${TYPE_BADGE[hit.type]}`}>

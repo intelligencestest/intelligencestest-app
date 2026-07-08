@@ -18,14 +18,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   if (!adminCtx) {
     return (
-      <main className="min-h-screen border-t-2 border-[#8b5cf6] bg-[#07080F] px-5 py-16 text-slate-100">
-        <div className="mx-auto max-w-xl rounded-xl border border-[#1E2240] bg-[#0D1020] p-6 text-center">
+      <main className="min-h-screen border-t-2 border-[#8b5cf6] bg-[var(--it-bg)] px-5 py-16 text-slate-100">
+        <div className="mx-auto max-w-xl rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface)] p-6 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a78bfa]">IntelligencesTest · Internal</p>
           <h1 className="mt-3 text-2xl font-semibold text-white">Operator access required</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             Sign in with an internal_admins account (or a break-glass email from INTERNAL_ADMIN_EMAILS).
           </p>
-          <Link href="/login" className="mt-6 inline-flex rounded-lg bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white">
+          <Link href="/login" className="mt-6 inline-flex rounded-lg bg-[#8b5cf6] px-4 py-3 text-sm font-semibold text-white hover:bg-[#7c4deb]">
             Go to login
           </Link>
         </div>
@@ -34,8 +34,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="flex min-h-screen flex-col border-t-2 border-[#8b5cf6] bg-[#07080F] text-slate-100">
-      <header className="sticky top-0 z-40 flex h-12 items-center gap-4 border-b border-[#1E2240] bg-[#0D1020]/95 px-4 backdrop-blur-sm">
+    <div className="flex min-h-screen flex-col border-t-2 border-[#8b5cf6] bg-[var(--it-bg)] text-slate-100">
+      <header className="sticky top-0 z-40 flex h-12 items-center gap-4 border-b border-[var(--it-hairline)] bg-[var(--it-surface)]/95 px-4 backdrop-blur-sm">
         <Link href="/admin" className="flex items-center gap-2 text-sm font-semibold text-white">
           <span className="rounded bg-[#8b5cf6]/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#a78bfa]">
             Internal
@@ -47,7 +47,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:bg-[#1E2240]/60 hover:text-slate-200"
+              className="rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-400 transition-colors hover:bg-white/[0.05] hover:text-slate-200"
             >
               {item.label}
             </Link>

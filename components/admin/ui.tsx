@@ -10,7 +10,7 @@ const CHIP_TONES: Record<ChipTone, string> = {
   warn: "border-[#fab219]/25 bg-[#fab219]/10 text-[#fab219]",
   bad: "border-[#d03b3b]/25 bg-[#d03b3b]/10 text-[#f28b8b]",
   info: "border-[#3987e5]/25 bg-[#3987e5]/10 text-[#6da7ec]",
-  neutral: "border-[#1E2240] bg-[#0D1020] text-slate-300",
+  neutral: "border-[var(--it-hairline)] bg-[var(--it-surface)] text-slate-300",
 };
 
 export function Chip({ tone = "neutral", children }: { tone?: ChipTone; children: ReactNode }) {
@@ -36,9 +36,9 @@ export function StatCard({ label, value, sub, href }: { label: string; value: st
       {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
     </>
   );
-  const cls = "rounded-xl border border-[#1E2240] bg-[#0D1020] p-4";
+  const cls = "rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface)] p-4";
   return href ? (
-    <Link href={href} className={`${cls} block transition-colors hover:border-[#2d3a70] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b5cf6]`}>
+    <Link href={href} className={`${cls} block transition-colors hover:border-[var(--it-border)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8b5cf6]`}>
       {body}
     </Link>
   ) : (
@@ -48,8 +48,8 @@ export function StatCard({ label, value, sub, href }: { label: string; value: st
 
 export function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-xl border border-[#1E2240] bg-[#0D1020]">
-      <div className="flex items-center justify-between gap-3 border-b border-[#1E2240] px-5 py-3">
+    <section className="overflow-hidden rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface)]">
+      <div className="flex items-center justify-between gap-3 border-b border-[var(--it-hairline)] px-5 py-3">
         <h2 className="text-sm font-semibold text-white">{title}</h2>
         {action}
       </div>
@@ -77,9 +77,9 @@ export function Pagination({
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (pages <= 1) return null;
   const linkCls =
-    "rounded-lg border border-[#1E2240] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-[#2d3a70] hover:text-white";
+    "rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-[var(--it-border)] hover:text-white";
   return (
-    <div className="flex items-center justify-between border-t border-[#1E2240] px-5 py-3 text-xs text-slate-500">
+    <div className="flex items-center justify-between border-t border-[var(--it-hairline)] px-5 py-3 text-xs text-slate-500">
       <span className="tabular-nums">
         Page {page} of {pages} · {total} total
       </span>

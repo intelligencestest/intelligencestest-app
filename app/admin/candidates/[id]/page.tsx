@@ -9,6 +9,15 @@ import { relativeTime } from "@/lib/dashboard/format";
 import { ExtendInviteButton } from "@/components/admin/actions";
 import { Chip, EmptyRow, Section, statusTone } from "@/components/admin/ui";
 
+function Diag({ label, value }: { label: string; value: ReactNode }) {
+  return (
+    <div className="flex items-baseline justify-between gap-4 border-b border-[var(--it-hairline)] py-2 last:border-b-0">
+      <span className="text-xs text-slate-500">{label}</span>
+      <span className="min-w-0 truncate text-right text-[13px] text-slate-200">{value}</span>
+    </div>
+  );
+}
+
 /**
  * Candidate page — the #1 support surface. The invite diagnostics block
  * answers "my candidate's link doesn't work" in ten seconds; the audited
@@ -20,7 +29,7 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
 
   const { id } = await params;
   const admin = createAdminClient();
-  const nowMs = Date.now();
+  const nowMs = Date.now(); // eslint-disable-line react-hooks/purity -- server component, one render per request; invite-expiry math needs the real request-time clock.
 
   const { data: candidate } = await admin
     .from("candidates")
@@ -63,13 +72,6 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
 
   const closed = candidate.outcome !== "pending";
   const chipStatus = closed ? candidate.outcome : candidate.pipeline_stage;
-
-  const Diag = ({ label, value }: { label: string; value: ReactNode }) => (
-    <div className="flex items-baseline justify-between gap-4 border-b border-[#1E2240] py-2 last:border-b-0">
-      <span className="text-xs text-slate-500">{label}</span>
-      <span className="min-w-0 truncate text-right text-[13px] text-slate-200">{value}</span>
-    </div>
-  );
 
   return (
     <div className="space-y-6">
@@ -139,7 +141,7 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
             {(projectAssessments ?? []).length === 0 ? (
               <EmptyRow>No assessments linked to the project — candidates cannot be invited.</EmptyRow>
             ) : (
-              <div className="divide-y divide-[#1E2240]">
+              <div className="divide-y divide-[var(--it-hairline)]">
                 {(projectAssessments ?? []).map((pa, i) => {
                   const a = Array.isArray(pa.assessments) ? pa.assessments[0] : pa.assessments;
                   if (!a) return null;
@@ -159,7 +161,7 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
             {(results ?? []).length === 0 ? (
               <EmptyRow>No completed assessments yet.</EmptyRow>
             ) : (
-              <div className="divide-y divide-[#1E2240]">
+              <div className="divide-y divide-[var(--it-hairline)]">
                 {(results ?? []).map((r) => {
                   const a = Array.isArray(r.assessments) ? r.assessments[0] : r.assessments;
                   return (
@@ -184,7 +186,7 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
           {timeline.length === 0 ? (
             <EmptyRow>No events yet.</EmptyRow>
           ) : (
-            <div className="divide-y divide-[#1E2240]">
+            <div className="divide-y divide-[var(--it-hairline)]">
               {timeline.map((event) => (
                 <div key={event.id} className="px-4 py-2.5">
                   <div className="flex items-baseline gap-2">

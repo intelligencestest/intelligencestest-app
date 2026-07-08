@@ -40,7 +40,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
 
   const { id } = await params;
   const admin = createAdminClient();
-  const nowMs = Date.now();
+  const nowMs = Date.now(); // eslint-disable-line react-hooks/purity -- server component, one render per request; recency math needs the real request-time clock.
 
   const { data: company } = await admin
     .from("companies")
@@ -105,7 +105,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6">
       {/* Header card */}
-      <div className="rounded-xl border border-[#1E2240] bg-[#0D1020] p-5">
+      <div className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface)] p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
@@ -124,7 +124,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
             <ResetPasswordButton companyId={company.id} />
             <Link
               href={`/admin/companies?q=${encodeURIComponent(company.email)}`}
-              className="rounded-lg border border-[#1E2240] px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-[#8b5cf6]/60 hover:text-white"
+              className="rounded-lg border border-[var(--it-hairline)] px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-[#8b5cf6]/60 hover:text-white"
             >
               Manage workspace →
             </Link>
@@ -170,7 +170,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
           <StatCard label="Project limit" value={company.project_limit === null || company.project_limit === undefined ? "∞" : `${company.project_limit}`} />
           <StatCard label="Recruiter limit" value={company.recruiter_limit === null || company.recruiter_limit === undefined ? "∞" : `${company.recruiter_limit}`} />
         </div>
-        <div className="flex flex-wrap items-center gap-2 border-t border-[#1E2240] px-5 py-4">
+        <div className="flex flex-wrap items-center gap-2 border-t border-[var(--it-hairline)] px-5 py-4">
           <ExtendTrialButton companyId={company.id} />
           <ChangePlanButton companyId={company.id} />
           <SetSubscriptionStatusButton companyId={company.id} />
@@ -190,7 +190,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
                     <span className={`h-2 w-2 rounded-full ${STAGE_COLOR[stage]}`} aria-hidden="true" />
                     {stage}
                   </span>
-                  <span className="h-2 flex-1 rounded-full bg-[#07080F]/70">
+                  <span className="h-2 flex-1 rounded-full bg-[var(--it-bg)]/70">
                     <span
                       className={`block h-2 rounded-full ${STAGE_COLOR[stage]}`}
                       style={{
@@ -214,7 +214,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
             {(users ?? []).length === 0 ? (
               <EmptyRow>No users in this workspace — nobody can sign in.</EmptyRow>
             ) : (
-              <div className="divide-y divide-[#1E2240]">
+              <div className="divide-y divide-[var(--it-hairline)]">
                 {(users ?? []).map((u) => (
                   <div
                     key={u.id}
@@ -239,7 +239,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
             {(projects ?? []).length === 0 ? (
               <EmptyRow>No hiring projects yet.</EmptyRow>
             ) : (
-              <div className="divide-y divide-[#1E2240]">
+              <div className="divide-y divide-[var(--it-hairline)]">
                 {(projects ?? []).map((p) => (
                   <div
                     key={p.id}
@@ -265,7 +265,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
           {timeline.length === 0 ? (
             <EmptyRow>No events yet.</EmptyRow>
           ) : (
-            <div className="divide-y divide-[#1E2240]">
+            <div className="divide-y divide-[var(--it-hairline)]">
               {timeline.map((event) => (
                 <div key={event.id} className="px-4 py-2.5">
                   <div className="flex items-baseline gap-2">
