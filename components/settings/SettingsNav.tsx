@@ -23,11 +23,11 @@ export function SettingsNav() {
   const logicalPath = stripLocalePrefix(pathname);
 
   return (
-    <aside className="enterprise-card sticky top-24 hidden rounded-xl p-3 lg:block">
-      <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--it-faint)]">
+    <aside className="sticky top-24 hidden rounded-lg border border-[var(--it-border-soft)] bg-[var(--it-surface)] p-2 lg:block">
+      <p className="px-2.5 py-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">
         {es ? "Configuración" : "Settings"}
       </p>
-      <nav className="mt-1 space-y-1">
+      <nav className="space-y-1">
         {items.map((item) => {
           const active = item.href === "/settings" ? logicalPath === "/settings" : logicalPath.startsWith(item.href);
           return (
@@ -35,13 +35,13 @@ export function SettingsNav() {
               key={item.href}
               href={localePath(item.href, locale)}
               className={cn(
-                "group flex items-center gap-2.5 rounded-lg border-l-2 px-3 py-2.5 text-[13px] font-medium transition-colors",
+                "group flex h-10 items-center gap-2.5 rounded-md border-l-2 px-2.5 text-[13px] font-medium transition-colors",
                 active
-                  ? "border-[var(--it-primary)] bg-white/[0.04] text-white"
-                  : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.02] hover:text-slate-100"
+                  ? "border-[#673de6] bg-[#673de6]/10 text-white"
+                  : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.03] hover:text-slate-100"
               )}
             >
-              <item.icon className="h-4 w-4 flex-shrink-0" strokeWidth={1.8} />
+              <item.icon className={cn("h-4 w-4 flex-shrink-0", active ? "text-[#a78bfa]" : "")} strokeWidth={1.8} />
               <span>{es ? item.es : item.en}</span>
             </Link>
           );

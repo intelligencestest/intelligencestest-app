@@ -311,18 +311,18 @@ export default function BillingSettingsPage() {
   const hasPayPalSubscription = planData?.billingProvider === "paypal" && planData.subscriptionStatus === "active";
 
   return (
-    <div className="mx-auto max-w-[1220px] space-y-5">
+    <div className="mx-auto max-w-[1248px] space-y-4">
       <div>
-        <h1 className="text-2xl font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
+        <h1 className="text-[22px] font-semibold tracking-[-0.01em] text-white">{copy.title}</h1>
         <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
-      <div className="grid gap-5 lg:grid-cols-[192px_minmax(0,1fr)] lg:items-start">
+      <div className="grid gap-5 lg:grid-cols-[216px_minmax(0,1fr)] lg:items-start">
         <SettingsNav />
 
-        <section className="space-y-5">
-          <div className="enterprise-card rounded-xl p-5">
-            <div className="flex flex-wrap items-start justify-between gap-4 border-b enterprise-divider pb-5">
+        <section className="space-y-4">
+          <div className="enterprise-card rounded-xl p-4">
+            <div className="flex flex-wrap items-start justify-between gap-4 border-b enterprise-divider pb-4">
               <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
                   {copy.currentSubscription}
@@ -378,7 +378,7 @@ export default function BillingSettingsPage() {
           </div>
 
           {planData ? (
-            <div className="enterprise-card rounded-xl p-5">
+            <div className="enterprise-card rounded-xl p-4">
               <div className="flex flex-wrap items-end justify-between gap-2">
                 <div>
                   <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
@@ -411,8 +411,8 @@ export default function BillingSettingsPage() {
             </div>
           ) : null}
 
-          <div className="enterprise-card rounded-xl p-5">
-            <div className="border-b enterprise-divider pb-4">
+          <div className="enterprise-card rounded-xl p-4">
+            <div className="border-b enterprise-divider pb-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
                 {copy.availablePlans}
               </p>
@@ -420,11 +420,11 @@ export default function BillingSettingsPage() {
               <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMode}</p>
             </div>
 
-            <div className="mt-5 overflow-x-auto rounded-xl border border-[var(--it-border-soft)]">
-              <table className="w-full min-w-[820px] border-collapse text-left">
+            <div className="mt-4 overflow-x-auto rounded-lg border border-[var(--it-border-soft)]">
+              <table className="w-full min-w-[760px] table-fixed border-collapse text-left">
                 <thead className="bg-[var(--it-surface-muted)]">
                   <tr>
-                    <th className="w-[26%] px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                    <th className="w-[23%] px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
                       {copy.feature}
                     </th>
                     {planColumns.map((plan) => {
@@ -432,20 +432,20 @@ export default function BillingSettingsPage() {
                       return (
                         <th
                           key={plan.id}
-                          className={`border-l border-[var(--it-border-soft)] px-4 py-4 align-top ${
-                            active ? "bg-[var(--it-primary-soft)]" : ""
+                          className={`w-[19.25%] border-l border-[var(--it-border-soft)] px-3.5 py-3.5 align-top ${
+                            active ? "bg-[#673de6]/10" : ""
                           }`}
                         >
-                          <div className="flex min-h-[62px] flex-col justify-between gap-2">
+                          <div className="flex min-h-[58px] flex-col justify-between gap-2">
                             <div className="flex items-start justify-between gap-2">
-                              <span className="text-sm font-semibold text-slate-100">{plan.name}</span>
+                              <span className="text-[13px] font-semibold text-slate-100">{plan.name}</span>
                               {active ? (
-                                <span className="enterprise-chip-info inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em]">
+                                <span className="inline-flex items-center rounded-full border border-[#673de6]/30 bg-[#673de6]/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#c4b5fd]">
                                   {copy.current}
                                 </span>
                               ) : null}
                             </div>
-                            <span className="text-base font-semibold leading-5 text-white">{plan.price}</span>
+                            <span className="text-sm font-semibold leading-5 text-white">{plan.price}</span>
                           </div>
                         </th>
                       );
@@ -455,7 +455,7 @@ export default function BillingSettingsPage() {
                 <tbody className="divide-y divide-[var(--it-border-soft)]">
                   {pricingRows.map((row) => (
                     <tr key={row.label}>
-                      <th scope="row" className="bg-[var(--it-surface)] px-4 py-3.5 text-sm font-medium text-[var(--it-muted)]">
+                      <th scope="row" className="bg-[var(--it-surface)] px-4 py-3 text-sm font-medium text-[var(--it-muted)]">
                         {row.label}
                       </th>
                       {planColumns.map((plan) => {
@@ -463,8 +463,8 @@ export default function BillingSettingsPage() {
                         return (
                           <td
                             key={`${row.label}-${plan.id}`}
-                            className={`border-l border-[var(--it-border-soft)] px-4 py-3.5 ${
-                              active ? "bg-[var(--it-primary-soft)]/60" : "bg-[var(--it-bg)]"
+                            className={`border-l border-[var(--it-border-soft)] px-3.5 py-3 ${
+                              active ? "bg-[#673de6]/10" : "bg-[var(--it-bg)]"
                             }`}
                           >
                             <FeatureValue
@@ -478,13 +478,13 @@ export default function BillingSettingsPage() {
                     </tr>
                   ))}
                   <tr className="bg-[var(--it-surface-muted)]/70">
-                    <th className="px-4 py-4 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
+                    <th className="px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--it-faint)]">
                       {copy.action}
                     </th>
                     {planColumns.map((plan) => {
                       const active = effectivePlanId === plan.id;
                       return (
-                        <td key={`${plan.id}-action`} className="border-l border-[var(--it-border-soft)] px-4 py-4 align-top">
+                        <td key={`${plan.id}-action`} className="border-l border-[var(--it-border-soft)] px-3.5 py-3.5 align-top">
                           {active ? (
                             <span className="enterprise-button-secondary inline-flex h-10 w-full items-center justify-center rounded-lg px-3 text-sm font-semibold">
                               {copy.current}
