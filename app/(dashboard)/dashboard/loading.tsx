@@ -4,7 +4,7 @@
  */
 export default function DashboardLoading() {
   return (
-    <div className="mx-auto max-w-[1180px] space-y-7" role="status" aria-label="Loading dashboard">
+    <div className="mx-auto max-w-[1200px] space-y-8" role="status" aria-label="Loading dashboard">
       {/* Morning brief */}
       <div className="space-y-2.5">
         <div className="h-4 w-40 animate-pulse rounded bg-[#1E2240]/60" />

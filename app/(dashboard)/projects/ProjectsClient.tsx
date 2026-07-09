@@ -128,7 +128,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="mx-auto max-w-[1200px] space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>

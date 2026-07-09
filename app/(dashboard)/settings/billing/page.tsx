@@ -296,7 +296,7 @@ export default function BillingSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[1248px]">
+    <div className="mx-auto max-w-[1200px]">
       <div>
         <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>

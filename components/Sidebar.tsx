@@ -103,15 +103,15 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
                   href={localePath(item.href, locale)}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "group flex items-center gap-3 rounded-lg border-l-2 px-2.5 py-2 text-[13px] font-medium tracking-[0.005em] transition-all duration-200",
+                    "group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium tracking-[0.005em] transition-colors duration-150",
                     isCollapsed && "justify-center",
                     active
-                      ? "border-[var(--it-primary)] bg-white/[0.04] text-white"
-                      : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.02] hover:text-slate-100"
+                      ? "bg-white/[0.055] text-white"
+                      : "text-[var(--it-muted)] hover:bg-white/[0.03] hover:text-slate-100"
                   )}
                 >
                   <item.icon
-                    className={cn("h-[18px] w-[18px] flex-shrink-0 transition-colors", active ? "text-[#b7c5e6]" : "text-[var(--it-faint)] group-hover:text-slate-300")}
+                    className={cn("h-[18px] w-[18px] flex-shrink-0 transition-colors", active ? "text-slate-100" : "text-[var(--it-faint)] group-hover:text-slate-300")}
                     strokeWidth={1.8}
                   />
                   {!isCollapsed && (

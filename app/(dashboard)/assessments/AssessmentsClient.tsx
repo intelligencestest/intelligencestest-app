@@ -436,7 +436,7 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
   const sample = preview ? getSample(preview) : null;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-8">
+    <div className="mx-auto max-w-[1200px] space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>

@@ -43,8 +43,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div className="enterprise-shell flex h-screen overflow-hidden">
       <Sidebar reviewCount={reviewCount} userName={userName} userEmail={userEmail} />
       <main className="flex-1 overflow-y-auto">
-        <div className="min-h-full space-y-4 p-4 sm:p-6 lg:p-8 xl:p-10 print:p-0">
-          <div className="sticky top-0 z-30 -mx-4 -mt-4 flex justify-end border-b border-[var(--it-border)] bg-[var(--it-bg)]/92 px-4 py-3 backdrop-blur sm:-mx-6 sm:-mt-6 sm:px-6 lg:-mx-8 lg:-mt-8 lg:px-8 xl:-mx-10 xl:-mt-10 xl:px-10 print:hidden">
+        <div className="min-h-full space-y-6 p-6 lg:p-8 print:p-0">
+          <div className="sticky top-0 z-30 -mx-6 -mt-6 flex justify-end border-b border-[var(--it-hairline)] bg-[var(--it-bg)]/85 px-6 py-3 backdrop-blur-md lg:-mx-8 lg:-mt-8 lg:px-8 print:hidden">
             <AccountMenu userEmail={userEmail} userName={userName} />
           </div>
           {planSummary ? <TrialBanner summary={planSummary} locale={locale} /> : null}

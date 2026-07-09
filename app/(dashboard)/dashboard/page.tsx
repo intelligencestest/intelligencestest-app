@@ -299,7 +299,7 @@ export default async function DashboardPage({
   const emptyWorkspace = all.length === 0 && (projects ?? []).length === 0;
 
   return (
-    <div className="mx-auto max-w-[1180px] space-y-8 animate-fade-up">
+    <div className="mx-auto max-w-[1200px] space-y-8">
       {/* Zone A — Morning brief */}
       <header className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div>

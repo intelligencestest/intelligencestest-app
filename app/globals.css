@@ -2,10 +2,10 @@
 @import "tw-animate-css";
 
 @theme {
-  --color-surface: #07080F;
-  --color-card: #0D1020;
-  --color-panel: #1E2240;
-  --color-accent-hover: #1e40af;
+  --color-surface: #0d0f14;
+  --color-card: #12151b;
+  --color-panel: #171b22;
+  --color-accent-hover: #3f63d6;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
@@ -24,32 +24,37 @@
 }
 
 :root {
-  --it-bg: #07090d;
-  --it-sidebar: #0a0d13;
-  --it-surface: #0d1118;
-  --it-surface-raised: #111722;
-  --it-surface-muted: #090d13;
-  --it-border: #252c38;
-  --it-border-soft: #171d27;
-  --it-text: #f4f6f8;
-  --it-muted: #9aa4b2;
-  --it-faint: #687386;
-  --it-primary: #2e55b8;
-  --it-primary-hover: #3762cf;
-  --it-primary-soft: rgba(46, 85, 184, 0.16);
+  /* Cohesive charcoal ramp. The app reads as one material: the chrome
+     (sidebar) is the deepest tone, the page one step up, and raised surfaces
+     (cards, inputs, popovers) climb from there — a calm 4-step ladder rather
+     than a near-black void with barely-distinct panels. */
+  --it-bg: #0d0f14;
+  --it-sidebar: #0a0c11;
+  --it-surface: #12151b;
+  --it-surface-raised: #171b22;
+  --it-surface-muted: #0b0d12;
+  --it-border: #232833;
+  --it-border-soft: #191d25;
+  --it-text: #f2f4f7;
+  --it-muted: #98a2b3;
+  --it-faint: #6b7480;
+  --it-primary: #3457c5;
+  --it-primary-hover: #3f63d6;
+  --it-primary-soft: rgba(52, 87, 197, 0.16);
   --it-success: #3f8f6b;
   --it-warning: #b8862f;
   --it-danger: #b9524c;
   --it-info: #527aa3;
 
   /* Design-system hairline: the default border weight per docs/design/design-system.md */
-  --it-hairline: rgba(255, 255, 255, 0.08);
+  --it-hairline: rgba(255, 255, 255, 0.07);
 }
 
 body {
-  background-color: #07080F;
-  color: #e2e8f0;
+  background-color: var(--it-bg);
+  color: var(--it-text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 @keyframes fade-up {
@@ -72,22 +77,22 @@ body {
   }
 }
 
+/* premium-card is retired: it now resolves to the same calm hairline surface
+   as .enterprise-card so the few screens still referencing it (projects
+   detail, inbox, candidate detail) match the rest of the product — no
+   decorative gradient, no drop shadow, no glow-on-hover. */
 .premium-card {
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0)),
-    #0D1020;
-  border: 1px solid #1E2240;
-  box-shadow: 0 18px 70px rgba(0, 0, 0, 0.28);
+  background: var(--it-surface);
+  border: 1px solid var(--it-hairline);
 }
 
 .premium-card-hover {
-  transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  transition: background-color 160ms ease, border-color 160ms ease;
 }
 
 .premium-card-hover:hover {
-  border-color: rgba(29, 78, 216, 0.46);
-  box-shadow: 0 22px 80px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(29, 78, 216, 0.08) inset;
-  transform: translateY(-1px);
+  background: var(--it-surface-raised);
+  border-color: var(--it-border);
 }
 
 .animate-fade-up {
@@ -236,12 +241,12 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #07080F;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E2240;
+  background: #2a303c;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2d3a70;
+  background: #38404e;
 }

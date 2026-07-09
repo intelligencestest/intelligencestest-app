@@ -109,7 +109,7 @@ export default function CompanySettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-[1200px]">
       <div>
         <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{t("description")}</p>

@@ -187,7 +187,7 @@ export default async function CandidateReportPage({
   ].sort((a, b) => a.ts - b.ts);
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 animate-fade-up">
+    <div className="mx-auto max-w-[1200px] space-y-6">
       <Link
         href={`/projects/${candidate.project_id}`}
         className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--it-muted)] transition-colors hover:text-slate-200"

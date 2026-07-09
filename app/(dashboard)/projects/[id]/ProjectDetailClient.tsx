@@ -362,7 +362,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
   const progress = candidates.length > 0 ? Math.round((completed / candidates.length) * 100) : 0;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
+    <div className="mx-auto max-w-[1200px] space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">

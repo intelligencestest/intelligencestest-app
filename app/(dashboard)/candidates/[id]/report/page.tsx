@@ -378,7 +378,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
 
   return (
     <main className="min-h-screen bg-[var(--it-bg)] text-[var(--it-text)]">
-      <div className="mx-auto max-w-7xl px-5 py-6 sm:px-8 lg:px-10">
+      <div className="mx-auto max-w-[1200px] px-5 py-6 sm:px-8 lg:px-10">
         <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href={`/candidates/${candidate.id}`}
@@ -414,7 +414,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           </div>
         </div>
 
-        <section className="enterprise-card relative overflow-hidden rounded-[28px] px-6 py-7 sm:px-8 lg:px-10">
+        <section className="enterprise-card relative overflow-hidden rounded-2xl px-6 py-7 sm:px-8 lg:px-10">
           <div className="grid gap-10 lg:grid-cols-[1.35fr_0.65fr]">
             <div>
               <div className="flex flex-wrap items-center gap-3">
@@ -497,7 +497,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             }
           >
             <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-              <div className="rounded-2xl bg-white/[0.03] p-6">
+              <div className="rounded-xl bg-white/[0.03] p-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.keyMessage as string}</p>
                 <p className="mt-3 text-2xl font-semibold leading-snug tracking-tight text-white">{intelligence.executiveSummary.headline}</p>
                 <p className="mt-4 text-sm leading-7 text-slate-300">{intelligence.executiveSummary.summary}</p>
@@ -517,7 +517,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   {competencies.map((competency) => {
                     const tone = band(competency.score);
                     return (
-                      <article key={competency.competencyId} className="rounded-2xl border border-[var(--it-hairline)] p-4">
+                      <article key={competency.competencyId} className="rounded-xl border border-[var(--it-hairline)] p-4">
                         <div className="mb-3 flex items-start justify-between gap-4">
                           <div>
                             <p className="text-sm font-semibold text-white">{competency.label}</p>
@@ -538,7 +538,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   <h3 className="mb-4 text-sm font-semibold text-white">{L.supportingEvidence as string}</h3>
                   <div className="space-y-3">
                     {evidenceSignals.map((signal) => (
-                      <article key={signal.id} className={`rounded-2xl border p-4 ${directionBorder(signal.direction)}`}>
+                      <article key={signal.id} className={`rounded-xl border p-4 ${directionBorder(signal.direction)}`}>
                         <div className="flex flex-wrap items-center gap-2">
                           <Pill className="border-[var(--it-hairline)] bg-white/[0.03] text-slate-300">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
                           <span className="text-xs text-[var(--it-faint)]">{termName(signal.assessmentName, locale)}</span>
@@ -556,7 +556,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     {intelligence.risks.length ? (
                       <div className="space-y-3">
                         {intelligence.risks.slice(0, 4).map((risk) => (
-                          <article key={risk.id} className="rounded-2xl border border-[var(--it-danger)]/20 bg-[rgba(185,82,76,0.04)] p-4">
+                          <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(185,82,76,0.04)] p-4">
                             <div className="flex items-center justify-between gap-3">
                               <p className="text-sm font-semibold text-white">{risk.competencyLabel}</p>
                               <Pill className="border-[var(--it-danger)]/20 bg-[rgba(185,82,76,0.1)] text-[#f0b9b9]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
@@ -574,7 +574,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   <div>
                     <h3 className="mb-3 text-sm font-semibold text-white">{L.contradictions as string}</h3>
                     {hasContradiction ? (
-                      <div className="rounded-2xl border border-[var(--it-warning)]/20 bg-[rgba(184,134,47,0.05)] p-4">
+                      <div className="rounded-xl border border-[var(--it-warning)]/20 bg-[rgba(184,134,47,0.05)] p-4">
                         <p className="text-sm leading-6 text-[#ead6ad]">
                           {mixedSignals[0]?.statement ?? (L.mixedSignal as string)}
                         </p>
@@ -623,7 +623,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           >
             <div className="space-y-4">
               {intelligence.interviewQuestions.map((question, index) => (
-                <article key={`${question.competency}-${index}`} className="rounded-2xl border border-[var(--it-hairline)] p-5">
+                <article key={`${question.competency}-${index}`} className="rounded-xl border border-[var(--it-hairline)] p-5">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">
@@ -647,7 +647,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               {rows.map(({ result, displayName, category, detail, band: resultBand }) => {
                 const dimMax = detail?.dimensions?.length ? Math.max(...detail.dimensions.map((d) => d.max ?? d.value), 1) : 1;
                 return (
-                  <article key={result.id} className="rounded-2xl border border-[var(--it-hairline)] p-5">
+                  <article key={result.id} className="rounded-xl border border-[var(--it-hairline)] p-5">
                     <div className="grid gap-5 lg:grid-cols-[1fr_180px]">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">

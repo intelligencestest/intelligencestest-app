@@ -148,7 +148,7 @@ export default function ReportsClient({
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="mx-auto max-w-[1200px] space-y-6">
       <div>
         <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{copy.subtitle}</p>

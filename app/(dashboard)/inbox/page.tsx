@@ -37,7 +37,7 @@ export default async function InboxPage({
   );
 
   return (
-    <div className="mx-auto max-w-[960px] space-y-6 animate-fade-up">
+    <div className="mx-auto max-w-[960px] space-y-6">
       <header>
         <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("inboxTitle")}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{t("inboxSubtitle", { count: totalCount })}</p>
