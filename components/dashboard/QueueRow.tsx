@@ -46,7 +46,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
     >
       {/* Line 1 — who */}
       <div className="flex items-baseline gap-2">
-        <span className="min-w-0 truncate text-[15px] font-semibold text-white transition-colors group-hover:text-[#d7e1ff]">
+        <span className="min-w-0 truncate text-[15px] font-semibold text-white transition-colors group-hover:text-slate-100">
           {entry.fullName || t("unknown")}
         </span>
         <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--it-muted)]">

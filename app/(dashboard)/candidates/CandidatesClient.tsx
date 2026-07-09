@@ -323,8 +323,8 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
     completed: candidates.filter((c) => c.pipeline_stage === "completed").length,
   };
 
-  const inputClass = "w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
-  const selectClass = "w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
+  const inputClass = "w-full rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
+  const selectClass = "w-full cursor-pointer rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
 
   return (
     <div className="mx-auto max-w-[1200px] space-y-6">
@@ -334,7 +334,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
           <p className="mt-2 text-sm text-[var(--it-muted)]">
             {copy.across(candidates.length)}
-            <span className="mx-2 text-[var(--it-border)]">·</span>
+            <span className="mx-2 text-[var(--it-faint)]">·</span>
             <span className="tabular-nums text-[var(--it-faint)]">
               {counts.invited} {copy.status.invited} · {counts.started} {copy.status.started} · {counts.completed} {copy.status.completed}
             </span>
@@ -357,13 +357,13 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={copy.search}
-            className="w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] py-2.5 pl-9 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
+            className="w-full rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] py-2.5 pl-9 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
           />
         </div>
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="cursor-pointer rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
+          className="cursor-pointer rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
         >
           <option value="all">{copy.allStatuses}</option>
           {PIPELINE_STAGES.map((stage) => (
@@ -373,7 +373,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         <select
           value={projectFilter}
           onChange={(e) => setProjectFilter(e.target.value)}
-          className="cursor-pointer rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
+          className="cursor-pointer rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
         >
           <option value="all">{copy.allProjects}</option>
           {projects.map((p) => (
@@ -551,7 +551,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.project}</label>
                   {projects.length === 0 ? (
                     <p className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
-                      {copy.noProjects} — <a href="/projects/new" className="text-[#8CB1FF] hover:underline">{copy.createFirst}</a>
+                      {copy.noProjects} — <a href="/projects/new" className="text-[#9fb3e5] hover:underline">{copy.createFirst}</a>
                     </p>
                   ) : (
                     <select

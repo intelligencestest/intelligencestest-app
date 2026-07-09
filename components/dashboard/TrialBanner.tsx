@@ -55,7 +55,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
         </div>
         <Link
           href={billingHref}
-          className="flex-shrink-0 rounded-lg bg-[#1D4ED8] px-3.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-[#1e40af]"
+          className="enterprise-button flex-shrink-0 rounded-lg px-3.5 py-1.5 text-xs font-semibold"
         >
           {t("contactSales")}
         </Link>
@@ -84,7 +84,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
       </div>
       <Link
         href={billingHref}
-        className="flex-shrink-0 rounded-lg border border-[#1D4ED8]/40 bg-[#1D4ED8]/10 px-3.5 py-1.5 text-xs font-semibold text-[#9BB8FF] transition-colors hover:bg-[#1D4ED8]/20"
+        className="flex-shrink-0 rounded-lg border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] px-3.5 py-1.5 text-xs font-semibold text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary)]/20"
       >
         {isTrial ? t("upgradeNow") : t("contactSales")}
       </Link>

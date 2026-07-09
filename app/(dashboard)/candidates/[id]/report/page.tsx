@@ -88,6 +88,13 @@ const COPY = {
   es: {
     back: "Volver al perfil",
     eyebrow: "Informe ejecutivo",
+    recLevel: {
+      strong: "Sólido",
+      proceed: "Avanzar",
+      review: "Revisar",
+      caution: "Cautela",
+      notRecommended: "No recomendado",
+    } as Record<string, string>,
     title: "Revisión ejecutiva del candidato",
     subtitle: "Diseñado para revisar evidencia, validar riesgos y tomar una decisión dentro de la plataforma.",
     reviewCandidate: "Revisar candidato",
@@ -142,6 +149,13 @@ const COPY = {
   en: {
     back: "Back to profile",
     eyebrow: "Executive report",
+    recLevel: {
+      strong: "Strong",
+      proceed: "Proceed",
+      review: "Review",
+      caution: "Caution",
+      notRecommended: "Not recommended",
+    } as Record<string, string>,
     title: "Candidate executive review",
     subtitle: "Built to review evidence, validate risks, and make a decision inside the platform.",
     reviewCandidate: "Review candidate",
@@ -421,7 +435,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--it-faint)]">{L.eyebrow as string}</p>
                 <Pill className={`${recommendationStyle.bg} ${recommendationStyle.text} ${recommendationStyle.border}`}>
                   <span className={`mr-2 h-1.5 w-1.5 rounded-full ${recommendationStyle.dot}`} aria-hidden="true" />
-                  {intelligence.recommendation.title}
+                  {(L.recLevel as Record<string, string>)[intelligence.recommendation.level] ?? intelligence.recommendation.title}
                 </Pill>
               </div>
               <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl">

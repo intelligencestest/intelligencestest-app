@@ -63,8 +63,8 @@ export default function ExportPdfButton({ variant = "standalone", ...props }: Ex
         disabled={loading || props.assessments.length === 0}
         className={
           isToolbar
-            ? "inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--it-border)] px-4 py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:border-[#2d3a70] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-            : "inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-50"
+            ? "enterprise-button-secondary inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
+            : "enterprise-button-secondary inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50"
         }
       >
         {loading ? (
@@ -79,8 +79,8 @@ export default function ExportPdfButton({ variant = "standalone", ...props }: Ex
         )}
         {loading ? t("exportingPdf") : t("exportPdf")}
       </button>
-      {!isToolbar && <p className="mt-2 text-xs text-slate-400">{t("exportNote")}</p>}
-      {error && <p className="mt-2 text-xs text-[#f28b8b]">{t("exportError")}</p>}
+      {!isToolbar && <p className="mt-2 text-xs text-[var(--it-muted)]">{t("exportNote")}</p>}
+      {error && <p className="mt-2 text-xs text-[#d99792]">{t("exportError")}</p>}
     </div>
   );
 }

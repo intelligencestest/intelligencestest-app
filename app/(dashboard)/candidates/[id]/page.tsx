@@ -197,8 +197,7 @@ export default async function CandidateReportPage({
       </Link>
 
       {/* Identity + verdict */}
-      <header className="enterprise-card relative overflow-hidden rounded-2xl p-6 sm:p-7">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--it-primary)]/60 to-transparent" aria-hidden="true" />
+      <header className="enterprise-card rounded-2xl p-6 sm:p-7">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex min-w-0 items-center gap-4">
             <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-lg font-semibold text-white">
@@ -385,7 +384,7 @@ export default async function CandidateReportPage({
               <div className="mb-4">
                 <Link
                   href={`/candidates/${candidate.id}/report`}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] px-4 py-2.5 text-sm font-semibold text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary)]/25"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] px-4 py-2.5 text-sm font-semibold text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary)]/25"
                 >
                   <FileText className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
                   {t("executiveReport")}

@@ -7,9 +7,9 @@ export default function DashboardLoading() {
     <div className="mx-auto max-w-[1200px] space-y-8" role="status" aria-label="Loading dashboard">
       {/* Morning brief */}
       <div className="space-y-2.5">
-        <div className="h-4 w-40 animate-pulse rounded bg-[#1E2240]/60" />
-        <div className="h-8 w-72 animate-pulse rounded bg-[#1E2240]/60" />
-        <div className="h-4 w-96 max-w-full animate-pulse rounded bg-[#1E2240]/40" />
+        <div className="h-4 w-40 animate-pulse rounded bg-[var(--it-border)]" />
+        <div className="h-8 w-72 animate-pulse rounded bg-[var(--it-border)]" />
+        <div className="h-4 w-96 max-w-full animate-pulse rounded bg-[var(--it-border-soft)]" />
       </div>
 
       {/* Workload tiles */}
@@ -24,8 +24,8 @@ export default function DashboardLoading() {
       </div>
 
       {/* Queue + rail */}
-      <div className="grid grid-cols-1 gap-7 xl:grid-cols-[minmax(0,2.05fr)_minmax(300px,0.95fr)] xl:items-start">
-        <div className="space-y-7">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,2.05fr)_minmax(300px,0.95fr)] xl:items-start">
+        <div className="space-y-8">
           <div className="enterprise-card overflow-hidden rounded-xl">
             <div className="border-b enterprise-divider px-5 py-4">
               <div className="h-4 w-36 animate-pulse rounded bg-[var(--it-border)]" />
@@ -39,7 +39,7 @@ export default function DashboardLoading() {
           </div>
           <div className="enterprise-card h-44 animate-pulse rounded-xl" />
         </div>
-        <div className="space-y-7">
+        <div className="space-y-8">
           <div className="enterprise-card h-56 animate-pulse rounded-xl" />
           <div className="enterprise-card h-72 animate-pulse rounded-xl" />
         </div>
