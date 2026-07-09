@@ -85,6 +85,16 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         anonymous: "Sin nombre",
         unassigned: "Sin asignar",
         showing: (shown: number, total: number) => `Mostrando ${shown} de ${total} candidatos`,
+        nextHeader: "Siguiente",
+        next: {
+          invited: "Esperando",
+          started: "En curso",
+          completed: "Revisar",
+          reviewed: "Decisión",
+          interview: "Entrevista",
+          hired: "Contratado",
+          closed: "—",
+        } as Record<string, string>,
         modalTitle: "Invitar candidato",
         modalDescription: "Genere un enlace seguro de evaluación válido por 7 días.",
         validEmail: "Se requiere un correo electrónico válido para enviar la invitación.",
@@ -137,6 +147,16 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         anonymous: "Anonymous",
         unassigned: "Unassigned",
         showing: (shown: number, total: number) => `Showing ${shown} of ${total} candidates`,
+        nextHeader: "Next",
+        next: {
+          invited: "Awaiting",
+          started: "In progress",
+          completed: "Review",
+          reviewed: "Decision",
+          interview: "Interview",
+          hired: "Hired",
+          closed: "—",
+        } as Record<string, string>,
         modalTitle: "Invite Candidate",
         modalDescription: "Generate a secure, 7-day assessment link.",
         validEmail: "A valid email address is required to send an invite.",
@@ -312,37 +332,25 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
-          <p className="mt-2 text-sm text-[var(--it-muted)]">{copy.across(candidates.length)}</p>
+          <p className="mt-2 text-sm text-[var(--it-muted)]">
+            {copy.across(candidates.length)}
+            <span className="mx-2 text-[var(--it-border)]">·</span>
+            <span className="tabular-nums text-[var(--it-faint)]">
+              {counts.invited} {copy.status.invited} · {counts.started} {copy.status.started} · {counts.completed} {copy.status.completed}
+            </span>
+          </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="enterprise-button inline-flex cursor-pointer items-center gap-2 self-start rounded-xl px-4 py-2.5 text-sm font-semibold sm:self-auto"
+          className="enterprise-button inline-flex cursor-pointer items-center gap-2 self-start rounded-lg px-4 py-2.5 text-sm font-semibold sm:self-auto"
         >
           <UserPlus className="h-4 w-4" strokeWidth={2} />
           {copy.inviteCandidate}
         </button>
       </div>
 
-      {/* Status stats */}
-      <div className="flex flex-wrap items-center gap-8 border-t border-[var(--it-hairline)] pt-4">
-        {[
-          { key: "invited", label: copy.status.invited, count: counts.invited },
-          { key: "started", label: copy.status.started, count: counts.started },
-          { key: "completed", label: copy.status.completed, count: counts.completed },
-        ].map((s) => {
-          const style = STATUS_CHIP_STYLE[s.key];
-          return (
-            <div key={s.label} className="flex items-baseline gap-2">
-              <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} aria-hidden="true" />
-              <p className="text-2xl font-semibold tabular-nums text-white">{s.count}</p>
-              <p className="text-xs font-medium uppercase tracking-wider text-[var(--it-faint)]">{s.label}</p>
-            </div>
-          );
-        })}
-      </div>
-
       {/* Filters */}
-      <div className="flex flex-col gap-3 border-t border-[var(--it-hairline)] pt-4 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--it-faint)]" strokeWidth={2} />
           <input
@@ -376,11 +384,11 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
 
       {/* Candidate table */}
       <div className="enterprise-card overflow-hidden rounded-xl">
-        <div className="hidden grid-cols-12 gap-4 border-b enterprise-divider px-6 py-3 text-xs font-medium uppercase tracking-wider text-[var(--it-faint)] md:grid">
+        <div className="hidden grid-cols-12 gap-4 border-b enterprise-divider px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--it-faint)] md:grid">
           <div className="col-span-5">{copy.candidate}</div>
-          <div className="col-span-4">{copy.project}</div>
+          <div className="col-span-3">{copy.project}</div>
           <div className="col-span-2">{copy.statusHeader}</div>
-          <div className="col-span-1 text-right">{copy.invitedAt}</div>
+          <div className="col-span-2 text-right">{copy.nextHeader}</div>
         </div>
 
         {filtered.length === 0 ? (
@@ -396,33 +404,36 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               const style = STATUS_CHIP_STYLE[chipKey] ?? STATUS_CHIP_STYLE.invited;
               const name = candidate.full_name?.trim() || copy.anonymous;
               const initials = name === copy.anonymous ? "?" : name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+              // Next action derived from the open pipeline stage; a completed &
+              // still-pending candidate is the one actually waiting on the recruiter.
+              const nextKey = closed ? "closed" : candidate.pipeline_stage in copy.next ? candidate.pipeline_stage : "closed";
+              const nextActionable = !closed && candidate.pipeline_stage === "completed";
+              const invitedShort = new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" });
               return (
-                <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="group grid gap-4 px-4 py-4 transition-colors hover:bg-white/[0.025] md:grid-cols-12 md:items-center md:px-6">
+                <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="group grid gap-x-4 gap-y-1 px-4 py-3 transition-colors hover:bg-white/[0.025] md:grid-cols-12 md:items-center md:px-6">
                   <div className="flex min-w-0 items-center gap-3 md:col-span-5">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-xs font-semibold text-white">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-surface-muted)] text-[11px] font-semibold text-slate-200">
                       {initials}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-white transition-colors group-hover:text-[#8CB1FF]">{name}</p>
+                      <p className="truncate text-sm font-medium text-white transition-colors group-hover:text-slate-200">{name}</p>
                       <p className="truncate text-xs text-[var(--it-muted)]">{candidate.email || "—"}</p>
                     </div>
                   </div>
-                  <div className="min-w-0 md:col-span-4">
-                    <p className="truncate text-sm text-[var(--it-muted)]">{candidate.hiring_projects?.name ?? copy.unassigned}</p>
-                    <p className="mt-1 text-xs text-[var(--it-faint)] md:hidden">
-                      {copy.invitedAt} {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
-                    </p>
+                  <div className="min-w-0 md:col-span-3">
+                    <p className="truncate text-sm text-slate-300">{candidate.hiring_projects?.name ?? copy.unassigned}</p>
+                    <p className="mt-0.5 truncate text-xs text-[var(--it-faint)]">{copy.invitedAt} {invitedShort}</p>
                   </div>
                   <div className="md:col-span-2">
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${style.bg} ${style.text} ${style.ring}`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${style.dot}`} />
+                    <span className="inline-flex items-center gap-2 text-[13px] text-slate-300">
+                      <span className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${style.dot}`} aria-hidden="true" />
                       {copy.status[chipKey] ?? chipKey}
                     </span>
                   </div>
-                  <div className="hidden text-right md:col-span-1 md:block">
-                    <p className="text-xs text-[var(--it-muted)]">
-                      {new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
-                    </p>
+                  <div className="md:col-span-2 md:text-right">
+                    <span className={nextActionable ? "text-sm font-medium text-white" : "text-sm text-[var(--it-muted)]"}>
+                      {copy.next[nextKey]}
+                    </span>
                   </div>
                 </Link>
               );

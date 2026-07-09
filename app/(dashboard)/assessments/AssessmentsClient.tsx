@@ -479,52 +479,42 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") setPreview(assessment);
                     }}
-                    className={`group flex min-h-[280px] cursor-pointer flex-col rounded-xl border p-5 transition-colors ${
+                    className={`group flex cursor-pointer flex-col rounded-xl border p-5 transition-colors ${
                       active
                         ? "enterprise-card enterprise-card-hover"
                         : "border-[var(--it-hairline)] bg-white/[0.015] hover:border-[var(--it-border)]"
                     }`}
                   >
-                    <div className="mb-3 flex items-start justify-between gap-3">
-                      <span className="text-xs font-medium text-[var(--it-faint)]">{localCategory(assessment.category)}</span>
-                      <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${
-                        active
-                          ? "border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] text-[#91c7ad]"
-                          : "border-[var(--it-hairline)] bg-white/[0.03] text-[var(--it-muted)]"
-                      }`}>
-                        <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--it-success)]" : "bg-[var(--it-faint)]"}`} />
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className={`text-[15px] font-semibold leading-snug ${active ? "text-white" : "text-slate-300"}`}>{localName(assessment)}</h3>
+                      <span className={`mt-0.5 inline-flex shrink-0 items-center gap-1.5 text-xs font-medium ${active ? "text-[var(--it-muted)]" : "text-[var(--it-faint)]"}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--it-success)]" : "bg-[var(--it-faint)]"}`} aria-hidden="true" />
                         {active ? t("active") : t("comingSoon")}
                       </span>
                     </div>
 
-                    <h3 className={`mb-2 text-base font-semibold ${active ? "text-white" : "text-slate-300"}`}>{localName(assessment)}</h3>
-                    <p className={`flex-1 text-sm leading-relaxed ${active ? "text-[var(--it-muted)]" : "text-[var(--it-faint)]"}`}>
+                    <p className={`mt-2 flex-1 text-[13px] leading-relaxed ${active ? "text-[var(--it-muted)]" : "text-[var(--it-faint)]"}`}>
                       {localDesc(assessment, t("fallbackDescription"))}
                     </p>
 
-                    <div className="mt-4 flex items-center gap-6">
-                      <div className="flex items-baseline gap-1.5">
-                        <Clock className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
-                        <span className="text-sm font-semibold text-white">{assessment.duration_minutes ?? "-"} min</span>
-                      </div>
-                      <div className="flex items-baseline gap-1.5">
-                        <ListChecks className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
-                        <span className="text-sm font-semibold text-white">{assessment.question_count ?? "-"}</span>
-                      </div>
-                    </div>
+                    <p className="mt-4 text-[13px] tabular-nums text-[var(--it-faint)]">
+                      {assessment.duration_minutes ?? "-"} min
+                      <span className="mx-1.5" aria-hidden="true">·</span>
+                      {assessment.question_count ?? "-"} {t("questions")}
+                    </p>
 
                     <div className="mt-4 border-t border-[var(--it-hairline)] pt-4">
                       {active ? (
                         <button
                           type="button"
                           onClick={(event) => { event.stopPropagation(); setProjectPickerFor(assessment.id); }}
-                          className="enterprise-button inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold"
+                          className="enterprise-button inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold"
                         >
                           <Plus className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                           {t("addToProject")}
                         </button>
                       ) : (
-                        <span className="inline-flex w-full items-center justify-center rounded-xl border border-[var(--it-hairline)] bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-[var(--it-muted)]">
+                        <span className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--it-hairline)] bg-white/[0.02] px-4 py-2.5 text-sm font-medium text-[var(--it-muted)]">
                           {t("comingSoon")}
                         </span>
                       )}
