@@ -15,7 +15,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import { BrandLockup } from "@/components/brand/BrandLogo";
+import { BrandLockup, BrandLogoMark } from "@/components/brand/BrandLogo";
 import { localePath, stripLocalePrefix, toAppLocale } from "@/lib/i18n/locales";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +52,7 @@ interface SidebarProps {
 }
 
 interface SidebarContentProps {
+  compact: boolean;
   es: boolean;
   isActive: (href: string) => boolean;
   locale: ReturnType<typeof toAppLocale>;
@@ -60,24 +61,28 @@ interface SidebarContentProps {
   reviewCount: number;
 }
 
-function SidebarContent({ es, isActive, locale, nav, onNavigate, reviewCount }: SidebarContentProps) {
+function SidebarContent({ compact, es, isActive, locale, nav, onNavigate, reviewCount }: SidebarContentProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className="flex items-center gap-3 border-b enterprise-divider px-6 py-5">
-        <BrandLockup
-          subtitle={es ? "Sistema de evaluación" : "Assessment OS"}
-          markClassName="h-9 w-9 rounded-lg"
-          titleClassName="text-[13px] leading-tight"
-          subtitleClassName="text-[11px] leading-tight text-[var(--it-faint)]"
-        />
+      <div className={cn("flex items-center border-b enterprise-divider py-5", compact ? "justify-center px-2" : "gap-3 px-6")}>
+        {compact ? (
+          <BrandLogoMark className="h-9 w-9 rounded-lg" />
+        ) : (
+          <BrandLockup
+            subtitle={es ? "Sistema de evaluación" : "Assessment OS"}
+            markClassName="h-9 w-9 rounded-lg"
+            titleClassName="text-[13px] leading-tight"
+            subtitleClassName="text-[11px] leading-tight text-[var(--it-faint)]"
+          />
+        )}
       </div>
 
       {/* Navigation — grouped areas of work */}
-      <nav className="flex-1 px-3 py-4">
+      <nav className={cn("flex-1 py-4", compact ? "px-2" : "px-3")}>
         {navGroups.map((group, gi) => (
-          <div key={gi} className={cn(gi > 0 && "mt-5")}>
-            {group.kicker && (
+          <div key={gi} className={cn(gi > 0 && (compact ? "mt-3" : "mt-5"))}>
+            {group.kicker && !compact && (
               <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.09em] text-[var(--it-faint)]">
                 {es ? group.kicker.es : group.kicker.en}
               </p>
@@ -90,8 +95,10 @@ function SidebarContent({ es, isActive, locale, nav, onNavigate, reviewCount }: 
                   key={item.href}
                   href={localePath(item.href, locale)}
                   onClick={onNavigate}
+                  title={compact ? nav(item.labelKey) : undefined}
                   className={cn(
-                    "group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium tracking-[0.005em] transition-colors duration-150",
+                    "group relative flex items-center rounded-md text-[13px] font-medium tracking-[0.005em] transition-colors duration-150",
+                    compact ? "h-11 justify-center px-0 py-0" : "gap-3 px-3 py-2",
                     active
                       ? "bg-gray-900/[0.055] text-[var(--it-text)]"
                       : "text-[var(--it-muted)] hover:bg-gray-900/[0.03] hover:text-[var(--it-text)]"
@@ -101,11 +108,12 @@ function SidebarContent({ es, isActive, locale, nav, onNavigate, reviewCount }: 
                     className={cn("h-[18px] w-[18px] flex-shrink-0 transition-colors", active ? "text-[var(--it-text)]" : "text-[var(--it-faint)] group-hover:text-[var(--it-muted)]")}
                     strokeWidth={1.8}
                   />
-                  <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
+                  <span className={compact ? "sr-only" : "min-w-0 flex-1 truncate"}>{nav(item.labelKey)}</span>
                   {item.href === "/inbox" && reviewCount > 0 && (
                     <span
                       className={cn(
-                        "rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+                        "rounded-full border text-[11px] font-semibold tabular-nums",
+                        compact ? "absolute right-0.5 top-0.5 min-w-5 px-1 py-0 text-center" : "px-2 py-0.5",
                         active
                           ? "border-gray-900/10 bg-gray-900/[0.06] text-[var(--it-text)]"
                           : "border-[var(--it-border)] bg-[var(--it-bg)] text-[var(--it-muted)] group-hover:text-[var(--it-text)]"
@@ -139,6 +147,7 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
     if (href === "/dashboard") return logicalPath === "/dashboard";
     return logicalPath.startsWith(href);
   };
+  const compact = logicalPath.startsWith("/settings/billing");
 
   return (
     <>
@@ -162,6 +171,7 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
         }`}
       >
         <SidebarContent
+          compact={false}
           es={es}
           isActive={isActive}
           locale={locale}
@@ -172,9 +182,13 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
       </aside>
 
       <aside
-        className="hidden lg:flex print:hidden h-full w-64 flex-shrink-0 flex-col border-r enterprise-divider bg-[var(--it-sidebar)]"
+        className={cn(
+          "hidden h-full flex-shrink-0 flex-col border-r enterprise-divider bg-[var(--it-sidebar)] transition-[width] duration-200 lg:flex print:hidden",
+          compact ? "w-20" : "w-64"
+        )}
       >
         <SidebarContent
+          compact={compact}
           es={es}
           isActive={isActive}
           locale={locale}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Minus } from "lucide-react";
+import { ArrowRight, Check, Minus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
@@ -10,6 +10,7 @@ import { localePath, toAppLocale } from "@/lib/i18n/locales";
 const PAYPAL_MANAGE_URL = "https://www.paypal.com/myaccount/autopay/";
 
 type PlanId = "trial" | "starter" | "professional" | "enterprise";
+type PaidPlanId = Exclude<PlanId, "trial">;
 
 interface PlanData {
   plan: string;
@@ -59,7 +60,7 @@ function FeatureValue({
     );
   }
 
-  return <span className="text-sm font-semibold tabular-nums text-slate-100">{value}</span>;
+  return <span className="text-sm font-semibold tabular-nums text-[var(--it-text)]">{value}</span>;
 }
 
 export default function BillingSettingsPage() {
@@ -68,6 +69,7 @@ export default function BillingSettingsPage() {
   const es = locale === "es";
   const [planData, setPlanData] = useState<PlanData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<PaidPlanId>("professional");
 
   const copy = es
     ? {
@@ -84,6 +86,7 @@ export default function BillingSettingsPage() {
         unlimitedShort: "Sin límite",
         availablePlans: "Planes disponibles",
         availablePlansText: "Elija el plan que corresponde a su volumen actual.",
+        matrixLabel: "Qué incluye",
         freeTrial: "Prueba gratuita",
         starter: "Starter",
         professional: "Professional",
@@ -133,6 +136,7 @@ export default function BillingSettingsPage() {
         unlimitedShort: "Unlimited",
         availablePlans: "Available plans",
         availablePlansText: "Choose the plan that matches your current hiring volume.",
+        matrixLabel: "What's included",
         freeTrial: "Free trial",
         starter: "Starter",
         professional: "Professional",
@@ -219,12 +223,7 @@ export default function BillingSettingsPage() {
         { label: copy.recruiters, used: planData.usage.recruiters, limit: planData.limits.recruiters },
       ]
     : [];
-  const planColumns = [
-    {
-      id: "trial" as const,
-      name: copy.freeTrial,
-      price: copy.trialPrice,
-    },
+  const planColumns: Array<{ id: PaidPlanId; name: string; price: string; tag?: string }> = [
     {
       id: "starter" as const,
       name: copy.starter,
@@ -234,6 +233,7 @@ export default function BillingSettingsPage() {
       id: "professional" as const,
       name: copy.professional,
       price: copy.professionalPrice,
+      tag: es ? "La mayoría de equipos" : "Most teams",
     },
     {
       id: "enterprise" as const,
@@ -241,34 +241,34 @@ export default function BillingSettingsPage() {
       price: copy.enterprisePrice,
     },
   ];
-  const pricingRows: Array<{ label: string; values: Record<PlanId, string | boolean> }> = [
+  const pricingRows: Array<{ label: string; values: Record<PaidPlanId, string | boolean> }> = [
     {
       label: copy.featureRecruiters,
-      values: { trial: "1", starter: "1", professional: "5", enterprise: copy.unlimitedShort },
+      values: { starter: "1", professional: "5", enterprise: copy.unlimitedShort },
     },
     {
       label: copy.featureCandidateInvitations,
-      values: { trial: "10", starter: "50", professional: "250", enterprise: copy.unlimitedShort },
+      values: { starter: "50", professional: "250", enterprise: copy.unlimitedShort },
     },
     {
       label: copy.featureProjects,
-      values: { trial: "2", starter: "2", professional: "10", enterprise: copy.unlimitedShort },
+      values: { starter: "2", professional: "10", enterprise: copy.unlimitedShort },
     },
     {
       label: copy.featureExecutiveReports,
-      values: { trial: true, starter: true, professional: true, enterprise: true },
+      values: { starter: true, professional: true, enterprise: true },
     },
     {
       label: copy.featureAssessments,
-      values: { trial: true, starter: true, professional: true, enterprise: true },
+      values: { starter: true, professional: true, enterprise: true },
     },
     {
       label: copy.featureTeamCollaboration,
-      values: { trial: false, starter: false, professional: true, enterprise: true },
+      values: { starter: false, professional: true, enterprise: true },
     },
     {
       label: copy.featurePrioritySupport,
-      values: { trial: false, starter: false, professional: true, enterprise: true },
+      values: { starter: false, professional: true, enterprise: true },
     },
   ];
   const hasPayPalSubscription = planData?.billingProvider === "paypal" && planData.subscriptionStatus === "active";
@@ -341,63 +341,114 @@ export default function BillingSettingsPage() {
             ) : null}
           </div>
 
-          {/* Plans — cards, not a table */}
+          {/* Plans — same selector + matrix pattern as the app homepage pricing section. */}
           <div className="mt-10">
             <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--it-faint)]">
               {copy.availablePlans}
             </p>
             <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.paymentMode}</p>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {planColumns.map((plan) => {
-                const active = effectivePlanId === plan.id;
+                const selected = selectedPlan === plan.id;
+                const current = effectivePlanId === plan.id;
                 return (
-                  <div
+                  <button
                     key={plan.id}
-                    className={`flex h-full flex-col rounded-lg border p-6 ${
-                      active ? "border-[var(--it-primary)]/50 bg-[var(--it-primary-soft)]" : "border-[var(--it-hairline)]"
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setSelectedPlan(plan.id)}
+                    className={`cursor-pointer rounded-xl border bg-white p-5 text-left transition-colors ${
+                      selected
+                        ? "border-[var(--it-primary)]/50 shadow-[0_1px_3px_rgba(16,24,40,0.05),0_12px_32px_-16px_rgba(79,70,229,0.25)] ring-1 ring-[var(--it-primary)]/50"
+                        : "border-[var(--it-hairline)] shadow-[0_1px_2px_rgba(16,24,40,0.04)] hover:border-[var(--it-border)]"
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-[13px] font-semibold text-slate-100">{plan.name}</p>
-                      {active ? (
-                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--it-primary-hover)]">
+                      <span className="text-sm font-semibold text-[var(--it-text)]">{plan.name}</span>
+                      {current ? (
+                        <span className="rounded-full border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--it-link)]">
                           {copy.current}
+                        </span>
+                      ) : plan.tag ? (
+                        <span className="rounded-full border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--it-link)]">
+                          {plan.tag}
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-3 text-2xl font-semibold leading-tight text-[var(--it-text)]">{plan.price}</p>
-
-                    <ul className="mt-6 space-y-2.5 text-[13px] text-[var(--it-muted)]">
-                      {pricingRows.map((row) => (
-                        <li key={row.label} className="flex items-center justify-between gap-3">
-                          <span>{row.label}</span>
-                          <FeatureValue
-                            value={row.values[plan.id]}
-                            includedLabel={copy.included}
-                            excludedLabel={copy.notIncluded}
-                          />
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-6 min-h-[40px]">
-                      {active ? (
-                        <p className="text-[13px] font-medium text-[var(--it-muted)]">{copy.current}</p>
-                      ) : plan.id === "starter" || plan.id === "professional" ? (
-                        <PayPalSubscribeButton plan={plan.id} locale={locale} />
-                      ) : plan.id === "enterprise" ? (
-                        <Link
-                          href={localePath("/contact", locale)}
-                          className="enterprise-button inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-lg px-3 text-sm font-semibold"
-                        >
-                          {copy.contactSales}
-                        </Link>
-                      ) : null}
-                    </div>
-                  </div>
+                    <p className="mt-3 text-2xl font-semibold tabular-nums tracking-tight text-[var(--it-text)]">
+                      {plan.price}
+                    </p>
+                  </button>
                 );
               })}
+            </div>
+
+            <div className="mt-6 overflow-hidden rounded-xl border border-[var(--it-hairline)] bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[560px] border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--it-hairline)]">
+                      <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--it-faint)]">
+                        {copy.matrixLabel}
+                      </th>
+                      {planColumns.map((plan) => (
+                        <th
+                          key={plan.id}
+                          className={`w-32 px-3 py-3.5 text-center text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                            plan.id === selectedPlan ? "text-[var(--it-link)]" : "text-[var(--it-faint)]"
+                          }`}
+                        >
+                          {plan.name}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pricingRows.map((row) => (
+                      <tr key={row.label} className="border-b border-[var(--it-border-soft)] last:border-0">
+                        <td className="px-5 py-3.5 text-[var(--it-muted)]">{row.label}</td>
+                        {planColumns.map((plan) => {
+                          const value = row.values[plan.id];
+                          const selected = plan.id === selectedPlan;
+                          return (
+                            <td
+                              key={plan.id}
+                              className={`px-3 py-3.5 text-center ${selected ? "bg-[var(--it-primary-soft)]/40" : ""}`}
+                            >
+                              <FeatureValue
+                                value={value}
+                                includedLabel={copy.included}
+                                excludedLabel={copy.notIncluded}
+                              />
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="mt-8 flex justify-center">
+              {effectivePlanId === selectedPlan ? (
+                <div className="inline-flex min-h-12 items-center justify-center rounded-lg border border-[var(--it-hairline)] bg-white px-6 text-sm font-semibold text-[var(--it-muted)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+                  {copy.current}
+                </div>
+              ) : selectedPlan === "starter" || selectedPlan === "professional" ? (
+                <div className="w-full max-w-sm">
+                  <PayPalSubscribeButton plan={selectedPlan} locale={locale} />
+                </div>
+              ) : (
+                <Link
+                  href={localePath("/contact", locale)}
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[var(--it-primary)] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--it-primary-hover)]"
+                >
+                  {copy.contactSales}
+                  <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
+                </Link>
+              )}
             </div>
           </div>
 
