@@ -78,7 +78,7 @@ function CopyButton({ text }: { text: string }) {
 }
 
 const projectStatusConfig: Record<string, { label: string; class: string; dot: string }> = {
-  active: { label: "Active", class: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300", dot: "bg-emerald-400" },
+  active: { label: "Active", class: "border-emerald-500/25 bg-emerald-50 text-[#15803d]", dot: "bg-[#16a34a]" },
   draft: { label: "Draft", class: "border-slate-500/25 bg-slate-500/10 text-slate-300", dot: "bg-slate-400" },
   archived: { label: "Archived", class: "border-amber-500/25 bg-amber-500/10 text-amber-300", dot: "bg-amber-400" },
 };
@@ -86,13 +86,13 @@ const projectStatusConfig: Record<string, { label: string; class: string; dot: s
 const candidateStatusConfig: Record<string, { label: string; class: string }> = {
   invited: { label: "Invited", class: "border-amber-500/25 bg-amber-500/10 text-amber-300" },
   started: { label: "Started", class: "border-blue-500/25 bg-blue-500/10 text-blue-300" },
-  completed: { label: "Completed", class: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300" },
+  completed: { label: "Completed", class: "border-emerald-500/25 bg-emerald-50 text-[#15803d]" },
 };
 
 const avatarColors = [
   "bg-blue-500/20 text-blue-300 border-blue-500/30",
   "bg-violet-500/20 text-violet-300 border-violet-500/30",
-  "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  "bg-emerald-500/20 text-[#15803d] border-emerald-500/30",
   "bg-amber-500/20 text-amber-300 border-amber-500/30",
   "bg-pink-500/20 text-pink-300 border-pink-500/30",
   "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
@@ -482,14 +482,14 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <div className="space-y-4">
               {inviteSuccess.type === "link" ? (
                 <>
-                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-500/8 p-3">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                      <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <svg className="h-4 w-4 text-[#15803d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-emerald-300">{copy.linkCopied}</p>
+                      <p className="text-sm font-medium text-[#15803d]">{copy.linkCopied}</p>
                       <p className="text-xs text-slate-500">{copy.validShare}</p>
                     </div>
                   </div>
@@ -502,14 +502,14 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   </div>
                 </>
               ) : (
-                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+                <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-500/8 p-3">
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-500/15">
-                    <svg className="h-4 w-4 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="h-4 w-4 text-[#15803d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z" />
                     </svg>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-emerald-300">{copy.emailSent}</p>
+                    <p className="text-sm font-medium text-[#15803d]">{copy.emailSent}</p>
                     <p className="truncate text-xs text-slate-500">{inviteSuccess.to}</p>
                   </div>
                 </div>
@@ -525,7 +525,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           ) : (
             <div className="space-y-4">
               {inviteError && (
-                <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
                   {inviteError}
                 </div>
               )}
@@ -644,7 +644,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 : displayName.split(" ").map((w: string) => w[0]).join("").slice(0, 2).toUpperCase();
               const avatarClass = avatarColors[i % avatarColors.length];
               const score = candidate.results[0]?.score ?? null;
-              const scoreColor = score === null ? "" : score >= 80 ? "text-emerald-300" : score >= 60 ? "text-amber-300" : "text-red-300";
+              const scoreColor = score === null ? "" : score >= 80 ? "text-[#15803d]" : score >= 60 ? "text-amber-300" : "text-[#b91c1c]";
               return (
                 <div key={candidate.id} className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[#f3f4f6]/30">
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${avatarClass}`}>
@@ -696,13 +696,13 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             </div>
             <form onSubmit={handleEditSave} className="space-y-4">
               {editError && (
-                <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
                   {editError}
                 </div>
               )}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                  {copy.projectName} <span className="text-red-400">*</span>
+                  {copy.projectName} <span className="text-[#b91c1c]">*</span>
                 </label>
                 <input
                   required
@@ -794,7 +794,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             </div>
 
             {addError && (
-              <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+              <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
                 {addError}
               </div>
             )}
@@ -805,16 +805,16 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 return (
                   <div
                     key={a.id}
-                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${linked ? "border-emerald-500/20 bg-emerald-500/5" : "border-[#f3f4f6] bg-[#f8fafc]/55"}`}
+                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${linked ? "border-emerald-200 bg-emerald-500/5" : "border-[#f3f4f6] bg-[#f8fafc]/55"}`}
                   >
                     <div className="min-w-0 flex-1">
-                      <p className={`truncate text-sm font-medium ${linked ? "text-emerald-300" : "text-slate-200"}`}>{termName(a.name, es ? "es" : "en")}</p>
+                      <p className={`truncate text-sm font-medium ${linked ? "text-[#15803d]" : "text-slate-200"}`}>{termName(a.name, es ? "es" : "en")}</p>
                       <p className="mt-0.5 text-xs text-slate-500">
                         {a.category} · {a.duration_minutes ?? "-"} min · {a.question_count ?? "-"} Q
                       </p>
                     </div>
                     {linked ? (
-                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-emerald-400">
+                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-[#16a34a]">
                         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
                         </svg>

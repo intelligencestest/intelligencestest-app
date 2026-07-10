@@ -105,35 +105,30 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-100">
+    <div className="min-h-screen bg-[var(--it-bg)]">
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <main className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_540px]">
         {/* Left panel */}
-        <section className="hidden lg:flex flex-col justify-between border-r border-[#f3f4f6] px-10 py-8 xl:px-14">
+        <section className="hidden lg:flex flex-col justify-between border-r border-[var(--it-hairline)] bg-white px-10 py-8 xl:px-14">
           <Logo subtitle={flow("brandSubtitle")} />
           <div className="max-w-xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#ffffff]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              {flow("signupBadge")}
-            </div>
-            <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-[var(--it-text)] xl:text-5xl">
+            <h1 className="font-editorial max-w-lg text-4xl font-medium leading-[1.15] text-[var(--it-text)] xl:text-5xl">
               {flow("signupHeroTitle")}
             </h1>
-            <p className="mt-5 max-w-md text-sm leading-6 text-slate-400">
+            <p className="mt-5 max-w-md text-[15px] leading-7 text-[var(--it-muted)]">
               {flow("signupHeroBody")}
             </p>
-            <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">
+            <div className="mt-12 flex max-w-lg items-start gap-10 border-t border-[var(--it-hairline)] pt-6">
               {[["22+", flow("assessmentsStat")], ["5 min", flow("candidateSetupStat")], ["100%", flow("dataIsolatedStat")]].map(([v, l]) => (
-                <div key={l} className="premium-card rounded-xl p-4">
-                  <p className="text-xl font-semibold text-[var(--it-text)]">{v}</p>
-                  <p className="mt-1 text-xs text-slate-500">{l}</p>
+                <div key={l} className="">
+                  <p className="text-xl font-semibold tabular-nums text-[var(--it-text)]">{v}</p>
+                  <p className="mt-1 text-xs text-[var(--it-faint)]">{l}</p>
                 </div>
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-3 text-xs text-slate-600">
+          <div className="flex items-center gap-3 text-xs text-[var(--it-faint)]">
             <span className="h-px w-10 bg-[#f3f4f6]" />
             {flow("builtFor")}
           </div>
@@ -146,12 +141,12 @@ export default function SignupPage() {
               <Logo subtitle={flow("brandSubtitle")} />
             </div>
 
-            <div className="premium-card rounded-2xl p-6 shadow-xl sm:p-8">
+            <div className="rounded-2xl border border-[var(--it-hairline)] bg-white p-6 shadow-[0_1px_3px_rgba(16,24,40,0.05),0_12px_32px_-16px_rgba(16,24,40,0.12)] sm:p-8">
               <div className="mb-6">
                 <h2 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{auth("createAccount")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("alreadyHaveAccount")}{" "}
-                  <Link href={localePath("/login", language)} className="text-[#4338ca] hover:text-[#93B8FF] transition-colors">
+                  <Link href={localePath("/login", language)} className="text-[#4338ca] hover:text-[#3730a3] transition-colors">
                     {auth("signIn")}
                   </Link>
                 </p>
@@ -162,7 +157,7 @@ export default function SignupPage() {
                 type="button"
                 onClick={handleGoogle}
                 disabled={oauthLoading}
-                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#d1d5db] hover:bg-[#ffffff] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mb-5 flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--it-border)] bg-white px-4 py-3 text-sm font-medium text-[#374151] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-colors hover:bg-[var(--it-surface-muted)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {oauthLoading ? (
                   <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -177,12 +172,12 @@ export default function SignupPage() {
 
               <div className="mb-5 flex items-center gap-3">
                 <span className="h-px flex-1 bg-[#f3f4f6]" />
-                <span className="text-xs text-slate-600">{auth("orSignUpWithEmail")}</span>
+                <span className="text-xs text-[var(--it-faint)]">{auth("orSignUpWithEmail")}</span>
                 <span className="h-px flex-1 bg-[#f3f4f6]" />
               </div>
 
               {error && (
-                <div className="mb-5 flex items-start gap-2 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                <div className="mb-5 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
                   <svg className="mt-0.5 h-4 w-4 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -193,55 +188,55 @@ export default function SignupPage() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{onboarding("companyName")} <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{onboarding("companyName")} <span className="text-[#b91c1c]">*</span></label>
                     <input
                       required
                       placeholder={flow("companyPlaceholder")}
                       {...field("company_name")}
-                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
+                      className="w-full rounded-lg border border-[var(--it-border)] bg-white px-3 py-2.5 text-sm text-[var(--it-text)] outline-none placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("fullName")} <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("fullName")} <span className="text-[#b91c1c]">*</span></label>
                     <input
                       required
                       placeholder={flow("fullNamePlaceholder")}
                       {...field("full_name")}
-                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
+                      className="w-full rounded-lg border border-[var(--it-border)] bg-white px-3 py-2.5 text-sm text-[var(--it-text)] outline-none placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("workEmail")} <span className="text-red-400">*</span></label>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("workEmail")} <span className="text-[#b91c1c]">*</span></label>
                   <input
                     required
                     type="email"
                     placeholder={flow("workEmailPlaceholder")}
                     {...field("email")}
-                    className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
+                    className="w-full rounded-lg border border-[var(--it-border)] bg-white px-3 py-2.5 text-sm text-[var(--it-text)] outline-none placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("password")} <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("password")} <span className="text-[#b91c1c]">*</span></label>
                     <input
                       required
                       type="password"
                       placeholder={flow("passwordMinPlaceholder")}
                       {...field("password")}
-                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
+                      className="w-full rounded-lg border border-[var(--it-border)] bg-white px-3 py-2.5 text-sm text-[var(--it-text)] outline-none placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("confirmPassword")} <span className="text-red-400">*</span></label>
+                    <label className="mb-1.5 block text-xs font-medium text-slate-400">{auth("confirmPassword")} <span className="text-[#b91c1c]">*</span></label>
                     <input
                       required
                       type="password"
                       placeholder={flow("passwordRepeatPlaceholder")}
                       {...field("confirm_password")}
-                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
+                      className="w-full rounded-lg border border-[var(--it-border)] bg-white px-3 py-2.5 text-sm text-[var(--it-text)] outline-none placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                 </div>
@@ -265,7 +260,7 @@ export default function SignupPage() {
                 </button>
               </form>
 
-              <p className="mt-5 text-center text-xs text-slate-600">
+              <p className="mt-5 text-center text-xs text-[var(--it-faint)]">
                 {flow("signupAgreement")}{" "}
                 <Link href="/terms" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("terms")}</Link>
                 {" "}{flow("and")}{" "}

@@ -40,12 +40,11 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--it-bg)] flex items-center justify-center p-4">
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%)]" />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative w-full max-w-sm">
-        <div className="premium-card rounded-2xl p-8 shadow-xl">
+        <div className="rounded-2xl border border-[var(--it-hairline)] bg-white p-8 shadow-[0_1px_3px_rgba(16,24,40,0.05),0_12px_32px_-16px_rgba(16,24,40,0.12)]">
           <div className="mb-6">
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-[#4f46e5]/30 bg-[#4f46e5]/15">
               <svg className="h-5 w-5 text-[#4338ca]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,30 +59,30 @@ export default function ForgotPasswordPage() {
 
           {sent ? (
             <div className="space-y-4 text-center">
-              <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-300">
+              <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-[#15803d]">
                 {flow("resetLinkSent")}
               </div>
-              <Link href={localePath("/login", locale)} className="block text-xs text-slate-500 hover:text-slate-300 transition-colors">
+              <Link href={localePath("/login", locale)} className="block text-xs text-[var(--it-faint)] hover:text-slate-300 transition-colors">
                 ← {flow("backToSignIn")}
               </Link>
             </div>
           ) : (
             <>
               {error && (
-                <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
                   {error}
                 </div>
               )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-300">{auth("emailAddress")}</label>
+                  <label className="mb-1.5 block text-sm font-medium text-[#374151]">{auth("emailAddress")}</label>
                   <input
                     required
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={flow("emailPlaceholder")}
-                    className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
+                    className="w-full rounded-lg border border-[var(--it-border)] bg-white px-4 py-3 text-sm text-[var(--it-text)] outline-none placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                   />
                 </div>
                 <button
@@ -105,7 +104,7 @@ export default function ForgotPasswordPage() {
                 </button>
               </form>
               <div className="mt-5 text-center">
-                <Link href={localePath("/login", locale)} className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+                <Link href={localePath("/login", locale)} className="text-xs text-[var(--it-faint)] hover:text-slate-300 transition-colors">
                   ← {flow("backToSignIn")}
                 </Link>
               </div>

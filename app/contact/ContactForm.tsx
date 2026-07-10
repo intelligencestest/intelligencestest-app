@@ -149,12 +149,12 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
       </label>
 
       {status === "success" && (
-        <p className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200" role="status">
+        <p className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-50 px-3 py-2 text-sm text-emerald-200" role="status">
           {isDemo ? formCopy.successDemo : formCopy.successContact}
         </p>
       )}
       {status === "error" && (
-        <p className="mt-4 rounded-lg border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm text-red-200" role="alert">
+        <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-200" role="alert">
           {error || formCopy.error}
         </p>
       )}

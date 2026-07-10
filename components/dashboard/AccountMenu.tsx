@@ -138,7 +138,7 @@ export function AccountMenu({ userEmail, userName, variant = "topbar", collapsed
         <DropdownMenuItem
           onClick={handleLogout}
           disabled={loggingOut}
-          className="cursor-pointer justify-between rounded-none px-4 py-3 text-sm font-semibold text-slate-300 focus:bg-red-500/10 focus:text-red-200"
+          className="cursor-pointer justify-between rounded-none px-4 py-3 text-sm font-semibold text-slate-300 focus:bg-red-50 focus:text-red-200"
         >
           <span>{loggingOut ? auth("signingOut") : auth("signOut")}</span>
           <LogOut className="h-4 w-4" />

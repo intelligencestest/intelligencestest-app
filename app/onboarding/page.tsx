@@ -83,9 +83,8 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--it-bg)] flex items-center justify-center p-4">
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%)]" />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative w-full max-w-md">
         {/* Logo */}
@@ -97,7 +96,7 @@ export default function OnboardingPage() {
           />
         </div>
 
-        <div className="premium-card rounded-2xl p-8 shadow-xl">
+        <div className="rounded-2xl border border-[var(--it-hairline)] bg-white p-8 shadow-[0_1px_3px_rgba(16,24,40,0.05),0_12px_32px_-16px_rgba(16,24,40,0.12)]">
           {/* Progress indicator */}
           <div className="mb-6 flex items-center gap-2">
             <div className="h-1.5 flex-1 rounded-full bg-[#4f46e5]" />
@@ -106,7 +105,7 @@ export default function OnboardingPage() {
           </div>
 
           <div className="mb-6">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#4f46e5]/30 bg-[#4f46e5]/10 px-2.5 py-1 text-xs font-medium text-[#9BB8FF]">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#4f46e5]/30 bg-[#4f46e5]/10 px-2.5 py-1 text-xs font-medium text-[#4338ca]">
               {t("step2")}
             </div>
             <h1 className="text-xl font-semibold text-[var(--it-text)]">{t("tellUsAbout")}</h1>
@@ -116,28 +115,28 @@ export default function OnboardingPage() {
           </div>
 
           {error && (
-            <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                {t("companyName")} <span className="text-red-400">*</span>
+              <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                {t("companyName")} <span className="text-[#b91c1c]">*</span>
               </label>
               <input
                 required
                 value={form.company_name}
                 onChange={(e) => setForm((f) => ({ ...f, company_name: e.target.value }))}
                 placeholder="Acme Recruitment Ltd"
-                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
+                className="w-full rounded-lg border border-[var(--it-border)] bg-white px-4 py-3 text-sm text-[var(--it-text)] outline-none placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
               />
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">
-                {t("industry")} <span className="text-red-400">*</span>
+              <label className="mb-1.5 block text-sm font-medium text-[#374151]">
+                {t("industry")} <span className="text-[#b91c1c]">*</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {INDUSTRIES.map((industry) => (
@@ -161,10 +160,10 @@ export default function OnboardingPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-300">
+              <label className="mb-1.5 block text-sm font-medium text-[#374151]">
                 {t("language")}
               </label>
-              <p className="mb-2 text-xs text-slate-500">
+              <p className="mb-2 text-xs text-[var(--it-faint)]">
                 {t("languageDescription")}
               </p>
               <div className="grid gap-2 sm:grid-cols-2">

@@ -27,7 +27,7 @@ export default function LeadershipStylesTest({
       assessmentName="Leadership Styles Test"
       shortName="Leadership Styles"
       categoryLabel="Leadership"
-      categoryClassName="border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+      categoryClassName="border-emerald-200 bg-emerald-50 text-[#15803d]"
       accentColor="#10b981"
       durationSeconds={LEADERSHIP_DURATION_SECONDS}
       questions={questions}
@@ -66,7 +66,7 @@ export default function LeadershipStylesTest({
           completionMetric: {
             label: "Dominant style",
             value: scored.dominantStyle,
-            colorClassName: "text-emerald-300",
+            colorClassName: "text-[#15803d]",
           },
         };
       }}

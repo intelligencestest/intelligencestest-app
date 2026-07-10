@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 export type ChipTone = "good" | "warn" | "bad" | "info" | "neutral";
 
 const CHIP_TONES: Record<ChipTone, string> = {
-  good: "border-emerald-500/25 bg-emerald-500/10 text-emerald-200",
+  good: "border-emerald-500/25 bg-emerald-50 text-emerald-200",
   warn: "border-[#fab219]/25 bg-[#fab219]/10 text-[#fab219]",
   bad: "border-[#d03b3b]/25 bg-[#d03b3b]/10 text-[#f28b8b]",
   info: "border-[#3987e5]/25 bg-[#3987e5]/10 text-[#6da7ec]",

@@ -320,8 +320,8 @@ export default function AssessmentRunner({
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="w-full max-w-md rounded-xl border border-[#f3f4f6] bg-[#ffffff] p-8 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
-            <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+            <svg className="h-6 w-6 text-[#b91c1c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
           </div>
@@ -346,7 +346,7 @@ export default function AssessmentRunner({
           </div>
 
           {regError && (
-            <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
               {regError}
             </div>
           )}
@@ -465,12 +465,12 @@ export default function AssessmentRunner({
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-6">
         <div className="w-full max-w-md rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-8 text-center shadow-xl shadow-black/30">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-[#4338ca]">
             <BrandLogoMark className="h-5 w-5 rounded-md" imageClassName="p-0.5" />
             Intelligences Test
           </div>
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10">
-            <svg className="h-8 w-8 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-50">
+            <svg className="h-8 w-8 text-[#15803d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -487,7 +487,7 @@ export default function AssessmentRunner({
           )}
           <div className="mt-6 rounded-lg border border-[#f3f4f6] bg-[#f8fafc] p-4">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{s.status}</p>
-            <p className="mt-1 text-sm font-medium text-emerald-300">{s.submittedSecurely}</p>
+            <p className="mt-1 text-sm font-medium text-[#15803d]">{s.submittedSecurely}</p>
           </div>
           <p className="mt-6 text-xs text-slate-600">{s.closeWindow}</p>
         </div>
@@ -505,7 +505,7 @@ export default function AssessmentRunner({
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-400">{s.answeredOf(answered, localizedQuestions.length)}</span>
           <div
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-sm font-bold ${timeWarning ? "bg-red-500/10 text-red-400" : "bg-[#f3f4f6] text-[var(--it-text)]"}`}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-sm font-bold ${timeWarning ? "bg-red-50 text-[#b91c1c]" : "bg-[#f3f4f6] text-[var(--it-text)]"}`}
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

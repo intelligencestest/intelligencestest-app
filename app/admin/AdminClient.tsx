@@ -143,8 +143,8 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
         <div
           className={`rounded-lg border px-4 py-3 text-sm ${
             message.type === "success"
-              ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
-              : "border-red-500/25 bg-red-500/10 text-red-200"
+              ? "border-emerald-500/25 bg-emerald-50 text-emerald-200"
+              : "border-red-200 bg-red-50 text-red-200"
           }`}
           role={message.type === "error" ? "alert" : "status"}
         >
@@ -195,8 +195,8 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                 </div>
                 <span className={`w-fit rounded-full border px-3 py-1 text-xs font-semibold ${
                   row.status === "disabled"
-                    ? "border-red-500/25 bg-red-500/10 text-red-200"
-                    : "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
+                    ? "border-red-200 bg-red-50 text-red-200"
+                    : "border-emerald-500/25 bg-emerald-50 text-emerald-200"
                 }`}>
                   {row.status}
                 </span>
@@ -262,7 +262,7 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                     type="button"
                     onClick={() => deleteWorkspace(row.id, row.name)}
                     disabled={busy?.id === row.id}
-                    className="w-full rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200 hover:bg-red-500/15 disabled:cursor-wait disabled:opacity-70"
+                    className="w-full rounded-lg border border-red-500/30 bg-red-50 px-4 py-3 text-sm font-semibold text-red-200 hover:bg-red-500/15 disabled:cursor-wait disabled:opacity-70"
                   >
                     Delete workspace
                   </button>

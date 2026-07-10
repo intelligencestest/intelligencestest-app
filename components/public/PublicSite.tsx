@@ -80,13 +80,13 @@ export async function PublicFooter({ copy }: { copy: PublicCopy }) {
 export function SignalBoard({ copy }: { copy: PublicCopy }) {
   return (
     <div className="relative mx-auto w-full max-w-xl" aria-label={copy.home.boardAria}>
-      <div className="rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-4 shadow-xl shadow-black/30">
+      <div className="rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-4 shadow-[0_1px_3px_rgba(16,24,40,0.06),0_16px_40px_-20px_rgba(16,24,40,0.18)]">
         <div className="flex items-center justify-between border-b border-[#f3f4f6] pb-4">
           <div>
             <p className="text-sm font-semibold text-[var(--it-text)]">{copy.home.boardTitle}</p>
             <p className="mt-1 text-xs text-slate-500">{copy.home.boardSubtitle}</p>
           </div>
-          <span className="rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">Live</span>
+          <span className="rounded-full border border-[rgba(22,163,74,0.25)] bg-[rgba(22,163,74,0.07)] px-3 py-1 text-xs font-semibold text-[#15803d]">Live</span>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {copy.home.boardStats.map((stat) => (

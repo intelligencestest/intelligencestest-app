@@ -223,8 +223,8 @@ export default function CriticalThinkingTest({
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
         <div className="max-w-md w-full text-center rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
-          <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-[#b91c1c]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
@@ -248,7 +248,7 @@ export default function CriticalThinkingTest({
           </div>
 
           {regError && (
-            <div className="mb-4 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
               {regError}
             </div>
           )}
@@ -351,12 +351,12 @@ export default function CriticalThinkingTest({
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-6">
         <div className="w-full max-w-md rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-8 text-center shadow-xl shadow-black/30">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-[#4338ca]">
             <BrandLogoMark className="h-5 w-5 rounded-md" imageClassName="p-0.5" />
             Intelligences Test
           </div>
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10">
-            <svg className="h-8 w-8 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-50">
+            <svg className="h-8 w-8 text-[#15803d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -365,7 +365,7 @@ export default function CriticalThinkingTest({
           <p className="text-sm leading-relaxed text-slate-500">{s.submittedSub}</p>
           <div className="mt-8 rounded-lg border border-[#f3f4f6] bg-[#f8fafc] p-4">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{s.status}</p>
-            <p className="mt-1 text-sm font-medium text-emerald-300">{s.submittedSecurely}</p>
+            <p className="mt-1 text-sm font-medium text-[#15803d]">{s.submittedSecurely}</p>
           </div>
           <p className="mt-6 text-xs text-slate-600">{s.closeWindow}</p>
         </div>
@@ -382,7 +382,7 @@ export default function CriticalThinkingTest({
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-400">{s.answeredOf(answered, CT_QUESTIONS.length)}</span>
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${timeWarning ? "bg-red-500/10 text-red-400" : "text-[var(--it-text)]"}`} style={!timeWarning ? { backgroundColor: "#f3f4f6" } : {}}>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${timeWarning ? "bg-red-50 text-[#b91c1c]" : "text-[var(--it-text)]"}`} style={!timeWarning ? { backgroundColor: "#f3f4f6" } : {}}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>

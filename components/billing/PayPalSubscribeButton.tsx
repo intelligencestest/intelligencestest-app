@@ -165,9 +165,9 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
           {copy.missing}
         </p>
       )}
-      {status === "error" && <p className="text-xs text-red-300">{copy.error}</p>}
+      {status === "error" && <p className="text-xs text-[#b91c1c]">{copy.error}</p>}
       {status === "success" && (
-        <p className="text-xs leading-5 text-emerald-300">
+        <p className="text-xs leading-5 text-[#15803d]">
           {copy.success}
           {subscriptionId ? (
             <>

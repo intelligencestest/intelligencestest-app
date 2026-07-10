@@ -7,7 +7,7 @@ import type { SearchHit } from "@/lib/admin/search";
 const TYPE_BADGE: Record<SearchHit["type"], string> = {
   company: "bg-[#3987e5]/15 text-[#6da7ec]",
   recruiter: "bg-violet-500/15 text-violet-300",
-  candidate: "bg-emerald-500/15 text-emerald-300",
+  candidate: "bg-emerald-500/15 text-[#15803d]",
   project: "bg-[#fab219]/15 text-[#fab219]",
 };
 

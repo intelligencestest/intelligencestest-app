@@ -98,58 +98,50 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-100">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
-
+    <div className="min-h-screen bg-[var(--it-bg)]">
       <main className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_520px]">
-        <section className="hidden lg:flex flex-col justify-between border-r border-[#f3f4f6] px-10 py-8 xl:px-14">
+        <section className="hidden lg:flex flex-col justify-between border-r border-[var(--it-hairline)] bg-white px-10 py-8 xl:px-14">
           <BrandLockup subtitle={flow("brandSubtitle")} />
 
-          <div className="max-w-xl animate-fade-up">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#ffffff]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-soft-pulse" />
-              {flow("loginBadge")}
-            </div>
-            <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-[var(--it-text)] xl:text-5xl">
+          <div className="max-w-xl">
+            <h1 className="font-editorial max-w-lg text-4xl font-medium leading-[1.15] text-[var(--it-text)] xl:text-5xl">
               {flow("loginHeroTitle")}
             </h1>
-            <p className="mt-5 max-w-md text-sm leading-6 text-slate-400">
+            <p className="mt-5 max-w-md text-[15px] leading-7 text-[var(--it-muted)]">
               {flow("loginHeroBody")}
             </p>
 
-            <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">
+            <div className="mt-12 flex max-w-lg items-start gap-10 border-t border-[var(--it-hairline)] pt-6">
               {[
                 ["22+", flow("assessmentsStat")],
                 ["25m", flow("timedSessionsStat")],
                 ["100%", flow("dataIsolatedStat")],
               ].map(([value, label]) => (
-                <div key={label} className="premium-card rounded-xl p-4">
-                  <p className="text-xl font-semibold text-[var(--it-text)]">{value}</p>
-                  <p className="mt-1 text-xs text-slate-500">{label}</p>
+                <div key={label}>
+                  <p className="text-xl font-semibold tabular-nums text-[var(--it-text)]">{value}</p>
+                  <p className="mt-1 text-[13px] text-[var(--it-muted)]">{label}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-slate-600">
-            <span className="h-px w-10 bg-[#f3f4f6]" />
+          <div className="text-xs text-[var(--it-faint)]">
             {flow("builtFor")}
           </div>
         </section>
 
         <section className="flex items-center justify-center px-4 py-8 sm:px-6 lg:px-10">
-          <div className="w-full max-w-md animate-fade-up">
+          <div className="w-full max-w-md">
             <div className="mb-7 flex items-center justify-center gap-3 lg:hidden">
               <BrandLockup subtitle={flow("brandSubtitle")} />
             </div>
 
-            <div className="premium-card rounded-2xl p-6 shadow-xl sm:p-8">
+            <div className="rounded-2xl border border-[var(--it-hairline)] bg-white p-6 shadow-[0_1px_3px_rgba(16,24,40,0.05),0_12px_32px_-16px_rgba(16,24,40,0.12)] sm:p-8">
               <div className="mb-6">
                 <h2 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{auth("welcomeBack")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("noAccountYet")}{" "}
-                  <Link href={localePath("/signup", locale)} className="text-[#4338ca] hover:text-[#93B8FF] transition-colors">
+                  <Link href={localePath("/signup", locale)} className="text-[#4338ca] hover:text-[#3730a3] transition-colors">
                     {auth("createOneFree")}
                   </Link>
                 </p>
@@ -160,7 +152,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleGoogle}
                 disabled={oauthLoading}
-                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#d1d5db] hover:bg-[#ffffff] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mb-5 flex w-full items-center justify-center gap-3 rounded-lg border border-[var(--it-border)] bg-white px-4 py-3 text-sm font-medium text-[#374151] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-colors hover:bg-[var(--it-surface-muted)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {oauthLoading ? (
                   <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -175,7 +167,7 @@ export default function LoginPage() {
 
               <div className="mb-5 flex items-center gap-3">
                 <span className="h-px flex-1 bg-[#f3f4f6]" />
-                <span className="text-xs text-slate-600">{auth("orSignInWithEmail")}</span>
+                <span className="text-xs text-[var(--it-faint)]">{auth("orSignInWithEmail")}</span>
                 <span className="h-px flex-1 bg-[#f3f4f6]" />
               </div>
 
@@ -186,7 +178,7 @@ export default function LoginPage() {
               )}
 
               {error && (
-                <div className="mb-5 flex items-center gap-2 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">
+                <div className="mb-5 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
                   <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
@@ -197,9 +189,9 @@ export default function LoginPage() {
               {!recoveryRedirecting && (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-300">{auth("emailAddress")}</label>
+                  <label className="mb-2 block text-sm font-medium text-[#374151]">{auth("emailAddress")}</label>
                   <div className="relative">
-                    <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--it-faint)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25h-15A2.25 2.25 0 0 1 2.25 16.5v-9m19.5 0A2.25 2.25 0 0 0 19.5 5.25h-15A2.25 2.25 0 0 0 2.25 7.5m19.5 0-8.2 5.47a2.25 2.25 0 0 1-2.5 0L2.25 7.5" />
                     </svg>
                     <input
@@ -207,20 +199,20 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={flow("emailPlaceholder")}
-                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
+                      className="w-full rounded-lg border border-[var(--it-border)] bg-white py-3 pl-10 pr-4 text-sm text-[var(--it-text)] outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
                     />
                   </div>
                 </div>
 
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <label className="text-sm font-medium text-slate-300">{auth("password")}</label>
+                    <label className="text-sm font-medium text-[#374151]">{auth("password")}</label>
                     <Link href={localePath("/forgot-password", locale)} className="text-xs text-slate-500 hover:text-[#4338ca] transition-colors">
                       {auth("forgotPassword")}
                     </Link>
                   </div>
                   <div className="relative">
-                    <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--it-faint)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16.5 10.5V7.125a4.5 4.5 0 0 0-9 0V10.5m-.75 0h10.5A2.25 2.25 0 0 1 19.5 12.75v5.25a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 18v-5.25A2.25 2.25 0 0 1 6.75 10.5Z" />
                     </svg>
                     <input
@@ -228,7 +220,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={flow("passwordEnterPlaceholder")}
-                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
+                      className="w-full rounded-lg border border-[var(--it-border)] bg-white py-3 pl-10 pr-4 text-sm text-[var(--it-text)] outline-none transition-colors placeholder:text-[var(--it-faint)] focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
                     />
                   </div>
                 </div>
@@ -236,7 +228,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/45 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/45 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>
@@ -256,12 +248,12 @@ export default function LoginPage() {
               <div className="mt-6 border-t border-[#f3f4f6] pt-5">
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span>{flow("protectedBy")}</span>
-                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-emerald-300">{flow("secure")}</span>
+                  <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-1 text-[#15803d]">{flow("secure")}</span>
                 </div>
               </div>
             </div>
 
-            <p className="mt-6 text-center text-xs text-slate-600">
+            <p className="mt-6 text-center text-xs text-[var(--it-faint)]">
               {flow("signinAgreement")}{" "}
               <Link href="/terms" className="text-slate-500 transition-colors hover:text-slate-300">{flow("terms")}</Link>
               {" "}{flow("and")}{" "}

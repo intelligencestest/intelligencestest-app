@@ -31,11 +31,8 @@ export default async function Home() {
         />
         <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
           <div className="animate-fade-up">
-            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#ffffff]/80 px-3.5 py-1.5 text-xs font-medium tracking-[0.01em] text-[#9BB8FF]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#4338ca]" aria-hidden="true" />
-              {copy.home.eyebrow}
-            </p>
-            <h1 className="headline-gradient max-w-2xl text-[2.6rem] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-5xl lg:text-[3.4rem]">
+            <p className="mb-6 text-xs font-semibold uppercase tracking-[0.14em] text-[#4338ca]">{copy.home.eyebrow}</p>
+            <h1 className="font-editorial max-w-2xl text-[2.6rem] font-medium leading-[1.12] text-[var(--it-text)] sm:text-5xl lg:text-[3.4rem]">
               {copy.home.heroTitle}
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-slate-400">
@@ -44,14 +41,14 @@ export default async function Home() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href={localePath("/signup", locale)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4338ca]/70"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4338ca]/70"
               >
                 {copy.home.primaryCta}
                 <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               </Link>
               <Link
                 href={`${localePath("/", locale)}#assessments`}
-                className="inline-flex items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#ffffff]/60 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-[#d1d5db] hover:text-[var(--it-text)] focus:outline-none focus:ring-2 focus:ring-[#4338ca]/60"
+                className="inline-flex items-center justify-center rounded-lg border border-[var(--it-border)] bg-white px-6 py-3.5 text-sm font-semibold text-[#374151] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:bg-[var(--it-surface-muted)] focus:outline-none focus:ring-2 focus:ring-[#4338ca]/60"
               >
                 {copy.home.secondaryCta}
               </Link>
@@ -75,7 +72,7 @@ export default async function Home() {
       </section>
 
       {/* Features */}
-      <section id="features" className="scroll-mt-20 border-b border-[#f3f4f6] bg-[#0A0C16] py-20 sm:py-28">
+      <section id="features" className="scroll-mt-20 border-b border-[#f3f4f6] bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
             <p className="text-[13px] font-semibold tracking-[0.01em] text-[#4338ca]">{copy.home.featuresEyebrow}</p>
@@ -138,7 +135,7 @@ export default async function Home() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="scroll-mt-20 border-b border-[#f3f4f6] bg-[#0A0C16] py-20 sm:py-28">
+      <section id="faq" className="scroll-mt-20 border-b border-[#f3f4f6] bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
           <div className="text-center">
             <p className="text-[13px] font-semibold tracking-[0.01em] text-[#4338ca]">{copy.home.faqEyebrow}</p>
@@ -175,7 +172,7 @@ export default async function Home() {
               <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
                 <Link
                   href={localePath("/signup", locale)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3]"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#4f46e5] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3]"
                 >
                   {copy.home.primaryCta}
                   <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />

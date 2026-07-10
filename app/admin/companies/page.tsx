@@ -51,7 +51,7 @@ export default async function AdminCompaniesPage({
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-500/25 bg-red-500/10 p-6 text-sm text-red-200">
+      <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-200">
         {error.message} — apply supabase/migrations/020_admin_workspace_fields.sql and reload.
       </div>
     );

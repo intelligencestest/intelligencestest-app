@@ -39,9 +39,8 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--it-bg)] flex items-center justify-center p-4">
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%)]" />
-      <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative w-full max-w-md">
         <div className="premium-card rounded-2xl p-8 text-center shadow-xl">
@@ -57,7 +56,7 @@ export default function VerifyEmailPage() {
             {flow("confirmationSent")}
           </p>
 
-          <div className="mt-6 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] p-4 text-left space-y-1.5 text-xs text-slate-500">
+          <div className="mt-6 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] p-4 text-left space-y-1.5 text-xs text-[var(--it-faint)]">
             <p className="font-medium text-slate-400">{flow("didntReceive")}</p>
             <p>• {flow("checkSpam")}</p>
             <p>• {flow("confirmWorkEmail")}</p>
@@ -65,23 +64,23 @@ export default function VerifyEmailPage() {
           </div>
 
           {error && (
-            <p className="mt-5 rounded-xl border border-red-500/25 bg-red-500/10 p-3 text-sm text-red-300">{error}</p>
+            <p className="mt-5 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">{error}</p>
           )}
 
           {resent ? (
-            <p className="mt-5 text-sm text-emerald-400">{flow("confirmationResent")}</p>
+            <p className="mt-5 text-sm text-[#16a34a]">{flow("confirmationResent")}</p>
           ) : (
             <button
               onClick={handleResend}
               disabled={resending}
-              className="mt-5 text-sm text-[#4338ca] hover:text-[#93B8FF] transition-colors disabled:opacity-50"
+              className="mt-5 text-sm text-[#4338ca] hover:text-[#3730a3] transition-colors disabled:opacity-50"
             >
               {resending ? flow("resending") : flow("resendConfirmation")}
             </button>
           )}
 
           <div className="mt-6 border-t border-[#f3f4f6] pt-5">
-            <Link href="/login" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
+            <Link href="/login" className="text-xs text-[var(--it-faint)] hover:text-slate-300 transition-colors">
               ← {flow("backToSignIn")}
             </Link>
           </div>

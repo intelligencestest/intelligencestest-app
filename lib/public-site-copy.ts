@@ -86,10 +86,10 @@ type PublicCopyInternal = {
 };
 
 const signalBars = {
-  completed: "bg-emerald-400",
-  started: "bg-blue-400",
-  invited: "bg-amber-300",
-  expired: "bg-slate-600",
+  completed: "bg-[#4f46e5]",
+  started: "bg-[#a5b4fc]",
+  invited: "bg-[#d1d5db]",
+  expired: "bg-[#e5e7eb]",
 };
 
 const es: PublicCopyInternal = {
@@ -134,7 +134,7 @@ const es: PublicCopyInternal = {
         title: "Supervisor de atención al cliente",
         body: "Call center con foco en comunicación, resiliencia y atención al detalle.",
         badge: "En curso",
-        tone: "border-blue-500/25 bg-blue-500/10 text-blue-300",
+        tone: "border-[rgba(79,70,229,0.25)] bg-[rgba(79,70,229,0.08)] text-[#4338ca]",
         bars: [
           { flex: 5, className: signalBars.completed },
           { flex: 2, className: signalBars.started },
@@ -145,7 +145,7 @@ const es: PublicCopyInternal = {
         title: "Analista administrativo",
         body: "Batería con razonamiento numérico, verbal y precisión operativa.",
         badge: "Revisar",
-        tone: "border-amber-500/25 bg-amber-500/10 text-amber-200",
+        tone: "border-[rgba(217,119,6,0.28)] bg-[rgba(217,119,6,0.07)] text-[#b45309]",
         bars: [
           { flex: 7, className: signalBars.completed },
           { flex: 1, className: signalBars.started },
@@ -284,7 +284,7 @@ const en: PublicCopyInternal = {
         title: "Customer support supervisor",
         body: "Call center battery focused on communication, resilience, and attention to detail.",
         badge: "In progress",
-        tone: "border-blue-500/25 bg-blue-500/10 text-blue-300",
+        tone: "border-[rgba(79,70,229,0.25)] bg-[rgba(79,70,229,0.08)] text-[#4338ca]",
         bars: [
           { flex: 5, className: signalBars.completed },
           { flex: 2, className: signalBars.started },
@@ -295,7 +295,7 @@ const en: PublicCopyInternal = {
         title: "Administrative analyst",
         body: "Battery with numerical reasoning, verbal reasoning, and operational accuracy.",
         badge: "Review",
-        tone: "border-amber-500/25 bg-amber-500/10 text-amber-200",
+        tone: "border-[rgba(217,119,6,0.28)] bg-[rgba(217,119,6,0.07)] text-[#b45309]",
         bars: [
           { flex: 7, className: signalBars.completed },
           { flex: 1, className: signalBars.started },

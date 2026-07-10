@@ -341,7 +341,7 @@ export default function NewProjectPage() {
       </div>
 
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-[#b91c1c] text-sm">{error}</div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -351,7 +351,7 @@ export default function NewProjectPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                {copy.projectName} <span className="text-red-400">*</span>
+                {copy.projectName} <span className="text-[#b91c1c]">*</span>
               </label>
               <input
                 required
