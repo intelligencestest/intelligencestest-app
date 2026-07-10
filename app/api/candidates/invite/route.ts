@@ -366,6 +366,17 @@ export async function POST(request: NextRequest) {
   const lang = toAppLocale(company?.language);
   const companyName = company?.name ?? "Your Company";
 
+  const { data: project } = await admin
+    .from("hiring_projects")
+    .select("id")
+    .eq("id", project_id)
+    .eq("company_id", userProfile.company_id)
+    .maybeSingle();
+
+  if (!project) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
+
   const limitCheck = await assertWithinLimit(admin, userProfile.company_id, "candidate");
   if (!limitCheck.ok) {
     return NextResponse.json(
@@ -391,7 +402,7 @@ export async function POST(request: NextRequest) {
   const { data: linked } = await admin
     .from("project_assessments")
     .select("assessment_id")
-    .eq("project_id", project_id)
+    .eq("project_id", project.id)
     .eq("assessment_id", assessment.id)
     .maybeSingle();
 
@@ -406,7 +417,7 @@ export async function POST(request: NextRequest) {
     .from("candidates")
     .insert({
       company_id: userProfile.company_id,
-      project_id,
+      project_id: project.id,
       full_name: (full_name ?? "").trim(),
       email: (email ?? "").toLowerCase().trim(),
       status: "invited",

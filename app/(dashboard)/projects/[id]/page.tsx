@@ -74,6 +74,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       .from("candidates")
       .select("id, full_name, status, created_at, results(id, score, completed_at)")
       .eq("project_id", id)
+      .eq("company_id", companyId)
       .order("created_at", { ascending: false })
       .returns<CandidateRow[]>(),
     admin

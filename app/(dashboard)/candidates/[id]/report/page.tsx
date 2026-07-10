@@ -325,6 +325,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
       .from("results")
       .select("id, score, completed_at, raw_answers, assessment_id, assessments(id, name, category)")
       .eq("candidate_id", candidate.id)
+      .eq("company_id", companyId)
       .order("completed_at", { ascending: true })
       .returns<ResultRow[]>(),
     admin

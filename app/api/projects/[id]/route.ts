@@ -34,7 +34,8 @@ export async function PATCH(
       description: description?.trim() || null,
       deadline: deadline || null,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("company_id", profile.company_id);
 
   if (error) return NextResponse.json({ error: "Failed to update project" }, { status: 500 });
 

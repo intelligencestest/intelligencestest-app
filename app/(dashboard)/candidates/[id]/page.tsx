@@ -71,12 +71,14 @@ export default async function CandidateReportPage({
         .from("results")
         .select("id, score, completed_at, raw_answers, assessment_id, assessments(id, name, category)")
         .eq("candidate_id", candidate.id)
+        .eq("company_id", companyId)
         .order("completed_at", { ascending: true })
         .returns<ResultRow[]>(),
       admin
         .from("results")
         .select("candidate_id, assessment_id, score")
         .eq("project_id", candidate.project_id)
+        .eq("company_id", companyId)
         .returns<{ candidate_id: string; assessment_id: string; score: number }[]>(),
       admin
         .from("project_assessments")
