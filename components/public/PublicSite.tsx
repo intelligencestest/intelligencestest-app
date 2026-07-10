@@ -1,5 +1,17 @@
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
+import {
+  Cookie,
+  CreditCard,
+  FileText,
+  LayoutPanelLeft,
+  LifeBuoy,
+  LogIn,
+  Scale,
+  ShieldCheck,
+  UserPlus,
+  type LucideIcon,
+} from "lucide-react";
 import { BrandLockup } from "@/components/brand/BrandLogo";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import type { PublicCopy } from "@/lib/public-site-copy";
@@ -46,32 +58,75 @@ export async function PublicHeader({ copy }: { copy: PublicCopy }) {
 
 export async function PublicFooter({ copy }: { copy: PublicCopy }) {
   const locale = toAppLocale(await getLocale());
+  const home = localePath("/", locale);
+
+  // Brand block left, icon link columns right, hairline copyright bar —
+  // a 21st.dev footer layout carried onto our tokens and real content.
+  const columns: Array<{ title: string; links: Array<{ name: string; Icon: LucideIcon; href: string }> }> = [
+    {
+      title: copy.footer.explore,
+      links: [
+        { name: copy.nav.features, Icon: LayoutPanelLeft, href: `${home}#product` },
+        { name: copy.nav.assessments, Icon: CreditCard, href: `${home}#pricing` },
+        { name: copy.nav.faq, Icon: ShieldCheck, href: `${home}#security` },
+      ],
+    },
+    {
+      title: copy.footer.product,
+      links: [
+        { name: copy.nav.signup, Icon: UserPlus, href: localePath("/signup", locale) },
+        { name: copy.nav.login, Icon: LogIn, href: localePath("/login", locale) },
+        { name: copy.nav.contact, Icon: LifeBuoy, href: localePath("/contact", locale) },
+      ],
+    },
+    {
+      title: copy.footer.legal,
+      links: [
+        { name: copy.legal.privacyTitle, Icon: Scale, href: "/privacy" },
+        { name: copy.legal.termsTitle, Icon: FileText, href: "/terms" },
+        { name: copy.legal.cookiesTitle, Icon: Cookie, href: "/cookies" },
+      ],
+    },
+  ];
+
   return (
-    <footer className="border-t border-[#f3f4f6] bg-[#f8fafc]">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-10 sm:px-6 md:grid-cols-[1fr_1fr] lg:grid-cols-[1.2fr_0.8fr_0.8fr] lg:px-8">
-        <div>
-          <BrandMark />
-          <p className="mt-4 max-w-md text-sm leading-6 text-slate-400">{copy.footer.body}</p>
+    <footer className="border-t border-[var(--it-hairline)] bg-[var(--it-bg)]">
+      <div className="mx-auto max-w-7xl px-5 pt-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <BrandMark />
+            <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--it-muted)]">{copy.footer.body}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:col-span-8 lg:justify-items-end">
+            {columns.map(({ title, links }) => (
+              <div key={title}>
+                <h3 className="text-sm font-semibold text-[var(--it-text)]">{title}</h3>
+                <ul className="mt-4 space-y-2.5">
+                  {links.map(({ name, Icon, href }) => (
+                    <li key={name}>
+                      <Link
+                        href={href}
+                        className="group inline-flex items-center gap-1.5 text-sm text-[var(--it-muted)] transition-colors hover:text-[var(--it-text)]"
+                      >
+                        <Icon
+                          className="h-4 w-4 text-[var(--it-faint)] transition-colors group-hover:text-[var(--it-muted)]"
+                          strokeWidth={1.8}
+                          aria-hidden="true"
+                        />
+                        {name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-[var(--it-text)]">{copy.footer.product}</p>
-          <ul className="mt-4 space-y-3 text-sm text-slate-400">
-            <li><Link href={localePath("/signup", locale)} className="hover:text-[var(--it-text)]">{copy.nav.signup}</Link></li>
-            <li><Link href={localePath("/login", locale)} className="hover:text-[var(--it-text)]">{copy.nav.login}</Link></li>
-            <li><Link href={localePath("/contact", locale)} className="hover:text-[var(--it-text)]">{copy.nav.contact}</Link></li>
-          </ul>
+
+        <div className="mt-16 border-t border-[var(--it-hairline)] pb-8 pt-6">
+          <p className="text-xs text-[var(--it-faint)]">{copy.footer.rights}</p>
         </div>
-        <div>
-          <p className="text-sm font-semibold text-[var(--it-text)]">{copy.footer.legal}</p>
-          <ul className="mt-4 space-y-3 text-sm text-slate-400">
-            <li><Link href="/privacy" className="hover:text-[var(--it-text)]">{copy.legal.privacyTitle}</Link></li>
-            <li><Link href="/terms" className="hover:text-[var(--it-text)]">{copy.legal.termsTitle}</Link></li>
-            <li><Link href="/cookies" className="hover:text-[var(--it-text)]">{copy.legal.cookiesTitle}</Link></li>
-          </ul>
-        </div>
-      </div>
-      <div className="border-t border-[#f3f4f6] px-5 py-5 text-center text-xs text-slate-600">
-        {copy.footer.rights}
       </div>
     </footer>
   );

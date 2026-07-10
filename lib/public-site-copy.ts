@@ -13,7 +13,7 @@ type PublicCopyInternal = {
     login: string;
     signup: string;
   };
-  footer: { body: string; product: string; legal: string; rights: string };
+  footer: { body: string; explore: string; product: string; legal: string; rights: string };
   home: {
     eyebrow: string;
     heroTitle: string;
@@ -104,6 +104,7 @@ const es: PublicCopyInternal = {
     signup: "Prueba gratuita",
   },
   footer: {
+    explore: "Explorar",
     body: "Evaluaciones psicométricas y cognitivas para equipos de selección que necesitan comparar candidatos con criterios claros y trazables.",
     product: "Producto",
     legal: "Legal",
@@ -254,6 +255,7 @@ const en: PublicCopyInternal = {
     signup: "Free trial",
   },
   footer: {
+    explore: "Explore",
     body: "Psychometric and cognitive assessments for hiring teams that need clear, comparable candidate signals.",
     product: "Product",
     legal: "Legal",
