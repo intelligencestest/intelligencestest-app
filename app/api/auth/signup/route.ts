@@ -1,10 +1,9 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { sendAuthEmail } from "@/lib/auth-email";
+import { appUrl } from "@/lib/app-url";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { PLAN_LIMITS, TRIAL_DURATION_DAYS } from "@/lib/plan/limits";
 import { NextRequest, NextResponse } from "next/server";
-
-const APP_URL = "https://app.intelligencestest.com";
 
 export async function POST(request: NextRequest) {
   const { email, password, full_name, company_name, language } = await request.json();
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
     password,
     options: {
       data: { full_name, company_id: company.id },
-      redirectTo: `${APP_URL}/auth/callback?next=/dashboard`,
+      redirectTo: appUrl("/auth/callback?next=/dashboard"),
     },
   });
 

@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { appUrl } from "@/lib/app-url";
 
 /**
  * Trial lifecycle email templates. Mirrors lib/auth-email.ts (same visual
@@ -11,10 +12,9 @@ import { Resend } from "resend";
 export type TrialEmailLocale = "en" | "es";
 export type TrialEmailKind = "trial_started" | "trial_day1" | "trial_day2" | "trial_ending" | "trial_expired";
 
-const APP_URL = "https://app.intelligencestest.com";
-const LOGO_URL = `${APP_URL}/intelligencestest-email-logo.png`;
-const DASHBOARD_URL = `${APP_URL}/dashboard`;
-const CONTACT_URL = `${APP_URL}/contact`;
+const LOGO_URL = appUrl("/intelligencestest-email-logo.png");
+const DASHBOARD_URL = appUrl("/dashboard");
+const CONTACT_URL = appUrl("/contact");
 
 function escapeHtml(value: string) {
   return value

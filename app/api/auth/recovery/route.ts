@@ -1,9 +1,8 @@
 import { sendAuthEmail } from "@/lib/auth-email";
+import { appUrl } from "@/lib/app-url";
 import { createAdminClient } from "@/lib/supabase-server";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { NextRequest, NextResponse } from "next/server";
-
-const APP_URL = "https://app.intelligencestest.com";
 
 export async function POST(request: NextRequest) {
   const { email, language } = await request.json();
@@ -32,7 +31,7 @@ export async function POST(request: NextRequest) {
     type: "recovery",
     email: normalizedEmail,
     options: {
-      redirectTo: `${APP_URL}${localePath("/reset-password", locale)}`,
+      redirectTo: appUrl(localePath("/reset-password", locale)),
     },
   });
 

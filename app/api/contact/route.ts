@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { appUrl } from "@/lib/app-url";
 
 export const runtime = "nodejs";
 
@@ -18,8 +19,7 @@ type ContactPayload = {
 };
 
 const BUSINESS_EMAIL = process.env.CONTACT_TO_EMAIL || process.env.BUSINESS_EMAIL || "contact@intelligencestest.com";
-const APP_URL = "https://app.intelligencestest.com";
-const LOGO_URL = `${APP_URL}/intelligencestest-email-logo.png`;
+const LOGO_URL = appUrl("/intelligencestest-email-logo.png");
 
 function clean(value: unknown) {
   return typeof value === "string" ? value.trim().slice(0, 2000) : "";

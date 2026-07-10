@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { appUrl, getAppUrl } from "@/lib/app-url";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { assessmentName as localizedAssessmentName } from "@/lib/i18n/assessment-terms";
 import { assertWithinLimit } from "@/lib/plan/limits";
@@ -7,8 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
 
-const PRODUCTION_APP_URL = "https://app.intelligencestest.com";
-const EMAIL_LOGO_URL = `${PRODUCTION_APP_URL}/intelligencestest-email-logo.png`;
+const EMAIL_LOGO_URL = appUrl("/intelligencestest-email-logo.png");
 
 const testPaths: Record<string, string> = {
   "Critical Thinking Test": "critical-thinking",
@@ -78,7 +78,7 @@ interface InviteEmailOptions {
 }
 
 function getPublicAppUrl() {
-  return PRODUCTION_APP_URL;
+  return getAppUrl();
 }
 
 function getLocalizedAssessmentName(name: string, locale: InviteEmailLocale) {

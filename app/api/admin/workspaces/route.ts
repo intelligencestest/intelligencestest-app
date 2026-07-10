@@ -1,11 +1,10 @@
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { appUrl } from "@/lib/app-url";
 import { sendAuthEmail } from "@/lib/auth-email";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { logAdminAction, requireInternalAdminForApi } from "@/lib/internal-admin";
 import { normalizePlan, PLAN_LIMITS, TRIAL_DURATION_DAYS } from "@/lib/plan/limits";
-
-const APP_URL = "https://app.intelligencestest.com";
 
 function clean(value: unknown, max = 500) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest) {
     type: "recovery",
     email: adminEmail,
     options: {
-      redirectTo: `${APP_URL}/reset-password`,
+      redirectTo: appUrl("/reset-password"),
     },
   });
 

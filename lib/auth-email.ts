@@ -1,10 +1,10 @@
 import { Resend } from "resend";
+import { appUrl } from "@/lib/app-url";
 
 export type AuthEmailLocale = "en" | "es";
 export type AuthEmailKind = "confirmation" | "recovery" | "welcome";
 
-const APP_URL = "https://app.intelligencestest.com";
-const LOGO_URL = `${APP_URL}/intelligencestest-email-logo.png`;
+const LOGO_URL = appUrl("/intelligencestest-email-logo.png");
 
 function escapeHtml(value: string) {
   return value
