@@ -9,6 +9,7 @@ import { buildSupportContext, getCopilotSummary } from "@/lib/admin/copilot";
 import { DAY, relativeTime } from "@/lib/dashboard/format";
 import { emptyStageCounts, PIPELINE_STAGES, STAGE_COLOR, type PipelineStage } from "@/lib/dashboard/stages";
 import {
+  ActivatePendingPaymentButton,
   ChangePlanButton,
   ExtendTrialButton,
   ResetPasswordButton,
@@ -45,7 +46,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
   const { data: company } = await admin
     .from("companies")
     .select(
-      "id, name, email, language, industry, plan, status, created_at, trial_status, trial_started_at, trial_ends_at, subscription_status, billing_provider, candidate_limit, project_limit, recruiter_limit"
+      "id, name, email, language, industry, plan, status, created_at, trial_status, trial_started_at, trial_ends_at, subscription_status, billing_provider, pending_plan, paypal_subscription_id, paypal_subscription_status, paypal_subscription_updated_at, candidate_limit, project_limit, recruiter_limit"
     )
     .eq("id", id)
     .maybeSingle();
@@ -160,8 +161,9 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
             subscription: {company.subscription_status ?? "manual"}
           </Chip>
           <Chip>billing: {company.billing_provider ?? "manual"}</Chip>
+          {company.pending_plan ? <Chip tone="warn">pending: {formatPlan(company.pending_plan)}</Chip> : null}
         </div>
-        <div className="grid grid-cols-2 gap-4 px-5 py-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 px-5 py-4 lg:grid-cols-6">
           <StatCard
             label="Trial ends"
             value={company.trial_ends_at ? new Date(company.trial_ends_at).toLocaleDateString("en-US", { day: "numeric", month: "short" }) : "—"}
@@ -169,8 +171,17 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
           <StatCard label="Candidate limit" value={company.candidate_limit === null || company.candidate_limit === undefined ? "∞" : `${company.candidate_limit}`} />
           <StatCard label="Project limit" value={company.project_limit === null || company.project_limit === undefined ? "∞" : `${company.project_limit}`} />
           <StatCard label="Recruiter limit" value={company.recruiter_limit === null || company.recruiter_limit === undefined ? "∞" : `${company.recruiter_limit}`} />
+          <StatCard label="PayPal status" value={company.paypal_subscription_status ?? "—"} />
+          <StatCard
+            label="PayPal subscription"
+            value={company.paypal_subscription_id ? "linked" : "—"}
+            sub={company.paypal_subscription_id ?? undefined}
+          />
         </div>
         <div className="flex flex-wrap items-center gap-2 border-t border-[var(--it-hairline)] px-5 py-4">
+          {company.pending_plan && company.paypal_subscription_id ? (
+            <ActivatePendingPaymentButton companyId={company.id} plan={company.pending_plan} />
+          ) : null}
           <ExtendTrialButton companyId={company.id} />
           <ChangePlanButton companyId={company.id} />
           <SetSubscriptionStatusButton companyId={company.id} />

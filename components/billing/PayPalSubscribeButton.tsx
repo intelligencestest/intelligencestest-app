@@ -40,7 +40,7 @@ interface PayPalNamespace {
       label: "subscribe";
     };
     createSubscription: (_data: unknown, actions: PayPalActions) => Promise<string> | string;
-    onApprove: (data: PayPalApproveData) => void;
+    onApprove: (data: PayPalApproveData) => Promise<void> | void;
     onError: () => void;
   }) => PayPalButtonsRenderer;
 }
@@ -80,7 +80,7 @@ function loadPayPalSdk(clientId: string) {
 
 export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [status, setStatus] = useState<"loading" | "ready" | "configured" | "error" | "success">("loading");
+  const [status, setStatus] = useState<"loading" | "ready" | "recording" | "configured" | "error" | "success">("loading");
   const [missingConfig, setMissingConfig] = useState<string[]>([]);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
   const es = locale === "es";
@@ -88,16 +88,18 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
   const copy = es
     ? {
         loading: "Cargando PayPal...",
+        recording: "Registrando la suscripción...",
         missing: "El pago con PayPal se está configurando. Contacte con ventas para activar este plan.",
-        error: "No pudimos cargar PayPal. Inténtelo de nuevo.",
-        success: "Suscripción creada. El equipo comercial confirmará la activación.",
+        error: "No pudimos completar el registro de PayPal. Inténtelo de nuevo.",
+        success: "Suscripción registrada. El equipo comercial confirmará la activación.",
         subscription: "ID de suscripción",
       }
     : {
         loading: "Loading PayPal...",
+        recording: "Recording subscription...",
         missing: "PayPal checkout is being configured. Contact sales to activate this plan.",
-        error: "We could not load PayPal. Please try again.",
-        success: "Subscription created. The commercial team will confirm activation.",
+        error: "We could not complete PayPal registration. Please try again.",
+        success: "Subscription recorded. The commercial team will confirm activation.",
         subscription: "Subscription ID",
       };
 
@@ -136,8 +138,26 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
               label: "subscribe",
             },
             createSubscription: (_data, actions) => actions.subscription.create({ plan_id: planId }),
-            onApprove: (data) => {
-              setSubscriptionId(data.subscriptionID ?? null);
+            onApprove: async (data) => {
+              const approvedSubscriptionId = data.subscriptionID ?? "";
+              if (!approvedSubscriptionId) {
+                setStatus("error");
+                return;
+              }
+
+              setSubscriptionId(approvedSubscriptionId);
+              setStatus("recording");
+              const recordResponse = await fetch("/api/billing/paypal-subscription", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ plan, subscription_id: approvedSubscriptionId }),
+              });
+
+              if (!recordResponse.ok) {
+                setStatus("error");
+                return;
+              }
+
               setStatus("success");
             },
             onError: () => setStatus("error"),
@@ -160,6 +180,7 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
     <div className="space-y-2">
       <div ref={containerRef} />
       {status === "loading" && <p className="text-xs text-slate-500">{copy.loading}</p>}
+      {status === "recording" && <p className="text-xs text-slate-500">{copy.recording}</p>}
       {status === "configured" && (
         <p className="text-xs leading-5 text-amber-300" title={missingConfig.join(", ") || undefined}>
           {copy.missing}

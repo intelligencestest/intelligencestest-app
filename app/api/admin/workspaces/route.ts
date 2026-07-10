@@ -167,7 +167,7 @@ export async function PATCH(request: NextRequest) {
   const { data: before } = await admin
     .from("companies")
     .select(
-      "name, email, plan, status, language, industry, trial_status, trial_ends_at, subscription_status, billing_provider, candidate_limit, project_limit, recruiter_limit"
+      "name, email, plan, status, language, industry, trial_status, trial_ends_at, subscription_status, billing_provider, pending_plan, paypal_subscription_id, paypal_subscription_status, candidate_limit, project_limit, recruiter_limit"
     )
     .eq("id", companyId)
     .maybeSingle();
@@ -194,8 +194,10 @@ export async function PATCH(request: NextRequest) {
         updates.trial_status = "active";
         updates.subscription_status = "manual";
         updates.billing_provider = "manual";
+        updates.pending_plan = null;
       } else {
         updates.trial_status = "converted";
+        updates.pending_plan = null;
       }
     }
   }
@@ -217,6 +219,9 @@ export async function PATCH(request: NextRequest) {
   }
   if (typeof body?.billing_provider === "string" && BILLING_PROVIDERS.has(body.billing_provider)) {
     updates.billing_provider = body.billing_provider;
+  }
+  if (body?.clear_pending_plan === true) {
+    updates.pending_plan = null;
   }
   const candidateLimit = cleanIntOrNull(body?.candidate_limit);
   if (candidateLimit !== undefined) updates.candidate_limit = candidateLimit;

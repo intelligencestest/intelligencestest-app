@@ -159,6 +159,40 @@ export function SetSubscriptionStatusButton({ companyId }: { companyId: string }
   );
 }
 
+/** Activates a verified PayPal subscription that is waiting for ops review. */
+export function ActivatePendingPaymentButton({ companyId, plan }: { companyId: string; plan: string }) {
+  const { state, error, fire } = useAction(() =>
+    fetch("/api/admin/workspaces", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        company_id: companyId,
+        plan,
+        subscription_status: "active",
+        billing_provider: "paypal",
+        clear_pending_plan: true,
+      }),
+    })
+  );
+
+  return (
+    <span className="inline-flex items-center gap-2">
+      <button
+        type="button"
+        disabled={state === "busy"}
+        onClick={() => {
+          if (!window.confirm(`Activate ${plan} for this PayPal subscription?`)) return;
+          void fire();
+        }}
+        className={btnCls}
+      >
+        {state === "busy" ? "Activating…" : state === "done" ? "Activated ✓" : `Activate ${plan}`}
+      </button>
+      {state === "error" && <span className="text-xs text-[#f28b8b]" role="alert">{error}</span>}
+    </span>
+  );
+}
+
 /** Sets custom candidate/project/recruiter caps (e.g. for a negotiated Enterprise deal) — ops role. Empty input = unlimited. */
 export function SetCustomLimitsButton({ companyId }: { companyId: string }) {
   const { state, error, fire } = useAction((payload) =>
