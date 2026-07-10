@@ -78,14 +78,17 @@ export async function getCompanyPlanState(admin: AdminClient, companyId: string)
   const now = Date.now();
   const trialEndsAtMs = company.trial_ends_at ? new Date(company.trial_ends_at).getTime() : null;
 
-  if (planId === "trial" && trialStatus === "active" && trialEndsAtMs !== null && trialEndsAtMs < now) {
+  const trialCanExpire = planId === "trial" && (trialStatus === "active" || trialStatus === "extended");
+
+  if (trialCanExpire && trialEndsAtMs !== null && trialEndsAtMs < now) {
     trialStatus = "expired";
     await admin.from("companies").update({ trial_status: "expired" }).eq("id", companyId);
   }
 
   const isTrialExpired = planId === "trial" && trialStatus === "expired";
+  const isTrialOpen = planId === "trial" && (trialStatus === "active" || trialStatus === "extended");
   const trialDaysLeft =
-    planId === "trial" && trialStatus === "active" && trialEndsAtMs !== null
+    isTrialOpen && trialEndsAtMs !== null
       ? Math.max(0, Math.ceil((trialEndsAtMs - now) / DAY_MS))
       : null;
 

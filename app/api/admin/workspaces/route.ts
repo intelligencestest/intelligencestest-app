@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendAuthEmail } from "@/lib/auth-email";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { logAdminAction, requireInternalAdminForApi } from "@/lib/internal-admin";
+import { normalizePlan, PLAN_LIMITS, TRIAL_DURATION_DAYS } from "@/lib/plan/limits";
 
 const APP_URL = "https://app.intelligencestest.com";
 
@@ -34,6 +35,10 @@ export async function POST(request: NextRequest) {
   if (!companyName || !isEmail(adminEmail)) {
     return jsonError("Company name and a valid admin email are required.", 400);
   }
+  const planId = normalizePlan(plan) ?? "trial";
+  const planLimits = PLAN_LIMITS[planId];
+  const trialStartedAt = new Date();
+  const trialEndsAt = new Date(trialStartedAt.getTime() + TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000);
 
   const { data: existingUser } = await admin
     .from("users")
@@ -53,7 +58,15 @@ export async function POST(request: NextRequest) {
       language,
       industry,
       onboarding_completed: true,
-      plan,
+      plan: planId,
+      trial_started_at: planId === "trial" ? trialStartedAt.toISOString() : null,
+      trial_ends_at: planId === "trial" ? trialEndsAt.toISOString() : null,
+      trial_status: planId === "trial" ? "active" : "converted",
+      subscription_status: "manual",
+      billing_provider: "manual",
+      candidate_limit: planLimits.candidates,
+      project_limit: planLimits.projects,
+      recruiter_limit: planLimits.recruiters,
       status,
       disabled_at: status === "disabled" ? new Date().toISOString() : null,
       updated_at: new Date().toISOString(),
@@ -117,7 +130,7 @@ export async function POST(request: NextRequest) {
     entityType: "company",
     entityId: company.id,
     companyId: company.id,
-    payload: { name: companyName, admin_email: adminEmail, plan, status, language },
+    payload: { name: companyName, admin_email: adminEmail, plan: planId, status, language },
   });
 
   if (emailResult.error) {
@@ -166,7 +179,26 @@ export async function PATCH(request: NextRequest) {
 
   if (typeof body?.company_name === "string") updates.name = clean(body.company_name);
   if (typeof body?.email === "string") updates.email = clean(body.email).toLowerCase();
-  if (typeof body?.plan === "string") updates.plan = clean(body.plan);
+  if (typeof body?.plan === "string") {
+    const planId = normalizePlan(clean(body.plan));
+    if (planId) {
+      const planLimits = PLAN_LIMITS[planId];
+      updates.plan = planId;
+      updates.candidate_limit = planLimits.candidates;
+      updates.project_limit = planLimits.projects;
+      updates.recruiter_limit = planLimits.recruiters;
+      if (planId === "trial") {
+        const startedAt = new Date();
+        updates.trial_started_at = startedAt.toISOString();
+        updates.trial_ends_at = new Date(startedAt.getTime() + TRIAL_DURATION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+        updates.trial_status = "active";
+        updates.subscription_status = "manual";
+        updates.billing_provider = "manual";
+      } else {
+        updates.trial_status = "converted";
+      }
+    }
+  }
   if (typeof body?.language === "string") updates.language = toAppLocale(body.language);
   if (typeof body?.industry === "string") updates.industry = clean(body.industry);
   if (typeof body?.logo_url === "string") updates.logo_url = clean(body.logo_url, 1000);
