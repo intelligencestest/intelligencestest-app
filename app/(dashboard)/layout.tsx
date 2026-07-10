@@ -3,9 +3,6 @@ import { AccountMenu } from "@/components/dashboard/AccountMenu";
 import { AppBreadcrumbs } from "@/components/dashboard/AppBreadcrumbs";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
-import { getLocale } from "next-intl/server";
-import { getPlanUsageSummary, type PlanUsageSummary } from "@/lib/plan/limits";
-import { TrialBanner } from "@/components/dashboard/TrialBanner";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();
@@ -14,7 +11,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   let userName: string | undefined;
   const userEmail: string | undefined = user?.email ?? undefined;
   let reviewCount = 0;
-  let planSummary: PlanUsageSummary | null = null;
 
   if (user) {
     const admin = createAdminClient();
@@ -34,11 +30,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .eq("pipeline_stage", "completed")
         .eq("outcome", "pending");
       reviewCount = count ?? 0;
-      planSummary = await getPlanUsageSummary(admin, profile.company_id);
     }
   }
-
-  const locale = (await getLocale()) === "es" ? "es" : "en";
 
   return (
     <div className="enterprise-shell flex h-screen overflow-hidden">
@@ -50,7 +43,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <AccountMenu userEmail={userEmail} userName={userName} />
           </div>
           <div className="space-y-6 px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
-            {planSummary ? <TrialBanner summary={planSummary} locale={locale} /> : null}
             {children}
           </div>
         </div>

@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
   Building2,
-  ChevronDown,
   ChevronRight,
   CreditCard,
   LogOut,
@@ -91,12 +90,9 @@ export function AccountMenu({ userEmail, userName }: AccountMenuProps) {
         <button
           type="button"
           aria-label={copy.menu}
-          className="group inline-flex h-10 cursor-pointer items-center gap-2 rounded-full border border-[var(--it-border)] bg-[var(--it-surface)] px-1.5 pr-3 text-left shadow-[0_1px_2px_rgba(16,24,40,0.05)] transition-colors hover:bg-[var(--it-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)]/35"
+          className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-surface)] text-[var(--it-text)] transition-colors hover:bg-[var(--it-surface-muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)]/35"
         >
-          <span className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-[var(--it-muted)]">
-            <UserRound className="h-4 w-4" strokeWidth={1.9} />
-          </span>
-          <ChevronDown className="h-4 w-4 text-[var(--it-faint)] transition-transform group-data-[state=open]:rotate-180" />
+          <UserRound className="h-4 w-4" strokeWidth={1.8} />
         </button>
       </DropdownMenuTrigger>
 
