@@ -50,11 +50,11 @@ function FeatureValue({
 }) {
   if (typeof value === "boolean") {
     return value ? (
-      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.1)] p-1 text-[#a9c8b4]">
+      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.1)] p-1 text-[#15803d]">
         <Check className="h-3.5 w-3.5" aria-label={includedLabel} />
       </span>
     ) : (
-      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-border)] bg-white/[0.025] p-1 text-[var(--it-faint)]">
+      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-border)] bg-gray-900/[0.025] p-1 text-[var(--it-faint)]">
         <Minus className="h-3.5 w-3.5" aria-label={excludedLabel} />
       </span>
     );
@@ -298,7 +298,7 @@ export default function BillingSettingsPage() {
   return (
     <div className="mx-auto max-w-[1200px]">
       <div>
-        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+        <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{copy.title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
@@ -308,14 +308,14 @@ export default function BillingSettingsPage() {
         <section>
           {/* Account summary — one typographic block, no cards */}
           <div className="border-b border-[var(--it-hairline)] pb-8">
-            <h2 className="text-2xl font-semibold text-white">{loading ? copy.loading : planName}</h2>
+            <h2 className="text-2xl font-semibold text-[var(--it-text)]">{loading ? copy.loading : planName}</h2>
 
             {!loading && planData ? (
               <p className="mt-1.5 text-[13px] text-[var(--it-muted)]">
                 {metaParts.map((part, i) => (
                   <span key={part.text}>
                     {i > 0 && <span className="mx-1.5 text-[var(--it-faint)]">·</span>}
-                    <span className={part.tone === "danger" ? "text-[#cfa097]" : undefined}>{part.text}</span>
+                    <span className={part.tone === "danger" ? "text-[#b91c1c]" : undefined}>{part.text}</span>
                   </span>
                 ))}
               </p>
@@ -328,7 +328,7 @@ export default function BillingSettingsPage() {
                 {usageRows.map((row) => (
                   <div key={row.label} className="flex items-center gap-4">
                     <span className="w-40 shrink-0 text-[13px] text-[var(--it-muted)]">{row.label}</span>
-                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-900/[0.06]">
                       {row.limit !== null ? (
                         <span
                           className={`block h-full rounded-full ${usageTone(row.used, row.limit)}`}
@@ -370,7 +370,7 @@ export default function BillingSettingsPage() {
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-3 text-2xl font-semibold leading-tight text-white">{plan.price}</p>
+                    <p className="mt-3 text-2xl font-semibold leading-tight text-[var(--it-text)]">{plan.price}</p>
 
                     <ul className="mt-6 space-y-2.5 text-[13px] text-[var(--it-muted)]">
                       {pricingRows.map((row) => (

@@ -13,11 +13,11 @@ export default async function Home() {
   const copy = getPublicCopy(locale);
 
   return (
-    <main className="min-h-screen bg-[#171614] text-slate-100">
+    <main className="min-h-screen bg-[#f8fafc] text-slate-100">
       <PublicHeader copy={copy} />
 
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-[#2a2824]">
+      <section className="relative overflow-hidden border-b border-[#f3f4f6]">
         <div className="hero-glow absolute inset-0" aria-hidden="true" />
         <div
           className="absolute inset-0 opacity-[0.35]"
@@ -31,8 +31,8 @@ export default async function Home() {
         />
         <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
           <div className="animate-fade-up">
-            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#2a2824] bg-[#1d1c19]/80 px-3.5 py-1.5 text-xs font-medium tracking-[0.01em] text-[#9BB8FF]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#a6b2cf]" aria-hidden="true" />
+            <p className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#ffffff]/80 px-3.5 py-1.5 text-xs font-medium tracking-[0.01em] text-[#9BB8FF]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#4338ca]" aria-hidden="true" />
               {copy.home.eyebrow}
             </p>
             <h1 className="headline-gradient max-w-2xl text-[2.6rem] font-semibold leading-[1.08] tracking-[-0.02em] sm:text-5xl lg:text-[3.4rem]">
@@ -44,29 +44,29 @@ export default async function Home() {
             <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
               <Link
                 href={localePath("/signup", locale)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#50618f] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(80,97,143,0.4)] transition hover:bg-[#46557e] focus:outline-none focus:ring-2 focus:ring-[#a6b2cf]/70"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4338ca]/70"
               >
                 {copy.home.primaryCta}
                 <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
               </Link>
               <Link
                 href={`${localePath("/", locale)}#assessments`}
-                className="inline-flex items-center justify-center rounded-xl border border-[#2a2824] bg-[#1d1c19]/60 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-[#3d3b34] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#a6b2cf]/60"
+                className="inline-flex items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#ffffff]/60 px-6 py-3.5 text-sm font-semibold text-slate-200 transition hover:border-[#d1d5db] hover:text-[var(--it-text)] focus:outline-none focus:ring-2 focus:ring-[#4338ca]/60"
               >
                 {copy.home.secondaryCta}
               </Link>
             </div>
-            <dl className="mt-12 flex max-w-xl divide-x divide-[#2a2824] border-t border-[#2a2824] pt-6">
+            <dl className="mt-12 flex max-w-xl divide-x divide-[#f3f4f6] border-t border-[#f3f4f6] pt-6">
               {copy.home.stats.map((stat, i) => (
                 <div key={stat.label} className={i === 0 ? "pr-8" : "px-8"}>
-                  <dt className="text-2xl font-semibold tracking-tight text-white">{stat.value}</dt>
+                  <dt className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{stat.value}</dt>
                   <dd className="mt-1 text-[13px] leading-5 text-slate-400">{stat.label}</dd>
                 </div>
               ))}
             </dl>
           </div>
           <div className="relative hidden lg:block" aria-hidden="false">
-            <div className="absolute -inset-10 rounded-[40px] bg-[radial-gradient(ellipse_at_center,rgba(80,97,143,0.16),transparent_65%)]" aria-hidden="true" />
+            <div className="absolute -inset-10 rounded-[40px] bg-[radial-gradient(ellipse_at_center,rgba(79,70,229,0.06),transparent_65%)]" aria-hidden="true" />
             <div className="gradient-ring relative rounded-2xl p-1.5">
               <SignalBoard copy={copy} />
             </div>
@@ -75,11 +75,11 @@ export default async function Home() {
       </section>
 
       {/* Features */}
-      <section id="features" className="scroll-mt-20 border-b border-[#2a2824] bg-[#0A0C16] py-20 sm:py-28">
+      <section id="features" className="scroll-mt-20 border-b border-[#f3f4f6] bg-[#0A0C16] py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="max-w-2xl">
-            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#a6b2cf]">{copy.home.featuresEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">{copy.home.featuresTitle}</h2>
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#4338ca]">{copy.home.featuresEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-[var(--it-text)] sm:text-4xl">{copy.home.featuresTitle}</h2>
           </div>
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {copy.home.features.map((feature, i) => {
@@ -87,13 +87,13 @@ export default async function Home() {
               return (
                 <article
                   key={feature.title}
-                  className="group relative overflow-hidden rounded-2xl border border-[#2a2824] bg-[#1d1c19] p-6 transition-colors duration-200 hover:border-[#50618f]/40"
+                  className="group relative overflow-hidden rounded-2xl border border-[#f3f4f6] bg-[#ffffff] p-6 transition-colors duration-200 hover:border-[#4f46e5]/40"
                 >
-                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#50618f]/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
-                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl border border-[#50618f]/30 bg-[#50618f]/10 text-[#a6b2cf] ring-1 ring-inset ring-white/5">
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#4f46e5]/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
+                  <div className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl border border-[#4f46e5]/30 bg-[#4f46e5]/10 text-[#4338ca] ring-1 ring-inset ring-white/5">
                     <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                   </div>
-                  <h3 className="text-[17px] font-semibold text-white">{feature.title}</h3>
+                  <h3 className="text-[17px] font-semibold text-[var(--it-text)]">{feature.title}</h3>
                   <p className="mt-2.5 text-sm leading-6 text-slate-400">{feature.body}</p>
                 </article>
               );
@@ -103,15 +103,15 @@ export default async function Home() {
       </section>
 
       {/* Assessments */}
-      <section id="assessments" className="scroll-mt-20 border-b border-[#2a2824] py-20 sm:py-28">
+      <section id="assessments" className="scroll-mt-20 border-b border-[#f3f4f6] py-20 sm:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-start lg:px-8">
           <div className="lg:sticky lg:top-24">
-            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#a6b2cf]">{copy.home.assessmentsEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">{copy.home.assessmentsTitle}</h2>
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#4338ca]">{copy.home.assessmentsEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-[var(--it-text)] sm:text-4xl">{copy.home.assessmentsTitle}</h2>
             <p className="mt-5 text-base leading-7 text-slate-400">{copy.home.assessmentsBody}</p>
             <Link
               href={localePath("/signup", locale)}
-              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#a6b2cf] transition hover:text-white"
+              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#4338ca] transition hover:text-[var(--it-text)]"
             >
               {copy.home.primaryCta}
               <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
@@ -123,12 +123,12 @@ export default async function Home() {
               return (
                 <div
                   key={group.title}
-                  className="rounded-2xl border border-[#2a2824] bg-[#1d1c19] p-6 transition-colors duration-200 hover:border-[#3d3b34]"
+                  className="rounded-2xl border border-[#f3f4f6] bg-[#ffffff] p-6 transition-colors duration-200 hover:border-[#d1d5db]"
                 >
-                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg border border-[#50618f]/25 bg-[#50618f]/[0.08] text-[#a6b2cf]">
+                  <div className="mb-4 flex h-9 w-9 items-center justify-center rounded-lg border border-[#4f46e5]/25 bg-[#4f46e5]/[0.08] text-[#4338ca]">
                     <Icon className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
                   </div>
-                  <p className="text-[15px] font-semibold text-white">{group.title}</p>
+                  <p className="text-[15px] font-semibold text-[var(--it-text)]">{group.title}</p>
                   <p className="mt-2 text-sm leading-6 text-slate-400">{group.body}</p>
                 </div>
               );
@@ -138,16 +138,16 @@ export default async function Home() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="scroll-mt-20 border-b border-[#2a2824] bg-[#0A0C16] py-20 sm:py-28">
+      <section id="faq" className="scroll-mt-20 border-b border-[#f3f4f6] bg-[#0A0C16] py-20 sm:py-28">
         <div className="mx-auto max-w-3xl px-5 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#a6b2cf]">{copy.home.faqEyebrow}</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">{copy.home.faqTitle}</h2>
+            <p className="text-[13px] font-semibold tracking-[0.01em] text-[#4338ca]">{copy.home.faqEyebrow}</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.015em] text-[var(--it-text)] sm:text-4xl">{copy.home.faqTitle}</h2>
           </div>
           <div className="mt-10 space-y-3">
             {copy.home.faq.map((item) => (
-              <details key={item.question} className="group rounded-2xl border border-[#2a2824] bg-[#1d1c19] px-6 py-5 open:border-[#3d3b34]">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#a6b2cf]/50 [&::-webkit-details-marker]:hidden">
+              <details key={item.question} className="group rounded-2xl border border-[#f3f4f6] bg-[#ffffff] px-6 py-5 open:border-[#d1d5db]">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-[15px] font-semibold text-[var(--it-text)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#4338ca]/50 [&::-webkit-details-marker]:hidden">
                   {item.question}
                   <ChevronDown
                     className="h-4 w-4 flex-shrink-0 text-slate-500 transition-transform duration-200 group-open:rotate-180"
@@ -166,23 +166,23 @@ export default async function Home() {
       <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-5xl px-5 sm:px-6 lg:px-8">
           <div className="gradient-ring relative overflow-hidden rounded-3xl px-6 py-16 text-center sm:px-16">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_-10%,rgba(80,97,143,0.28),transparent_70%)]" aria-hidden="true" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_80%_at_50%_-10%,rgba(79,70,229,0.08),transparent_70%)]" aria-hidden="true" />
             <div className="relative">
-              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-[-0.015em] text-white sm:text-4xl">
+              <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-[-0.015em] text-[var(--it-text)] sm:text-4xl">
                 {copy.home.finalTitle}
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-400">{copy.home.finalBody}</p>
               <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
                 <Link
                   href={localePath("/signup", locale)}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#50618f] px-6 py-3.5 text-sm font-semibold text-white shadow-[0_0_40px_rgba(80,97,143,0.4)] transition hover:bg-[#46557e]"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#3730a3]"
                 >
                   {copy.home.primaryCta}
                   <ArrowRight className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                 </Link>
                 <Link
                   href={localePath("/contact", locale)}
-                  className="inline-flex items-center justify-center rounded-xl border border-[#2a2824] bg-[#171614]/60 px-6 py-3.5 text-sm font-semibold text-white transition hover:border-[#3d3b34]"
+                  className="inline-flex items-center justify-center rounded-xl border border-[#f3f4f6] bg-[#f8fafc]/60 px-6 py-3.5 text-sm font-semibold text-[var(--it-text)] transition hover:border-[#d1d5db]"
                 >
                   {copy.nav.contact}
                 </Link>

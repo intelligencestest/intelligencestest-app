@@ -66,7 +66,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-lg border border-[#2a2824] bg-[#1d1c19] p-5 sm:p-6">
+    <form onSubmit={onSubmit} className="rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-5 sm:p-6">
       <div className="hidden" aria-hidden="true">
         <label htmlFor="website">{formCopy.website}</label>
         <input
@@ -86,7 +86,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
             required
             value={form.name}
             onChange={(event) => update("name", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-[#2a2824] bg-[#171614] px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+            className="mt-2 w-full rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3 text-sm text-[var(--it-text)] outline-none transition placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
           />
         </label>
         <label className="block">
@@ -96,7 +96,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
             type="email"
             value={form.email}
             onChange={(event) => update("email", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-[#2a2824] bg-[#171614] px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+            className="mt-2 w-full rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3 text-sm text-[var(--it-text)] outline-none transition placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
           />
         </label>
         <label className="block">
@@ -105,7 +105,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
             required
             value={form.company}
             onChange={(event) => update("company", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-[#2a2824] bg-[#171614] px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+            className="mt-2 w-full rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3 text-sm text-[var(--it-text)] outline-none transition placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
           />
         </label>
         <label className="block">
@@ -113,7 +113,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
           <input
             value={form.role}
             onChange={(event) => update("role", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-[#2a2824] bg-[#171614] px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+            className="mt-2 w-full rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3 text-sm text-[var(--it-text)] outline-none transition placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
           />
         </label>
         <label className="block">
@@ -121,7 +121,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
           <select
             value={form.companyType}
             onChange={(event) => update("companyType", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-[#2a2824] bg-[#171614] px-3 py-3 text-sm text-white outline-none transition focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+            className="mt-2 w-full rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3 text-sm text-[var(--it-text)] outline-none transition focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
           >
             <option value="">-</option>
             {formCopy.typeOptions.map((option) => <option key={option} value={option}>{option}</option>)}
@@ -132,7 +132,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
           <input
             value={isDemo ? form.employees : form.phone}
             onChange={(event) => update(isDemo ? "employees" : "phone", event.target.value)}
-            className="mt-2 w-full rounded-lg border border-[#2a2824] bg-[#171614] px-3 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+            className="mt-2 w-full rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3 text-sm text-[var(--it-text)] outline-none transition placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
           />
         </label>
       </div>
@@ -144,7 +144,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
           rows={5}
           value={form.message}
           onChange={(event) => update("message", event.target.value)}
-          className="mt-2 w-full resize-y rounded-lg border border-[#2a2824] bg-[#171614] px-3 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+          className="mt-2 w-full resize-y rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-3 text-sm leading-6 text-[var(--it-text)] outline-none transition placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
         />
       </label>
 
@@ -162,7 +162,7 @@ export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; 
       <button
         type="submit"
         disabled={status === "sending"}
-        className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-[#50618f] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#46557e] focus:outline-none focus:ring-2 focus:ring-[#a6b2cf]/70 disabled:cursor-wait disabled:opacity-70"
+        className="mt-5 inline-flex w-full items-center justify-center rounded-lg bg-[#4f46e5] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4338ca]/70 disabled:cursor-wait disabled:opacity-70"
       >
         {status === "sending" ? formCopy.sending : isDemo ? formCopy.submitDemo : formCopy.submitContact}
       </button>

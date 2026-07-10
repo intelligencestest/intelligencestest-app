@@ -75,11 +75,11 @@ export function AccountMenu({ userEmail, userName, variant = "topbar", collapsed
             type="button"
             aria-label={copy.menu}
             className={cn(
-              "group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)]",
+              "group flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-gray-900/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)]",
               collapsed && "justify-center"
             )}
           >
-            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-border)] bg-white/[0.03] text-[11px] font-semibold text-slate-200">
+            <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-border)] bg-gray-900/[0.03] text-[11px] font-semibold text-slate-200">
               {initials}
             </span>
             {!collapsed && (
@@ -110,13 +110,13 @@ export function AccountMenu({ userEmail, userName, variant = "topbar", collapsed
         className="w-[min(21rem,calc(100vw-2rem))] rounded-2xl p-0"
       >
         <div className="-mx-px -mt-px border-b border-[var(--it-border-soft)] px-4 py-4">
-          <p className="truncate text-sm font-semibold text-white">{displayName}</p>
+          <p className="truncate text-sm font-semibold text-[var(--it-text)]">{displayName}</p>
           <p className="mt-0.5 truncate text-xs text-[var(--it-muted)]">{userEmail}</p>
         </div>
 
         <div className="py-2">
           {links.map((link) => (
-            <DropdownMenuItem key={link.href} asChild className="rounded-none px-4 py-3 focus:bg-white/[0.035]">
+            <DropdownMenuItem key={link.href} asChild className="rounded-none px-4 py-3 focus:bg-gray-900/[0.035]">
               <Link href={localePath(link.href, locale)} className="flex items-center gap-3 text-sm font-medium text-slate-300">
                 <link.icon className="h-4 w-4 flex-shrink-0 text-[var(--it-faint)]" />
                 <span className="min-w-0 flex-1 truncate">{link.label}</span>

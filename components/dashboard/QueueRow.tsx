@@ -42,11 +42,11 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
   return (
     <Link
       href={`/candidates/${entry.id}?ctx=review`}
-      className="enterprise-table-row group block px-5 py-4 transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
+      className="enterprise-table-row group block px-6 py-5 transition-colors hover:bg-gray-900/[0.025] focus-visible:bg-gray-900/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
     >
       {/* Line 1 — who */}
       <div className="flex items-baseline gap-2">
-        <span className="min-w-0 truncate text-[15px] font-semibold text-white transition-colors group-hover:text-slate-100">
+        <span className="min-w-0 truncate text-[15px] font-semibold text-[var(--it-text)] transition-colors group-hover:text-slate-100">
           {entry.fullName || t("unknown")}
         </span>
         <span className="min-w-0 flex-1 truncate text-[13px] text-[var(--it-muted)]">
@@ -58,7 +58,7 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
         </span>
         <span
           className={`flex-shrink-0 whitespace-nowrap text-xs font-medium tabular-nums ${
-            overSla ? "text-[#cdb584]" : "text-[var(--it-muted)]"
+            overSla ? "text-[#b45309]" : "text-[var(--it-muted)]"
           }`}
         >
           {t("queueWaitingFor", { time: shortDuration(entry.waitMs) })}
@@ -107,23 +107,23 @@ export default async function QueueRow({ entry }: { entry: QueueEntry }) {
       <div className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1">
         {intel.topCompetency && (
           <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-slate-300">
-            <TrendingUp className="h-3.5 w-3.5 flex-shrink-0 text-[#a9c8b4]" strokeWidth={2} aria-hidden="true" />
+            <TrendingUp className="h-3.5 w-3.5 flex-shrink-0 text-[#15803d]" strokeWidth={2} aria-hidden="true" />
             <span className="truncate">{intel.topCompetency}</span>
           </span>
         )}
         <span className="inline-flex min-w-0 items-center gap-1.5 text-[13px] text-slate-400">
           <AlertTriangle
-            className={`h-3.5 w-3.5 flex-shrink-0 ${intel.primaryRisk ? "text-[#cdb584]" : "text-[var(--it-faint)]"}`}
+            className={`h-3.5 w-3.5 flex-shrink-0 ${intel.primaryRisk ? "text-[#b45309]" : "text-[var(--it-faint)]"}`}
             strokeWidth={2}
             aria-hidden="true"
           />
-          <span className={`truncate ${intel.primaryRisk ? "text-[#cdb584]" : ""}`}>
+          <span className={`truncate ${intel.primaryRisk ? "text-[#b45309]" : ""}`}>
             {intel.primaryRisk ? intel.primaryRisk.label : t("queueRiskNone")}
           </span>
         </span>
         {intel.interviewKitReady && (
           <span className="hidden items-center gap-1.5 text-[13px] text-[var(--it-muted)] sm:inline-flex">
-            <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 text-[#a9b8c9]" strokeWidth={2} aria-hidden="true" />
+            <MessageSquare className="h-3.5 w-3.5 flex-shrink-0 text-[#3a5c7e]" strokeWidth={2} aria-hidden="true" />
             {t("queueInterviewKit")}
           </span>
         )}

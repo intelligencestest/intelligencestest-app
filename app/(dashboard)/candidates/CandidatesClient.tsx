@@ -327,11 +327,11 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
   const selectClass = "w-full cursor-pointer rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-300 outline-none focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25";
 
   return (
-    <div className="mx-auto max-w-[1200px] space-y-6">
+    <div className="mx-auto max-w-[1200px] space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+          <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{copy.title}</h1>
           <p className="mt-2 text-sm text-[var(--it-muted)]">
             {copy.across(candidates.length)}
             <span className="mx-2 text-[var(--it-faint)]">·</span>
@@ -410,13 +410,13 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               const nextActionable = !closed && candidate.pipeline_stage === "completed";
               const invitedShort = new Date(candidate.created_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" });
               return (
-                <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="group grid gap-x-4 gap-y-1 px-4 py-3 transition-colors hover:bg-white/[0.025] md:grid-cols-12 md:items-center md:px-6">
+                <Link href={`/candidates/${candidate.id}`} key={candidate.id} className="group grid gap-x-4 gap-y-1 px-4 py-4 transition-colors hover:bg-gray-900/[0.025] md:grid-cols-12 md:items-center md:px-6">
                   <div className="flex min-w-0 items-center gap-3 md:col-span-5">
                     <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-surface-muted)] text-[11px] font-semibold text-slate-200">
                       {initials}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-white transition-colors group-hover:text-slate-200">{name}</p>
+                      <p className="truncate text-sm font-medium text-[var(--it-text)] transition-colors group-hover:text-slate-200">{name}</p>
                       <p className="truncate text-xs text-[var(--it-muted)]">{candidate.email || "—"}</p>
                     </div>
                   </div>
@@ -431,7 +431,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                     </span>
                   </div>
                   <div className="md:col-span-2 md:text-right">
-                    <span className={nextActionable ? "text-sm font-medium text-white" : "text-sm text-[var(--it-muted)]"}>
+                    <span className={nextActionable ? "text-sm font-medium text-[var(--it-text)]" : "text-sm text-[var(--it-muted)]"}>
                       {copy.next[nextKey]}
                     </span>
                   </div>
@@ -449,22 +449,22 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
       {/* Invite modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-4 backdrop-blur-sm"
           onClick={closeModal}
         >
           <div
-            className="enterprise-card w-full max-w-md rounded-2xl p-6 shadow-2xl"
+            className="enterprise-card w-full max-w-md rounded-2xl p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold text-white">{copy.modalTitle}</h3>
+                <h3 className="text-base font-semibold text-[var(--it-text)]">{copy.modalTitle}</h3>
                 <p className="mt-0.5 text-xs text-[var(--it-muted)]">{copy.modalDescription}</p>
               </div>
               <button
                 onClick={closeModal}
-                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
+                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-gray-900/[0.05] hover:text-[var(--it-text)]"
               >
                 <X className="h-4 w-4" strokeWidth={2} />
               </button>
@@ -475,12 +475,12 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               <div className="space-y-4">
                 {success.type === "link" ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
-                        <Check className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
+                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.08)] p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(22,163,74,0.15)]">
+                        <Check className="h-4 w-4 text-[#15803d]" strokeWidth={2} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-[#a9c8b4]">{copy.copied}</p>
+                        <p className="text-sm font-medium text-[#15803d]">{copy.copied}</p>
                         <p className="text-xs text-[var(--it-muted)]">{copy.validShare}</p>
                       </div>
                     </div>
@@ -493,12 +493,12 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
-                      <Mail className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
+                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.08)] p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(22,163,74,0.15)]">
+                      <Mail className="h-4 w-4 text-[#15803d]" strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-[#a9c8b4]">{copy.emailSent}</p>
+                      <p className="text-sm font-medium text-[#15803d]">{copy.emailSent}</p>
                       <p className="truncate text-xs text-[var(--it-muted)]">{success.to}</p>
                     </div>
                   </div>
@@ -506,7 +506,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
+                  className="w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-[var(--it-text)]"
                 >
                   {copy.inviteAnother}
                 </button>
@@ -515,7 +515,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               /* Form state */
               <div className="space-y-4">
                 {error && (
-                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(166,91,80,0.1)] p-3 text-sm text-[#cfa097]">
+                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(220,38,38,0.1)] p-3 text-sm text-[#b91c1c]">
                     {error}
                   </div>
                 )}

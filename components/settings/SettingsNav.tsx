@@ -37,8 +37,8 @@ export function SettingsNav() {
               className={cn(
                 "group flex h-10 items-center gap-2.5 rounded-md border-l-2 px-2.5 text-[13px] font-medium transition-colors",
                 active
-                  ? "border-[var(--it-primary)] bg-[var(--it-primary-soft)] text-white"
-                  : "border-transparent text-[var(--it-muted)] hover:bg-white/[0.03] hover:text-slate-100"
+                  ? "border-[var(--it-primary)] bg-[var(--it-primary-soft)] text-[var(--it-text)]"
+                  : "border-transparent text-[var(--it-muted)] hover:bg-gray-900/[0.03] hover:text-slate-100"
               )}
             >
               <item.icon

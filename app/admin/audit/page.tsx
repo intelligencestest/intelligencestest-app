@@ -66,7 +66,7 @@ export default async function AdminAuditPage({
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white">Audit log</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">Audit log</h1>
           <p className="mt-1 text-sm text-slate-500">Every console mutation, newest first. Append-only.</p>
         </div>
         <form action="/admin/audit" className="flex w-full flex-wrap gap-2 sm:w-auto">
@@ -86,9 +86,9 @@ export default async function AdminAuditPage({
             name="admin"
             defaultValue={adminFilter}
             placeholder="Filter by operator email…"
-            className="min-w-0 flex-1 rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-white outline-none focus:border-[#8b5cf6] sm:w-56"
+            className="min-w-0 flex-1 rounded-lg border border-[var(--it-hairline)] bg-[var(--it-bg)] px-3 py-2.5 text-sm text-[var(--it-text)] outline-none focus:border-[#8b5cf6] sm:w-56"
           />
-          <button className="rounded-lg bg-[#8b5cf6] px-4 py-2.5 text-sm font-semibold text-white">Filter</button>
+          <button className="rounded-lg bg-[#8b5cf6] px-4 py-2.5 text-sm font-semibold text-[var(--it-text)]">Filter</button>
         </form>
       </div>
 
@@ -103,7 +103,7 @@ export default async function AdminAuditPage({
           <div className="divide-y divide-[var(--it-hairline)]">
             {(rows ?? []).map((row) => (
               <div key={row.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3">
-                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#a6b2cf]">{row.action_type}</code>
+                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#4338ca]">{row.action_type}</code>
                 <span className="text-sm text-slate-300">{row.admin_email}</span>
                 {row.entity_type && (
                   <span className="text-xs text-slate-500">
@@ -116,7 +116,7 @@ export default async function AdminAuditPage({
                   {row.company_id && (
                     <Link
                       href={`/admin/companies/${row.company_id}`}
-                      className="text-xs font-medium text-[#a6b2cf] hover:underline"
+                      className="text-xs font-medium text-[#4338ca] hover:underline"
                     >
                       company →
                     </Link>

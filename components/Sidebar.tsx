@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { AccountMenu } from "@/components/dashboard/AccountMenu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { BrandLockup, BrandLogoMark } from "@/components/brand/BrandLogo";
 import { localePath, stripLocalePrefix, toAppLocale } from "@/lib/i18n/locales";
 import { cn } from "@/lib/utils";
 
@@ -100,17 +101,15 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
         <div className="flex flex-col h-full">
           {/* Logo */}
           <div className={cn("flex items-center gap-3 border-b enterprise-divider py-5", isCollapsed ? "justify-center px-3" : "px-6")}>
-            <div className="w-9 h-9 rounded-lg bg-[var(--it-primary)] border border-white/10 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="white" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
-              </svg>
-            </div>
-            {!isCollapsed && (
-              <div className="min-w-0">
-                <div className="truncate text-[13px] font-semibold leading-tight text-white">Intelligences Test</div>
-                <div className="truncate text-[11px] leading-tight text-[var(--it-faint)]">{es ? "Sistema de evaluación" : "Assessment OS"}</div>
-              </div>
+            {isCollapsed ? (
+              <BrandLogoMark className="h-9 w-9 rounded-lg" />
+            ) : (
+              <BrandLockup
+                subtitle={es ? "Sistema de evaluación" : "Assessment OS"}
+                markClassName="h-9 w-9 rounded-lg"
+                titleClassName="text-[13px] leading-tight"
+                subtitleClassName="text-[11px] leading-tight text-[var(--it-faint)]"
+              />
             )}
           </div>
 
@@ -141,8 +140,8 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
                     "group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium tracking-[0.005em] transition-colors duration-150",
                     isCollapsed && "justify-center",
                     active
-                      ? "bg-white/[0.055] text-white"
-                      : "text-[var(--it-muted)] hover:bg-white/[0.03] hover:text-slate-100"
+                      ? "bg-gray-900/[0.055] text-[var(--it-text)]"
+                      : "text-[var(--it-muted)] hover:bg-gray-900/[0.03] hover:text-slate-100"
                   )}
                 >
                   <item.icon
@@ -157,7 +156,7 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
                           className={cn(
                             "rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums",
                             active
-                              ? "border-white/10 bg-white/[0.06] text-slate-100"
+                              ? "border-gray-900/10 bg-gray-900/[0.06] text-slate-100"
                               : "border-[var(--it-border)] bg-[var(--it-bg)] text-[var(--it-muted)] group-hover:text-slate-200"
                           )}
                         >
@@ -193,7 +192,7 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
               onClick={toggleCollapsed}
               title={isCollapsed ? (es ? "Expandir" : "Expand") : es ? "Contraer" : "Collapse"}
               className={cn(
-                "mx-3 mb-2 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-[var(--it-faint)] transition-colors hover:bg-white/[0.02] hover:text-slate-300 cursor-pointer",
+                "mx-3 mb-2 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-[var(--it-faint)] transition-colors hover:bg-gray-900/[0.02] hover:text-slate-300 cursor-pointer",
                 isCollapsed && "justify-center"
               )}
             >
@@ -222,13 +221,13 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
 
       {mobileOpen && (
         <div
-          className="lg:hidden print:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+          className="lg:hidden print:hidden fixed inset-0 z-40 bg-gray-900/40 backdrop-blur-sm"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       <aside
-        className={`lg:hidden print:hidden fixed top-0 left-0 z-40 h-full w-64 bg-[var(--it-sidebar)] border-r enterprise-divider transform transition-transform duration-200 shadow-2xl ${
+        className={`lg:hidden print:hidden fixed top-0 left-0 z-40 h-full w-64 bg-[var(--it-sidebar)] border-r enterprise-divider transform transition-transform duration-200 shadow-xl ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

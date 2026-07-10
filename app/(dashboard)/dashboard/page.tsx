@@ -342,16 +342,16 @@ export default async function DashboardPage({
         /* First-run: guided setup */
         <div className="enterprise-card rounded-xl p-8">
           <div className="mb-8 text-center">
-            <h2 className="text-xl font-semibold text-white">{t("startedTitle")}</h2>
+            <h2 className="text-xl font-semibold text-[var(--it-text)]">{t("startedTitle")}</h2>
             <p className="mt-2 text-sm text-[var(--it-muted)]">{t("startedBody")}</p>
           </div>
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[1, 2, 3].map((n) => (
               <div key={n} className="enterprise-panel rounded-lg p-5">
-                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--it-border)] bg-white/[0.03] text-xs font-semibold text-slate-300">
+                <div className="mb-3 flex h-7 w-7 items-center justify-center rounded-full border border-[var(--it-border)] bg-gray-900/[0.03] text-xs font-semibold text-slate-300">
                   {n}
                 </div>
-                <h3 className="text-sm font-semibold text-white">{t(`step${n}Title`)}</h3>
+                <h3 className="text-sm font-semibold text-[var(--it-text)]">{t(`step${n}Title`)}</h3>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--it-muted)]">{t(`step${n}Desc`)}</p>
               </div>
             ))}

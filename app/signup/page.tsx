@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import { BrandLockup } from "@/components/brand/BrandLogo";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 
@@ -17,18 +18,7 @@ const GoogleIcon = () => (
 );
 
 const Logo = ({ subtitle }: { subtitle: string }) => (
-  <div className="flex items-center gap-3">
-    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#7d8db4]/30 bg-[#50618f] shadow-[0_0_36px_rgba(80,97,143,0.38)]">
-      <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
-      </svg>
-    </div>
-    <div>
-      <p className="text-sm font-semibold tracking-tight text-white">Intelligences Test</p>
-      <p className="text-xs text-slate-500">{subtitle}</p>
-    </div>
-  </div>
+  <BrandLockup subtitle={subtitle} />
 );
 
 export default function SignupPage() {
@@ -115,20 +105,20 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#171614] text-slate-100">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(80,97,143,0.16),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-100">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <main className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_540px]">
         {/* Left panel */}
-        <section className="hidden lg:flex flex-col justify-between border-r border-[#2a2824] px-10 py-8 xl:px-14">
+        <section className="hidden lg:flex flex-col justify-between border-r border-[#f3f4f6] px-10 py-8 xl:px-14">
           <Logo subtitle={flow("brandSubtitle")} />
           <div className="max-w-xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2a2824] bg-[#1d1c19]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#ffffff]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               {flow("signupBadge")}
             </div>
-            <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-white xl:text-5xl">
+            <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-[var(--it-text)] xl:text-5xl">
               {flow("signupHeroTitle")}
             </h1>
             <p className="mt-5 max-w-md text-sm leading-6 text-slate-400">
@@ -137,14 +127,14 @@ export default function SignupPage() {
             <div className="mt-10 grid max-w-lg grid-cols-3 gap-3">
               {[["22+", flow("assessmentsStat")], ["5 min", flow("candidateSetupStat")], ["100%", flow("dataIsolatedStat")]].map(([v, l]) => (
                 <div key={l} className="premium-card rounded-xl p-4">
-                  <p className="text-xl font-semibold text-white">{v}</p>
+                  <p className="text-xl font-semibold text-[var(--it-text)]">{v}</p>
                   <p className="mt-1 text-xs text-slate-500">{l}</p>
                 </div>
               ))}
             </div>
           </div>
           <div className="flex items-center gap-3 text-xs text-slate-600">
-            <span className="h-px w-10 bg-[#2a2824]" />
+            <span className="h-px w-10 bg-[#f3f4f6]" />
             {flow("builtFor")}
           </div>
         </section>
@@ -156,12 +146,12 @@ export default function SignupPage() {
               <Logo subtitle={flow("brandSubtitle")} />
             </div>
 
-            <div className="premium-card rounded-2xl p-6 shadow-2xl sm:p-8">
+            <div className="premium-card rounded-2xl p-6 shadow-xl sm:p-8">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("createAccount")}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{auth("createAccount")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("alreadyHaveAccount")}{" "}
-                  <Link href={localePath("/login", language)} className="text-[#a6b2cf] hover:text-[#93B8FF] transition-colors">
+                  <Link href={localePath("/login", language)} className="text-[#4338ca] hover:text-[#93B8FF] transition-colors">
                     {auth("signIn")}
                   </Link>
                 </p>
@@ -172,7 +162,7 @@ export default function SignupPage() {
                 type="button"
                 onClick={handleGoogle}
                 disabled={oauthLoading}
-                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#3d3b34] hover:bg-[#1d1c19] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#d1d5db] hover:bg-[#ffffff] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {oauthLoading ? (
                   <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -186,9 +176,9 @@ export default function SignupPage() {
               </button>
 
               <div className="mb-5 flex items-center gap-3">
-                <span className="h-px flex-1 bg-[#2a2824]" />
+                <span className="h-px flex-1 bg-[#f3f4f6]" />
                 <span className="text-xs text-slate-600">{auth("orSignUpWithEmail")}</span>
-                <span className="h-px flex-1 bg-[#2a2824]" />
+                <span className="h-px flex-1 bg-[#f3f4f6]" />
               </div>
 
               {error && (
@@ -208,7 +198,7 @@ export default function SignupPage() {
                       required
                       placeholder={flow("companyPlaceholder")}
                       {...field("company_name")}
-                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                   <div>
@@ -217,7 +207,7 @@ export default function SignupPage() {
                       required
                       placeholder={flow("fullNamePlaceholder")}
                       {...field("full_name")}
-                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                 </div>
@@ -229,7 +219,7 @@ export default function SignupPage() {
                     type="email"
                     placeholder={flow("workEmailPlaceholder")}
                     {...field("email")}
-                    className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                    className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                   />
                 </div>
 
@@ -241,7 +231,7 @@ export default function SignupPage() {
                       type="password"
                       placeholder={flow("passwordMinPlaceholder")}
                       {...field("password")}
-                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                   <div>
@@ -251,7 +241,7 @@ export default function SignupPage() {
                       type="password"
                       placeholder={flow("passwordRepeatPlaceholder")}
                       {...field("confirm_password")}
-                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
                     />
                   </div>
                 </div>
@@ -259,7 +249,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(80,97,143,0.25)] transition-colors hover:bg-[#46557e] focus:outline-none focus:ring-2 focus:ring-[#50618f]/45 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/45 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>

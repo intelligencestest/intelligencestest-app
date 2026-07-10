@@ -96,7 +96,7 @@ export default function CommandPalette() {
       <button
         type="button"
         onClick={openPalette}
-        className="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs text-slate-400 transition-colors hover:border-[#3d3b34] hover:text-slate-200"
+        className="flex cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs text-slate-400 transition-colors hover:border-[#d1d5db] hover:text-slate-200"
       >
         <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
@@ -107,11 +107,11 @@ export default function CommandPalette() {
 
       {open && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 px-4 pt-[15vh] backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-gray-900/40 px-4 pt-[15vh] backdrop-blur-sm"
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-xl overflow-hidden rounded-xl border border-[#3d3b34] bg-[var(--it-surface)] shadow-2xl"
+            className="w-full max-w-xl overflow-hidden rounded-xl border border-[#d1d5db] bg-[var(--it-surface)] shadow-xl"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-label="Console search"
@@ -133,7 +133,7 @@ export default function CommandPalette() {
                 }
               }}
               placeholder="Company, recruiter, candidate, project — or paste an invite link…"
-              className="w-full border-b border-[var(--it-hairline)] bg-transparent px-4 py-3.5 text-sm text-white outline-none placeholder:text-slate-600"
+              className="w-full border-b border-[var(--it-hairline)] bg-transparent px-4 py-3.5 text-sm text-[var(--it-text)] outline-none placeholder:text-slate-600"
             />
             <div className="max-h-80 overflow-y-auto">
               {hits.length === 0 ? (

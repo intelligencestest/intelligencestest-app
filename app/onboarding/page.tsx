@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { BrandLockup } from "@/components/brand/BrandLogo";
 import {
   LANGUAGE_COOKIE,
   LANGUAGE_COOKIE_MAX_AGE,
@@ -82,38 +83,33 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#171614] text-slate-100 flex items-center justify-center p-4">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(80,97,143,0.16),transparent_34%)]" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-100 flex items-center justify-center p-4">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 flex items-center justify-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#7d8db4]/30 bg-[#50618f] shadow-[0_0_28px_rgba(80,97,143,0.35)]">
-            <svg className="h-5 w-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">Intelligences Test</p>
-            <p className="text-xs text-slate-500">{es ? "Plataforma de evaluación" : "Assessment Platform"}</p>
-          </div>
+          <BrandLockup
+            subtitle={es ? "Plataforma de evaluación" : "Assessment Platform"}
+            markClassName="h-10 w-10"
+            titleClassName="tracking-normal"
+          />
         </div>
 
-        <div className="premium-card rounded-2xl p-8 shadow-2xl">
+        <div className="premium-card rounded-2xl p-8 shadow-xl">
           {/* Progress indicator */}
           <div className="mb-6 flex items-center gap-2">
-            <div className="h-1.5 flex-1 rounded-full bg-[#50618f]" />
-            <div className="h-1.5 flex-1 rounded-full bg-[#50618f]" />
-            <div className="h-1.5 flex-1 rounded-full bg-[#50618f]" />
+            <div className="h-1.5 flex-1 rounded-full bg-[#4f46e5]" />
+            <div className="h-1.5 flex-1 rounded-full bg-[#4f46e5]" />
+            <div className="h-1.5 flex-1 rounded-full bg-[#4f46e5]" />
           </div>
 
           <div className="mb-6">
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#50618f]/30 bg-[#50618f]/10 px-2.5 py-1 text-xs font-medium text-[#9BB8FF]">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[#4f46e5]/30 bg-[#4f46e5]/10 px-2.5 py-1 text-xs font-medium text-[#9BB8FF]">
               {t("step2")}
             </div>
-            <h1 className="text-xl font-semibold text-white">{t("tellUsAbout")}</h1>
+            <h1 className="text-xl font-semibold text-[var(--it-text)]">{t("tellUsAbout")}</h1>
             <p className="mt-1 text-sm text-slate-500">
               {t("tailorPlatform")}
             </p>
@@ -135,7 +131,7 @@ export default function OnboardingPage() {
                 value={form.company_name}
                 onChange={(e) => setForm((f) => ({ ...f, company_name: e.target.value }))}
                 placeholder="Acme Recruitment Ltd"
-                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
               />
             </div>
 
@@ -151,12 +147,12 @@ export default function OnboardingPage() {
                     onClick={() => setForm((f) => ({ ...f, industry }))}
                     className={`rounded-xl border px-3 py-2.5 text-left text-xs font-medium transition-colors ${
                       form.industry === industry
-                        ? "border-[#50618f] bg-[#50618f]/15 text-white"
-                        : "border-[#2a2824] bg-[#171614] text-slate-400 hover:border-[#3d3b34]"
+                        ? "border-[#4f46e5] bg-[#4f46e5]/15 text-white"
+                        : "border-[#f3f4f6] bg-[#f8fafc] text-slate-400 hover:border-[#d1d5db]"
                     }`}
                   >
                     {form.industry === industry && (
-                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[#50618f]" />
+                      <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-[#4f46e5]" />
                     )}
                     {es ? INDUSTRY_LABELS_ES[industry] ?? industry : industry}
                   </button>
@@ -179,8 +175,8 @@ export default function OnboardingPage() {
                     onClick={() => setForm((f) => ({ ...f, language: lang.value }))}
                     className={`flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left text-sm font-medium transition-colors ${
                       form.language === lang.value
-                        ? "border-[#50618f] bg-[#50618f]/15 text-white"
-                        : "border-[#2a2824] bg-[#171614] text-slate-400 hover:border-[#3d3b34]"
+                        ? "border-[#4f46e5] bg-[#4f46e5]/15 text-white"
+                        : "border-[#f3f4f6] bg-[#f8fafc] text-slate-400 hover:border-[#d1d5db]"
                     }`}
                   >
                     <span className="min-w-0">
@@ -191,8 +187,8 @@ export default function OnboardingPage() {
                     </span>
                     <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold ${
                       form.language === lang.value
-                        ? "border-[#a6b2cf]/35 bg-[#50618f] text-white"
-                        : "border-[#2a2824] bg-[#1d1c19] text-slate-500"
+                        ? "border-[#4338ca]/35 bg-[#4f46e5] text-white"
+                        : "border-[#f3f4f6] bg-[#ffffff] text-slate-500"
                     }`}>
                       {lang.code}
                     </span>
@@ -204,7 +200,7 @@ export default function OnboardingPage() {
             <button
               type="submit"
               disabled={loading || !form.company_name || !form.industry}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(80,97,143,0.25)] transition-colors hover:bg-[#46557e] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3730a3] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>

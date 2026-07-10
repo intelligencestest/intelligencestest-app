@@ -35,7 +35,7 @@ export default async function QueueSection({
       aria-current={sort === mode ? "true" : undefined}
       className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)] ${
         sort === mode
-          ? "bg-white/[0.055] text-slate-100 ring-1 ring-[var(--it-border)]"
+          ? "bg-gray-900/[0.055] text-slate-100 ring-1 ring-[var(--it-border)]"
           : "text-[var(--it-muted)] hover:text-slate-200"
       }`}
     >
@@ -45,9 +45,9 @@ export default async function QueueSection({
 
   return (
     <section id="queue" className="enterprise-card overflow-hidden rounded-xl">
-      <div className="flex flex-wrap items-center gap-3 border-b enterprise-divider px-5 py-4">
+      <div className="flex flex-wrap items-center gap-3 border-b enterprise-divider px-6 py-5">
         <div>
-          <h2 className="text-base font-semibold text-white">{t("queueTitle")}</h2>
+          <h2 className="text-base font-semibold text-[var(--it-text)]">{t("queueTitle")}</h2>
         </div>
         {totalCount > 0 && (
           <span className="enterprise-chip rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums">
@@ -92,7 +92,7 @@ export default async function QueueSection({
           {limit && totalCount > visible.length && (
             <Link
               href="/inbox"
-              className="enterprise-link block border-t enterprise-divider px-5 py-3 text-center text-[13px] font-medium transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
+              className="enterprise-link block border-t enterprise-divider px-5 py-3 text-center text-[13px] font-medium transition-colors hover:bg-gray-900/[0.025] focus-visible:bg-gray-900/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
             >
               {t("queueViewAll", { count: totalCount })} →
             </Link>

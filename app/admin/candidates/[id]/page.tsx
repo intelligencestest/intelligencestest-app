@@ -81,13 +81,13 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
           ← Console
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-2.5">
-          <h1 className="text-2xl font-semibold tracking-tight text-white">{candidate.full_name || "Unnamed candidate"}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{candidate.full_name || "Unnamed candidate"}</h1>
           <Chip tone={statusTone(chipStatus)}>{chipStatus}</Chip>
         </div>
         <p className="mt-1.5 text-sm text-slate-500">
           {candidate.email || "no email"} ·{" "}
           {candidate.company_id ? (
-            <Link href={`/admin/companies/${candidate.company_id}`} className="text-[#a6b2cf] hover:underline">
+            <Link href={`/admin/companies/${candidate.company_id}`} className="text-[#4338ca] hover:underline">
               {company?.name ?? "company"}
             </Link>
           ) : (
@@ -168,7 +168,7 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
                     <div key={r.id} className="flex items-center justify-between gap-4 px-5 py-2.5">
                       <span className="truncate text-sm text-slate-200">{a ? termName(a.name, "en") : "Assessment"}</span>
                       <span className="flex items-center gap-4">
-                        <span className="text-sm font-semibold tabular-nums text-white">{r.score}</span>
+                        <span className="text-sm font-semibold tabular-nums text-[var(--it-text)]">{r.score}</span>
                         <span className="text-xs tabular-nums text-slate-500">
                           {new Date(r.completed_at).toLocaleDateString("en-US", { day: "numeric", month: "short" })}
                         </span>

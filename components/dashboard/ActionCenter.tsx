@@ -26,9 +26,9 @@ export type AttentionAlert =
   | { kind: "stalled"; count: number };
 
 const SEVERITY_STYLE = {
-  warning: { text: "text-[#cdb584]", bg: "bg-[rgba(168,135,61,0.08)]", ring: "ring-[rgba(168,135,61,0.28)]" },
-  serious: { text: "text-[#cfa097]", bg: "bg-[rgba(166,91,80,0.08)]", ring: "ring-[rgba(166,91,80,0.28)]" },
-  info: { text: "text-[#a9b8c9]", bg: "bg-[rgba(110,127,148,0.08)]", ring: "ring-[rgba(110,127,148,0.28)]" },
+  warning: { text: "text-[#b45309]", bg: "bg-[rgba(217,119,6,0.08)]", ring: "ring-[rgba(217,119,6,0.28)]" },
+  serious: { text: "text-[#b91c1c]", bg: "bg-[rgba(220,38,38,0.08)]", ring: "ring-[rgba(220,38,38,0.28)]" },
+  info: { text: "text-[#3a5c7e]", bg: "bg-[rgba(74,112,150,0.08)]", ring: "ring-[rgba(74,112,150,0.28)]" },
 } as const;
 
 const ALERT_ICONS: Record<string, LucideIcon> = {
@@ -70,7 +70,7 @@ function ExtendButton({ candidateId, onDone }: { candidateId: string; onDone: ()
 
   if (state === "done") {
     return (
-      <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#a9c8b4]">
+      <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#15803d]">
         <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
         {t("attnExtended")}
       </span>
@@ -102,7 +102,7 @@ function CandidateSubList({ candidates, nowMs }: { candidates: AlertCandidate[];
         <div key={c.id} className="flex items-center gap-3 py-2 pl-5 pr-5 sm:pl-[72px]">
           <Link
             href={`/candidates/${c.id}`}
-            className="min-w-0 truncate text-[13px] font-medium text-slate-300 transition-colors hover:text-white"
+            className="min-w-0 truncate text-[13px] font-medium text-slate-300 transition-colors hover:text-[var(--it-text)]"
           >
             {c.name || t("unknown")}
           </Link>
@@ -264,7 +264,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                   <button
                     type="button"
                     onClick={() => setExpanded(isOpen ? null : key)}
-                    className="block w-full cursor-pointer text-left transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
+                    className="block w-full cursor-pointer text-left transition-colors hover:bg-gray-900/[0.025] focus-visible:bg-gray-900/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
                     aria-expanded={isOpen}
                   >
                     {row}
@@ -281,7 +281,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
                     ? "/candidates?stage=invited"
                     : `/projects/${alert.projectId}`
                 }
-                className="block transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
+                className="block transition-colors hover:bg-gray-900/[0.025] focus-visible:bg-gray-900/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
               >
                 {row}
               </Link>
@@ -291,7 +291,7 @@ export default function ActionCenter({ alerts, nowMs }: { alerts: AttentionAlert
             <button
               type="button"
               onClick={() => setShowAll(true)}
-              className="enterprise-link block w-full cursor-pointer px-5 py-3 text-center text-[13px] font-medium transition-colors hover:bg-white/[0.025] focus-visible:bg-white/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
+              className="enterprise-link block w-full cursor-pointer px-5 py-3 text-center text-[13px] font-medium transition-colors hover:bg-gray-900/[0.025] focus-visible:bg-gray-900/[0.025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--it-primary)]"
             >
               {t("attnMore", { count: alerts.length - MAX_VISIBLE_ALERTS })}
             </button>

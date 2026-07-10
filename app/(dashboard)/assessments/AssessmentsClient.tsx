@@ -439,18 +439,18 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
     <div className="mx-auto max-w-[1200px] space-y-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>
+          <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{t("title")}</h1>
           <p className="mt-2 text-sm text-[var(--it-muted)]">
             {t("subtitle", { count: activeCount, categories: grouped.length })}
           </p>
         </div>
         <div className="flex items-center gap-6 border-t border-[var(--it-hairline)] pt-4 sm:border-t-0 sm:pt-0">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-lg font-semibold text-white">{activeCount}</span>
+            <span className="text-lg font-semibold text-[var(--it-text)]">{activeCount}</span>
             <span className="text-xs text-[var(--it-faint)]">{t("availableNow")}</span>
           </div>
           <div className="flex items-baseline gap-1.5">
-            <span className="text-lg font-semibold text-white">{totalMinutes} min</span>
+            <span className="text-lg font-semibold text-[var(--it-text)]">{totalMinutes} min</span>
             <span className="text-xs text-[var(--it-faint)]">{t("totalBattery")}</span>
           </div>
         </div>
@@ -461,7 +461,7 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
         return (
           <section key={group.category} className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--it-hairline)] pt-4">
-              <h2 className="text-lg font-semibold text-white">{localCategory(group.category)}</h2>
+              <h2 className="text-lg font-semibold text-[var(--it-text)]">{localCategory(group.category)}</h2>
               <span className="text-xs font-medium text-[var(--it-faint)]">
                 {t("activeOf", { active: activeInCategory, total: group.items.length })}
               </span>
@@ -482,11 +482,11 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                     className={`group flex cursor-pointer flex-col rounded-xl border p-5 transition-colors ${
                       active
                         ? "enterprise-card enterprise-card-hover"
-                        : "border-[var(--it-hairline)] bg-white/[0.015] hover:border-[var(--it-border)]"
+                        : "border-[var(--it-hairline)] bg-gray-900/[0.015] hover:border-[var(--it-border)]"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <h3 className={`text-[15px] font-semibold leading-snug ${active ? "text-white" : "text-slate-300"}`}>{localName(assessment)}</h3>
+                      <h3 className={`text-[15px] font-semibold leading-snug ${active ? "text-[var(--it-text)]" : "text-slate-300"}`}>{localName(assessment)}</h3>
                       <span className={`mt-0.5 inline-flex shrink-0 items-center gap-1.5 text-xs font-medium ${active ? "text-[var(--it-muted)]" : "text-[var(--it-faint)]"}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${active ? "bg-[var(--it-success)]" : "bg-[var(--it-faint)]"}`} aria-hidden="true" />
                         {active ? t("active") : t("comingSoon")}
@@ -514,7 +514,7 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                           {t("addToProject")}
                         </button>
                       ) : (
-                        <span className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--it-hairline)] bg-white/[0.02] px-4 py-2.5 text-sm font-medium text-[var(--it-muted)]">
+                        <span className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--it-hairline)] bg-gray-900/[0.02] px-4 py-2.5 text-sm font-medium text-[var(--it-muted)]">
                           {t("comingSoon")}
                         </span>
                       )}
@@ -528,21 +528,21 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
       })}
 
       {preview && sample && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm" onClick={() => setPreview(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-4 backdrop-blur-sm" onClick={() => setPreview(null)}>
           <div
-            className="enterprise-card w-full max-w-2xl rounded-2xl p-6 shadow-2xl"
+            className="enterprise-card w-full max-w-2xl rounded-2xl p-6 shadow-xl"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-medium text-[var(--it-faint)]">{localCategory(preview.category)}</p>
-                <h3 className="mt-1 text-xl font-semibold text-white">{localName(preview)}</h3>
+                <h3 className="mt-1 text-xl font-semibold text-[var(--it-text)]">{localName(preview)}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-[var(--it-muted)]">{localDesc(preview, t("fallbackDescription"))}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setPreview(null)}
-                className="cursor-pointer rounded-lg p-2 text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
+                className="cursor-pointer rounded-lg p-2 text-[var(--it-muted)] transition-colors hover:bg-gray-900/[0.05] hover:text-[var(--it-text)]"
                 aria-label={t("close")}
               >
                 <X className="h-5 w-5" strokeWidth={2} />
@@ -552,19 +552,19 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
             <div className="mb-5 flex items-center gap-6 border-t border-[var(--it-hairline)] pt-4">
               <div className="flex items-baseline gap-1.5">
                 <Clock className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
-                <span className="text-base font-semibold text-white">{preview.duration_minutes ?? "-"} min</span>
+                <span className="text-base font-semibold text-[var(--it-text)]">{preview.duration_minutes ?? "-"} min</span>
                 <span className="text-xs text-[var(--it-faint)]">{t("duration")}</span>
               </div>
               <div className="flex items-baseline gap-1.5">
                 <ListChecks className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
-                <span className="text-base font-semibold text-white">{preview.question_count ?? "-"}</span>
+                <span className="text-base font-semibold text-[var(--it-text)]">{preview.question_count ?? "-"}</span>
                 <span className="text-xs text-[var(--it-faint)]">{t("questions")}</span>
               </div>
             </div>
 
-            <div className="rounded-xl border border-[var(--it-hairline)] bg-white/[0.02] p-4">
+            <div className="rounded-xl border border-[var(--it-hairline)] bg-gray-900/[0.02] p-4">
               <p className="mb-3 text-xs font-medium uppercase tracking-[0.18em] text-[var(--it-faint)]">{t("sampleQuestion")}</p>
-              <p className="text-sm font-medium leading-relaxed text-white">{sample.text}</p>
+              <p className="text-sm font-medium leading-relaxed text-[var(--it-text)]">{sample.text}</p>
               <div className="mt-4 grid gap-2 sm:grid-cols-2">
                 {sample.options.map((option, index) => (
                   <div key={option} className="rounded-lg border border-[var(--it-hairline)] px-3 py-2 text-sm text-[var(--it-muted)]">
@@ -593,7 +593,7 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                   {t("addToProject")}
                 </button>
               ) : (
-                <span className="inline-flex items-center justify-center rounded-xl border border-[var(--it-hairline)] bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-[var(--it-muted)]">
+                <span className="inline-flex items-center justify-center rounded-xl border border-[var(--it-hairline)] bg-gray-900/[0.03] px-4 py-2.5 text-sm font-semibold text-[var(--it-muted)]">
                   {t("comingSoon")}
                 </span>
               )}
@@ -605,19 +605,19 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
       {/* Project picker modal */}
       {projectPickerFor && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm"
           onClick={() => setProjectPickerFor(null)}
         >
           <div
-            className="enterprise-card w-full max-w-sm rounded-2xl p-6 shadow-2xl"
+            className="enterprise-card w-full max-w-sm rounded-2xl p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-white">{t("addToProjectTitle")}</h2>
+              <h2 className="text-base font-semibold text-[var(--it-text)]">{t("addToProjectTitle")}</h2>
               <button
                 type="button"
                 onClick={() => setProjectPickerFor(null)}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-gray-900/[0.05] hover:text-[var(--it-text)]"
               >
                 <X className="h-4 w-4" strokeWidth={2} />
               </button>
@@ -641,11 +641,11 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                     type="button"
                     disabled={addingToProject === project.id || justAdded === project.id}
                     onClick={() => addToProject(project.id)}
-                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[var(--it-hairline)] bg-white/[0.02] px-4 py-3 text-left transition-colors hover:bg-white/[0.04] disabled:cursor-not-allowed"
+                    className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[var(--it-hairline)] bg-gray-900/[0.02] px-4 py-3 text-left transition-colors hover:bg-gray-900/[0.04] disabled:cursor-not-allowed"
                   >
                     <span className="truncate text-sm text-slate-300">{project.name}</span>
                     {justAdded === project.id ? (
-                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-[#a9c8b4]">
+                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-[#15803d]">
                         <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
                         {t("added")}
                       </span>

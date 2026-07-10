@@ -74,13 +74,13 @@ export default async function WorkloadTiles({ data }: { data: WorkloadData }) {
             {/* Cleared queues recede; only live work reads bright. */}
             <span
               className={`text-4xl font-semibold tabular-nums ${
-                tile.value > 0 ? "text-white" : "text-[var(--it-faint)]"
+                tile.value > 0 ? "text-[var(--it-text)]" : "text-[var(--it-faint)]"
               }`}
             >
               {tile.value}
             </span>
           </div>
-          <p className={`mt-auto pt-2 text-[13px] leading-5 ${tile.urgent ? "text-[#cdb584]" : "text-[var(--it-muted)]"}`}>
+          <p className={`mt-auto pt-2 text-[13px] leading-5 ${tile.urgent ? "text-[#b45309]" : "text-[var(--it-muted)]"}`}>
             {tile.sub}
           </p>
         </Link>

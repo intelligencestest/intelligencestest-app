@@ -115,7 +115,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <svg className="h-3 w-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
-        <span className="truncate font-medium text-white">{project.name}</span>
+        <span className="truncate font-medium text-[var(--it-text)]">{project.name}</span>
       </nav>
 
       <ProjectDetailClient

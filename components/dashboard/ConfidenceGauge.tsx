@@ -37,7 +37,7 @@ export function ConfidenceGauge({ score, tone, label, sublabel }: ConfidenceGaug
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-lg font-semibold text-white">{clamped}</span>
+          <span className="text-lg font-semibold text-[var(--it-text)]">{clamped}</span>
         </div>
       </div>
       <div>

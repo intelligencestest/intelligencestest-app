@@ -32,7 +32,7 @@ export function StatCard({ label, value, sub, href }: { label: string; value: st
   const body = (
     <>
       <p className="text-xs font-medium text-slate-500">{label}</p>
-      <p className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums text-white">{value}</p>
+      <p className="mt-1.5 text-2xl font-semibold tracking-tight tabular-nums text-[var(--it-text)]">{value}</p>
       {sub && <p className="mt-1 text-xs text-slate-500">{sub}</p>}
     </>
   );
@@ -50,7 +50,7 @@ export function Section({ title, action, children }: { title: string; action?: R
   return (
     <section className="overflow-hidden rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface)]">
       <div className="flex items-center justify-between gap-3 border-b border-[var(--it-hairline)] px-5 py-3">
-        <h2 className="text-sm font-semibold text-white">{title}</h2>
+        <h2 className="text-sm font-semibold text-[var(--it-text)]">{title}</h2>
         {action}
       </div>
       {children}
@@ -77,7 +77,7 @@ export function Pagination({
   const pages = Math.max(1, Math.ceil(total / pageSize));
   if (pages <= 1) return null;
   const linkCls =
-    "rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-[var(--it-border)] hover:text-white";
+    "rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-[var(--it-border)] hover:text-[var(--it-text)]";
   return (
     <div className="flex items-center justify-between border-t border-[var(--it-hairline)] px-5 py-3 text-xs text-slate-500">
       <span className="tabular-nums">

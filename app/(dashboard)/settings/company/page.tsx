@@ -111,12 +111,12 @@ export default function CompanySettingsPage() {
   return (
     <div className="mx-auto max-w-[1200px]">
       <div>
-        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>
+        <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{t("title")}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{t("description")}</p>
       </div>
 
       {saved && (
-        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] p-3 text-sm text-[#a9c8b4]">
+        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(22,163,74,0.08)] p-3 text-sm text-[#15803d]">
           <Check className="h-4 w-4 flex-shrink-0" strokeWidth={2} />
           {t("saved")}
         </div>
@@ -127,7 +127,7 @@ export default function CompanySettingsPage() {
 
         <div>
           <div className="border-t border-[var(--it-hairline)] pt-4">
-            <h2 className="text-lg font-semibold text-white">{copy.title}</h2>
+            <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.title}</h2>
             <p className="mt-1 text-sm text-[var(--it-muted)]">{copy.description}</p>
           </div>
 
@@ -184,8 +184,8 @@ export default function CompanySettingsPage() {
             <div
               className={`mt-4 max-w-sm rounded-xl border px-3 py-2 text-xs font-medium ${
                 message.type === "success"
-                  ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
-                  : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
+                  ? "border-[var(--it-success)]/30 bg-[rgba(22,163,74,0.08)] text-[#15803d]"
+                  : "border-[var(--it-danger)]/30 bg-[rgba(220,38,38,0.08)] text-[#b91c1c]"
               }`}
             >
               {message.text}

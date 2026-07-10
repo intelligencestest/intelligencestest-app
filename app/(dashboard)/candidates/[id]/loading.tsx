@@ -4,7 +4,7 @@
  */
 export default function CandidateResultsLoading() {
   return (
-    <div className="mx-auto max-w-[1200px] space-y-6" role="status" aria-label="Loading candidate">
+    <div className="mx-auto max-w-[1200px] space-y-8" role="status" aria-label="Loading candidate">
       <div className="h-4 w-40 animate-pulse rounded bg-[var(--it-border-soft)]" />
 
       {/* Identity + verdict */}

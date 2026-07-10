@@ -1,153 +1,118 @@
-# The IntelligencesTest Design Language — "Graphite & Ivory"
+# The IntelligencesTest Design Language — Light Enterprise
 
 This document defines the product's visual identity. It supersedes the
-palette section of `design-system.md`; every other rule there (spacing,
-borders, cards, tables, density) remains in force and is restated here where
-it interacts with the new language.
+palette sections of `design-system.md` and replaces the earlier
+"Graphite & Ivory" dark direction (kept in git history), which taught us the
+structural rules but was rejected in browser review: HR software earns trust
+in daylight. Reference register: Stripe Dashboard, Ashby, Linear, Mercury,
+Notion admin, modern Microsoft 365 admin — principles, never pixels.
 
-## Why a language, not a theme
+## The premise
 
-IntelligencesTest sells judgment: evidence an HR Director trusts enough to
-hire on. The interface must read like the tool of a serious practice — a
-document you'd sign, not a dashboard you'd demo. Three decisions carry that:
+The interface disappears behind the work. Calm, trustworthy, analytical,
+spacious. Nothing announces itself; the recruiter's data is the only thing
+with presence. Every rule below serves that.
 
-1. **Temperature.** Cool blue-black is the default tint of every generated
-   React dashboard. We move the entire neutral scale to **warm graphite** —
-   gray with a faint paper warmth — and set text in **soft ivory**, not
-   white. The product stops looking like software about software and starts
-   looking like print.
-2. **Voice.** UI text is Geist (quiet, technical). But the moments where the
-   product *speaks* — the morning brief, the report verdict — are set in an
-   editorial serif. That register shift is the personality: an analyst's
-   memo inside an instrument panel.
-3. **Structure.** The chrome reads as an operating system: navigation is
-   grouped into named areas of work, not a flat list of pages.
+## 1. Color
 
-## 1. Color philosophy
-
-Neutrals do 95% of the work; hue is reserved for meaning.
-
-### Neutral ramp (warm graphite)
+Neutrals do 95% of the work; hue appears only as the single action accent
+and the four status semantics.
 
 | Token | Value | Role |
 |---|---|---|
-| `--it-sidebar` | `#131211` | Chrome — deepest tone |
-| `--it-bg` | `#171614` | Page |
-| `--it-surface` | `#1D1C19` | Card / input |
-| `--it-surface-raised` | `#232220` | Popover / hover |
-| `--it-border` | `#302E29` | Strong border (controls) |
-| `--it-hairline` | `rgba(242,239,230,0.08)` | Default border |
+| `--it-bg` | `#F8FAFC` | Page |
+| `--it-sidebar` / `--it-surface` | `#FFFFFF` | Chrome and cards |
+| `--it-hairline` | `#E5E7EB` | Default border |
+| `--it-border` | `#D1D5DB` | Strong border (controls) |
+| `--it-text` | `#111827` | Primary ink |
+| `--it-muted` | `#6B7280` | Secondary |
+| `--it-faint` | `#9CA3AF` | Tertiary / labels |
+| `--it-primary` | `#4F46E5` | Primary actions ONLY (hover `#4338CA`) |
+| `--it-link` | `#4338CA` | Text links |
+| `--it-success/warning/danger` | `#16A34A` / `#D97706` / `#DC2626` | Real state only |
+| `--it-info` | `#4A7096` | Neutral-informational state |
 
-### Ink ramp (soft ivory)
+Banned: gradients, glows, AI purple, decorative shadows, more than one
+accent, color as decoration.
 
-| Token | Value | Role |
-|---|---|---|
-| `--it-text` | `#F1EEE6` | Primary ink |
-| `--it-muted` | `#A8A497` | Secondary |
-| `--it-faint` | `#787468` | Tertiary / labels |
+**Slate is an emphasis scale, not a lightness scale.** Tailwind's `slate-*`
+is remapped in `@theme`: `slate-100` = high-emphasis ink, `slate-900` =
+recessed near-white — preserving the *meaning* of thousands of legacy
+classes across theme changes. New code uses `--it-*` tokens, never slate.
 
-Tailwind's `white` and `slate-*` utilities are **redefined at the theme
-level** to this warm scale, so the language holds everywhere by default —
-a hardcoded `text-slate-300` can no longer break temperature.
+## 2. Elevation
 
-### Accent
+Exactly two levels. In-flow cards: hairline border + a 1px ambient shadow
+(`0 1px 2px rgba(16,24,40,0.04)`) — the Stripe register, felt not seen.
+True elevation (menus, modals, the sticky decision bar): a real but soft
+shadow. Nothing else casts.
 
-One accent: **ink indigo** `#50618F` (hover `#5C6EA0`, tint `#A6B2CF`).
-Desaturated enough to never read "bright blue dashboard"; present enough to
-mark the one interactive emphasis per screen. Used for: primary buttons, the
-selected state, focus rings. Never decorative.
+## 3. Typography
 
-### Status
+Two registers. **Instrument** (Geist): all UI; weight is binary (600/400);
+page titles 30px/38px, −0.01em; numbers always `tabular-nums`.
+**Editorial** (`.font-editorial`, ui-serif): the product's voice — the
+dashboard greeting and the executive report's verdict + key message. One
+editorial moment per screen.
 
-Four semantics only, all muted and warmed: success sage `#4F8467`, warning
-ochre `#A8873D`, danger clay `#A65B50`, info slate `#6E7F94`. They mean real
-state — never emphasis, never decoration.
+Tables read as documents: hairline rows, no vertical rules, muted uppercase
+micro-label headers, generous row padding (py-4/py-5), hover = 2–3% ink tint.
 
-## 2. Typography philosophy
+## 4. Space
 
-Two registers:
+Base-4 scale. Shell padding `p-6 sm:p-8 lg:p-12`; one 1200px container;
+`space-y-8` between page zones. Whitespace is the structural material —
+when a screen feels busy, remove containers before shrinking content.
+Reduce visual density, never information density.
 
-- **Instrument** (Geist Sans): all UI. Weight is binary — 600 leads, 400
-  follows. Sizes per the closed scale in `design-system.md`.
-- **Editorial** (`.font-editorial`, ui-serif/Georgia): reserved for the
-  product's voice — the dashboard greeting, and the executive report's
-  verdict + key message (headline and pull-quote of one document). One
-  editorial *moment* per screen. It is the signature; overuse kills it.
+## 5. Chrome
 
-Numbers are always `tabular-nums`. Tracking tightens as size grows
-(−0.015em at 32px+).
+White sidebar with a hairline seam, 256px, navigation grouped into named
+areas (Overview / Pipeline / Insight / Settings) with 10px uppercase
+kickers. Active item: 5% ink fill + full-ink text. The top bar is
+translucent page-tone with blur. The chrome should feel like the OS the
+work happens inside.
 
-## 3. Spacing & grid philosophy
+## 6. Cards, facts, and boxes
 
-Base-4 scale: 4 / 8 / 12 / 16 / 24 / 32 / 48. One content container:
-**1200px**, centered, `p-6 lg:p-8` shell padding. Two-column work screens
-split ~2:1 with a 300px minimum rail. Section rhythm within a page: 32–48px
-between major zones; whitespace is the structural material, never boxes.
+A card is a discrete unit the user acts on — never a frame around a fact.
+`rounded-xl`, 24px padding, no min-heights. Facts are typography: label in
+muted, value in ink, grouped by spacing and headings.
 
-## 4. Surface philosophy
+## 7. Interaction states
 
-Two levels in flow: page and one raised surface. Elevation above the page
-(menus, modals) may shadow; nothing in-flow ever does. Micro-contrast over
-borders: adjacent zones separate by one ramp step before they earn a
-hairline.
+Hovers are ink tints (`gray-900/[0.02–0.06]`), never color washes. Focus is
+a 2px `--it-primary` ring. Primary buttons: accent fill, white text, 1px
+shadow. Secondary: white fill, `--it-border`, ink text. Tertiary: link
+color, underline on hover. One primary action per section.
 
-## 5. Sidebar philosophy
+## 8. Status
 
-The sidebar is the OS chrome: deepest tone, hairline seam, 256px. Navigation
-is **grouped into named areas** — Overview (dashboard, inbox), Pipeline
-(projects, candidates, assessments), Insight (reports), and Workspace
-(settings) — with 10px uppercase kickers. Active state is a quiet ivory
-fill, not a colored rail. Collapsed, groups separate with hairlines.
+A status hue appears once per row/card (dot or text, never both plus ring
+plus fill). Chip text uses the dark shade of the hue (`#B45309`, `#15803D`,
+`#B91C1C`) on a 6–8% tint. Zero/cleared states are faint ink, not green.
 
-## 6. Card philosophy
+## 9. Empty, loading, motion
 
-A card = a discrete unit the user acts on. Hairline border, `rounded-xl`,
-24px padding, no shadow, no min-heights. Facts never get boxes; headings and
-spacing group them.
+Empty: one calm muted sentence, left-aligned, optionally one action.
+Loading: skeletons mirroring the real layout (`--it-border` /
+`--it-border-soft` pulses); spinners only inside buttons. Motion: none on
+load; 120–180ms ease on state changes only.
 
-## 7. Table philosophy
+## 10. What is rejected, permanently
 
-Tables are typography: hairline rows, no vertical rules, muted uppercase
-micro-label headers, hover = one ramp-step tint. Density target ~48–56px per
-row; the scannable signal (status, next action) aligns to one edge.
-
-## 8. Icon philosophy
-
-lucide, 1.75–1.8 stroke, functional wayfinding only (nav, status, actions).
-No icon-in-tinted-circle decorations, no icon per stat.
-
-## 9. Motion philosophy
-
-None on load. 120–180ms ease on hover/state. Nothing moves that the user
-didn't cause.
-
-## 10. Status-color philosophy
-
-A status hue appears exactly once per row/card — on the dot or the text,
-never both plus a ring plus a fill. Cleared/zero states render in faint ink,
-not green: the absence of work is calm, not a celebration.
-
-## 11. Empty-state philosophy
-
-One calm sentence in muted ink, left-aligned, optionally one action. No
-illustrations, no centered poster boxes.
-
-## 12. Loading philosophy
-
-Every screen has a skeleton that mirrors its real layout exactly (no jump on
-stream-in), built from `--it-border` / `--it-border-soft` pulses. Spinners
-only inside buttons.
-
-## 13. What is rejected, permanently
-
-Entrance animations · gradient hover reveals · color-coded quick actions ·
-score rings and gauges as decoration · icon badges per card · neon, AI
-purple, bright dashboard blue · more than one accent · shadows on in-flow
-cards · centered poster empty states.
+Entrance animations · glassmorphism · gradient reveals · glows ·
+color-coded widget grids · score rings as decoration · icon-in-circle
+badges · neon and AI purple · dark-mode-by-default for HR workflows ·
+anything that would make an HR Director think "another React dashboard."
 
 ---
 
-**Test for every future screen:** would this hold up printed on paper as a
-consulting deliverable? Graphite paper, ivory ink, one indigo signature,
-a serif where the product renders a verdict. If an element wouldn't survive
-print, it's decoration — remove it.
+**Known exclusion:** `app/api/**` (PDF renderer) and `app/reports/print/**`
+(its preview, pinned to literal colors) intentionally retain the legacy PDF
+brand until a dedicated PDF refresh brings the exported document into this
+language.
+
+**Test for every screen:** print it on paper. White paper, ink text, one
+indigo signature, statuses as restrained annotations. If an element
+wouldn't survive on paper, it's decoration — remove it.

@@ -2,79 +2,80 @@
 @import "tw-animate-css";
 
 @theme {
-  --color-surface: #171614;
-  --color-card: #1d1c19;
-  --color-panel: #232220;
-  --color-accent-hover: #5c6ea0;
+  --color-surface: #f8fafc;
+  --color-card: #ffffff;
+  --color-panel: #f3f4f6;
+  --color-accent-hover: #4338ca;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Graphite & Ivory: Tailwind's own neutrals are redefined to the warm
-     scale (docs/design/design-language.md) so `text-white`, `text-slate-300`
-     etc. render in the product's temperature everywhere by default. A
-     hardcoded gray can no longer break the language. */
-  --color-white: #f1eee6;
-  --color-slate-50: #f1eee6;
-  --color-slate-100: #e8e5dc;
-  --color-slate-200: #d3cfc3;
-  --color-slate-300: #b4b0a3;
-  --color-slate-400: #8f8b7e;
-  --color-slate-500: #6e6a5f;
-  --color-slate-600: #57534a;
-  --color-slate-700: #403d36;
-  --color-slate-800: #2a2824;
-  --color-slate-900: #1a1916;
-  --color-slate-950: #131211;
+  /* Light enterprise system (docs/design/design-language.md).
+     The slate scale is remapped as an EMPHASIS scale, not a lightness scale:
+     in the previous dark theme, slate-100/200/300 meant "high/medium/low
+     emphasis text" and slate-800/900 meant "recessed panel". Those semantics
+     are preserved on the light theme — slate-100 is now near-ink, slate-900
+     is now near-white — so thousands of existing class usages keep their
+     meaning without a per-file rewrite. Do not use slate-* for new code;
+     use the --it-* tokens. */
+  --color-slate-50: #111827;
+  --color-slate-100: #1f2937;
+  --color-slate-200: #374151;
+  --color-slate-300: #4b5563;
+  --color-slate-400: #6b7280;
+  --color-slate-500: #9ca3af;
+  --color-slate-600: #d1d5db;
+  --color-slate-700: #e5e7eb;
+  --color-slate-800: #f3f4f6;
+  --color-slate-900: #f9fafb;
+  --color-slate-950: #f8fafc;
 
   /* shadcn/Radix semantic bridge — aliased to the --it-* tokens below so
      imported primitives (dropdown-menu, tooltip, ...) theme themselves
      automatically. "accent" here is shadcn's neutral hover/highlight tone,
-     not the brand color — brand blue stays on --it-primary. */
+     not the brand color — the brand accent stays on --it-primary. */
   --color-background: var(--it-bg);
   --color-foreground: var(--it-text);
-  --color-popover: var(--it-surface-raised);
+  --color-popover: var(--it-surface);
   --color-popover-foreground: var(--it-text);
   --color-border: var(--it-border);
   --color-muted-foreground: var(--it-muted);
-  --color-accent: rgba(255, 255, 255, 0.045);
+  --color-accent: rgba(17, 24, 39, 0.04);
   --color-accent-foreground: var(--it-text);
 }
 
 :root {
-  /* Graphite & Ivory (docs/design/design-language.md). Warm graphite ramp —
-     gray with a faint paper warmth — so the product reads as print, not as
-     the default blue-black of a generated dashboard. The chrome (sidebar) is
-     the deepest tone, the page one step up, raised surfaces climb from there. */
-  --it-bg: #171614;
-  --it-sidebar: #131211;
-  --it-surface: #1d1c19;
-  --it-surface-raised: #232220;
-  --it-surface-muted: #141311;
-  --it-border: #302e29;
-  --it-border-soft: #242320;
-  --it-text: #f1eee6;
-  --it-muted: #a8a497;
-  --it-faint: #787468;
-  /* One accent: ink indigo — desaturated enough to never read "bright blue
-     dashboard", present enough to mark the one interactive emphasis. */
-  --it-primary: #50618f;
-  --it-primary-hover: #5c6ea0;
-  --it-primary-soft: rgba(80, 97, 143, 0.18);
-  --it-link: #a6b2cf;
-  --it-success: #4f8467;
-  --it-warning: #a8873d;
-  --it-danger: #a65b50;
-  --it-info: #6e7f94;
+  /* Light enterprise palette (docs/design/design-language.md): near-white
+     gray page, pure white surfaces, ink text. The interface disappears
+     behind the work — hue appears only as the one action accent and the
+     four status semantics. */
+  --it-bg: #f8fafc;
+  --it-sidebar: #ffffff;
+  --it-surface: #ffffff;
+  --it-surface-raised: #ffffff;
+  --it-surface-muted: #f9fafb;
+  --it-border: #d1d5db;
+  --it-border-soft: #f3f4f6;
+  --it-text: #111827;
+  --it-muted: #6b7280;
+  --it-faint: #9ca3af;
+  /* One accent, for primary actions only. */
+  --it-primary: #4f46e5;
+  --it-primary-hover: #4338ca;
+  --it-primary-soft: rgba(79, 70, 229, 0.08);
+  --it-link: #4338ca;
+  --it-success: #16a34a;
+  --it-warning: #d97706;
+  --it-danger: #dc2626;
+  --it-info: #4a7096;
 
   /* Design-system hairline: the default border weight per docs/design/design-system.md */
-  --it-hairline: rgba(242, 239, 230, 0.08);
+  --it-hairline: #e5e7eb;
 }
 
 body {
   background-color: var(--it-bg);
   color: var(--it-text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
 }
 
 @keyframes fade-up {
@@ -97,13 +98,13 @@ body {
   }
 }
 
-/* premium-card is retired: it now resolves to the same calm hairline surface
-   as .enterprise-card so the few screens still referencing it (projects
-   detail, inbox, candidate detail) match the rest of the product — no
-   decorative gradient, no drop shadow, no glow-on-hover. */
+/* premium-card is retired: it resolves to the same calm surface as
+   .enterprise-card so the few screens still referencing it match the rest
+   of the product. */
 .premium-card {
   background: var(--it-surface);
   border: 1px solid var(--it-hairline);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 .premium-card-hover {
@@ -111,7 +112,7 @@ body {
 }
 
 .premium-card-hover:hover {
-  background: var(--it-surface-raised);
+  background: #fdfdfd;
   border-color: var(--it-border);
 }
 
@@ -120,17 +121,16 @@ body {
 }
 
 .enterprise-shell {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.012), transparent 240px),
-    var(--it-bg);
+  background: var(--it-bg);
   color: var(--it-text);
 }
 
 .enterprise-card {
-  /* Design-system: shadows are for real elevation (dropdowns, modals) only.
-     A static in-flow card gets a border, never a drop shadow. */
+  /* Subtle elevation only: a hairline plus a 1px ambient shadow. Anything
+     heavier is decoration (design-language.md §4). */
   background: var(--it-surface);
   border: 1px solid var(--it-hairline);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
 .enterprise-card-hover {
@@ -138,7 +138,7 @@ body {
 }
 
 .enterprise-card-hover:hover {
-  background: var(--it-surface-raised);
+  background: #fdfdfd;
   border-color: var(--it-border);
 }
 
@@ -156,12 +156,13 @@ body {
 }
 
 .enterprise-link:hover {
-  color: #c9d2e6;
+  color: #3730a3;
 }
 
 .enterprise-button {
   background: var(--it-primary);
-  color: white;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
   transition: background-color 160ms ease;
 }
 
@@ -170,45 +171,47 @@ body {
 }
 
 .enterprise-button-secondary {
+  background: var(--it-surface);
   border: 1px solid var(--it-border);
-  color: var(--it-muted);
+  color: #374151;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
   transition: border-color 160ms ease, color 160ms ease, background-color 160ms ease;
 }
 
 .enterprise-button-secondary:hover {
-  background: rgba(255, 255, 255, 0.025);
-  border-color: #3d3b34;
+  background: var(--it-surface-muted);
+  border-color: #b7bcc5;
   color: var(--it-text);
 }
 
 .enterprise-chip {
-  border: 1px solid var(--it-border);
-  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--it-hairline);
+  background: var(--it-surface-muted);
   color: var(--it-muted);
 }
 
 .enterprise-chip-success {
-  border-color: rgba(79, 132, 103, 0.32);
-  background: rgba(79, 132, 103, 0.08);
-  color: #a9c8b4;
+  border-color: rgba(22, 163, 74, 0.25);
+  background: rgba(22, 163, 74, 0.07);
+  color: #15803d;
 }
 
 .enterprise-chip-warning {
-  border-color: rgba(168, 135, 61, 0.34);
-  background: rgba(168, 135, 61, 0.08);
-  color: #cdb584;
+  border-color: rgba(217, 119, 6, 0.28);
+  background: rgba(217, 119, 6, 0.07);
+  color: #b45309;
 }
 
 .enterprise-chip-danger {
-  border-color: rgba(166, 91, 80, 0.34);
-  background: rgba(166, 91, 80, 0.08);
-  color: #cfa097;
+  border-color: rgba(220, 38, 38, 0.25);
+  background: rgba(220, 38, 38, 0.06);
+  color: #b91c1c;
 }
 
 .enterprise-chip-info {
-  border-color: rgba(110, 127, 148, 0.34);
-  background: rgba(110, 127, 148, 0.08);
-  color: #a9b8c9;
+  border-color: rgba(74, 112, 150, 0.3);
+  background: rgba(74, 112, 150, 0.07);
+  color: #3a5c7e;
 }
 
 .enterprise-table-row {
@@ -219,30 +222,30 @@ body {
   border-bottom: 0;
 }
 
-/* Premium surface: 1px gradient ring around a dark panel (marketing only) */
+/* Premium surface: 1px gradient ring around a panel (marketing only) */
 .gradient-ring {
   position: relative;
   background:
     linear-gradient(var(--it-surface), var(--it-surface)) padding-box,
-    linear-gradient(135deg, rgba(166, 178, 207, 0.32), rgba(48, 46, 41, 0.9) 40%, rgba(80, 97, 143, 0.28)) border-box;
+    linear-gradient(135deg, rgba(79, 70, 229, 0.22), rgba(229, 231, 235, 1) 40%, rgba(79, 70, 229, 0.14)) border-box;
   border: 1px solid transparent;
 }
 
 .hero-glow {
   background:
-    radial-gradient(ellipse 65% 55% at 28% 18%, rgba(80, 97, 143, 0.2), transparent 62%),
-    radial-gradient(ellipse 45% 40% at 78% 62%, rgba(168, 164, 151, 0.07), transparent 60%);
+    radial-gradient(ellipse 65% 55% at 28% 18%, rgba(79, 70, 229, 0.06), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 78% 62%, rgba(148, 163, 184, 0.06), transparent 60%);
 }
 
 .headline-gradient {
-  background: linear-gradient(180deg, #f1eee6 55%, #8f8b7e);
+  background: linear-gradient(180deg, #111827 55%, #6b7280);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 /* Editorial register — the product's voice (greeting, report verdict).
-   At most one editorial element per screen; see design-language.md §2. */
+   One editorial moment per screen; see design-language.md §2. */
 .font-editorial {
   font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
   letter-spacing: -0.01em;
@@ -271,9 +274,9 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #383630;
+  background: #cbd5e1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #46443c;
+  background: #94a3b8;
 }

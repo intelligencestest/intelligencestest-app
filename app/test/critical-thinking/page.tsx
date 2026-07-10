@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BrandLogoMark } from "@/components/brand/BrandLogo";
 import { CT_QUESTIONS, CT_DURATION_SECONDS, scoreResults } from "@/lib/questions/critical-thinking";
 import { CT_QUESTIONS_ES } from "@/lib/questions/es/critical-thinking";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
@@ -221,13 +222,13 @@ export default function CriticalThinkingTest({
   if (phase === "error") {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="max-w-md w-full text-center rounded-xl border p-8" style={{ backgroundColor: "#1d1c19", borderColor: "#2a2824" }}>
+        <div className="max-w-md w-full text-center rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
           <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-white mb-2">{s.errorHeading}</h2>
+          <h2 className="text-xl font-semibold text-[var(--it-text)] mb-2">{s.errorHeading}</h2>
           <p className="text-slate-400">{errorMsg}</p>
         </div>
       </div>
@@ -237,12 +238,12 @@ export default function CriticalThinkingTest({
   if (phase === "registering") {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="max-w-md w-full rounded-xl border p-8" style={{ backgroundColor: "#1d1c19", borderColor: "#2a2824" }}>
+        <div className="max-w-md w-full rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
           <div className="mb-8 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">
               {locale === "es" ? "Evaluación Cognitiva" : "Cognitive Assessment"}
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : "Critical Thinking Test"}</h1>
+            <h1 className="text-2xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : "Critical Thinking Test"}</h1>
             <p className="text-slate-400 text-sm">{s.registerHeading}</p>
           </div>
 
@@ -260,7 +261,7 @@ export default function CriticalThinkingTest({
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
                 placeholder={locale === "es" ? "María García" : "Jane Smith"}
-                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
             <div>
@@ -271,14 +272,14 @@ export default function CriticalThinkingTest({
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
                 placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
-                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
             <button
               type="submit"
               disabled={registering}
-              className="mt-2 w-full py-3 rounded-xl font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
-              style={{ backgroundColor: "#50618f" }}
+              className="mt-2 w-full py-3 rounded-xl font-semibold text-[var(--it-text)] transition-opacity hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2"
+              style={{ backgroundColor: "#4f46e5" }}
             >
               {registering ? (
                 <>
@@ -299,19 +300,19 @@ export default function CriticalThinkingTest({
   if (phase === "ready") {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="max-w-2xl w-full rounded-xl border p-8" style={{ backgroundColor: "#1d1c19", borderColor: "#2a2824" }}>
+        <div className="max-w-2xl w-full rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
           <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">
               {locale === "es" ? "Evaluación Cognitiva" : "Cognitive Assessment"}
             </div>
-            <h1 className="text-3xl font-bold text-white mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : "Critical Thinking Test"}</h1>
-            <p className="text-slate-400">{s.welcomePrefix}<span className="text-white font-medium">{candidate?.full_name}</span></p>
+            <h1 className="text-3xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : "Critical Thinking Test"}</h1>
+            <p className="text-slate-400">{s.welcomePrefix}<span className="text-[var(--it-text)] font-medium">{candidate?.full_name}</span></p>
           </div>
 
           <div className="grid grid-cols-3 gap-4 mb-8">
             {stats.map(({ label, value }) => (
-              <div key={label} className="text-center p-4 rounded-lg" style={{ backgroundColor: "#2a2824" }}>
-                <div className="text-xl font-bold text-white">{value}</div>
+              <div key={label} className="text-center p-4 rounded-lg" style={{ backgroundColor: "#f3f4f6" }}>
+                <div className="text-xl font-bold text-[var(--it-text)]">{value}</div>
                 <div className="text-xs text-slate-400 mt-1">{label}</div>
               </div>
             ))}
@@ -325,8 +326,8 @@ export default function CriticalThinkingTest({
 
           <button
             onClick={startTest}
-            className="w-full py-3 rounded-lg font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#50618f" }}
+            className="w-full py-3 rounded-lg font-semibold text-[var(--it-text)] transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "#4f46e5" }}
           >
             {s.beginTest}
           </button>
@@ -348,10 +349,10 @@ export default function CriticalThinkingTest({
 
   if (phase === "completed") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#171614] p-6">
-        <div className="w-full max-w-md rounded-lg border border-[#2a2824] bg-[#1d1c19] p-8 text-center shadow-2xl shadow-black/30">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#2a2824] bg-[#171614] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-6">
+        <div className="w-full max-w-md rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-8 text-center shadow-xl shadow-black/30">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
+            <BrandLogoMark className="h-5 w-5 rounded-md" imageClassName="p-0.5" />
             Intelligences Test
           </div>
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10">
@@ -359,10 +360,10 @@ export default function CriticalThinkingTest({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="mb-3 text-2xl font-semibold text-white">{s.submittedTitle}</h1>
+          <h1 className="mb-3 text-2xl font-semibold text-[var(--it-text)]">{s.submittedTitle}</h1>
           <p className="mb-2 leading-relaxed text-slate-300">{s.submittedMessage}</p>
           <p className="text-sm leading-relaxed text-slate-500">{s.submittedSub}</p>
-          <div className="mt-8 rounded-lg border border-[#2a2824] bg-[#171614] p-4">
+          <div className="mt-8 rounded-lg border border-[#f3f4f6] bg-[#f8fafc] p-4">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{s.status}</p>
             <p className="mt-1 text-sm font-medium text-emerald-300">{s.submittedSecurely}</p>
           </div>
@@ -374,14 +375,14 @@ export default function CriticalThinkingTest({
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: "#1d1c19", borderColor: "#2a2824" }}>
+      <div className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-white">{locale === "es" ? "Pensamiento Crítico" : "Critical Thinking Test"}</span>
+          <span className="text-sm font-medium text-[var(--it-text)]">{locale === "es" ? "Pensamiento Crítico" : "Critical Thinking Test"}</span>
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-400">{s.answeredOf(answered, CT_QUESTIONS.length)}</span>
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${timeWarning ? "bg-red-500/10 text-red-400" : "text-white"}`} style={!timeWarning ? { backgroundColor: "#2a2824" } : {}}>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono font-bold text-sm ${timeWarning ? "bg-red-500/10 text-red-400" : "text-[var(--it-text)]"}`} style={!timeWarning ? { backgroundColor: "#f3f4f6" } : {}}>
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -390,8 +391,8 @@ export default function CriticalThinkingTest({
         </div>
       </div>
 
-      <div className="h-1 w-full" style={{ backgroundColor: "#2a2824" }}>
-        <div className="h-1 transition-all duration-300" style={{ width: `${progress}%`, backgroundColor: "#50618f" }} />
+      <div className="h-1 w-full" style={{ backgroundColor: "#f3f4f6" }}>
+        <div className="h-1 transition-all duration-300" style={{ width: `${progress}%`, backgroundColor: "#4f46e5" }} />
       </div>
 
       <div className="flex-1 max-w-3xl mx-auto w-full px-6 py-8">
@@ -399,7 +400,7 @@ export default function CriticalThinkingTest({
           <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">
             {s.questionOf(current + 1, CT_QUESTIONS.length)}
           </span>
-          <h2 className="text-lg font-semibold text-white mt-2 leading-relaxed">{question.text}</h2>
+          <h2 className="text-lg font-semibold text-[var(--it-text)] mt-2 leading-relaxed">{question.text}</h2>
         </div>
 
         <div className="space-y-3 mb-8">
@@ -411,9 +412,9 @@ export default function CriticalThinkingTest({
                 onClick={() => selectAnswer(i)}
                 className="w-full text-left px-5 py-4 rounded-lg border transition-all"
                 style={{
-                  backgroundColor: selected ? "rgba(80, 97, 143, 0.15)" : "#2a2824",
-                  borderColor: selected ? "#50618f" : "transparent",
-                  color: selected ? "#c9d2e6" : "#e2e8f0",
+                  backgroundColor: selected ? "rgba(79, 70, 229, 0.15)" : "#f3f4f6",
+                  borderColor: selected ? "#4f46e5" : "transparent",
+                  color: selected ? "#3730a3" : "#e2e8f0",
                 }}
               >
                 <span className="font-semibold mr-3 text-slate-400">
@@ -430,7 +431,7 @@ export default function CriticalThinkingTest({
             onClick={() => navigate(-1)}
             disabled={current === 0}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity disabled:opacity-30"
-            style={{ backgroundColor: "#2a2824", color: "#e2e8f0" }}
+            style={{ backgroundColor: "#f3f4f6", color: "#e2e8f0" }}
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -442,7 +443,7 @@ export default function CriticalThinkingTest({
             <button
               onClick={() => navigate(1)}
               className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity hover:opacity-90"
-              style={{ backgroundColor: "#50618f", color: "#fff" }}
+              style={{ backgroundColor: "#4f46e5", color: "#fff" }}
             >
               {s.next}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -464,7 +465,7 @@ export default function CriticalThinkingTest({
         </div>
       </div>
 
-      <div className="border-t px-6 py-4" style={{ backgroundColor: "#1d1c19", borderColor: "#2a2824" }}>
+      <div className="border-t px-6 py-4" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
         <div className="flex flex-wrap gap-1.5 max-w-3xl mx-auto">
           {CT_QUESTIONS.map((_, i) => (
             <button
@@ -472,7 +473,7 @@ export default function CriticalThinkingTest({
               onClick={() => setCurrent(i)}
               className="w-7 h-7 rounded text-xs font-medium transition-all"
               style={{
-                backgroundColor: i === current ? "#50618f" : answers[i] !== null ? "rgba(16,185,129,0.2)" : "#2a2824",
+                backgroundColor: i === current ? "#4f46e5" : answers[i] !== null ? "rgba(16,185,129,0.2)" : "#f3f4f6",
                 color: i === current ? "#fff" : answers[i] !== null ? "#6ee7b7" : "#94a3b8",
                 border: i === current ? "none" : "1px solid transparent",
               }}

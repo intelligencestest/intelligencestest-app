@@ -23,7 +23,7 @@ export default function LearningAgilityTest({
       shortName="Learning Agility"
       categoryLabel="Cognitive"
       categoryClassName="border-blue-500/20 bg-blue-500/10 text-blue-300"
-      accentColor="#50618f"
+      accentColor="#4f46e5"
       durationSeconds={LA_DURATION_SECONDS}
       questions={questions}
       questionTypeLabel="Scenario Choice"

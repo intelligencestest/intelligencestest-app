@@ -10,6 +10,10 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: "Intelligences Test – Human Assessment Platform",
   description: "AI-powered human assessment platform for smarter hiring decisions.",
+  icons: {
+    icon: "/brand/intelligences-test-logo.png",
+    apple: "/brand/intelligences-test-logo.png",
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +22,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} h-full`}>
-      <body className="h-full bg-[#171614] text-slate-200 antialiased">
+      <body className="h-full bg-[#f8fafc] text-slate-200 antialiased">
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

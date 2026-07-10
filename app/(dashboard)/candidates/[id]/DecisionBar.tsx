@@ -92,15 +92,15 @@ export default function DecisionBar({
 
   return (
     <div className="sticky bottom-4 z-30">
-      <div className="enterprise-card flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 shadow-[0_18px_60px_rgba(0,0,0,0.5)]">
+      <div className="enterprise-card flex flex-wrap items-center gap-3 rounded-2xl px-4 py-3 shadow-[0_8px_30px_rgba(16,24,40,0.12)]">
         {/* State / actions */}
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2.5">
           {closed ? (
             <>
               <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${
                 outcome === "rejected"
-                  ? "bg-[rgba(166,91,80,0.1)] text-[#cfa097] ring-[rgba(166,91,80,0.25)]"
-                  : "bg-white/[0.04] text-slate-300 ring-[var(--it-hairline)]"
+                  ? "bg-[rgba(220,38,38,0.1)] text-[#b91c1c] ring-[rgba(220,38,38,0.25)]"
+                  : "bg-gray-900/[0.04] text-slate-300 ring-[var(--it-hairline)]"
               }`}>
                 {outcome === "rejected" ? t("outcomeRejected") : outcome === "withdrawn" ? t("outcomeWithdrawn") : t("outcomeExpired")}
               </span>
@@ -111,7 +111,7 @@ export default function DecisionBar({
           ) : (
             <>
               {stage === "hired" && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(79,132,103,0.1)] px-3 py-1.5 text-xs font-medium text-[#a9c8b4] ring-1 ring-[rgba(79,132,103,0.25)]">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(22,163,74,0.1)] px-3 py-1.5 text-xs font-medium text-[#15803d] ring-1 ring-[rgba(22,163,74,0.25)]">
                   <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                   {t("statusHired")}
                 </span>
@@ -134,7 +134,7 @@ export default function DecisionBar({
               )}
               {canReject && (
                 <button
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--it-danger)]/30 px-3.5 py-2.5 text-sm font-medium text-[#cfa097] transition-colors hover:bg-[rgba(166,91,80,0.1)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--it-danger)]/30 px-3.5 py-2.5 text-sm font-medium text-[#b91c1c] transition-colors hover:bg-[rgba(220,38,38,0.1)] disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={busy !== null}
                   onClick={() => patch("reject", { outcome: "rejected" })}
                   title="X"
@@ -148,9 +148,9 @@ export default function DecisionBar({
                     <MoreHorizontal className="h-4 w-4" strokeWidth={2} aria-hidden="true" />
                   </button>
                   {moreOpen && (
-                    <div className="absolute bottom-full left-0 mb-2 w-44 overflow-hidden rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface-raised)] shadow-2xl">
+                    <div className="absolute bottom-full left-0 mb-2 w-44 overflow-hidden rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface-raised)] shadow-xl">
                       <button
-                        className="block w-full cursor-pointer px-4 py-2.5 text-left text-sm text-slate-300 transition-colors hover:bg-white/[0.05]"
+                        className="block w-full cursor-pointer px-4 py-2.5 text-left text-sm text-slate-300 transition-colors hover:bg-gray-900/[0.05]"
                         disabled={busy !== null}
                         onClick={() => patch("withdraw", { outcome: "withdrawn" })}
                       >
@@ -162,7 +162,7 @@ export default function DecisionBar({
               )}
             </>
           )}
-          {error && <span className="text-[13px] text-[#cfa097]">{t("decisionError")}</span>}
+          {error && <span className="text-[13px] text-[#b91c1c]">{t("decisionError")}</span>}
         </div>
 
         {/* Queue navigation */}

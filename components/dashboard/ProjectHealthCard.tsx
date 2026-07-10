@@ -4,10 +4,10 @@ import type { ProjectHealth, ProjectHealthStatus } from "@/lib/dashboard/project
 import { PIPELINE_STAGES, STAGE_COLOR, STAGE_LABEL_KEY } from "@/lib/dashboard/stages";
 
 const HEALTH_STYLE: Record<ProjectHealthStatus, { chip: string; dot: string; text: string }> = {
-  onTrack: { chip: "enterprise-chip-success", dot: "bg-[var(--it-success)]", text: "text-[#a9c8b4]" },
-  slowing: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#cdb584]" },
-  atRisk: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#cdb584]" },
-  blocked: { chip: "enterprise-chip-danger", dot: "bg-[var(--it-danger)]", text: "text-[#cfa097]" },
+  onTrack: { chip: "enterprise-chip-success", dot: "bg-[var(--it-success)]", text: "text-[#15803d]" },
+  slowing: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#b45309]" },
+  atRisk: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#b45309]" },
+  blocked: { chip: "enterprise-chip-danger", dot: "bg-[var(--it-danger)]", text: "text-[#b91c1c]" },
 };
 
 const HEALTH_LABEL_KEY: Record<ProjectHealthStatus, string> = {
@@ -79,7 +79,7 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
         <div className="min-w-0">
           <Link
             href={`/projects/${project.id}`}
-            className="block truncate text-[15px] font-semibold tracking-[-0.01em] text-white transition-colors hover:text-slate-300"
+            className="block truncate text-[15px] font-semibold tracking-[-0.01em] text-[var(--it-text)] transition-colors hover:text-slate-300"
           >
             {project.name}
           </Link>
@@ -152,7 +152,7 @@ export default async function ProjectHealthCard({ project, health }: ProjectHeal
         <div className="flex items-center gap-4">
           <Link
             href={`/candidates?invite=1&project=${project.id}`}
-            className="text-[13px] font-medium text-slate-300 transition-colors hover:text-white"
+            className="text-[13px] font-medium text-slate-300 transition-colors hover:text-[var(--it-text)]"
           >
             {t("inviteShort")}
           </Link>

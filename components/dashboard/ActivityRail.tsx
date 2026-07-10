@@ -31,13 +31,13 @@ export default async function ActivityRail({ items }: { items: ActivityItem[] })
             <Link
               key={item.key}
               href={item.href}
-              className="enterprise-table-row flex items-start gap-3 px-4 py-3 transition-colors hover:bg-white/[0.025]"
+              className="enterprise-table-row flex items-start gap-3 px-4 py-3 transition-colors hover:bg-gray-900/[0.025]"
             >
               <span
                 className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md ring-1 ${
                   item.kind === "completed"
-                    ? "bg-[rgba(79,132,103,0.08)] text-[#a9c8b4] ring-[rgba(79,132,103,0.26)]"
-                    : "bg-[rgba(110,127,148,0.08)] text-[#a9b8c9] ring-[rgba(110,127,148,0.26)]"
+                    ? "bg-[rgba(22,163,74,0.08)] text-[#15803d] ring-[rgba(22,163,74,0.26)]"
+                    : "bg-[rgba(74,112,150,0.08)] text-[#3a5c7e] ring-[rgba(74,112,150,0.26)]"
                 }`}
               >
                 {item.kind === "completed" ? (

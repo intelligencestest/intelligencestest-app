@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { BrandLogoMark } from "@/components/brand/BrandLogo";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 import {
   assessmentName as i18nAssessmentName,
@@ -318,13 +319,13 @@ export default function AssessmentRunner({
   if (phase === "error") {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-xl border border-[#2a2824] bg-[#1d1c19] p-8 text-center">
+        <div className="w-full max-w-md rounded-xl border border-[#f3f4f6] bg-[#ffffff] p-8 text-center">
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-500/10">
             <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
           </div>
-          <h2 className="mb-2 text-xl font-semibold text-white">{s.errorHeading}</h2>
+          <h2 className="mb-2 text-xl font-semibold text-[var(--it-text)]">{s.errorHeading}</h2>
           <p className="mb-6 text-slate-400">{errorMsg}</p>
           <p className="text-xs leading-relaxed text-slate-500">{s.candidateSupport}</p>
         </div>
@@ -335,12 +336,12 @@ export default function AssessmentRunner({
   if (phase === "registering") {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-xl border border-[#2a2824] bg-[#1d1c19] p-8">
+        <div className="w-full max-w-md rounded-xl border border-[#f3f4f6] bg-[#ffffff] p-8">
           <div className="mb-8 text-center">
             <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${categoryClassName}`}>
               {displayCategory}
             </div>
-            <h1 className="mb-2 text-2xl font-bold text-white">{displayName}</h1>
+            <h1 className="mb-2 text-2xl font-bold text-[var(--it-text)]">{displayName}</h1>
             <p className="text-sm text-slate-400">{s.registerHeading}</p>
           </div>
 
@@ -358,7 +359,7 @@ export default function AssessmentRunner({
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
                 placeholder={locale === "es" ? "María García" : "Jane Smith"}
-                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
             <div>
@@ -369,13 +370,13 @@ export default function AssessmentRunner({
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
                 placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
-                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
             <button
               type="submit"
               disabled={registering}
-              className="mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl py-3 font-semibold text-[var(--it-text)] transition-opacity hover:opacity-90 disabled:opacity-50"
               style={{ backgroundColor: accentColor }}
             >
               {registering ? (
@@ -397,29 +398,29 @@ export default function AssessmentRunner({
   if (phase === "ready") {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
-        <div className="w-full max-w-2xl rounded-xl border border-[#2a2824] bg-[#1d1c19] p-8">
+        <div className="w-full max-w-2xl rounded-xl border border-[#f3f4f6] bg-[#ffffff] p-8">
           <div className="mb-6 text-center">
             <div className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-medium ${categoryClassName}`}>
               {displayCategory}
             </div>
-            <h1 className="mb-2 text-3xl font-bold text-white">{displayName}</h1>
+            <h1 className="mb-2 text-3xl font-bold text-[var(--it-text)]">{displayName}</h1>
             <p className="text-slate-400">
-              {s.welcomePrefix}<span className="font-medium text-white">{candidate?.full_name}</span>
+              {s.welcomePrefix}<span className="font-medium text-[var(--it-text)]">{candidate?.full_name}</span>
             </p>
           </div>
 
           <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
             {stats.map(({ label, value }) => (
-              <div key={label} className="rounded-lg bg-[#2a2824] p-4 text-center">
-                <div className="text-xl font-bold text-white">{value}</div>
+              <div key={label} className="rounded-lg bg-[#f3f4f6] p-4 text-center">
+                <div className="text-xl font-bold text-[var(--it-text)]">{value}</div>
                 <div className="mt-1 text-xs text-slate-400">{label}</div>
               </div>
             ))}
           </div>
 
           {dimensionSummary && (
-            <div className="mb-6 rounded-lg bg-[#2a2824] p-4">
-              <p className="mb-3 text-sm font-medium text-white">{s.thisMeasures}</p>
+            <div className="mb-6 rounded-lg bg-[#f3f4f6] p-4">
+              <p className="mb-3 text-sm font-medium text-[var(--it-text)]">{s.thisMeasures}</p>
               <div className="grid gap-2 text-sm sm:grid-cols-2">
                 {dimensionSummary.map((dimension) => (
                   <div key={dimension.label} className="flex items-start gap-2">
@@ -439,8 +440,8 @@ export default function AssessmentRunner({
 
           <button
             onClick={startTest}
-            className="w-full cursor-pointer rounded-lg py-3 font-semibold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: "#50618f" }}
+            className="w-full cursor-pointer rounded-lg py-3 font-semibold text-[var(--it-text)] transition-opacity hover:opacity-90"
+            style={{ backgroundColor: "#4f46e5" }}
           >
             {s.beginButton}
           </button>
@@ -462,10 +463,10 @@ export default function AssessmentRunner({
 
   if (phase === "completed") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#171614] p-6">
-        <div className="w-full max-w-md rounded-lg border border-[#2a2824] bg-[#1d1c19] p-8 text-center shadow-2xl shadow-black/30">
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#2a2824] bg-[#171614] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-6">
+        <div className="w-full max-w-md rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-8 text-center shadow-xl shadow-black/30">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-[#9BB8FF]">
+            <BrandLogoMark className="h-5 w-5 rounded-md" imageClassName="p-0.5" />
             Intelligences Test
           </div>
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10">
@@ -473,18 +474,18 @@ export default function AssessmentRunner({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="mb-3 text-2xl font-semibold text-white">{s.submittedTitle}</h1>
+          <h1 className="mb-3 text-2xl font-semibold text-[var(--it-text)]">{s.submittedTitle}</h1>
           <p className="mb-2 leading-relaxed text-slate-300">{s.submittedMessage}</p>
           <p className="text-sm leading-relaxed text-slate-500">{s.submittedSub}</p>
           {result?.completionMetric && (
-            <div className="mt-6 rounded-lg border border-[#2a2824] bg-[#171614] p-4">
+            <div className="mt-6 rounded-lg border border-[#f3f4f6] bg-[#f8fafc] p-4">
               <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{result.completionMetric.label}</p>
-              <p className={`mt-1 text-sm font-semibold ${result.completionMetric.colorClassName ?? "text-white"}`}>
+              <p className={`mt-1 text-sm font-semibold ${result.completionMetric.colorClassName ?? "text-[var(--it-text)]"}`}>
                 {result.completionMetric.value}
               </p>
             </div>
           )}
-          <div className="mt-6 rounded-lg border border-[#2a2824] bg-[#171614] p-4">
+          <div className="mt-6 rounded-lg border border-[#f3f4f6] bg-[#f8fafc] p-4">
             <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{s.status}</p>
             <p className="mt-1 text-sm font-medium text-emerald-300">{s.submittedSecurely}</p>
           </div>
@@ -496,15 +497,15 @@ export default function AssessmentRunner({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="flex items-center justify-between border-b border-[#2a2824] bg-[#1d1c19] px-6 py-4">
+      <div className="flex items-center justify-between border-b border-[#f3f4f6] bg-[#ffffff] px-6 py-4">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-white">{displayShort}</span>
+          <span className="text-sm font-medium text-[var(--it-text)]">{displayShort}</span>
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-sm text-slate-400">{s.answeredOf(answered, localizedQuestions.length)}</span>
           <div
-            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-sm font-bold ${timeWarning ? "bg-red-500/10 text-red-400" : "bg-[#2a2824] text-white"}`}
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-mono text-sm font-bold ${timeWarning ? "bg-red-500/10 text-red-400" : "bg-[#f3f4f6] text-[var(--it-text)]"}`}
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -514,7 +515,7 @@ export default function AssessmentRunner({
         </div>
       </div>
 
-      <div className="h-1 w-full bg-[#2a2824]">
+      <div className="h-1 w-full bg-[#f3f4f6]">
         <div className="h-1 transition-all duration-300" style={{ width: `${progress}%`, backgroundColor: accentColor }} />
       </div>
 
@@ -530,7 +531,7 @@ export default function AssessmentRunner({
               </span>
             )}
           </div>
-          <h2 className="text-xl font-semibold leading-relaxed text-white">{question.text}</h2>
+          <h2 className="text-xl font-semibold leading-relaxed text-[var(--it-text)]">{question.text}</h2>
         </div>
 
         <div className="mb-8 space-y-3">
@@ -543,7 +544,7 @@ export default function AssessmentRunner({
                 onClick={() => selectAnswer(value)}
                 className="flex w-full cursor-pointer items-center gap-4 rounded-lg border px-5 py-4 text-left transition-colors"
                 style={{
-                  backgroundColor: selected ? "rgba(80, 97, 143, 0.15)" : "#2a2824",
+                  backgroundColor: selected ? "rgba(79, 70, 229, 0.15)" : "#f3f4f6",
                   borderColor: selected ? accentColor : "transparent",
                   color: selected ? "#bfdbfe" : "#e2e8f0",
                 }}
@@ -551,7 +552,7 @@ export default function AssessmentRunner({
                 <span
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold"
                   style={{
-                    backgroundColor: selected ? accentColor : "#1d1c19",
+                    backgroundColor: selected ? accentColor : "#ffffff",
                     color: selected ? "#fff" : "#94a3b8",
                   }}
                 >
@@ -567,7 +568,7 @@ export default function AssessmentRunner({
           <button
             onClick={() => navigate(-1)}
             disabled={current === 0}
-            className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#2a2824] px-4 py-2 text-sm font-medium text-slate-200 transition-opacity disabled:cursor-default disabled:opacity-30"
+            className="flex cursor-pointer items-center gap-2 rounded-lg bg-[#f3f4f6] px-4 py-2 text-sm font-medium text-slate-200 transition-opacity disabled:cursor-default disabled:opacity-30"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -578,7 +579,7 @@ export default function AssessmentRunner({
           {current < localizedQuestions.length - 1 ? (
             <button
               onClick={() => navigate(1)}
-              className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-[var(--it-text)] transition-opacity hover:opacity-90"
               style={{ backgroundColor: accentColor }}
             >
               {s.next}
@@ -589,7 +590,7 @@ export default function AssessmentRunner({
           ) : (
             <button
               onClick={() => submitAnswers(answersRef.current)}
-              className="flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-500 px-5 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              className="flex cursor-pointer items-center gap-2 rounded-lg bg-emerald-500 px-5 py-2 text-sm font-semibold text-[var(--it-text)] transition-opacity hover:opacity-90"
             >
               {s.submitButton}
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -600,7 +601,7 @@ export default function AssessmentRunner({
         </div>
       </div>
 
-      <div className="border-t border-[#2a2824] bg-[#1d1c19] px-6 py-4">
+      <div className="border-t border-[#f3f4f6] bg-[#ffffff] px-6 py-4">
         <div className="mx-auto flex max-w-3xl flex-wrap gap-1.5">
           {localizedQuestions.map((_, index) => (
             <button
@@ -608,7 +609,7 @@ export default function AssessmentRunner({
               onClick={() => setCurrent(index)}
               className="h-7 w-7 cursor-pointer rounded text-xs font-medium transition-colors"
               style={{
-                backgroundColor: index === current ? accentColor : answers[index] !== null ? "rgba(16,185,129,0.2)" : "#2a2824",
+                backgroundColor: index === current ? accentColor : answers[index] !== null ? "rgba(16,185,129,0.2)" : "#f3f4f6",
                 color: index === current ? "#fff" : answers[index] !== null ? "#6ee7b7" : "#94a3b8",
               }}
             >

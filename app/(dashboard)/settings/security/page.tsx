@@ -121,7 +121,7 @@ export default function SecuritySettingsPage() {
   return (
     <div className="mx-auto max-w-[1200px]">
       <div>
-        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+        <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{copy.title}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
@@ -131,7 +131,7 @@ export default function SecuritySettingsPage() {
         <div>
           {/* Change password */}
           <div className="border-t border-[var(--it-hairline)] pt-4">
-            <h2 className="text-lg font-semibold text-white">{copy.changePasswordTitle}</h2>
+            <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.changePasswordTitle}</h2>
             <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.changePasswordText}</p>
 
             <form onSubmit={handleChangePassword} className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -162,8 +162,8 @@ export default function SecuritySettingsPage() {
                 <div
                   className={`sm:col-span-2 flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${
                     changeMessage.type === "success"
-                      ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
-                      : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
+                      ? "border-[var(--it-success)]/30 bg-[rgba(22,163,74,0.08)] text-[#15803d]"
+                      : "border-[var(--it-danger)]/30 bg-[rgba(220,38,38,0.08)] text-[#b91c1c]"
                   }`}
                 >
                   {changeMessage.type === "success" ? (
@@ -191,7 +191,7 @@ export default function SecuritySettingsPage() {
           <div className="mt-10 border-t border-[var(--it-hairline)] pt-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-lg font-semibold text-white">{copy.resetLinkTitle}</h2>
+                <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.resetLinkTitle}</h2>
                 <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.resetLinkText}</p>
               </div>
               <button
@@ -207,8 +207,8 @@ export default function SecuritySettingsPage() {
               <div
                 className={`mt-4 max-w-sm rounded-xl border px-3 py-2 text-xs font-medium ${
                   resetMessage.type === "success"
-                    ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
-                    : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
+                    ? "border-[var(--it-success)]/30 bg-[rgba(22,163,74,0.08)] text-[#15803d]"
+                    : "border-[var(--it-danger)]/30 bg-[rgba(220,38,38,0.08)] text-[#b91c1c]"
                 }`}
               >
                 {resetMessage.text}
@@ -218,15 +218,15 @@ export default function SecuritySettingsPage() {
 
           {/* Danger zone — the one place a tinted, bordered container is warranted:
               it needs to read as a distinct, high-caution area, not a settings section. */}
-          <div className="mt-10 rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(166,91,80,0.04)] p-6">
-            <h2 className="mb-3 text-base font-semibold text-[#cfa097]">{copy.dangerZone}</h2>
+          <div className="mt-10 rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(220,38,38,0.04)] p-6">
+            <h2 className="mb-3 text-base font-semibold text-[#b91c1c]">{copy.dangerZone}</h2>
             <p className="mb-4 text-sm text-[var(--it-muted)]">{copy.dangerText}</p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 disabled
                 title={copy.dangerComingSoon}
-                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#cfa097] opacity-50"
+                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#b91c1c] opacity-50"
               >
                 {copy.deleteData} · {copy.dangerComingSoon}
               </button>
@@ -234,7 +234,7 @@ export default function SecuritySettingsPage() {
                 type="button"
                 disabled
                 title={copy.dangerComingSoon}
-                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#cfa097] opacity-50"
+                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#b91c1c] opacity-50"
               >
                 {copy.closeAccount} · {copy.dangerComingSoon}
               </button>

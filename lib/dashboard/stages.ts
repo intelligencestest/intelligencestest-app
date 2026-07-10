@@ -11,15 +11,15 @@ export const PIPELINE_STAGES = [
 export type PipelineStage = (typeof PIPELINE_STAGES)[number];
 
 /** Segment/dot colors for stage visualizations; "expired" is the closed-invite bucket.
-    Calibrated to the Graphite & Ivory palette (docs/design/design-language.md §1). */
+    Calibrated to the light enterprise palette (docs/design/design-language.md §1). */
 export const STAGE_COLOR: Record<PipelineStage | "expired", string> = {
-  invited: "bg-[#a8873d]",
-  started: "bg-[#6e7f94]",
-  completed: "bg-[#4f8467]",
-  reviewed: "bg-[#827e70]",
-  interview: "bg-[#66739b]",
-  hired: "bg-[#7fa98c]",
-  expired: "bg-[#55524a]",
+  invited: "bg-[#d97706]",
+  started: "bg-[#4a7096]",
+  completed: "bg-[#16a34a]",
+  reviewed: "bg-[#9ca3af]",
+  interview: "bg-[#6366f1]",
+  hired: "bg-[#15803d]",
+  expired: "bg-[#6b7280]",
 };
 
 /** i18n key (dashboard namespace) per stage. */
@@ -46,13 +46,13 @@ export function emptyStageCounts(): StageCounts {
  * (candidate list, candidate detail, project health, pipeline strip).
  */
 export const STATUS_CHIP_STYLE: Record<string, { bg: string; text: string; ring: string; dot: string }> = {
-  invited: { bg: "bg-[rgba(168,135,61,0.08)]", text: "text-[#cdb584]", ring: "ring-[rgba(168,135,61,0.28)]", dot: STAGE_COLOR.invited },
-  started: { bg: "bg-[rgba(110,127,148,0.08)]", text: "text-[#a9b8c9]", ring: "ring-[rgba(110,127,148,0.28)]", dot: STAGE_COLOR.started },
-  completed: { bg: "bg-[rgba(79,132,103,0.08)]", text: "text-[#a9c8b4]", ring: "ring-[rgba(79,132,103,0.28)]", dot: STAGE_COLOR.completed },
-  reviewed: { bg: "bg-[rgba(130,126,112,0.1)]", text: "text-[#c2beb0]", ring: "ring-[rgba(130,126,112,0.3)]", dot: STAGE_COLOR.reviewed },
-  interview: { bg: "bg-[var(--it-primary-soft)]", text: "text-[var(--it-link)]", ring: "ring-[rgba(80,97,143,0.3)]", dot: STAGE_COLOR.interview },
-  hired: { bg: "bg-[rgba(127,169,140,0.12)]", text: "text-[#b3d4c0]", ring: "ring-[rgba(127,169,140,0.32)]", dot: STAGE_COLOR.hired },
-  rejected: { bg: "bg-[rgba(166,91,80,0.08)]", text: "text-[#cfa097]", ring: "ring-[rgba(166,91,80,0.28)]", dot: "bg-[#a65b50]" },
-  withdrawn: { bg: "bg-[rgba(120,116,104,0.1)]", text: "text-[var(--it-muted)]", ring: "ring-[rgba(120,116,104,0.28)]", dot: "bg-[#787468]" },
-  expired: { bg: "bg-[rgba(85,82,74,0.12)]", text: "text-slate-400", ring: "ring-[rgba(85,82,74,0.3)]", dot: STAGE_COLOR.expired },
+  invited: { bg: "bg-[rgba(217,119,6,0.07)]", text: "text-[#b45309]", ring: "ring-[rgba(217,119,6,0.28)]", dot: STAGE_COLOR.invited },
+  started: { bg: "bg-[rgba(74,112,150,0.07)]", text: "text-[#3a5c7e]", ring: "ring-[rgba(74,112,150,0.3)]", dot: STAGE_COLOR.started },
+  completed: { bg: "bg-[rgba(22,163,74,0.07)]", text: "text-[#15803d]", ring: "ring-[rgba(22,163,74,0.25)]", dot: STAGE_COLOR.completed },
+  reviewed: { bg: "bg-[rgba(107,114,128,0.08)]", text: "text-[#4b5563]", ring: "ring-[rgba(107,114,128,0.25)]", dot: STAGE_COLOR.reviewed },
+  interview: { bg: "bg-[var(--it-primary-soft)]", text: "text-[var(--it-link)]", ring: "ring-[rgba(79,70,229,0.25)]", dot: STAGE_COLOR.interview },
+  hired: { bg: "bg-[rgba(22,163,74,0.1)]", text: "text-[#166534]", ring: "ring-[rgba(22,163,74,0.3)]", dot: STAGE_COLOR.hired },
+  rejected: { bg: "bg-[rgba(220,38,38,0.06)]", text: "text-[#b91c1c]", ring: "ring-[rgba(220,38,38,0.25)]", dot: "bg-[#dc2626]" },
+  withdrawn: { bg: "bg-[rgba(107,114,128,0.08)]", text: "text-[var(--it-muted)]", ring: "ring-[rgba(107,114,128,0.25)]", dot: "bg-[#9ca3af]" },
+  expired: { bg: "bg-[rgba(107,114,128,0.1)]", text: "text-[#6b7280]", ring: "ring-[rgba(107,114,128,0.28)]", dot: STAGE_COLOR.expired },
 };

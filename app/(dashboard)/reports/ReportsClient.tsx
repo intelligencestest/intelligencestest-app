@@ -25,9 +25,9 @@ interface Result {
 }
 
 function scoreTone(score: number) {
-  if (score >= 80) return { text: "text-[#a9c8b4]", bar: "bg-[var(--it-success)]" };
-  if (score >= 60) return { text: "text-[#cdb584]", bar: "bg-[var(--it-warning)]" };
-  return { text: "text-[#cfa097]", bar: "bg-[var(--it-danger)]" };
+  if (score >= 80) return { text: "text-[#15803d]", bar: "bg-[var(--it-success)]" };
+  if (score >= 60) return { text: "text-[#b45309]", bar: "bg-[var(--it-warning)]" };
+  return { text: "text-[#b91c1c]", bar: "bg-[var(--it-danger)]" };
 }
 
 export default function ReportsClient({
@@ -148,9 +148,9 @@ export default function ReportsClient({
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] space-y-6">
+    <div className="mx-auto max-w-[1200px] space-y-8">
       <div>
-        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{copy.title}</h1>
+        <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{copy.title}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{copy.subtitle}</p>
       </div>
 
@@ -188,7 +188,7 @@ export default function ReportsClient({
               },
             ].map((s) => (
               <div key={s.label}>
-                <p className="text-2xl font-semibold tabular-nums text-white">{s.value}</p>
+                <p className="text-2xl font-semibold tabular-nums text-[var(--it-text)]">{s.value}</p>
                 <p className="mt-0.5 text-xs text-[var(--it-faint)]">{s.label}</p>
               </div>
             ))}
@@ -197,8 +197,8 @@ export default function ReportsClient({
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div className="enterprise-card xl:col-span-2 rounded-xl overflow-hidden">
               <div className="flex items-center justify-between border-b border-[var(--it-hairline)] px-6 py-4">
-                <h2 className="text-base font-semibold text-white">{copy.rankings}</h2>
-                <span className="rounded-full border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.1)] px-2.5 py-1 text-xs text-[#a9c8b4]">
+                <h2 className="text-base font-semibold text-[var(--it-text)]">{copy.rankings}</h2>
+                <span className="rounded-full border border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.1)] px-2.5 py-1 text-xs text-[#15803d]">
                   {results.length} {copy.scored}
                 </span>
               </div>
@@ -212,26 +212,26 @@ export default function ReportsClient({
                     const initials = candidate?.full_name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "??";
                     const tone = scoreTone(result.score);
                     return (
-                      <div key={result.id} className="px-6 py-4 transition-colors hover:bg-white/[0.02]">
+                      <div key={result.id} className="px-6 py-4 transition-colors hover:bg-gray-900/[0.02]">
                         <div className="flex items-center gap-4">
                           <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                            i === 0 ? "bg-[rgba(168,135,61,0.15)] text-[#cdb584]" :
-                            i === 1 ? "bg-white/[0.06] text-slate-300" :
-                            i === 2 ? "bg-[rgba(168,135,61,0.08)] text-[#cdb584]" :
-                            "bg-white/[0.03] text-[var(--it-faint)]"
+                            i === 0 ? "bg-[rgba(217,119,6,0.15)] text-[#b45309]" :
+                            i === 1 ? "bg-gray-900/[0.06] text-slate-300" :
+                            i === 2 ? "bg-[rgba(217,119,6,0.08)] text-[#b45309]" :
+                            "bg-gray-900/[0.03] text-[var(--it-faint)]"
                           }`}>
                             {i + 1}
                           </div>
-                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-xs font-semibold text-white">
+                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-xs font-semibold text-[var(--it-text)]">
                             {initials}
                           </div>
                           <div className="flex-1 min-w-0">
                             {result.candidate_id ? (
-                              <Link href={`/candidates/${result.candidate_id}`} className="block truncate text-sm font-medium text-white transition-colors hover:text-[var(--it-link)]">
+                              <Link href={`/candidates/${result.candidate_id}`} className="block truncate text-sm font-medium text-[var(--it-text)] transition-colors hover:text-[var(--it-link)]">
                                 {candidate?.full_name ?? copy.unknown}
                               </Link>
                             ) : (
-                              <p className="truncate text-sm font-medium text-white">{candidate?.full_name ?? copy.unknown}</p>
+                              <p className="truncate text-sm font-medium text-[var(--it-text)]">{candidate?.full_name ?? copy.unknown}</p>
                             )}
                             <p className="truncate text-xs text-[var(--it-muted)]">{result.assessments ? termName(result.assessments.name, es ? "es" : "en") : copy.assessment}</p>
                           </div>
@@ -243,7 +243,7 @@ export default function ReportsClient({
                           </div>
                         </div>
                         <div className="mt-3 ml-[88px]">
-                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                          <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-900/[0.06]">
                             <div className={`h-1.5 rounded-full ${tone.bar}`} style={{ width: `${Math.min(result.score, 100)}%` }} />
                           </div>
                         </div>
@@ -256,11 +256,11 @@ export default function ReportsClient({
 
             <div className="space-y-4">
               {results.length > 0 && (
-                <div className="rounded-xl border border-[var(--it-success)]/20 bg-[rgba(79,132,103,0.05)] p-5">
-                  <h3 className="mb-3 text-sm font-semibold text-[#a9c8b4]">{copy.topRecommendation}</h3>
+                <div className="rounded-xl border border-[var(--it-success)]/20 bg-[rgba(22,163,74,0.05)] p-5">
+                  <h3 className="mb-3 text-sm font-semibold text-[#15803d]">{copy.topRecommendation}</h3>
                   <p className="text-sm leading-relaxed text-[var(--it-muted)]">
-                    <span className="font-medium text-white">{results[0].candidates?.full_name ?? copy.topCandidate}</span> {copy.scoredText}{" "}
-                    <span className="font-medium text-[#a9c8b4]">{results[0].score}</span> {copy.onAssessment}{" "}
+                    <span className="font-medium text-[var(--it-text)]">{results[0].candidates?.full_name ?? copy.topCandidate}</span> {copy.scoredText}{" "}
+                    <span className="font-medium text-[#15803d]">{results[0].score}</span> {copy.onAssessment}{" "}
                     {results[0].assessments?.name ?? copy.assessment}.
                     {results[0].score >= 75
                       ? copy.advance
@@ -270,7 +270,7 @@ export default function ReportsClient({
               )}
 
               <div className="enterprise-card rounded-xl p-5">
-                <h3 className="mb-4 text-sm font-semibold text-white">{copy.distribution}</h3>
+                <h3 className="mb-4 text-sm font-semibold text-[var(--it-text)]">{copy.distribution}</h3>
                 {results.length === 0 ? (
                   <p className="text-sm text-[var(--it-muted)]">{copy.noData}</p>
                 ) : (
@@ -286,7 +286,7 @@ export default function ReportsClient({
                       return (
                         <div key={band.label} className="flex items-center gap-3">
                           <span className="w-14 text-xs text-[var(--it-faint)]">{band.label}</span>
-                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-900/[0.06]">
                             <div className={`h-2 rounded-full ${band.tone}`} style={{ width: `${pct}%` }} />
                           </div>
                           <span className="w-4 text-right text-xs text-[var(--it-faint)]">{count}</span>
@@ -304,7 +304,7 @@ export default function ReportsClient({
             <div className="enterprise-card rounded-xl overflow-hidden">
               <div className="flex items-center justify-between border-b border-[var(--it-hairline)] px-6 py-4">
                 <div>
-                  <h2 className="text-base font-semibold text-white">{copy.comprehensive}</h2>
+                  <h2 className="text-base font-semibold text-[var(--it-text)]">{copy.comprehensive}</h2>
                   <p className="mt-0.5 text-xs text-[var(--it-muted)]">{copy.comprehensiveSubtitle}</p>
                 </div>
                 <span className="rounded-full border border-[var(--it-primary)]/25 bg-[var(--it-primary-soft)] px-2.5 py-1 text-xs text-[var(--it-link)]">
@@ -317,24 +317,24 @@ export default function ReportsClient({
                   const avgTone = scoreTone(groupAvg).text;
                   const initials = group.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
                   return (
-                    <div key={candidateKey} className="px-6 py-4 transition-colors hover:bg-white/[0.02]">
+                    <div key={candidateKey} className="px-6 py-4 transition-colors hover:bg-gray-900/[0.02]">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                         <div className="flex min-w-0 flex-1 items-center gap-4">
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-white">
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-[var(--it-text)]">
                             {initials}
                           </div>
                           <div className="min-w-0 flex-1">
                             {group.id ? (
-                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-white transition-colors hover:text-[var(--it-link)]">
+                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-[var(--it-text)] transition-colors hover:text-[var(--it-link)]">
                                 {group.name}
                               </Link>
                             ) : (
-                              <p className="break-words text-sm font-medium text-white">{group.name}</p>
+                              <p className="break-words text-sm font-medium text-[var(--it-text)]">{group.name}</p>
                             )}
                             <p className="truncate text-xs text-[var(--it-muted)]">{group.email || copy.noEmail}</p>
                             <div className="mt-1.5 flex flex-wrap gap-1.5">
                               {group.results.map(r => (
-                                <span key={r.id} className="rounded bg-white/[0.04] px-2 py-0.5 text-xs text-[var(--it-muted)]">
+                                <span key={r.id} className="rounded bg-gray-900/[0.04] px-2 py-0.5 text-xs text-[var(--it-muted)]">
                                   {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
                                 </span>
                               ))}

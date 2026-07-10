@@ -78,7 +78,7 @@ export default async function ProcessHealthStrip({ data }: { data: ProcessHealth
               {item.delta !== null && item.delta !== 0 && (
                 <span
                   className={`inline-flex items-center gap-0.5 text-xs font-medium tabular-nums ${
-                    trendUp ? "text-[#a9c8b4]" : "text-[#cfa097]"
+                    trendUp ? "text-[#15803d]" : "text-[#b91c1c]"
                   }`}
                 >
                   {trendUp ? (

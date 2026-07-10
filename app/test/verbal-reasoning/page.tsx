@@ -23,7 +23,7 @@ export default function VerbalReasoningTest({
       shortName="Verbal Reasoning"
       categoryLabel="Cognitive"
       categoryClassName="border-violet-500/20 bg-violet-500/10 text-violet-300"
-      accentColor="#50618f"
+      accentColor="#4f46e5"
       durationSeconds={VR_DURATION_SECONDS}
       questions={questions}
       questionTypeLabel="Multiple Choice"

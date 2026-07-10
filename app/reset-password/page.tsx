@@ -103,19 +103,19 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#171614] text-slate-100 flex items-center justify-center p-4">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(80,97,143,0.16),transparent_34%)]" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-100 flex items-center justify-center p-4">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative w-full max-w-sm">
-        <div className="premium-card rounded-2xl p-8 shadow-2xl">
+        <div className="premium-card rounded-2xl p-8 shadow-xl">
           <div className="mb-6">
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-emerald-500/30 bg-emerald-500/10">
               <svg className="h-5 w-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-white">{flow("setNewPasswordTitle")}</h1>
+            <h1 className="text-xl font-semibold text-[var(--it-text)]">{flow("setNewPasswordTitle")}</h1>
             <p className="mt-1 text-sm text-slate-500">{flow("setNewPasswordDescription")}</p>
           </div>
 
@@ -126,7 +126,7 @@ export default function ResetPasswordPage() {
           )}
 
           {status === "checking" && (
-            <div className="rounded-xl border border-[#2a2824] bg-[#171614] p-4 text-sm text-slate-300">
+            <div className="rounded-xl border border-[#f3f4f6] bg-[#f8fafc] p-4 text-sm text-slate-300">
               {flow("preparingPasswordReset")}
             </div>
           )}
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
             <button
               type="button"
               onClick={() => router.push(localePath("/forgot-password", locale))}
-              className="flex w-full items-center justify-center rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#46557e]"
+              className="flex w-full items-center justify-center rounded-xl bg-[#4f46e5] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#3730a3]"
             >
               {flow("requestNewResetLink")}
             </button>
@@ -151,7 +151,7 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={flow("passwordMinPlaceholder")}
-                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
               />
             </div>
             <div>
@@ -162,13 +162,13 @@ export default function ResetPasswordPage() {
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder={flow("passwordRepeatPlaceholder")}
-                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
+                className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25 transition-colors"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#46557e] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#3730a3] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>

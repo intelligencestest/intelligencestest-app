@@ -35,9 +35,9 @@ type SuccessState =
   | { type: "email"; to: string };
 
 const statusConfig: Record<string, { class: string; dot: string }> = {
-  active: { class: "border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.1)] text-[#a9c8b4]", dot: "bg-[var(--it-success)]" },
-  draft: { class: "border-[var(--it-hairline)] bg-white/[0.03] text-[var(--it-muted)]", dot: "bg-[var(--it-faint)]" },
-  archived: { class: "border-[var(--it-warning)]/25 bg-[rgba(168,135,61,0.1)] text-[#cdb584]", dot: "bg-[var(--it-warning)]" },
+  active: { class: "border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.1)] text-[#15803d]", dot: "bg-[var(--it-success)]" },
+  draft: { class: "border-[var(--it-hairline)] bg-gray-900/[0.03] text-[var(--it-muted)]", dot: "bg-[var(--it-faint)]" },
+  archived: { class: "border-[var(--it-warning)]/25 bg-[rgba(217,119,6,0.1)] text-[#b45309]", dot: "bg-[var(--it-warning)]" },
 };
 
 export default function ProjectsClient({ projects, countsByProject, projectAssessments, activeCount, totalCandidates }: Props) {
@@ -128,11 +128,11 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
   };
 
   return (
-    <div className="mx-auto max-w-[1200px] space-y-6">
+    <div className="mx-auto max-w-[1200px] space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>
+          <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{t("title")}</h1>
           <p className="mt-2 text-sm text-[var(--it-muted)]">{t("summary", { activeCount, totalCandidates })}</p>
         </div>
         <Link
@@ -164,7 +164,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
               <div key={project.id} className="enterprise-card enterprise-card-hover group rounded-xl p-5">
                 <div className="min-w-0">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="truncate text-base font-semibold text-white transition-colors group-hover:text-[var(--it-link)]">
+                    <h3 className="truncate text-base font-semibold text-[var(--it-text)] transition-colors group-hover:text-[var(--it-link)]">
                       {project.name}
                     </h3>
                     <span className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
@@ -184,12 +184,12 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                 <div className="mt-4 flex items-center gap-6">
                   <div className="flex items-baseline gap-1.5">
                     <Users className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
-                    <span className="text-lg font-semibold text-white">{counts.total}</span>
+                    <span className="text-lg font-semibold text-[var(--it-text)]">{counts.total}</span>
                     <span className="text-xs text-[var(--it-faint)]">{t("candidatesLabel")}</span>
                   </div>
                   <div className="flex items-baseline gap-1.5">
                     <CheckCircle2 className="h-3.5 w-3.5 text-[var(--it-faint)]" strokeWidth={1.8} aria-hidden="true" />
-                    <span className="text-lg font-semibold text-white">{counts.completed}</span>
+                    <span className="text-lg font-semibold text-[var(--it-text)]">{counts.completed}</span>
                     <span className="text-xs text-[var(--it-faint)]">{t("completedLabel")}</span>
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     <span>{t("completionLabel")}</span>
                     <span>{progress}%</span>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-900/[0.06]">
                     <div
                       className="h-full rounded-full bg-[var(--it-primary)] transition-all duration-500"
                       style={{ width: `${progress}%` }}
@@ -239,22 +239,22 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
       {/* Invite modal */}
       {inviteProjectId && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm"
           onClick={closeModal}
         >
           <div
-            className="enterprise-card w-full max-w-md rounded-2xl p-6 shadow-2xl"
+            className="enterprise-card w-full max-w-md rounded-2xl p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-5 flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-base font-semibold text-white">{t("inviteTitle")}</h2>
+                <h2 className="text-base font-semibold text-[var(--it-text)]">{t("inviteTitle")}</h2>
                 <p className="mt-0.5 text-xs text-[var(--it-muted)]">{t("inviteDescription")}</p>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
-                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-white/[0.05] hover:text-white"
+                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--it-muted)] transition-colors hover:bg-gray-900/[0.05] hover:text-[var(--it-text)]"
               >
                 <X className="h-4 w-4" strokeWidth={2} />
               </button>
@@ -264,12 +264,12 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
               <div className="space-y-4">
                 {success.type === "link" ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
-                        <Check className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
+                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.08)] p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(22,163,74,0.15)]">
+                        <Check className="h-4 w-4 text-[#15803d]" strokeWidth={2} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-[#a9c8b4]">{t("linkCopied")}</p>
+                        <p className="text-sm font-medium text-[#15803d]">{t("linkCopied")}</p>
                         <p className="text-xs text-[var(--it-muted)]">{t("linkValid")}</p>
                       </div>
                     </div>
@@ -278,12 +278,12 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
-                      <Mail className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
+                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.08)] p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(22,163,74,0.15)]">
+                      <Mail className="h-4 w-4 text-[#15803d]" strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-[#a9c8b4]">{t("emailSent")}</p>
+                      <p className="text-sm font-medium text-[#15803d]">{t("emailSent")}</p>
                       <p className="truncate text-xs text-[var(--it-muted)]">{success.to}</p>
                     </div>
                   </div>
@@ -291,7 +291,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
+                  className="w-full cursor-pointer rounded-xl border border-[var(--it-hairline)] py-2.5 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-[var(--it-text)]"
                 >
                   {t("inviteAnother")}
                 </button>
@@ -299,7 +299,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
             ) : (
               <div className="space-y-4">
                 {error && (
-                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(166,91,80,0.1)] p-3 text-sm text-[#cfa097]">
+                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(220,38,38,0.1)] p-3 text-sm text-[#b91c1c]">
                     {error}
                   </div>
                 )}

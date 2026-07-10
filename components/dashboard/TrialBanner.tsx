@@ -10,9 +10,9 @@ interface TrialBannerProps {
 }
 
 const SEVERITY = {
-  info: { text: "text-[#a9b8c9]", bg: "bg-[rgba(110,127,148,0.08)]", ring: "ring-[rgba(110,127,148,0.28)]" },
-  warning: { text: "text-[#cdb584]", bg: "bg-[rgba(168,135,61,0.08)]", ring: "ring-[rgba(168,135,61,0.28)]" },
-  serious: { text: "text-[#cfa097]", bg: "bg-[rgba(166,91,80,0.08)]", ring: "ring-[rgba(166,91,80,0.28)]" },
+  info: { text: "text-[#3a5c7e]", bg: "bg-[rgba(74,112,150,0.08)]", ring: "ring-[rgba(74,112,150,0.28)]" },
+  warning: { text: "text-[#b45309]", bg: "bg-[rgba(217,119,6,0.08)]", ring: "ring-[rgba(217,119,6,0.28)]" },
+  serious: { text: "text-[#b91c1c]", bg: "bg-[rgba(220,38,38,0.08)]", ring: "ring-[rgba(220,38,38,0.28)]" },
 } as const;
 
 function UsageStat({ label, used, limit }: { label: string; used: number; limit: number | null }) {
@@ -49,7 +49,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
         <div className="flex flex-wrap items-center gap-3">
           <PlanBadge planId={summary.planId} plan={summary.plan} locale={locale} />
           <p className={`text-sm font-medium ${sev.text}`}>{t("trialExpiredTitle")}</p>
-          <span className="hidden h-4 w-px bg-white/10 sm:block" aria-hidden="true" />
+          <span className="hidden h-4 w-px bg-gray-900/10 sm:block" aria-hidden="true" />
           <UsageStat label={t("usageCandidates")} used={summary.usage.candidates} limit={summary.limits.candidates} />
           <UsageStat label={t("usageProjects")} used={summary.usage.projects} limit={summary.limits.projects} />
         </div>
@@ -78,7 +78,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
             {days === 0 ? t("trialLastDay") : days === 1 ? t("trialOneDayLeft") : t("trialDaysLeft", { days })}
           </p>
         ) : null}
-        <span className="hidden h-4 w-px bg-white/10 sm:block" aria-hidden="true" />
+        <span className="hidden h-4 w-px bg-gray-900/10 sm:block" aria-hidden="true" />
         <UsageStat label={t("usageCandidates")} used={summary.usage.candidates} limit={summary.limits.candidates} />
         <UsageStat label={t("usageProjects")} used={summary.usage.projects} limit={summary.limits.projects} />
       </div>

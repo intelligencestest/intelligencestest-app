@@ -11,6 +11,7 @@ import {
   localePath,
   toAppLocale,
 } from "@/lib/i18n/locales";
+import { BrandLockup } from "@/components/brand/BrandLogo";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -97,31 +98,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#171614] text-slate-100">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(80,97,143,0.16),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
+    <div className="min-h-screen bg-[#f8fafc] text-slate-100">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(79,70,229,0.06),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <main className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_520px]">
-        <section className="hidden lg:flex flex-col justify-between border-r border-[#2a2824] px-10 py-8 xl:px-14">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#7d8db4]/30 bg-[#50618f] shadow-[0_0_36px_rgba(80,97,143,0.38)]">
-              <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-sm font-semibold tracking-tight text-white">Intelligences Test</p>
-              <p className="text-xs text-slate-500">{flow("brandSubtitle")}</p>
-            </div>
-          </div>
+        <section className="hidden lg:flex flex-col justify-between border-r border-[#f3f4f6] px-10 py-8 xl:px-14">
+          <BrandLockup subtitle={flow("brandSubtitle")} />
 
           <div className="max-w-xl animate-fade-up">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2a2824] bg-[#1d1c19]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#ffffff]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-soft-pulse" />
               {flow("loginBadge")}
             </div>
-            <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-white xl:text-5xl">
+            <h1 className="max-w-lg text-4xl font-semibold tracking-tight text-[var(--it-text)] xl:text-5xl">
               {flow("loginHeroTitle")}
             </h1>
             <p className="mt-5 max-w-md text-sm leading-6 text-slate-400">
@@ -135,7 +125,7 @@ export default function LoginPage() {
                 ["100%", flow("dataIsolatedStat")],
               ].map(([value, label]) => (
                 <div key={label} className="premium-card rounded-xl p-4">
-                  <p className="text-xl font-semibold text-white">{value}</p>
+                  <p className="text-xl font-semibold text-[var(--it-text)]">{value}</p>
                   <p className="mt-1 text-xs text-slate-500">{label}</p>
                 </div>
               ))}
@@ -143,7 +133,7 @@ export default function LoginPage() {
           </div>
 
           <div className="flex items-center gap-3 text-xs text-slate-600">
-            <span className="h-px w-10 bg-[#2a2824]" />
+            <span className="h-px w-10 bg-[#f3f4f6]" />
             {flow("builtFor")}
           </div>
         </section>
@@ -151,24 +141,15 @@ export default function LoginPage() {
         <section className="flex items-center justify-center px-4 py-8 sm:px-6 lg:px-10">
           <div className="w-full max-w-md animate-fade-up">
             <div className="mb-7 flex items-center justify-center gap-3 lg:hidden">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#7d8db4]/30 bg-[#50618f] shadow-[0_0_30px_rgba(80,97,143,0.34)]">
-                <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-sm font-semibold tracking-tight text-white">Intelligences Test</p>
-                <p className="text-xs text-slate-500">{flow("brandSubtitle")}</p>
-              </div>
+              <BrandLockup subtitle={flow("brandSubtitle")} />
             </div>
 
-            <div className="premium-card rounded-2xl p-6 shadow-2xl sm:p-8">
+            <div className="premium-card rounded-2xl p-6 shadow-xl sm:p-8">
               <div className="mb-6">
-                <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("welcomeBack")}</h2>
+                <h2 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{auth("welcomeBack")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("noAccountYet")}{" "}
-                  <Link href={localePath("/signup", locale)} className="text-[#a6b2cf] hover:text-[#93B8FF] transition-colors">
+                  <Link href={localePath("/signup", locale)} className="text-[#4338ca] hover:text-[#93B8FF] transition-colors">
                     {auth("createOneFree")}
                   </Link>
                 </p>
@@ -179,7 +160,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={handleGoogle}
                 disabled={oauthLoading}
-                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#3d3b34] hover:bg-[#1d1c19] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#d1d5db] hover:bg-[#ffffff] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {oauthLoading ? (
                   <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -193,13 +174,13 @@ export default function LoginPage() {
               </button>
 
               <div className="mb-5 flex items-center gap-3">
-                <span className="h-px flex-1 bg-[#2a2824]" />
+                <span className="h-px flex-1 bg-[#f3f4f6]" />
                 <span className="text-xs text-slate-600">{auth("orSignInWithEmail")}</span>
-                <span className="h-px flex-1 bg-[#2a2824]" />
+                <span className="h-px flex-1 bg-[#f3f4f6]" />
               </div>
 
               {recoveryRedirecting && (
-                <div className="mb-5 rounded-xl border border-[#2a2824] bg-[#171614] p-4 text-sm text-slate-300">
+                <div className="mb-5 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] p-4 text-sm text-slate-300">
                   {flow("preparingPasswordReset")}
                 </div>
               )}
@@ -226,7 +207,7 @@ export default function LoginPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder={flow("emailPlaceholder")}
-                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
                     />
                   </div>
                 </div>
@@ -234,7 +215,7 @@ export default function LoginPage() {
                 <div>
                   <div className="mb-2 flex items-center justify-between">
                     <label className="text-sm font-medium text-slate-300">{auth("password")}</label>
-                    <Link href={localePath("/forgot-password", locale)} className="text-xs text-slate-500 hover:text-[#a6b2cf] transition-colors">
+                    <Link href={localePath("/forgot-password", locale)} className="text-xs text-slate-500 hover:text-[#4338ca] transition-colors">
                       {auth("forgotPassword")}
                     </Link>
                   </div>
@@ -247,7 +228,7 @@ export default function LoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={flow("passwordEnterPlaceholder")}
-                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
+                      className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] py-3 pl-10 pr-4 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
                     />
                   </div>
                 </div>
@@ -255,7 +236,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(80,97,143,0.25)] transition-colors hover:bg-[#46557e] focus:outline-none focus:ring-2 focus:ring-[#50618f]/45 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#4f46e5] px-4 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#3730a3] focus:outline-none focus:ring-2 focus:ring-[#4f46e5]/45 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>
@@ -272,7 +253,7 @@ export default function LoginPage() {
               </form>
               )}
 
-              <div className="mt-6 border-t border-[#2a2824] pt-5">
+              <div className="mt-6 border-t border-[#f3f4f6] pt-5">
                 <div className="flex items-center justify-between text-xs text-slate-500">
                   <span>{flow("protectedBy")}</span>
                   <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-emerald-300">{flow("secure")}</span>

@@ -109,7 +109,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-2xl font-semibold tracking-tight text-white">{company.name}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{company.name}</h1>
               <Chip tone={statusTone(company.status ?? "active")}>{company.status ?? "active"}</Chip>
               <Chip tone="info">{formatPlan(company.plan)}</Chip>
               <Chip>{company.language ?? "es"}</Chip>
@@ -124,7 +124,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
             <ResetPasswordButton companyId={company.id} />
             <Link
               href={`/admin/companies?q=${encodeURIComponent(company.email)}`}
-              className="rounded-lg border border-[var(--it-hairline)] px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-[#8b5cf6]/60 hover:text-white"
+              className="rounded-lg border border-[var(--it-hairline)] px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-[#8b5cf6]/60 hover:text-[var(--it-text)]"
             >
               Manage workspace →
             </Link>
@@ -270,7 +270,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
                 <div key={event.id} className="px-4 py-2.5">
                   <div className="flex items-baseline gap-2">
                     {event.href ? (
-                      <Link href={event.href} className="min-w-0 flex-1 truncate text-[13px] font-medium text-slate-200 hover:text-[#a6b2cf]">
+                      <Link href={event.href} className="min-w-0 flex-1 truncate text-[13px] font-medium text-slate-200 hover:text-[#4338ca]">
                         {event.title}
                       </Link>
                     ) : (

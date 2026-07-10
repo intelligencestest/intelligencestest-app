@@ -132,12 +132,12 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-[1200px]">
       <div>
-        <h1 className="text-[28px] font-semibold leading-[34px] tracking-[-0.01em] text-white">{t("title")}</h1>
+        <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{t("title")}</h1>
         <p className="mt-2 text-sm text-[var(--it-muted)]">{t("description")}</p>
       </div>
 
       {saved && (
-        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] p-3 text-sm text-[#a9c8b4]">
+        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(22,163,74,0.08)] p-3 text-sm text-[#15803d]">
           <Check className="h-4 w-4 flex-shrink-0" strokeWidth={2} />
           {t("saved")}
         </div>
@@ -150,20 +150,20 @@ export default function SettingsPage() {
           {/* Language — fixed at signup */}
           <div className="flex items-center justify-between gap-4 border-t border-[var(--it-hairline)] pt-4">
             <div className="min-w-0">
-              <h2 className="text-lg font-semibold text-white">{t("languageTitle")}</h2>
+              <h2 className="text-lg font-semibold text-[var(--it-text)]">{t("languageTitle")}</h2>
               <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{t("languageLocked")}</p>
             </div>
-            <span className="inline-flex flex-shrink-0 items-center rounded-full border border-[var(--it-hairline)] bg-white/[0.03] px-3 py-1.5 text-sm font-semibold text-slate-200">
+            <span className="inline-flex flex-shrink-0 items-center rounded-full border border-[var(--it-hairline)] bg-gray-900/[0.03] px-3 py-1.5 text-sm font-semibold text-slate-200">
               {es ? "Español" : "English"}
             </span>
           </div>
 
           {/* Profile */}
           <div className="mt-10 border-t border-[var(--it-hairline)] pt-4">
-            <h2 className="text-lg font-semibold text-white">{copy.profile}</h2>
+            <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.profile}</h2>
 
             <div className="mt-4 flex items-center gap-4">
-              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-lg font-semibold text-white">
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-lg font-semibold text-[var(--it-text)]">
                 {profile.name ? profile.name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase() : "?"}
               </div>
               <div className="flex flex-wrap gap-x-8 gap-y-1 text-sm">
@@ -192,8 +192,8 @@ export default function SettingsPage() {
               <div
                 className={`mt-4 max-w-sm rounded-xl border px-3 py-2 text-xs font-medium ${
                   profileMessage.type === "success"
-                    ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
-                    : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
+                    ? "border-[var(--it-success)]/30 bg-[rgba(22,163,74,0.08)] text-[#15803d]"
+                    : "border-[var(--it-danger)]/30 bg-[rgba(220,38,38,0.08)] text-[#b91c1c]"
                 }`}
               >
                 {profileMessage.text}
@@ -203,7 +203,7 @@ export default function SettingsPage() {
 
           {/* Notifications */}
           <div id="notifications" className="scroll-mt-28 mt-10 border-t border-[var(--it-hairline)] pt-4">
-            <h2 className="text-lg font-semibold text-white">{copy.notifications}</h2>
+            <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.notifications}</h2>
             <div className="mt-4 divide-y divide-[var(--it-hairline)]">
               {copy.notificationItems.map((item) => (
                 <div key={item.key} className="flex items-start justify-between gap-4 py-3 first:pt-0 last:pb-0">

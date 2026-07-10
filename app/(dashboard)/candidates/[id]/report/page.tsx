@@ -36,33 +36,33 @@ type ResultRow = {
 const BAND_STYLE: Record<Band, { label: Record<ReportLang, string>; text: string; bg: string; bar: string; border: string }> = {
   high: {
     label: { es: "Alto", en: "High" },
-    text: "text-[#a9c8b4]",
-    bg: "bg-[rgba(79,132,103,0.1)]",
+    text: "text-[#15803d]",
+    bg: "bg-[rgba(22,163,74,0.1)]",
     bar: "bg-[var(--it-success)]",
     border: "border-[var(--it-success)]/20",
   },
   medium: {
     label: { es: "Medio", en: "Medium" },
-    text: "text-[#cdb584]",
-    bg: "bg-[rgba(168,135,61,0.1)]",
+    text: "text-[#b45309]",
+    bg: "bg-[rgba(217,119,6,0.1)]",
     bar: "bg-[var(--it-warning)]",
     border: "border-[var(--it-warning)]/20",
   },
   low: {
     label: { es: "Bajo", en: "Low" },
-    text: "text-[#cfa097]",
-    bg: "bg-[rgba(166,91,80,0.1)]",
+    text: "text-[#b91c1c]",
+    bg: "bg-[rgba(220,38,38,0.1)]",
     bar: "bg-[var(--it-danger)]",
     border: "border-[var(--it-danger)]/20",
   },
 };
 
 const RECOMMENDATION_STYLE: Record<IntelligenceRecommendation["level"], { dot: string; text: string; bg: string; border: string }> = {
-  strong: { dot: "bg-[var(--it-success)]", text: "text-[#c8dfd2]", bg: "bg-[rgba(79,132,103,0.1)]", border: "border-[var(--it-success)]/25" },
-  proceed: { dot: "bg-[var(--it-success)]", text: "text-[#c8dfd2]", bg: "bg-[rgba(79,132,103,0.1)]", border: "border-[var(--it-success)]/25" },
-  review: { dot: "bg-[var(--it-warning)]", text: "text-[#e3d4ab]", bg: "bg-[rgba(168,135,61,0.1)]", border: "border-[var(--it-warning)]/25" },
-  caution: { dot: "bg-[var(--it-danger)]", text: "text-[#e0b3ab]", bg: "bg-[rgba(166,91,80,0.1)]", border: "border-[var(--it-danger)]/25" },
-  notRecommended: { dot: "bg-[var(--it-danger)]", text: "text-[#e0b3ab]", bg: "bg-[rgba(166,91,80,0.1)]", border: "border-[var(--it-danger)]/25" },
+  strong: { dot: "bg-[var(--it-success)]", text: "text-[#166534]", bg: "bg-[rgba(22,163,74,0.1)]", border: "border-[var(--it-success)]/25" },
+  proceed: { dot: "bg-[var(--it-success)]", text: "text-[#166534]", bg: "bg-[rgba(22,163,74,0.1)]", border: "border-[var(--it-success)]/25" },
+  review: { dot: "bg-[var(--it-warning)]", text: "text-[#92400e]", bg: "bg-[rgba(217,119,6,0.1)]", border: "border-[var(--it-warning)]/25" },
+  caution: { dot: "bg-[var(--it-danger)]", text: "text-[#991b1b]", bg: "bg-[rgba(220,38,38,0.1)]", border: "border-[var(--it-danger)]/25" },
+  notRecommended: { dot: "bg-[var(--it-danger)]", text: "text-[#991b1b]", bg: "bg-[rgba(220,38,38,0.1)]", border: "border-[var(--it-danger)]/25" },
 };
 
 const CONFIDENCE_STYLE: Record<ConfidenceLevel, { label: Record<ReportLang, string>; tone: "high" | "moderate" | "low" }> = {
@@ -226,7 +226,7 @@ function SectionShell({
     <section className="border-t enterprise-divider py-10">
       <div className="grid gap-8 lg:grid-cols-[260px_1fr]">
         <div>
-          <h2 className="text-lg font-semibold tracking-tight text-white">{title}</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-[var(--it-text)]">{title}</h2>
           {aside}
         </div>
         <div>{children}</div>
@@ -247,7 +247,7 @@ function ScoreLine({ score, tone }: { score: number; tone: Band }) {
   return (
     <div className="flex items-center gap-3">
       <span className={`w-10 text-right text-sm font-semibold ${BAND_STYLE[tone].text}`}>{score}</span>
-      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/[0.07]">
+      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-900/[0.07]">
         <div className={`h-full rounded-full ${BAND_STYLE[tone].bar}`} style={{ width: `${Math.min(score, 100)}%` }} />
       </div>
     </div>
@@ -396,7 +396,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
         <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href={`/candidates/${candidate.id}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-white"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[var(--it-muted)] transition-colors hover:text-[var(--it-text)]"
           >
             <ChevronLeft className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
             {L.back as string}
@@ -439,17 +439,17 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 </Pill>
               </div>
               {/* Editorial register — the verdict is the document's voice (design-language.md §2) */}
-              <h1 className="font-editorial mt-5 max-w-4xl text-4xl font-medium leading-[1.12] text-white sm:text-5xl">
+              <h1 className="font-editorial mt-5 max-w-4xl text-4xl font-medium leading-[1.12] text-[var(--it-text)] sm:text-5xl">
                 {intelligence.recommendation.title}
               </h1>
               <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{intelligence.recommendation.rationale}</p>
 
               <div className="mt-8 flex min-w-0 items-center gap-4">
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-white">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-[var(--it-text)]">
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="break-words text-base font-semibold text-white">{name}</p>
+                  <p className="break-words text-base font-semibold text-[var(--it-text)]">{name}</p>
                   <p className="mt-0.5 break-words text-sm text-[var(--it-muted)]">{candidate.email || "—"}</p>
                 </div>
               </div>
@@ -477,7 +477,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   <span>{BAND_STYLE[overallBand].label[locale]}</span>
                   <span>{overall}%</span>
                 </div>
-                <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+                <div className="h-1.5 overflow-hidden rounded-full bg-gray-900/[0.07]">
                   <div className={`h-full rounded-full ${BAND_STYLE[overallBand].bar}`} style={{ width: `${overall}%` }} />
                 </div>
               </div>
@@ -512,9 +512,9 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             }
           >
             <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-              <div className="rounded-xl bg-white/[0.03] p-6">
+              <div className="rounded-xl bg-gray-900/[0.03] p-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.keyMessage as string}</p>
-                <p className="font-editorial mt-3 text-2xl font-medium leading-snug text-white">{intelligence.executiveSummary.headline}</p>
+                <p className="font-editorial mt-3 text-2xl font-medium leading-snug text-[var(--it-text)]">{intelligence.executiveSummary.headline}</p>
                 <p className="mt-4 text-sm leading-7 text-slate-300">{intelligence.executiveSummary.summary}</p>
               </div>
               <MarkerList items={intelligence.executiveSummary.evidence.slice(0, 4)} />
@@ -527,7 +527,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           >
             <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
               <div>
-                <h3 className="mb-4 text-sm font-semibold text-white">{L.competencies as string}</h3>
+                <h3 className="mb-4 text-sm font-semibold text-[var(--it-text)]">{L.competencies as string}</h3>
                 <div className="space-y-3">
                   {competencies.map((competency) => {
                     const tone = band(competency.score);
@@ -535,7 +535,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                       <article key={competency.competencyId} className="rounded-xl border border-[var(--it-hairline)] p-4">
                         <div className="mb-3 flex items-start justify-between gap-4">
                           <div>
-                            <p className="text-sm font-semibold text-white">{competency.label}</p>
+                            <p className="text-sm font-semibold text-[var(--it-text)]">{competency.label}</p>
                             <p className="mt-0.5 text-xs text-[var(--it-faint)]">{competency.category}</p>
                           </div>
                           <span className={`text-lg font-semibold ${BAND_STYLE[tone].text}`}>{competency.score}</span>
@@ -550,15 +550,15 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
 
               <div className="space-y-6">
                 <div>
-                  <h3 className="mb-4 text-sm font-semibold text-white">{L.supportingEvidence as string}</h3>
+                  <h3 className="mb-4 text-sm font-semibold text-[var(--it-text)]">{L.supportingEvidence as string}</h3>
                   <div className="space-y-3">
                     {evidenceSignals.map((signal) => (
                       <article key={signal.id} className={`rounded-xl border p-4 ${directionBorder(signal.direction)}`}>
                         <div className="flex flex-wrap items-center gap-2">
-                          <Pill className="border-[var(--it-hairline)] bg-white/[0.03] text-slate-300">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
+                          <Pill className="border-[var(--it-hairline)] bg-gray-900/[0.03] text-slate-300">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
                           <span className="text-xs text-[var(--it-faint)]">{termName(signal.assessmentName, locale)}</span>
                         </div>
-                        <p className="mt-3 text-sm font-medium leading-6 text-white">{signal.statement}</p>
+                        <p className="mt-3 text-sm font-medium leading-6 text-[var(--it-text)]">{signal.statement}</p>
                         <p className="mt-2 text-sm leading-6 text-slate-300">{signal.businessImpact}</p>
                       </article>
                     ))}
@@ -567,14 +567,14 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
 
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
                   <div>
-                    <h3 className="mb-3 text-sm font-semibold text-white">{L.risks as string}</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.risks as string}</h3>
                     {intelligence.risks.length ? (
                       <div className="space-y-3">
                         {intelligence.risks.slice(0, 4).map((risk) => (
-                          <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(166,91,80,0.04)] p-4">
+                          <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.04)] p-4">
                             <div className="flex items-center justify-between gap-3">
-                              <p className="text-sm font-semibold text-white">{risk.competencyLabel}</p>
-                              <Pill className="border-[var(--it-danger)]/20 bg-[rgba(166,91,80,0.1)] text-[#e0b3ab]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
+                              <p className="text-sm font-semibold text-[var(--it-text)]">{risk.competencyLabel}</p>
+                              <Pill className="border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.1)] text-[#991b1b]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
                             </div>
                             <p className="mt-2 text-sm leading-6 text-slate-300">{risk.statement}</p>
                             <p className="mt-2 text-xs leading-5 text-[var(--it-muted)]">{risk.businessImpact}</p>
@@ -587,10 +587,10 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   </div>
 
                   <div>
-                    <h3 className="mb-3 text-sm font-semibold text-white">{L.contradictions as string}</h3>
+                    <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.contradictions as string}</h3>
                     {hasContradiction ? (
-                      <div className="rounded-xl border border-[var(--it-warning)]/20 bg-[rgba(168,135,61,0.05)] p-4">
-                        <p className="text-sm leading-6 text-[#e3d4ab]">
+                      <div className="rounded-xl border border-[var(--it-warning)]/20 bg-[rgba(217,119,6,0.05)] p-4">
+                        <p className="text-sm leading-6 text-[#92400e]">
                           {mixedSignals[0]?.statement ?? (L.mixedSignal as string)}
                         </p>
                         {mixedSignals[0]?.businessImpact && <p className="mt-2 text-xs leading-5 text-slate-300">{mixedSignals[0].businessImpact}</p>}
@@ -607,7 +607,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           <SectionShell title={L.businessTitle as string}>
             <div className="grid gap-5 lg:grid-cols-3">
               <div>
-                <h3 className="mb-3 text-sm font-semibold text-white">{L.strengths as string}</h3>
+                <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.strengths as string}</h3>
                 {intelligence.strengths.length ? (
                   <MarkerList items={intelligence.strengths} />
                 ) : (
@@ -615,7 +615,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 )}
               </div>
               <div>
-                <h3 className="mb-3 text-sm font-semibold text-white">{L.development as string}</h3>
+                <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.development as string}</h3>
                 {intelligence.developmentAreas.length ? (
                   <MarkerList items={intelligence.developmentAreas} />
                 ) : (
@@ -623,7 +623,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 )}
               </div>
               <div>
-                <h3 className="mb-3 text-sm font-semibold text-white">{L.limitations as string}</h3>
+                <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.limitations as string}</h3>
                 <MarkerList
                   tone="text-slate-300"
                   items={Array.from(new Set([L.roleFitLimit as string, ...intelligence.methodologyLimitations]))}
@@ -644,7 +644,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                       <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">
                         {L.validates as string}: {question.competency}
                       </p>
-                      <p className="mt-3 text-base font-semibold leading-7 text-white">{question.question}</p>
+                      <p className="mt-3 text-base font-semibold leading-7 text-[var(--it-text)]">{question.question}</p>
                     </div>
                     <span className="text-sm font-semibold text-[var(--it-faint)]">{String(index + 1).padStart(2, "0")}</span>
                   </div>
@@ -666,7 +666,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     <div className="grid gap-5 lg:grid-cols-[1fr_180px]">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-semibold text-white">{displayName}</h3>
+                          <h3 className="text-base font-semibold text-[var(--it-text)]">{displayName}</h3>
                           <Pill className={`${BAND_STYLE[resultBand].bg} ${BAND_STYLE[resultBand].text} ${BAND_STYLE[resultBand].border}`}>
                             {BAND_STYLE[resultBand].label[locale]}
                           </Pill>
@@ -702,7 +702,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                                     {dimension.max ? `/${dimension.max}` : ""}
                                   </span>
                                 </div>
-                                <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]">
+                                <div className="h-1.5 overflow-hidden rounded-full bg-gray-900/[0.07]">
                                   <div className="h-full rounded-full bg-[var(--it-primary)]" style={{ width: `${Math.min(pct, 100)}%` }} />
                                 </div>
                               </div>
@@ -720,7 +720,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
           <SectionShell title={L.methodologyTitle as string}>
             <div className="grid gap-8 lg:grid-cols-3">
               <div>
-                <p className="text-sm font-semibold text-white">{L.confidenceExplanation as string}</p>
+                <p className="text-sm font-semibold text-[var(--it-text)]">{L.confidenceExplanation as string}</p>
                 <ul className="mt-4 space-y-3">
                   {[...intelligence.confidence.factors, ...intelligence.confidence.limitations].map((factor) => (
                     <li key={factor} className="text-sm leading-6 text-slate-300">{factor}</li>
@@ -728,15 +728,15 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 </ul>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">{L.evidenceSources as string}</p>
+                <p className="text-sm font-semibold text-[var(--it-text)]">{L.evidenceSources as string}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {sourceAssessments.map((source) => (
-                    <Pill key={source} className="border-[var(--it-hairline)] bg-white/[0.03] text-slate-300">{source}</Pill>
+                    <Pill key={source} className="border-[var(--it-hairline)] bg-gray-900/[0.03] text-slate-300">{source}</Pill>
                   ))}
                 </div>
               </div>
               <div>
-                <p className="text-sm font-semibold text-white">{L.engineVersion as string}</p>
+                <p className="text-sm font-semibold text-[var(--it-text)]">{L.engineVersion as string}</p>
                 <p className="mt-4 break-all font-mono text-xs text-[var(--it-muted)]">{intelligence.engineVersion}</p>
               </div>
             </div>
