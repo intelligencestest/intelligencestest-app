@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
       .eq("id", data.user.id)
       .maybeSingle();
 
-    const destination = userRow?.company_id ? next : "/onboarding";
+    let destination = userRow?.company_id ? next : "/onboarding";
 
     // Workspace language is the single source of truth: the lang cookie is
     // only a cache of company.language, and personal overrides are cleared.
@@ -85,10 +85,13 @@ export async function GET(request: NextRequest) {
     if (userRow?.company_id) {
       const { data: company } = await admin
         .from("companies")
-        .select("language")
+        .select("language, onboarding_completed")
         .eq("id", userRow.company_id)
         .single();
       nextLocale = toAppLocale(company?.language);
+      if (!company?.onboarding_completed) {
+        destination = "/onboarding";
+      }
     }
 
     response.cookies.set(LANGUAGE_COOKIE, nextLocale, {
