@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { PublicFooter, PublicHeader } from "@/components/public/PublicSite";
+import { PricingTable } from "@/components/public/PricingTable";
 import { localePath, toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 import { getPublicCopy } from "@/lib/public-site-copy";
 
@@ -33,10 +34,20 @@ const content = {
 
     pricingTitle: "Start free. Upgrade when the team does.",
     pricingBody: "Every plan begins with a 14-day trial. No credit card required.",
+    pricingMatrixLabel: "What's included",
     plans: [
-      { name: "Starter", price: "€49", period: "/month", body: "1 recruiter · 50 invitations · 2 projects", cta: "Start with Starter", highlight: false },
-      { name: "Professional", price: "€149", period: "/month", body: "5 recruiters · 250 invitations · 10 projects", cta: "Start with Professional", highlight: true, tag: "Most teams" },
-      { name: "Enterprise", price: "Custom", period: "", body: "Unlimited usage · Priority support · Guided setup", cta: "Contact sales", highlight: false },
+      { level: "starter" as const, name: "Starter", price: "€49", period: "/month", ctaLabel: "Start with Starter" },
+      { level: "professional" as const, name: "Professional", price: "€149", period: "/month", tag: "Most teams", ctaLabel: "Start with Professional" },
+      { level: "enterprise" as const, name: "Enterprise", price: "Custom", period: "", ctaLabel: "Contact sales" },
+    ],
+    planFeatures: [
+      { name: "Recruiters", values: { starter: "1", professional: "5", enterprise: "Unlimited" } },
+      { name: "Candidate invitations / month", values: { starter: "50", professional: "250", enterprise: "Unlimited" } },
+      { name: "Active projects", values: { starter: "2", professional: "10", enterprise: "Unlimited" } },
+      { name: "Full assessment library", values: { starter: true, professional: true, enterprise: true } },
+      { name: "Executive reports", values: { starter: true, professional: true, enterprise: true } },
+      { name: "Team collaboration", values: { starter: false, professional: true, enterprise: true } },
+      { name: "Priority support", values: { starter: false, professional: true, enterprise: true } },
     ],
 
     securityTitle: "Built to be trusted with candidate data.",
@@ -100,10 +111,20 @@ const content = {
 
     pricingTitle: "Empiece gratis. Amplíe cuando el equipo crezca.",
     pricingBody: "Todos los planes empiezan con 14 días de prueba. Sin tarjeta de crédito.",
+    pricingMatrixLabel: "Qué incluye",
     plans: [
-      { name: "Starter", price: "49 €", period: "/mes", body: "1 recruiter · 50 invitaciones · 2 proyectos", cta: "Empezar con Starter", highlight: false },
-      { name: "Professional", price: "149 €", period: "/mes", body: "5 recruiters · 250 invitaciones · 10 proyectos", cta: "Empezar con Professional", highlight: true, tag: "La mayoría de equipos" },
-      { name: "Enterprise", price: "A medida", period: "", body: "Uso ilimitado · Soporte prioritario · Configuración guiada", cta: "Contactar ventas", highlight: false },
+      { level: "starter" as const, name: "Starter", price: "49 €", period: "/mes", ctaLabel: "Empezar con Starter" },
+      { level: "professional" as const, name: "Professional", price: "149 €", period: "/mes", tag: "La mayoría de equipos", ctaLabel: "Empezar con Professional" },
+      { level: "enterprise" as const, name: "Enterprise", price: "A medida", period: "", ctaLabel: "Contactar ventas" },
+    ],
+    planFeatures: [
+      { name: "Recruiters", values: { starter: "1", professional: "5", enterprise: "Sin límite" } },
+      { name: "Invitaciones de candidatos / mes", values: { starter: "50", professional: "250", enterprise: "Sin límite" } },
+      { name: "Proyectos activos", values: { starter: "2", professional: "10", enterprise: "Sin límite" } },
+      { name: "Biblioteca completa de evaluaciones", values: { starter: true, professional: true, enterprise: true } },
+      { name: "Informes ejecutivos", values: { starter: true, professional: true, enterprise: true } },
+      { name: "Colaboración de equipo", values: { starter: false, professional: true, enterprise: true } },
+      { name: "Soporte prioritario", values: { starter: false, professional: true, enterprise: true } },
     ],
 
     securityTitle: "Diseñado para custodiar datos de candidatos.",
@@ -226,42 +247,15 @@ export default async function Home() {
             <h2 className="text-3xl font-semibold tracking-tight text-[var(--it-text)] sm:text-4xl">{t.pricingTitle}</h2>
             <p className="mt-4 text-base leading-7 text-[var(--it-muted)]">{t.pricingBody}</p>
           </div>
-          <div className="mt-12 grid gap-4 md:grid-cols-3">
-            {t.plans.map((plan) => (
-              <article
-                key={plan.name}
-                className={`flex flex-col rounded-xl border bg-white p-6 ${
-                  plan.highlight
-                    ? "border-[var(--it-primary)]/40 shadow-[0_1px_3px_rgba(16,24,40,0.05),0_12px_32px_-16px_rgba(79,70,229,0.25)]"
-                    : "border-[var(--it-hairline)] shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-[var(--it-text)]">{plan.name}</h3>
-                  {"tag" in plan && plan.tag ? (
-                    <span className="rounded-full border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--it-link)]">
-                      {plan.tag}
-                    </span>
-                  ) : null}
-                </div>
-                <p className="mt-4 flex items-baseline gap-1">
-                  <span className="text-3xl font-semibold tabular-nums tracking-tight text-[var(--it-text)]">{plan.price}</span>
-                  {plan.period ? <span className="text-sm text-[var(--it-muted)]">{plan.period}</span> : null}
-                </p>
-                <p className="mt-3 flex-1 text-sm leading-6 text-[var(--it-muted)]">{plan.body}</p>
-                <Link
-                  href={plan.name === "Enterprise" ? localePath("/contact", locale) : localePath("/signup", locale)}
-                  className={
-                    plan.highlight
-                      ? "mt-6 inline-flex w-full items-center justify-center rounded-lg bg-[var(--it-primary)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--it-primary-hover)]"
-                      : "mt-6 inline-flex w-full items-center justify-center rounded-lg border border-[var(--it-border)] bg-white px-4 py-2.5 text-sm font-semibold text-[#374151] shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:bg-[var(--it-surface-muted)]"
-                  }
-                >
-                  {plan.cta}
-                </Link>
-              </article>
-            ))}
-          </div>
+          <PricingTable
+            className="mt-12"
+            plans={t.plans}
+            features={t.planFeatures}
+            matrixLabel={t.pricingMatrixLabel}
+            signupHref={localePath("/signup", locale)}
+            contactHref={localePath("/contact", locale)}
+            defaultPlan="professional"
+          />
         </div>
       </section>
 
