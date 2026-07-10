@@ -2,12 +2,29 @@
 @import "tw-animate-css";
 
 @theme {
-  --color-surface: #0d0f14;
-  --color-card: #12151b;
-  --color-panel: #171b22;
-  --color-accent-hover: #3f63d6;
+  --color-surface: #171614;
+  --color-card: #1d1c19;
+  --color-panel: #232220;
+  --color-accent-hover: #5c6ea0;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* Graphite & Ivory: Tailwind's own neutrals are redefined to the warm
+     scale (docs/design/design-language.md) so `text-white`, `text-slate-300`
+     etc. render in the product's temperature everywhere by default. A
+     hardcoded gray can no longer break the language. */
+  --color-white: #f1eee6;
+  --color-slate-50: #f1eee6;
+  --color-slate-100: #e8e5dc;
+  --color-slate-200: #d3cfc3;
+  --color-slate-300: #b4b0a3;
+  --color-slate-400: #8f8b7e;
+  --color-slate-500: #6e6a5f;
+  --color-slate-600: #57534a;
+  --color-slate-700: #403d36;
+  --color-slate-800: #2a2824;
+  --color-slate-900: #1a1916;
+  --color-slate-950: #131211;
 
   /* shadcn/Radix semantic bridge — aliased to the --it-* tokens below so
      imported primitives (dropdown-menu, tooltip, ...) theme themselves
@@ -24,30 +41,33 @@
 }
 
 :root {
-  /* Cohesive charcoal ramp. The app reads as one material: the chrome
-     (sidebar) is the deepest tone, the page one step up, and raised surfaces
-     (cards, inputs, popovers) climb from there — a calm 4-step ladder rather
-     than a near-black void with barely-distinct panels. */
-  --it-bg: #0d0f14;
-  --it-sidebar: #0a0c11;
-  --it-surface: #12151b;
-  --it-surface-raised: #171b22;
-  --it-surface-muted: #0b0d12;
-  --it-border: #232833;
-  --it-border-soft: #191d25;
-  --it-text: #f2f4f7;
-  --it-muted: #98a2b3;
-  --it-faint: #6b7480;
-  --it-primary: #3457c5;
-  --it-primary-hover: #3f63d6;
-  --it-primary-soft: rgba(52, 87, 197, 0.16);
-  --it-success: #3f8f6b;
-  --it-warning: #b8862f;
-  --it-danger: #b9524c;
-  --it-info: #527aa3;
+  /* Graphite & Ivory (docs/design/design-language.md). Warm graphite ramp —
+     gray with a faint paper warmth — so the product reads as print, not as
+     the default blue-black of a generated dashboard. The chrome (sidebar) is
+     the deepest tone, the page one step up, raised surfaces climb from there. */
+  --it-bg: #171614;
+  --it-sidebar: #131211;
+  --it-surface: #1d1c19;
+  --it-surface-raised: #232220;
+  --it-surface-muted: #141311;
+  --it-border: #302e29;
+  --it-border-soft: #242320;
+  --it-text: #f1eee6;
+  --it-muted: #a8a497;
+  --it-faint: #787468;
+  /* One accent: ink indigo — desaturated enough to never read "bright blue
+     dashboard", present enough to mark the one interactive emphasis. */
+  --it-primary: #50618f;
+  --it-primary-hover: #5c6ea0;
+  --it-primary-soft: rgba(80, 97, 143, 0.18);
+  --it-link: #a6b2cf;
+  --it-success: #4f8467;
+  --it-warning: #a8873d;
+  --it-danger: #a65b50;
+  --it-info: #6e7f94;
 
   /* Design-system hairline: the default border weight per docs/design/design-system.md */
-  --it-hairline: rgba(255, 255, 255, 0.07);
+  --it-hairline: rgba(242, 239, 230, 0.08);
 }
 
 body {
@@ -132,11 +152,11 @@ body {
 }
 
 .enterprise-link {
-  color: #a7b9e8;
+  color: var(--it-link);
 }
 
 .enterprise-link:hover {
-  color: #d7e1ff;
+  color: #c9d2e6;
 }
 
 .enterprise-button {
@@ -157,7 +177,7 @@ body {
 
 .enterprise-button-secondary:hover {
   background: rgba(255, 255, 255, 0.025);
-  border-color: #344053;
+  border-color: #3d3b34;
   color: var(--it-text);
 }
 
@@ -168,27 +188,27 @@ body {
 }
 
 .enterprise-chip-success {
-  border-color: rgba(63, 143, 107, 0.32);
-  background: rgba(63, 143, 107, 0.08);
-  color: #91c7ad;
+  border-color: rgba(79, 132, 103, 0.32);
+  background: rgba(79, 132, 103, 0.08);
+  color: #a9c8b4;
 }
 
 .enterprise-chip-warning {
-  border-color: rgba(184, 134, 47, 0.34);
-  background: rgba(184, 134, 47, 0.08);
-  color: #d2b174;
+  border-color: rgba(168, 135, 61, 0.34);
+  background: rgba(168, 135, 61, 0.08);
+  color: #cdb584;
 }
 
 .enterprise-chip-danger {
-  border-color: rgba(185, 82, 76, 0.34);
-  background: rgba(185, 82, 76, 0.08);
-  color: #d99792;
+  border-color: rgba(166, 91, 80, 0.34);
+  background: rgba(166, 91, 80, 0.08);
+  color: #cfa097;
 }
 
 .enterprise-chip-info {
-  border-color: rgba(82, 122, 163, 0.34);
-  background: rgba(82, 122, 163, 0.08);
-  color: #9bb7d2;
+  border-color: rgba(110, 127, 148, 0.34);
+  background: rgba(110, 127, 148, 0.08);
+  color: #a9b8c9;
 }
 
 .enterprise-table-row {
@@ -199,26 +219,33 @@ body {
   border-bottom: 0;
 }
 
-/* Premium surface: 1px gradient ring around a dark panel */
+/* Premium surface: 1px gradient ring around a dark panel (marketing only) */
 .gradient-ring {
   position: relative;
   background:
-    linear-gradient(#0D1020, #0D1020) padding-box,
-    linear-gradient(135deg, rgba(107, 159, 255, 0.35), rgba(30, 34, 64, 0.9) 40%, rgba(29, 78, 216, 0.25)) border-box;
+    linear-gradient(var(--it-surface), var(--it-surface)) padding-box,
+    linear-gradient(135deg, rgba(166, 178, 207, 0.32), rgba(48, 46, 41, 0.9) 40%, rgba(80, 97, 143, 0.28)) border-box;
   border: 1px solid transparent;
 }
 
 .hero-glow {
   background:
-    radial-gradient(ellipse 65% 55% at 28% 18%, rgba(29, 78, 216, 0.22), transparent 62%),
-    radial-gradient(ellipse 45% 40% at 78% 62%, rgba(124, 58, 237, 0.10), transparent 60%);
+    radial-gradient(ellipse 65% 55% at 28% 18%, rgba(80, 97, 143, 0.2), transparent 62%),
+    radial-gradient(ellipse 45% 40% at 78% 62%, rgba(168, 164, 151, 0.07), transparent 60%);
 }
 
 .headline-gradient {
-  background: linear-gradient(180deg, #ffffff 55%, #94a3b8);
+  background: linear-gradient(180deg, #f1eee6 55%, #8f8b7e);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Editorial register — the product's voice (greeting, report verdict).
+   At most one editorial element per screen; see design-language.md §2. */
+.font-editorial {
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  letter-spacing: -0.01em;
 }
 
 .animate-soft-pulse {
@@ -244,9 +271,9 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a303c;
+  background: #383630;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #38404e;
+  background: #46443c;
 }

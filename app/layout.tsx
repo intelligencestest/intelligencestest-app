@@ -18,7 +18,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} className={`${geistSans.variable} ${geistMono.variable} h-full`}>
-      <body className="h-full bg-[#07080F] text-slate-200 antialiased">
+      <body className="h-full bg-[#171614] text-slate-200 antialiased">
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

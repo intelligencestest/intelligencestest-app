@@ -99,7 +99,7 @@ export default function DecisionBar({
             <>
               <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${
                 outcome === "rejected"
-                  ? "bg-[rgba(185,82,76,0.1)] text-[#d99792] ring-[rgba(185,82,76,0.25)]"
+                  ? "bg-[rgba(166,91,80,0.1)] text-[#cfa097] ring-[rgba(166,91,80,0.25)]"
                   : "bg-white/[0.04] text-slate-300 ring-[var(--it-hairline)]"
               }`}>
                 {outcome === "rejected" ? t("outcomeRejected") : outcome === "withdrawn" ? t("outcomeWithdrawn") : t("outcomeExpired")}
@@ -111,7 +111,7 @@ export default function DecisionBar({
           ) : (
             <>
               {stage === "hired" && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(63,143,107,0.1)] px-3 py-1.5 text-xs font-medium text-[#91c7ad] ring-1 ring-[rgba(63,143,107,0.25)]">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(79,132,103,0.1)] px-3 py-1.5 text-xs font-medium text-[#a9c8b4] ring-1 ring-[rgba(79,132,103,0.25)]">
                   <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                   {t("statusHired")}
                 </span>
@@ -134,7 +134,7 @@ export default function DecisionBar({
               )}
               {canReject && (
                 <button
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--it-danger)]/30 px-3.5 py-2.5 text-sm font-medium text-[#d99792] transition-colors hover:bg-[rgba(185,82,76,0.1)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--it-danger)]/30 px-3.5 py-2.5 text-sm font-medium text-[#cfa097] transition-colors hover:bg-[rgba(166,91,80,0.1)] disabled:cursor-not-allowed disabled:opacity-50"
                   disabled={busy !== null}
                   onClick={() => patch("reject", { outcome: "rejected" })}
                   title="X"
@@ -162,7 +162,7 @@ export default function DecisionBar({
               )}
             </>
           )}
-          {error && <span className="text-[13px] text-[#d99792]">{t("decisionError")}</span>}
+          {error && <span className="text-[13px] text-[#cfa097]">{t("decisionError")}</span>}
         </div>
 
         {/* Queue navigation */}

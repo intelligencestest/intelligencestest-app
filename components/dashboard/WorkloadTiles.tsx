@@ -80,7 +80,7 @@ export default async function WorkloadTiles({ data }: { data: WorkloadData }) {
               {tile.value}
             </span>
           </div>
-          <p className={`mt-auto pt-2 text-[13px] leading-5 ${tile.urgent ? "text-[#d2b174]" : "text-[var(--it-muted)]"}`}>
+          <p className={`mt-auto pt-2 text-[13px] leading-5 ${tile.urgent ? "text-[#cdb584]" : "text-[var(--it-muted)]"}`}>
             {tile.sub}
           </p>
         </Link>

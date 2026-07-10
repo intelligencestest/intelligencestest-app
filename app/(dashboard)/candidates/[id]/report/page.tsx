@@ -36,33 +36,33 @@ type ResultRow = {
 const BAND_STYLE: Record<Band, { label: Record<ReportLang, string>; text: string; bg: string; bar: string; border: string }> = {
   high: {
     label: { es: "Alto", en: "High" },
-    text: "text-[#91c7ad]",
-    bg: "bg-[rgba(63,143,107,0.1)]",
+    text: "text-[#a9c8b4]",
+    bg: "bg-[rgba(79,132,103,0.1)]",
     bar: "bg-[var(--it-success)]",
     border: "border-[var(--it-success)]/20",
   },
   medium: {
     label: { es: "Medio", en: "Medium" },
-    text: "text-[#d2b174]",
-    bg: "bg-[rgba(184,134,47,0.1)]",
+    text: "text-[#cdb584]",
+    bg: "bg-[rgba(168,135,61,0.1)]",
     bar: "bg-[var(--it-warning)]",
     border: "border-[var(--it-warning)]/20",
   },
   low: {
     label: { es: "Bajo", en: "Low" },
-    text: "text-[#d99792]",
-    bg: "bg-[rgba(185,82,76,0.1)]",
+    text: "text-[#cfa097]",
+    bg: "bg-[rgba(166,91,80,0.1)]",
     bar: "bg-[var(--it-danger)]",
     border: "border-[var(--it-danger)]/20",
   },
 };
 
 const RECOMMENDATION_STYLE: Record<IntelligenceRecommendation["level"], { dot: string; text: string; bg: string; border: string }> = {
-  strong: { dot: "bg-[var(--it-success)]", text: "text-[#b9e6d3]", bg: "bg-[rgba(63,143,107,0.1)]", border: "border-[var(--it-success)]/25" },
-  proceed: { dot: "bg-[var(--it-success)]", text: "text-[#b9e6d3]", bg: "bg-[rgba(63,143,107,0.1)]", border: "border-[var(--it-success)]/25" },
-  review: { dot: "bg-[var(--it-warning)]", text: "text-[#ead6ad]", bg: "bg-[rgba(184,134,47,0.1)]", border: "border-[var(--it-warning)]/25" },
-  caution: { dot: "bg-[var(--it-danger)]", text: "text-[#f0b9b9]", bg: "bg-[rgba(185,82,76,0.1)]", border: "border-[var(--it-danger)]/25" },
-  notRecommended: { dot: "bg-[var(--it-danger)]", text: "text-[#f0b9b9]", bg: "bg-[rgba(185,82,76,0.1)]", border: "border-[var(--it-danger)]/25" },
+  strong: { dot: "bg-[var(--it-success)]", text: "text-[#c8dfd2]", bg: "bg-[rgba(79,132,103,0.1)]", border: "border-[var(--it-success)]/25" },
+  proceed: { dot: "bg-[var(--it-success)]", text: "text-[#c8dfd2]", bg: "bg-[rgba(79,132,103,0.1)]", border: "border-[var(--it-success)]/25" },
+  review: { dot: "bg-[var(--it-warning)]", text: "text-[#e3d4ab]", bg: "bg-[rgba(168,135,61,0.1)]", border: "border-[var(--it-warning)]/25" },
+  caution: { dot: "bg-[var(--it-danger)]", text: "text-[#e0b3ab]", bg: "bg-[rgba(166,91,80,0.1)]", border: "border-[var(--it-danger)]/25" },
+  notRecommended: { dot: "bg-[var(--it-danger)]", text: "text-[#e0b3ab]", bg: "bg-[rgba(166,91,80,0.1)]", border: "border-[var(--it-danger)]/25" },
 };
 
 const CONFIDENCE_STYLE: Record<ConfidenceLevel, { label: Record<ReportLang, string>; tone: "high" | "moderate" | "low" }> = {
@@ -438,7 +438,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   {(L.recLevel as Record<string, string>)[intelligence.recommendation.level] ?? intelligence.recommendation.title}
                 </Pill>
               </div>
-              <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.05] tracking-tight text-white sm:text-5xl">
+              {/* Editorial register — the verdict is the document's voice (design-language.md §2) */}
+              <h1 className="font-editorial mt-5 max-w-4xl text-4xl font-medium leading-[1.12] text-white sm:text-5xl">
                 {intelligence.recommendation.title}
               </h1>
               <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{intelligence.recommendation.rationale}</p>
@@ -513,7 +514,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
               <div className="rounded-xl bg-white/[0.03] p-6">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.keyMessage as string}</p>
-                <p className="mt-3 text-2xl font-semibold leading-snug tracking-tight text-white">{intelligence.executiveSummary.headline}</p>
+                <p className="font-editorial mt-3 text-2xl font-medium leading-snug text-white">{intelligence.executiveSummary.headline}</p>
                 <p className="mt-4 text-sm leading-7 text-slate-300">{intelligence.executiveSummary.summary}</p>
               </div>
               <MarkerList items={intelligence.executiveSummary.evidence.slice(0, 4)} />
@@ -570,10 +571,10 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     {intelligence.risks.length ? (
                       <div className="space-y-3">
                         {intelligence.risks.slice(0, 4).map((risk) => (
-                          <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(185,82,76,0.04)] p-4">
+                          <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(166,91,80,0.04)] p-4">
                             <div className="flex items-center justify-between gap-3">
                               <p className="text-sm font-semibold text-white">{risk.competencyLabel}</p>
-                              <Pill className="border-[var(--it-danger)]/20 bg-[rgba(185,82,76,0.1)] text-[#f0b9b9]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
+                              <Pill className="border-[var(--it-danger)]/20 bg-[rgba(166,91,80,0.1)] text-[#e0b3ab]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
                             </div>
                             <p className="mt-2 text-sm leading-6 text-slate-300">{risk.statement}</p>
                             <p className="mt-2 text-xs leading-5 text-[var(--it-muted)]">{risk.businessImpact}</p>
@@ -588,8 +589,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                   <div>
                     <h3 className="mb-3 text-sm font-semibold text-white">{L.contradictions as string}</h3>
                     {hasContradiction ? (
-                      <div className="rounded-xl border border-[var(--it-warning)]/20 bg-[rgba(184,134,47,0.05)] p-4">
-                        <p className="text-sm leading-6 text-[#ead6ad]">
+                      <div className="rounded-xl border border-[var(--it-warning)]/20 bg-[rgba(168,135,61,0.05)] p-4">
+                        <p className="text-sm leading-6 text-[#e3d4ab]">
                           {mixedSignals[0]?.statement ?? (L.mixedSignal as string)}
                         </p>
                         {mixedSignals[0]?.businessImpact && <p className="mt-2 text-xs leading-5 text-slate-300">{mixedSignals[0].businessImpact}</p>}

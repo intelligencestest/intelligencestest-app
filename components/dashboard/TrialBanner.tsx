@@ -10,9 +10,9 @@ interface TrialBannerProps {
 }
 
 const SEVERITY = {
-  info: { text: "text-[#9bb7d2]", bg: "bg-[rgba(82,122,163,0.08)]", ring: "ring-[rgba(82,122,163,0.28)]" },
-  warning: { text: "text-[#d2b174]", bg: "bg-[rgba(184,134,47,0.08)]", ring: "ring-[rgba(184,134,47,0.28)]" },
-  serious: { text: "text-[#d99792]", bg: "bg-[rgba(185,82,76,0.08)]", ring: "ring-[rgba(185,82,76,0.28)]" },
+  info: { text: "text-[#a9b8c9]", bg: "bg-[rgba(110,127,148,0.08)]", ring: "ring-[rgba(110,127,148,0.28)]" },
+  warning: { text: "text-[#cdb584]", bg: "bg-[rgba(168,135,61,0.08)]", ring: "ring-[rgba(168,135,61,0.28)]" },
+  serious: { text: "text-[#cfa097]", bg: "bg-[rgba(166,91,80,0.08)]", ring: "ring-[rgba(166,91,80,0.28)]" },
 } as const;
 
 function UsageStat({ label, used, limit }: { label: string; used: number; limit: number | null }) {
@@ -84,7 +84,7 @@ export async function TrialBanner({ summary, locale }: TrialBannerProps) {
       </div>
       <Link
         href={billingHref}
-        className="flex-shrink-0 rounded-lg border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] px-3.5 py-1.5 text-xs font-semibold text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary)]/20"
+        className="flex-shrink-0 rounded-lg border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] px-3.5 py-1.5 text-xs font-semibold text-[var(--it-link)] transition-colors hover:bg-[var(--it-primary)]/20"
       >
         {isTrial ? t("upgradeNow") : t("contactSales")}
       </Link>

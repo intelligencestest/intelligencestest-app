@@ -270,7 +270,7 @@ export default async function AdminCompanyPage({ params }: { params: Promise<{ i
                 <div key={event.id} className="px-4 py-2.5">
                   <div className="flex items-baseline gap-2">
                     {event.href ? (
-                      <Link href={event.href} className="min-w-0 flex-1 truncate text-[13px] font-medium text-slate-200 hover:text-[#a78bfa]">
+                      <Link href={event.href} className="min-w-0 flex-1 truncate text-[13px] font-medium text-slate-200 hover:text-[#a6b2cf]">
                         {event.title}
                       </Link>
                     ) : (

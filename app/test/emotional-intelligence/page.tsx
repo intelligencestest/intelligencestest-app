@@ -29,7 +29,7 @@ export default function EmotionalIntelligenceTest({
       shortName="Emotional Intelligence"
       categoryLabel="Emotional Intelligence"
       categoryClassName="border-purple-500/20 bg-purple-500/10 text-purple-300"
-      accentColor="#7c3aed"
+      accentColor="#50618f"
       durationSeconds={EI_DURATION_SECONDS}
       questions={questions}
       questionTypeLabel="Likert Scale"

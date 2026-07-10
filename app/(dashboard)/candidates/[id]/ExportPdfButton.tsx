@@ -80,7 +80,7 @@ export default function ExportPdfButton({ variant = "standalone", ...props }: Ex
         {loading ? t("exportingPdf") : t("exportPdf")}
       </button>
       {!isToolbar && <p className="mt-2 text-xs text-[var(--it-muted)]">{t("exportNote")}</p>}
-      {error && <p className="mt-2 text-xs text-[#d99792]">{t("exportError")}</p>}
+      {error && <p className="mt-2 text-xs text-[#cfa097]">{t("exportError")}</p>}
     </div>
   );
 }

@@ -23,7 +23,7 @@ export default function IntegrityEthicsTest({
       shortName="Integrity & Ethics"
       categoryLabel="Character"
       categoryClassName="border-violet-500/20 bg-violet-500/10 text-violet-300"
-      accentColor="#7c3aed"
+      accentColor="#50618f"
       durationSeconds={IE_DURATION_SECONDS}
       questions={questions}
       questionTypeLabel="Scenario Choice"

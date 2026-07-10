@@ -36,8 +36,8 @@ export default async function ActivityRail({ items }: { items: ActivityItem[] })
               <span
                 className={`mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md ring-1 ${
                   item.kind === "completed"
-                    ? "bg-[rgba(63,143,107,0.08)] text-[#91c7ad] ring-[rgba(63,143,107,0.26)]"
-                    : "bg-[rgba(82,122,163,0.08)] text-[#9bb7d2] ring-[rgba(82,122,163,0.26)]"
+                    ? "bg-[rgba(79,132,103,0.08)] text-[#a9c8b4] ring-[rgba(79,132,103,0.26)]"
+                    : "bg-[rgba(110,127,148,0.08)] text-[#a9b8c9] ring-[rgba(110,127,148,0.26)]"
                 }`}
               >
                 {item.kind === "completed" ? (

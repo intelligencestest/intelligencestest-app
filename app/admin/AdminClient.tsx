@@ -208,7 +208,7 @@ export default function AdminClient({ rows }: { rows: AdminCompanyRow[] }) {
                 <Link
                   href={`/admin/companies/${row.id}`}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-fit rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs font-semibold text-[#a78bfa] transition-colors hover:border-[#8b5cf6]/60"
+                  className="w-fit rounded-lg border border-[var(--it-hairline)] px-3 py-1.5 text-xs font-semibold text-[#a6b2cf] transition-colors hover:border-[#8b5cf6]/60"
                 >
                   Open →
                 </Link>

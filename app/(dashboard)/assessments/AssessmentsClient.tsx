@@ -645,14 +645,14 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
                   >
                     <span className="truncate text-sm text-slate-300">{project.name}</span>
                     {justAdded === project.id ? (
-                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-[#91c7ad]">
+                      <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-[#a9c8b4]">
                         <Check className="h-3.5 w-3.5" strokeWidth={2.5} aria-hidden="true" />
                         {t("added")}
                       </span>
                     ) : addingToProject === project.id ? (
                       <Loader2 className="h-4 w-4 shrink-0 animate-spin text-[var(--it-muted)]" strokeWidth={2} aria-hidden="true" />
                     ) : (
-                      <span className="shrink-0 text-xs font-medium text-[#9fb3e5]">{t("add")}</span>
+                      <span className="shrink-0 text-xs font-medium text-[var(--it-link)]">{t("add")}</span>
                     )}
                   </button>
                 ))}

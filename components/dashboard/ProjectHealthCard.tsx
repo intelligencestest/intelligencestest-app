@@ -4,10 +4,10 @@ import type { ProjectHealth, ProjectHealthStatus } from "@/lib/dashboard/project
 import { PIPELINE_STAGES, STAGE_COLOR, STAGE_LABEL_KEY } from "@/lib/dashboard/stages";
 
 const HEALTH_STYLE: Record<ProjectHealthStatus, { chip: string; dot: string; text: string }> = {
-  onTrack: { chip: "enterprise-chip-success", dot: "bg-[var(--it-success)]", text: "text-[#91c7ad]" },
-  slowing: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#d2b174]" },
-  atRisk: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#d2b174]" },
-  blocked: { chip: "enterprise-chip-danger", dot: "bg-[var(--it-danger)]", text: "text-[#d99792]" },
+  onTrack: { chip: "enterprise-chip-success", dot: "bg-[var(--it-success)]", text: "text-[#a9c8b4]" },
+  slowing: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#cdb584]" },
+  atRisk: { chip: "enterprise-chip-warning", dot: "bg-[var(--it-warning)]", text: "text-[#cdb584]" },
+  blocked: { chip: "enterprise-chip-danger", dot: "bg-[var(--it-danger)]", text: "text-[#cfa097]" },
 };
 
 const HEALTH_LABEL_KEY: Record<ProjectHealthStatus, string> = {

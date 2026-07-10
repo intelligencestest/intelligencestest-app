@@ -65,7 +65,7 @@ export default async function QueueSection({
           {sessionStart && (
             <Link
               href={`/candidates/${sessionStart.id}?ctx=review`}
-              className="enterprise-button inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#9fb3e5]"
+              className="enterprise-button inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-link)]"
             >
               {t("queueStartSession")}
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />

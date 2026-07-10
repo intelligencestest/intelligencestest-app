@@ -50,7 +50,7 @@ function FeatureValue({
 }) {
   if (typeof value === "boolean") {
     return value ? (
-      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] p-1 text-[#91c7ad]">
+      <span className="inline-flex items-center justify-center rounded-full border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.1)] p-1 text-[#a9c8b4]">
         <Check className="h-3.5 w-3.5" aria-label={includedLabel} />
       </span>
     ) : (
@@ -315,7 +315,7 @@ export default function BillingSettingsPage() {
                 {metaParts.map((part, i) => (
                   <span key={part.text}>
                     {i > 0 && <span className="mx-1.5 text-[var(--it-faint)]">·</span>}
-                    <span className={part.tone === "danger" ? "text-[#d99792]" : undefined}>{part.text}</span>
+                    <span className={part.tone === "danger" ? "text-[#cfa097]" : undefined}>{part.text}</span>
                   </span>
                 ))}
               </p>

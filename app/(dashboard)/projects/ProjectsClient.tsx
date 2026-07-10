@@ -35,9 +35,9 @@ type SuccessState =
   | { type: "email"; to: string };
 
 const statusConfig: Record<string, { class: string; dot: string }> = {
-  active: { class: "border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] text-[#91c7ad]", dot: "bg-[var(--it-success)]" },
+  active: { class: "border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.1)] text-[#a9c8b4]", dot: "bg-[var(--it-success)]" },
   draft: { class: "border-[var(--it-hairline)] bg-white/[0.03] text-[var(--it-muted)]", dot: "bg-[var(--it-faint)]" },
-  archived: { class: "border-[var(--it-warning)]/25 bg-[rgba(184,134,47,0.1)] text-[#d2b174]", dot: "bg-[var(--it-warning)]" },
+  archived: { class: "border-[var(--it-warning)]/25 bg-[rgba(168,135,61,0.1)] text-[#cdb584]", dot: "bg-[var(--it-warning)]" },
 };
 
 export default function ProjectsClient({ projects, countsByProject, projectAssessments, activeCount, totalCandidates }: Props) {
@@ -164,7 +164,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
               <div key={project.id} className="enterprise-card enterprise-card-hover group rounded-xl p-5">
                 <div className="min-w-0">
                   <div className="flex items-start justify-between gap-3">
-                    <h3 className="truncate text-base font-semibold text-white transition-colors group-hover:text-[#9fb3e5]">
+                    <h3 className="truncate text-base font-semibold text-white transition-colors group-hover:text-[var(--it-link)]">
                       {project.name}
                     </h3>
                     <span className={`inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium ${cfg.class}`}>
@@ -264,26 +264,26 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
               <div className="space-y-4">
                 {success.type === "link" ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
-                        <Check className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
+                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
+                        <Check className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-[#91c7ad]">{t("linkCopied")}</p>
+                        <p className="text-sm font-medium text-[#a9c8b4]">{t("linkCopied")}</p>
                         <p className="text-xs text-[var(--it-muted)]">{t("linkValid")}</p>
                       </div>
                     </div>
                     <div className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] p-3">
-                      <p className="break-all font-mono text-xs text-[#9fb3e5]">{success.url}</p>
+                      <p className="break-all font-mono text-xs text-[var(--it-link)]">{success.url}</p>
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
-                      <Mail className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
+                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
+                      <Mail className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-[#91c7ad]">{t("emailSent")}</p>
+                      <p className="text-sm font-medium text-[#a9c8b4]">{t("emailSent")}</p>
                       <p className="truncate text-xs text-[var(--it-muted)]">{success.to}</p>
                     </div>
                   </div>
@@ -299,7 +299,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
             ) : (
               <div className="space-y-4">
                 {error && (
-                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(185,82,76,0.1)] p-3 text-sm text-[#d99792]">
+                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(166,91,80,0.1)] p-3 text-sm text-[#cfa097]">
                     {error}
                   </div>
                 )}

@@ -67,7 +67,7 @@ function CopyButton({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 2000);
         });
       }}
-      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#1D4ED8]/40 px-3 py-1.5 text-xs font-medium text-[#A9C2FF] transition-colors hover:bg-[#1D4ED8]/10"
+      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[#50618f]/40 px-3 py-1.5 text-xs font-medium text-[#A9C2FF] transition-colors hover:bg-[#50618f]/10"
     >
       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
@@ -393,7 +393,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               setEditError("");
               setEditOpen(true);
             }}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-[#1E2240] hover:text-white"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-[#2a2824] hover:text-white"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
@@ -402,7 +402,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           </button>
           <Link
             href={`/reports?project=${project.id}`}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm font-medium text-[#8CB1FF] transition-colors hover:bg-[#1E2240] hover:text-blue-200"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm font-medium text-[#a6b2cf] transition-colors hover:bg-[#2a2824] hover:text-blue-200"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 10a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 7a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m0 0v10m0-10a2 2 0 0 1 2 2h2a2 2 0 0 1 2-2V7a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2" />
@@ -416,7 +416,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* Assessment battery */}
         <div className="premium-card rounded-xl p-5">
-          <div className="mb-4 flex items-center justify-between border-b border-[#1E2240] pb-4">
+          <div className="mb-4 flex items-center justify-between border-b border-[#2a2824] pb-4">
             <div>
               <h2 className="text-base font-semibold text-white">{copy.battery}</h2>
               <p className="mt-0.5 text-xs text-slate-500">
@@ -426,7 +426,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <button
               type="button"
               onClick={() => setAddOpen(true)}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#1D4ED8]/40 px-3 py-1.5 text-xs font-medium text-[#8CB1FF] transition-colors hover:bg-[#1D4ED8]/15"
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#50618f]/40 px-3 py-1.5 text-xs font-medium text-[#a6b2cf] transition-colors hover:bg-[#50618f]/15"
             >
               <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m7-7H5" />
@@ -436,12 +436,12 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           </div>
 
           {assessments.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-[#1E2240] py-10 text-center">
+            <div className="rounded-xl border border-dashed border-[#2a2824] py-10 text-center">
               <p className="mb-3 text-sm text-slate-500">{copy.noAssessments}</p>
               <button
                 type="button"
                 onClick={() => setAddOpen(true)}
-                className="text-xs text-[#8CB1FF] transition-colors hover:text-blue-200"
+                className="text-xs text-[#a6b2cf] transition-colors hover:text-blue-200"
               >
                 {copy.addFirst}
               </button>
@@ -451,10 +451,10 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               {assessments.map((assessment) => (
                 <div
                   key={assessment.id}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-[#1E2240] bg-[#07080F]/55 px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-[#2a2824] bg-[#171614]/55 px-4 py-3"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#1D4ED8]/30 bg-[#1D4ED8]/10 text-blue-300">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#50618f]/30 bg-[#50618f]/10 text-blue-300">
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 4.5h6m-8.25 3h10.5m-12 3h13.5M7.5 21h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 16.5 7.5h-9a2.25 2.25 0 0 0-2.25 2.25v9A2.25 2.25 0 0 0 7.5 21Z" />
                       </svg>
@@ -473,7 +473,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
 
         {/* Invite panel */}
         <div className="premium-card rounded-xl p-5">
-          <div className="mb-4 border-b border-[#1E2240] pb-4">
+          <div className="mb-4 border-b border-[#2a2824] pb-4">
             <h2 className="text-base font-semibold text-white">{copy.inviteCandidate}</h2>
             <p className="mt-0.5 text-xs text-slate-500">{copy.inviteDescription}</p>
           </div>
@@ -493,7 +493,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                       <p className="text-xs text-slate-500">{copy.validShare}</p>
                     </div>
                   </div>
-                  <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-3">
+                  <div className="rounded-xl border border-[#2a2824] bg-[#171614] p-3">
                     <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-slate-500">{copy.inviteLink}</p>
                     <div className="flex items-center gap-2">
                       <p className="flex-1 break-all font-mono text-xs text-blue-300">{inviteSuccess.url}</p>
@@ -517,7 +517,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               <button
                 type="button"
                 onClick={resetInvite}
-                className="w-full cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
+                className="w-full cursor-pointer rounded-xl border border-[#2a2824] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
               >
                 {copy.generateAnother}
               </button>
@@ -538,7 +538,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   value={inviteForm.full_name}
                   onChange={(e) => setInviteForm((f) => ({ ...f, full_name: e.target.value }))}
                   placeholder={es ? "María García" : "Jane Smith"}
-                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                  className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
                 />
               </div>
               <div>
@@ -551,7 +551,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   value={inviteForm.email}
                   onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
                   placeholder={es ? "maria@ejemplo.com" : "jane@example.com"}
-                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                  className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
                 />
               </div>
               <div>
@@ -562,7 +562,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   <select
                     value={inviteForm.assessment_id}
                     onChange={(e) => setInviteForm((f) => ({ ...f, assessment_id: e.target.value }))}
-                    className="w-full cursor-pointer rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-300 outline-none transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                    className="w-full cursor-pointer rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm text-slate-300 outline-none transition-colors focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
                   >
                     {assessments.map((a) => (
                       <option key={a.id} value={a.id}>
@@ -577,7 +577,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   type="button"
                   disabled={inviteLoadingMode !== null || assessments.length === 0}
                   onClick={() => handleInvite("link")}
-                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#1E2240] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-[#2a2824] py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-[#2a2824] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {inviteLoadingMode === "link" ? (
                     <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -595,7 +595,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   type="button"
                   disabled={inviteLoadingMode !== null || assessments.length === 0}
                   onClick={() => handleInvite("email")}
-                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#50618f] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#46557e] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {inviteLoadingMode === "email" ? (
                     <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -617,7 +617,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
 
       {/* Candidates */}
       <div className="premium-card rounded-xl">
-        <div className="flex items-center justify-between border-b border-[#1E2240] px-5 py-4">
+        <div className="flex items-center justify-between border-b border-[#2a2824] px-5 py-4">
           <div>
             <h2 className="text-base font-semibold text-white">{copy.candidates}</h2>
             <p className="mt-0.5 text-xs text-slate-500">
@@ -635,7 +635,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <p className="mt-1 text-xs text-slate-600">{copy.inviteFirst}</p>
           </div>
         ) : (
-          <div className="divide-y divide-[#1E2240]">
+          <div className="divide-y divide-[#2a2824]">
             {candidates.map((candidate, i) => {
               const sc = candidateStatusConfig[candidate.status] ?? candidateStatusConfig.invited;
               const displayName = candidate.full_name?.trim() || copy.anonymous;
@@ -646,7 +646,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               const score = candidate.results[0]?.score ?? null;
               const scoreColor = score === null ? "" : score >= 80 ? "text-emerald-300" : score >= 60 ? "text-amber-300" : "text-red-300";
               return (
-                <div key={candidate.id} className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[#1E2240]/30">
+                <div key={candidate.id} className="flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-[#2a2824]/30">
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold ${avatarClass}`}>
                     {initials}
                   </div>
@@ -687,7 +687,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               <button
                 type="button"
                 onClick={() => setEditOpen(false)}
-                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+                className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#2a2824] hover:text-white"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -708,7 +708,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   required
                   value={editForm.name}
                   onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
-                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                  className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
                 />
               </div>
               <div>
@@ -721,7 +721,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   value={editForm.description}
                   onChange={(e) => setEditForm((f) => ({ ...f, description: e.target.value }))}
                   placeholder={copy.describePlaceholder}
-                  className="w-full resize-none rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25"
+                  className="w-full resize-none rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25"
                 />
               </div>
               <div>
@@ -733,21 +733,21 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   type="date"
                   value={editForm.deadline}
                   onChange={(e) => setEditForm((f) => ({ ...f, deadline: e.target.value }))}
-                  className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 [color-scheme:dark]"
+                  className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-2.5 text-sm text-slate-100 outline-none transition-colors focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 [color-scheme:dark]"
                 />
               </div>
               <div className="flex gap-2.5 pt-1">
                 <button
                   type="button"
                   onClick={() => setEditOpen(false)}
-                  className="flex-1 cursor-pointer rounded-xl border border-[#1E2240] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
+                  className="flex-1 cursor-pointer rounded-xl border border-[#2a2824] py-2.5 text-sm font-medium text-slate-400 transition-colors hover:text-white"
                 >
                   {copy.cancel}
                 </button>
                 <button
                   type="submit"
                   disabled={editSaving}
-                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#50618f] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#46557e] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {editSaving ? (
                     <>
@@ -785,7 +785,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               <button
                 type="button"
                 onClick={() => setAddOpen(false)}
-                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#1E2240] hover:text-white"
+                className="flex h-7 w-7 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-[#2a2824] hover:text-white"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -805,7 +805,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 return (
                   <div
                     key={a.id}
-                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${linked ? "border-emerald-500/20 bg-emerald-500/5" : "border-[#1E2240] bg-[#07080F]/55"}`}
+                    className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${linked ? "border-emerald-500/20 bg-emerald-500/5" : "border-[#2a2824] bg-[#171614]/55"}`}
                   >
                     <div className="min-w-0 flex-1">
                       <p className={`truncate text-sm font-medium ${linked ? "text-emerald-300" : "text-slate-200"}`}>{termName(a.name, es ? "es" : "en")}</p>
@@ -825,7 +825,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                         type="button"
                         disabled={addingId === a.id}
                         onClick={() => handleAddAssessment(a.id)}
-                        className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-[#1D4ED8] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-[#50618f] px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {addingId === a.id ? (
                           <svg className="h-3.5 w-3.5 animate-spin" fill="none" viewBox="0 0 24 24">

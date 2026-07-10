@@ -17,7 +17,7 @@ interface PlanBadgeProps {
 export function PlanBadge({ planId, plan, locale }: PlanBadgeProps) {
   const label = planId ? PLAN_LABEL[planId][locale] : plan;
   return (
-    <span className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-3 py-1 text-xs font-semibold text-[#9fb3e5]">
+    <span className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-full border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-3 py-1 text-xs font-semibold text-[var(--it-link)]">
       {label}
     </span>
   );

@@ -25,9 +25,9 @@ interface Result {
 }
 
 function scoreTone(score: number) {
-  if (score >= 80) return { text: "text-[#91c7ad]", bar: "bg-[var(--it-success)]" };
-  if (score >= 60) return { text: "text-[#d2b174]", bar: "bg-[var(--it-warning)]" };
-  return { text: "text-[#d99792]", bar: "bg-[var(--it-danger)]" };
+  if (score >= 80) return { text: "text-[#a9c8b4]", bar: "bg-[var(--it-success)]" };
+  if (score >= 60) return { text: "text-[#cdb584]", bar: "bg-[var(--it-warning)]" };
+  return { text: "text-[#cfa097]", bar: "bg-[var(--it-danger)]" };
 }
 
 export default function ReportsClient({
@@ -198,7 +198,7 @@ export default function ReportsClient({
             <div className="enterprise-card xl:col-span-2 rounded-xl overflow-hidden">
               <div className="flex items-center justify-between border-b border-[var(--it-hairline)] px-6 py-4">
                 <h2 className="text-base font-semibold text-white">{copy.rankings}</h2>
-                <span className="rounded-full border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.1)] px-2.5 py-1 text-xs text-[#91c7ad]">
+                <span className="rounded-full border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.1)] px-2.5 py-1 text-xs text-[#a9c8b4]">
                   {results.length} {copy.scored}
                 </span>
               </div>
@@ -215,9 +215,9 @@ export default function ReportsClient({
                       <div key={result.id} className="px-6 py-4 transition-colors hover:bg-white/[0.02]">
                         <div className="flex items-center gap-4">
                           <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                            i === 0 ? "bg-[rgba(184,134,47,0.15)] text-[#d2b174]" :
+                            i === 0 ? "bg-[rgba(168,135,61,0.15)] text-[#cdb584]" :
                             i === 1 ? "bg-white/[0.06] text-slate-300" :
-                            i === 2 ? "bg-[rgba(184,134,47,0.08)] text-[#b8862f]" :
+                            i === 2 ? "bg-[rgba(168,135,61,0.08)] text-[#cdb584]" :
                             "bg-white/[0.03] text-[var(--it-faint)]"
                           }`}>
                             {i + 1}
@@ -227,7 +227,7 @@ export default function ReportsClient({
                           </div>
                           <div className="flex-1 min-w-0">
                             {result.candidate_id ? (
-                              <Link href={`/candidates/${result.candidate_id}`} className="block truncate text-sm font-medium text-white transition-colors hover:text-[#9fb3e5]">
+                              <Link href={`/candidates/${result.candidate_id}`} className="block truncate text-sm font-medium text-white transition-colors hover:text-[var(--it-link)]">
                                 {candidate?.full_name ?? copy.unknown}
                               </Link>
                             ) : (
@@ -256,11 +256,11 @@ export default function ReportsClient({
 
             <div className="space-y-4">
               {results.length > 0 && (
-                <div className="rounded-xl border border-[var(--it-success)]/20 bg-[rgba(63,143,107,0.05)] p-5">
-                  <h3 className="mb-3 text-sm font-semibold text-[#91c7ad]">{copy.topRecommendation}</h3>
+                <div className="rounded-xl border border-[var(--it-success)]/20 bg-[rgba(79,132,103,0.05)] p-5">
+                  <h3 className="mb-3 text-sm font-semibold text-[#a9c8b4]">{copy.topRecommendation}</h3>
                   <p className="text-sm leading-relaxed text-[var(--it-muted)]">
                     <span className="font-medium text-white">{results[0].candidates?.full_name ?? copy.topCandidate}</span> {copy.scoredText}{" "}
-                    <span className="font-medium text-[#91c7ad]">{results[0].score}</span> {copy.onAssessment}{" "}
+                    <span className="font-medium text-[#a9c8b4]">{results[0].score}</span> {copy.onAssessment}{" "}
                     {results[0].assessments?.name ?? copy.assessment}.
                     {results[0].score >= 75
                       ? copy.advance
@@ -307,7 +307,7 @@ export default function ReportsClient({
                   <h2 className="text-base font-semibold text-white">{copy.comprehensive}</h2>
                   <p className="mt-0.5 text-xs text-[var(--it-muted)]">{copy.comprehensiveSubtitle}</p>
                 </div>
-                <span className="rounded-full border border-[var(--it-primary)]/25 bg-[var(--it-primary-soft)] px-2.5 py-1 text-xs text-[#9fb3e5]">
+                <span className="rounded-full border border-[var(--it-primary)]/25 bg-[var(--it-primary-soft)] px-2.5 py-1 text-xs text-[var(--it-link)]">
                   {copy.candidates(candidateGroups.length)}
                 </span>
               </div>
@@ -325,7 +325,7 @@ export default function ReportsClient({
                           </div>
                           <div className="min-w-0 flex-1">
                             {group.id ? (
-                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-white transition-colors hover:text-[#9fb3e5]">
+                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-white transition-colors hover:text-[var(--it-link)]">
                                 {group.name}
                               </Link>
                             ) : (
@@ -349,7 +349,7 @@ export default function ReportsClient({
                           {group.id ? (
                             <Link
                               href={`/candidates/${group.id}/report`}
-                              className="flex flex-shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-3 py-2 text-xs font-medium text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary)]/25"
+                              className="flex flex-shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-3 py-2 text-xs font-medium text-[var(--it-link)] transition-colors hover:bg-[var(--it-primary)]/25"
                             >
                               <FileText className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
                               {copy.fullReport}

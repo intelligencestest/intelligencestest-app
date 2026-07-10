@@ -116,7 +116,7 @@ export default function CompanySettingsPage() {
       </div>
 
       {saved && (
-        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(63,143,107,0.08)] p-3 text-sm text-[#91c7ad]">
+        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] p-3 text-sm text-[#a9c8b4]">
           <Check className="h-4 w-4 flex-shrink-0" strokeWidth={2} />
           {t("saved")}
         </div>
@@ -139,7 +139,7 @@ export default function CompanySettingsPage() {
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={company.logo_url} alt="" className="h-full w-full object-contain p-3" />
                 ) : (
-                  <span className="text-2xl font-bold text-[#9fb3e5]">
+                  <span className="text-2xl font-bold text-[var(--it-link)]">
                     {company.name ? company.name.slice(0, 2).toUpperCase() : "IT"}
                   </span>
                 )}
@@ -184,8 +184,8 @@ export default function CompanySettingsPage() {
             <div
               className={`mt-4 max-w-sm rounded-xl border px-3 py-2 text-xs font-medium ${
                 message.type === "success"
-                  ? "border-[var(--it-success)]/30 bg-[rgba(63,143,107,0.08)] text-[#91c7ad]"
-                  : "border-[var(--it-danger)]/30 bg-[rgba(185,82,76,0.08)] text-[#d99792]"
+                  ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
+                  : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
               }`}
             >
               {message.text}

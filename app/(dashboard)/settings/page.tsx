@@ -137,7 +137,7 @@ export default function SettingsPage() {
       </div>
 
       {saved && (
-        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(63,143,107,0.08)] p-3 text-sm text-[#91c7ad]">
+        <div className="mt-6 flex items-center gap-2 rounded-lg border border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] p-3 text-sm text-[#a9c8b4]">
           <Check className="h-4 w-4 flex-shrink-0" strokeWidth={2} />
           {t("saved")}
         </div>
@@ -192,8 +192,8 @@ export default function SettingsPage() {
               <div
                 className={`mt-4 max-w-sm rounded-xl border px-3 py-2 text-xs font-medium ${
                   profileMessage.type === "success"
-                    ? "border-[var(--it-success)]/30 bg-[rgba(63,143,107,0.08)] text-[#91c7ad]"
-                    : "border-[var(--it-danger)]/30 bg-[rgba(185,82,76,0.08)] text-[#d99792]"
+                    ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
+                    : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
                 }`}
               >
                 {profileMessage.text}

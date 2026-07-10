@@ -103,8 +103,8 @@ export default function ResetPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07080F] text-slate-100 flex items-center justify-center p-4">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%)]" />
+    <div className="min-h-screen bg-[#171614] text-slate-100 flex items-center justify-center p-4">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(80,97,143,0.16),transparent_34%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative w-full max-w-sm">
@@ -126,7 +126,7 @@ export default function ResetPasswordPage() {
           )}
 
           {status === "checking" && (
-            <div className="rounded-xl border border-[#1E2240] bg-[#07080F] p-4 text-sm text-slate-300">
+            <div className="rounded-xl border border-[#2a2824] bg-[#171614] p-4 text-sm text-slate-300">
               {flow("preparingPasswordReset")}
             </div>
           )}
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
             <button
               type="button"
               onClick={() => router.push(localePath("/forgot-password", locale))}
-              className="flex w-full items-center justify-center rounded-xl bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af]"
+              className="flex w-full items-center justify-center rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#46557e]"
             >
               {flow("requestNewResetLink")}
             </button>
@@ -151,7 +151,7 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder={flow("passwordMinPlaceholder")}
-                className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
               />
             </div>
             <div>
@@ -162,13 +162,13 @@ export default function ResetPasswordPage() {
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder={flow("passwordRepeatPlaceholder")}
-                className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#46557e] disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>

@@ -123,7 +123,7 @@ export default async function AdminHomePage() {
                   <span className="block truncate text-sm font-medium text-slate-200">{item.label}</span>
                   <span className="block truncate text-xs text-slate-500">{item.detail}</span>
                 </span>
-                <span className="text-xs font-medium text-[#a78bfa]">Open →</span>
+                <span className="text-xs font-medium text-[#a6b2cf]">Open →</span>
               </Link>
             ))}
           </div>
@@ -134,7 +134,7 @@ export default async function AdminHomePage() {
       <Section
         title="Recent admin actions"
         action={
-          <Link href="/admin/audit" className="text-xs font-medium text-[#a78bfa] hover:underline">
+          <Link href="/admin/audit" className="text-xs font-medium text-[#a6b2cf] hover:underline">
             Full audit log →
           </Link>
         }
@@ -147,13 +147,13 @@ export default async function AdminHomePage() {
           <div className="divide-y divide-[var(--it-hairline)]">
             {(recentActions ?? []).map((a) => (
               <div key={a.id} className="flex items-center gap-4 px-5 py-3">
-                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#a78bfa]">{a.action_type}</code>
+                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#a6b2cf]">{a.action_type}</code>
                 <span className="min-w-0 flex-1 truncate text-sm text-slate-300">
                   {a.admin_email}
                   {a.reason ? <span className="text-slate-500"> — {a.reason}</span> : null}
                 </span>
                 {a.company_id && (
-                  <Link href={`/admin/companies/${a.company_id}`} className="text-xs font-medium text-[#a78bfa] hover:underline">
+                  <Link href={`/admin/companies/${a.company_id}`} className="text-xs font-medium text-[#a6b2cf] hover:underline">
                     company →
                   </Link>
                 )}

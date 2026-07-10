@@ -40,15 +40,15 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07080F] text-slate-100 flex items-center justify-center p-4">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%)]" />
+    <div className="min-h-screen bg-[#171614] text-slate-100 flex items-center justify-center p-4">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(80,97,143,0.16),transparent_34%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <div className="relative w-full max-w-sm">
         <div className="premium-card rounded-2xl p-8 shadow-2xl">
           <div className="mb-6">
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-[#1D4ED8]/30 bg-[#1D4ED8]/15">
-              <svg className="h-5 w-5 text-[#6B9FFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-[#50618f]/30 bg-[#50618f]/15">
+              <svg className="h-5 w-5 text-[#a6b2cf]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16.5 10.5V7.125a4.5 4.5 0 0 0-9 0V10.5m-.75 0h10.5A2.25 2.25 0 0 1 19.5 12.75v5.25a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 18v-5.25A2.25 2.25 0 0 1 6.75 10.5Z" />
               </svg>
             </div>
@@ -83,13 +83,13 @@ export default function ForgotPasswordPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={flow("emailPlaceholder")}
-                    className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                    className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#1e40af] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#46557e] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>

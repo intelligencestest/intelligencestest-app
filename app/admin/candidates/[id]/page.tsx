@@ -87,7 +87,7 @@ export default async function AdminCandidatePage({ params }: { params: Promise<{
         <p className="mt-1.5 text-sm text-slate-500">
           {candidate.email || "no email"} ·{" "}
           {candidate.company_id ? (
-            <Link href={`/admin/companies/${candidate.company_id}`} className="text-[#a78bfa] hover:underline">
+            <Link href={`/admin/companies/${candidate.company_id}`} className="text-[#a6b2cf] hover:underline">
               {company?.name ?? "company"}
             </Link>
           ) : (

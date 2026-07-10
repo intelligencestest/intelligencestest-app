@@ -6,7 +6,7 @@ import { useState } from "react";
 type ActionState = "idle" | "busy" | "done" | "error";
 
 const btnCls =
-  "cursor-pointer rounded-lg border border-[#1E2240] px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-[#8b5cf6]/60 hover:text-white disabled:cursor-not-allowed disabled:opacity-50";
+  "cursor-pointer rounded-lg border border-[#2a2824] px-3 py-2 text-xs font-semibold text-slate-200 transition-colors hover:border-[#8b5cf6]/60 hover:text-white disabled:cursor-not-allowed disabled:opacity-50";
 
 function useAction(run: (arg?: string | null) => Promise<Response>) {
   const router = useRouter();

@@ -46,7 +46,7 @@ function CopyButton({ text }: { text: string }) {
         });
       }}
       aria-label={es ? "Copiar enlace" : "Copy link"}
-      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--it-primary)]/40 px-3 py-1.5 text-xs font-medium text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary-soft)]"
+      className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--it-primary)]/40 px-3 py-1.5 text-xs font-medium text-[var(--it-link)] transition-colors hover:bg-[var(--it-primary-soft)]"
     >
       <Copy className="h-3.5 w-3.5" strokeWidth={2} />
       {copied ? (es ? "Copiado" : "Copied!") : (es ? "Copiar" : "Copy")}
@@ -475,30 +475,30 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               <div className="space-y-4">
                 {success.type === "link" ? (
                   <>
-                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
-                        <Check className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
+                    <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
+                        <Check className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-[#91c7ad]">{copy.copied}</p>
+                        <p className="text-sm font-medium text-[#a9c8b4]">{copy.copied}</p>
                         <p className="text-xs text-[var(--it-muted)]">{copy.validShare}</p>
                       </div>
                     </div>
                     <div className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] p-3">
                       <p className="mb-2 text-xs font-medium uppercase tracking-[0.18em] text-[var(--it-faint)]">{copy.inviteLink}</p>
                       <div className="flex items-center gap-2">
-                        <p className="flex-1 break-all font-mono text-xs text-[#9fb3e5]">{success.url}</p>
+                        <p className="flex-1 break-all font-mono text-xs text-[var(--it-link)]">{success.url}</p>
                         <CopyButton text={success.url} />
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(63,143,107,0.08)] p-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(63,143,107,0.15)]">
-                      <Mail className="h-4 w-4 text-[#91c7ad]" strokeWidth={2} />
+                  <div className="flex items-center gap-3 rounded-xl border border-[var(--it-success)]/25 bg-[rgba(79,132,103,0.08)] p-3">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[rgba(79,132,103,0.15)]">
+                      <Mail className="h-4 w-4 text-[#a9c8b4]" strokeWidth={2} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-[#91c7ad]">{copy.emailSent}</p>
+                      <p className="text-sm font-medium text-[#a9c8b4]">{copy.emailSent}</p>
                       <p className="truncate text-xs text-[var(--it-muted)]">{success.to}</p>
                     </div>
                   </div>
@@ -515,7 +515,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
               /* Form state */
               <div className="space-y-4">
                 {error && (
-                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(185,82,76,0.1)] p-3 text-sm text-[#d99792]">
+                  <div className="rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(166,91,80,0.1)] p-3 text-sm text-[#cfa097]">
                     {error}
                   </div>
                 )}
@@ -551,7 +551,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.project}</label>
                   {projects.length === 0 ? (
                     <p className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
-                      {copy.noProjects} — <a href="/projects/new" className="text-[#9fb3e5] hover:underline">{copy.createFirst}</a>
+                      {copy.noProjects} — <a href="/projects/new" className="text-[var(--it-link)] hover:underline">{copy.createFirst}</a>
                     </p>
                   ) : (
                     <select

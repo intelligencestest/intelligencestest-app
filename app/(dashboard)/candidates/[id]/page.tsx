@@ -14,9 +14,9 @@ function band(score: number): "high" | "medium" | "low" {
 }
 
 const BAND_STYLE = {
-  high: { text: "text-[#91c7ad]", chip: "bg-[rgba(63,143,107,0.1)] text-[#91c7ad] ring-[rgba(63,143,107,0.25)]", bar: "bg-[var(--it-success)]" },
-  medium: { text: "text-[#d2b174]", chip: "bg-[rgba(184,134,47,0.1)] text-[#d2b174] ring-[rgba(184,134,47,0.25)]", bar: "bg-[var(--it-warning)]" },
-  low: { text: "text-[#d99792]", chip: "bg-[rgba(185,82,76,0.1)] text-[#d99792] ring-[rgba(185,82,76,0.25)]", bar: "bg-[var(--it-danger)]" },
+  high: { text: "text-[#a9c8b4]", chip: "bg-[rgba(79,132,103,0.1)] text-[#a9c8b4] ring-[rgba(79,132,103,0.25)]", bar: "bg-[var(--it-success)]" },
+  medium: { text: "text-[#cdb584]", chip: "bg-[rgba(168,135,61,0.1)] text-[#cdb584] ring-[rgba(168,135,61,0.25)]", bar: "bg-[var(--it-warning)]" },
+  low: { text: "text-[#cfa097]", chip: "bg-[rgba(166,91,80,0.1)] text-[#cfa097] ring-[rgba(166,91,80,0.25)]", bar: "bg-[var(--it-danger)]" },
 } as const;
 
 type ResultRow = {
@@ -384,7 +384,7 @@ export default async function CandidateReportPage({
               <div className="mb-4">
                 <Link
                   href={`/candidates/${candidate.id}/report`}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] px-4 py-2.5 text-sm font-semibold text-[#9fb3e5] transition-colors hover:bg-[var(--it-primary)]/25"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--it-primary)]/40 bg-[var(--it-primary-soft)] px-4 py-2.5 text-sm font-semibold text-[var(--it-link)] transition-colors hover:bg-[var(--it-primary)]/25"
                 >
                   <FileText className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />
                   {t("executiveReport")}

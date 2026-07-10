@@ -25,14 +25,35 @@ import { cn } from "@/lib/utils";
 
 const COLLAPSE_KEY = "it-sidebar-collapsed";
 
-const navItems: { href: string; labelKey: string; icon: LucideIcon }[] = [
-  { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
-  { href: "/inbox", labelKey: "inbox", icon: Inbox },
-  { href: "/projects", labelKey: "projects", icon: FolderKanban },
-  { href: "/candidates", labelKey: "candidates", icon: Users },
-  { href: "/assessments", labelKey: "assessments", icon: ClipboardCheck },
-  { href: "/reports", labelKey: "reports", icon: BarChart3 },
-  { href: "/settings", labelKey: "settings", icon: Settings },
+type NavItem = { href: string; labelKey: string; icon: LucideIcon };
+
+/** Navigation grouped into named areas of work — the chrome reads as an
+    operating system, not a flat list of pages (design-language.md §5).
+    Group labels are presentation copy; kicker: null renders no heading. */
+const navGroups: { kicker: { en: string; es: string } | null; items: NavItem[] }[] = [
+  {
+    kicker: null,
+    items: [
+      { href: "/dashboard", labelKey: "dashboard", icon: LayoutDashboard },
+      { href: "/inbox", labelKey: "inbox", icon: Inbox },
+    ],
+  },
+  {
+    kicker: { en: "Pipeline", es: "Proceso" },
+    items: [
+      { href: "/projects", labelKey: "projects", icon: FolderKanban },
+      { href: "/candidates", labelKey: "candidates", icon: Users },
+      { href: "/assessments", labelKey: "assessments", icon: ClipboardCheck },
+    ],
+  },
+  {
+    kicker: { en: "Insight", es: "Análisis" },
+    items: [{ href: "/reports", labelKey: "reports", icon: BarChart3 }],
+  },
+  {
+    kicker: null,
+    items: [{ href: "/settings", labelKey: "settings", icon: Settings }],
+  },
 ];
 
 interface SidebarProps {
@@ -93,9 +114,23 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
             )}
           </div>
 
-          {/* Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {navItems.map((item) => {
+          {/* Navigation — grouped areas of work */}
+          <nav className="flex-1 px-3 py-4">
+            {navGroups.map((group, gi) => (
+              <div
+                key={gi}
+                className={cn(
+                  gi > 0 && "mt-5",
+                  gi > 0 && isCollapsed && "mt-3 border-t enterprise-divider pt-3"
+                )}
+              >
+                {group.kicker && !isCollapsed && (
+                  <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.09em] text-[var(--it-faint)]">
+                    {es ? group.kicker.es : group.kicker.en}
+                  </p>
+                )}
+                <div className="space-y-1">
+            {group.items.map((item) => {
               const active = isActive(item.href);
               const link = (
                 <Link
@@ -146,6 +181,9 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
                 </Tooltip>
               );
             })}
+                </div>
+              </div>
+            ))}
           </nav>
 
           {/* Collapse toggle — desktop rail only */}

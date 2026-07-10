@@ -18,7 +18,7 @@ const GoogleIcon = () => (
 
 const Logo = ({ subtitle }: { subtitle: string }) => (
   <div className="flex items-center gap-3">
-    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#5B7CFA]/30 bg-[#1D4ED8] shadow-[0_0_36px_rgba(29,78,216,0.38)]">
+    <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-[#7d8db4]/30 bg-[#50618f] shadow-[0_0_36px_rgba(80,97,143,0.38)]">
       <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3 4 7.2 12 11.4l8-4.2L12 3Z" />
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m4 12.8 8 4.2 8-4.2M4 17.8l8 4.2 8-4.2" />
@@ -115,16 +115,16 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07080F] text-slate-100">
-      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(29,78,216,0.16),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
+    <div className="min-h-screen bg-[#171614] text-slate-100">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(115deg,rgba(80,97,143,0.16),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.035),transparent_28%)]" />
       <div className="absolute inset-0 pointer-events-none opacity-[0.055] [background-image:linear-gradient(#fff_1px,transparent_1px),linear-gradient(90deg,#fff_1px,transparent_1px)] [background-size:48px_48px]" />
 
       <main className="relative grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_540px]">
         {/* Left panel */}
-        <section className="hidden lg:flex flex-col justify-between border-r border-[#1E2240] px-10 py-8 xl:px-14">
+        <section className="hidden lg:flex flex-col justify-between border-r border-[#2a2824] px-10 py-8 xl:px-14">
           <Logo subtitle={flow("brandSubtitle")} />
           <div className="max-w-xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#1E2240] bg-[#0D1020]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#2a2824] bg-[#1d1c19]/70 px-3 py-1 text-xs font-medium text-[#9BB8FF]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
               {flow("signupBadge")}
             </div>
@@ -144,7 +144,7 @@ export default function SignupPage() {
             </div>
           </div>
           <div className="flex items-center gap-3 text-xs text-slate-600">
-            <span className="h-px w-10 bg-[#1E2240]" />
+            <span className="h-px w-10 bg-[#2a2824]" />
             {flow("builtFor")}
           </div>
         </section>
@@ -161,7 +161,7 @@ export default function SignupPage() {
                 <h2 className="text-2xl font-semibold tracking-tight text-white">{auth("createAccount")}</h2>
                 <p className="mt-1 text-sm text-slate-500">
                   {auth("alreadyHaveAccount")}{" "}
-                  <Link href={localePath("/login", language)} className="text-[#6B9FFF] hover:text-[#93B8FF] transition-colors">
+                  <Link href={localePath("/login", language)} className="text-[#a6b2cf] hover:text-[#93B8FF] transition-colors">
                     {auth("signIn")}
                   </Link>
                 </p>
@@ -172,7 +172,7 @@ export default function SignupPage() {
                 type="button"
                 onClick={handleGoogle}
                 disabled={oauthLoading}
-                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#1E2240] bg-[#07080F] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#2d3a70] hover:bg-[#0d1020] disabled:cursor-not-allowed disabled:opacity-60"
+                className="mb-5 flex w-full items-center justify-center gap-3 rounded-xl border border-[#2a2824] bg-[#171614] px-4 py-3 text-sm font-medium text-slate-200 transition-colors hover:border-[#3d3b34] hover:bg-[#1d1c19] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {oauthLoading ? (
                   <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -186,9 +186,9 @@ export default function SignupPage() {
               </button>
 
               <div className="mb-5 flex items-center gap-3">
-                <span className="h-px flex-1 bg-[#1E2240]" />
+                <span className="h-px flex-1 bg-[#2a2824]" />
                 <span className="text-xs text-slate-600">{auth("orSignUpWithEmail")}</span>
-                <span className="h-px flex-1 bg-[#1E2240]" />
+                <span className="h-px flex-1 bg-[#2a2824]" />
               </div>
 
               {error && (
@@ -208,7 +208,7 @@ export default function SignupPage() {
                       required
                       placeholder={flow("companyPlaceholder")}
                       {...field("company_name")}
-                      className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
                     />
                   </div>
                   <div>
@@ -217,7 +217,7 @@ export default function SignupPage() {
                       required
                       placeholder={flow("fullNamePlaceholder")}
                       {...field("full_name")}
-                      className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
                     />
                   </div>
                 </div>
@@ -229,7 +229,7 @@ export default function SignupPage() {
                     type="email"
                     placeholder={flow("workEmailPlaceholder")}
                     {...field("email")}
-                    className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                    className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
                   />
                 </div>
 
@@ -241,7 +241,7 @@ export default function SignupPage() {
                       type="password"
                       placeholder={flow("passwordMinPlaceholder")}
                       {...field("password")}
-                      className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
                     />
                   </div>
                   <div>
@@ -251,7 +251,7 @@ export default function SignupPage() {
                       type="password"
                       placeholder={flow("passwordRepeatPlaceholder")}
                       {...field("confirm_password")}
-                      className="w-full rounded-xl border border-[#1E2240] bg-[#07080F] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#1D4ED8] focus:ring-2 focus:ring-[#1D4ED8]/25 transition-colors"
+                      className="w-full rounded-xl border border-[#2a2824] bg-[#171614] px-3 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#50618f] focus:ring-2 focus:ring-[#50618f]/25 transition-colors"
                     />
                   </div>
                 </div>
@@ -259,7 +259,7 @@ export default function SignupPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1D4ED8] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(29,78,216,0.25)] transition-colors hover:bg-[#1e40af] focus:outline-none focus:ring-2 focus:ring-[#1D4ED8]/45 disabled:cursor-not-allowed disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#50618f] px-4 py-3 text-sm font-semibold text-white shadow-[0_14px_36px_rgba(80,97,143,0.25)] transition-colors hover:bg-[#46557e] focus:outline-none focus:ring-2 focus:ring-[#50618f]/45 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loading ? (
                     <>

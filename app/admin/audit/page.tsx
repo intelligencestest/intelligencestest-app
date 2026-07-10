@@ -103,7 +103,7 @@ export default async function AdminAuditPage({
           <div className="divide-y divide-[var(--it-hairline)]">
             {(rows ?? []).map((row) => (
               <div key={row.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 px-5 py-3">
-                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#a78bfa]">{row.action_type}</code>
+                <code className="rounded bg-[var(--it-bg)] px-2 py-0.5 font-mono text-xs text-[#a6b2cf]">{row.action_type}</code>
                 <span className="text-sm text-slate-300">{row.admin_email}</span>
                 {row.entity_type && (
                   <span className="text-xs text-slate-500">
@@ -116,7 +116,7 @@ export default async function AdminAuditPage({
                   {row.company_id && (
                     <Link
                       href={`/admin/companies/${row.company_id}`}
-                      className="text-xs font-medium text-[#a78bfa] hover:underline"
+                      className="text-xs font-medium text-[#a6b2cf] hover:underline"
                     >
                       company →
                     </Link>

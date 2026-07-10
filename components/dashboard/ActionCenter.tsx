@@ -26,9 +26,9 @@ export type AttentionAlert =
   | { kind: "stalled"; count: number };
 
 const SEVERITY_STYLE = {
-  warning: { text: "text-[#d2b174]", bg: "bg-[rgba(184,134,47,0.08)]", ring: "ring-[rgba(184,134,47,0.28)]" },
-  serious: { text: "text-[#d99792]", bg: "bg-[rgba(185,82,76,0.08)]", ring: "ring-[rgba(185,82,76,0.28)]" },
-  info: { text: "text-[#9bb7d2]", bg: "bg-[rgba(82,122,163,0.08)]", ring: "ring-[rgba(82,122,163,0.28)]" },
+  warning: { text: "text-[#cdb584]", bg: "bg-[rgba(168,135,61,0.08)]", ring: "ring-[rgba(168,135,61,0.28)]" },
+  serious: { text: "text-[#cfa097]", bg: "bg-[rgba(166,91,80,0.08)]", ring: "ring-[rgba(166,91,80,0.28)]" },
+  info: { text: "text-[#a9b8c9]", bg: "bg-[rgba(110,127,148,0.08)]", ring: "ring-[rgba(110,127,148,0.28)]" },
 } as const;
 
 const ALERT_ICONS: Record<string, LucideIcon> = {
@@ -70,7 +70,7 @@ function ExtendButton({ candidateId, onDone }: { candidateId: string; onDone: ()
 
   if (state === "done") {
     return (
-      <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#91c7ad]">
+      <span role="status" className="inline-flex items-center gap-1 text-xs font-medium text-[#a9c8b4]">
         <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
         {t("attnExtended")}
       </span>

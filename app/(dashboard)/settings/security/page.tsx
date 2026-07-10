@@ -162,8 +162,8 @@ export default function SecuritySettingsPage() {
                 <div
                   className={`sm:col-span-2 flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${
                     changeMessage.type === "success"
-                      ? "border-[var(--it-success)]/30 bg-[rgba(63,143,107,0.08)] text-[#91c7ad]"
-                      : "border-[var(--it-danger)]/30 bg-[rgba(185,82,76,0.08)] text-[#d99792]"
+                      ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
+                      : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
                   }`}
                 >
                   {changeMessage.type === "success" ? (
@@ -207,8 +207,8 @@ export default function SecuritySettingsPage() {
               <div
                 className={`mt-4 max-w-sm rounded-xl border px-3 py-2 text-xs font-medium ${
                   resetMessage.type === "success"
-                    ? "border-[var(--it-success)]/30 bg-[rgba(63,143,107,0.08)] text-[#91c7ad]"
-                    : "border-[var(--it-danger)]/30 bg-[rgba(185,82,76,0.08)] text-[#d99792]"
+                    ? "border-[var(--it-success)]/30 bg-[rgba(79,132,103,0.08)] text-[#a9c8b4]"
+                    : "border-[var(--it-danger)]/30 bg-[rgba(166,91,80,0.08)] text-[#cfa097]"
                 }`}
               >
                 {resetMessage.text}
@@ -218,15 +218,15 @@ export default function SecuritySettingsPage() {
 
           {/* Danger zone — the one place a tinted, bordered container is warranted:
               it needs to read as a distinct, high-caution area, not a settings section. */}
-          <div className="mt-10 rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(185,82,76,0.04)] p-6">
-            <h2 className="mb-3 text-base font-semibold text-[#d99792]">{copy.dangerZone}</h2>
+          <div className="mt-10 rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(166,91,80,0.04)] p-6">
+            <h2 className="mb-3 text-base font-semibold text-[#cfa097]">{copy.dangerZone}</h2>
             <p className="mb-4 text-sm text-[var(--it-muted)]">{copy.dangerText}</p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="button"
                 disabled
                 title={copy.dangerComingSoon}
-                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#d99792] opacity-50"
+                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#cfa097] opacity-50"
               >
                 {copy.deleteData} · {copy.dangerComingSoon}
               </button>
@@ -234,7 +234,7 @@ export default function SecuritySettingsPage() {
                 type="button"
                 disabled
                 title={copy.dangerComingSoon}
-                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#d99792] opacity-50"
+                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#cfa097] opacity-50"
               >
                 {copy.closeAccount} · {copy.dangerComingSoon}
               </button>

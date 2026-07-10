@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     return (
       <main className="min-h-screen border-t-2 border-[#8b5cf6] bg-[var(--it-bg)] px-5 py-16 text-slate-100">
         <div className="mx-auto max-w-xl rounded-xl border border-[var(--it-hairline)] bg-[var(--it-surface)] p-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a78bfa]">IntelligencesTest · Internal</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#a6b2cf]">IntelligencesTest · Internal</p>
           <h1 className="mt-3 text-2xl font-semibold text-white">Operator access required</h1>
           <p className="mt-3 text-sm leading-6 text-slate-400">
             Sign in with an internal_admins account (or a break-glass email from INTERNAL_ADMIN_EMAILS).
@@ -37,7 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="flex min-h-screen flex-col border-t-2 border-[#8b5cf6] bg-[var(--it-bg)] text-slate-100">
       <header className="sticky top-0 z-40 flex h-12 items-center gap-4 border-b border-[var(--it-hairline)] bg-[var(--it-surface)]/95 px-4 backdrop-blur-sm">
         <Link href="/admin" className="flex items-center gap-2 text-sm font-semibold text-white">
-          <span className="rounded bg-[#8b5cf6]/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#a78bfa]">
+          <span className="rounded bg-[#8b5cf6]/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-[#a6b2cf]">
             Internal
           </span>
           Ops Console
@@ -56,7 +56,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="ml-auto flex items-center gap-3">
           <CommandPalette />
           <span className="hidden items-center gap-2 text-xs text-slate-500 sm:flex">
-            <span className="rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-2 py-0.5 font-semibold text-[#a78bfa]">
+            <span className="rounded-full border border-[#8b5cf6]/30 bg-[#8b5cf6]/10 px-2 py-0.5 font-semibold text-[#a6b2cf]">
               {adminCtx.role}
               {adminCtx.breakGlass ? " · break-glass" : ""}
             </span>
