@@ -5,7 +5,7 @@ import { useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { FileText } from "lucide-react";
-import { assessmentName as termName, assessmentShort as termShort } from "@/lib/i18n/assessment-terms";
+import { assessmentShort as termShort } from "@/lib/i18n/assessment-terms";
 
 interface Project {
   id: string;
@@ -34,16 +34,13 @@ export default function ReportsClient({
   projects,
   initialResults,
   selectedProjectId,
-  companyName,
 }: {
   projects: Project[];
   initialResults: Result[];
   selectedProjectId: string | null;
-  companyName: string;
 }) {
   const router = useRouter();
   const es = useLocale() === "es";
-  const dateLocale = es ? "es-ES" : "en-US";
   const copy = es
     ? {
         unknown: "Sin nombre",
@@ -130,7 +127,7 @@ export default function ReportsClient({
       const avgB = b[1].results.reduce((s, r) => s + r.score, 0) / b[1].results.length;
       return avgB - avgA;
     });
-  }, [results]);
+  }, [results, copy.unknown]);
   const candidateRankings = useMemo(
     () =>
       candidateGroups.map(([candidateKey, group]) => {

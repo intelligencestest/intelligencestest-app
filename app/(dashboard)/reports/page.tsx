@@ -16,18 +16,11 @@ export default async function ReportsPage({
   const { data: profile } = await admin.from("users").select("company_id").eq("id", user!.id).single();
   const companyId = profile?.company_id;
 
-  const [{ data: projects }, { data: company }] = await Promise.all([
-    admin
-      .from("hiring_projects")
-      .select("id, name, status")
-      .eq("company_id", companyId)
-      .order("created_at", { ascending: false }),
-    admin
-      .from("companies")
-      .select("name")
-      .eq("id", companyId)
-      .single(),
-  ]);
+  const { data: projects } = await admin
+    .from("hiring_projects")
+    .select("id, name, status")
+    .eq("company_id", companyId)
+    .order("created_at", { ascending: false });
 
   const selectedProjectId = params.project ?? projects?.[0]?.id ?? null;
 
@@ -58,7 +51,6 @@ export default async function ReportsPage({
       projects={projects ?? []}
       initialResults={results}
       selectedProjectId={selectedProjectId}
-      companyName={company?.name ?? ""}
     />
   );
 }

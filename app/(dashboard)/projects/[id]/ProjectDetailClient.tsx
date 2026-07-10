@@ -233,6 +233,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
 
   // Sync invite form assessment when assessments prop changes (after router.refresh)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInviteForm((f) => ({
       ...f,
       assessment_id: f.assessment_id || (assessments[0]?.id ?? ""),

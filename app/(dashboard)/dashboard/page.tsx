@@ -65,7 +65,7 @@ export default async function DashboardPage({
   const companyId = profile?.company_id;
   const firstName = profile?.full_name?.split(" ")[0];
 
-  const nowMs = Date.now();
+  const nowMs = Date.now(); // eslint-disable-line react-hooks/purity -- server component, one render per request; dashboard recency math needs request-time clock.
   const dateLocale = locale === "es" ? "es-ES" : "en-US";
 
   // TODO(phase-2): replace full-table reads with event-fed rollups so the

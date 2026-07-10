@@ -46,8 +46,9 @@ export async function loadTenantStats(
       .eq("day", new Date().toISOString().slice(0, 10))
       .returns<StatsRow[]>();
 
-  let { data: rows, error } = await read();
-  if (error) return null; // table missing → migration 021 not applied
+  const initialRead = await read();
+  let rows = initialRead.data;
+  if (initialRead.error) return null; // table missing → migration 021 not applied
 
   const newest = (rows ?? []).reduce<number>(
     (max, r) => Math.max(max, new Date(r.computed_at).getTime()),

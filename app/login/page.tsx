@@ -46,6 +46,7 @@ export default function LoginPage() {
 
     if (!hasRecoveryToken) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecoveryRedirecting(true);
     window.location.replace(`${localePath("/reset-password", locale)}${url.search}${url.hash}`);
   }, [locale]);

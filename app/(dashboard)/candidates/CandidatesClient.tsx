@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLocale } from "next-intl";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Check, Copy, Link2, Loader2, Mail, Search, UserPlus, X } from "lucide-react";
 import { PIPELINE_STAGES, STATUS_CHIP_STYLE } from "@/lib/dashboard/stages";
 
@@ -199,9 +199,20 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
   const [error, setError] = useState("");
   const [success, setSuccess] = useState<InviteSuccess | null>(null);
 
+  const closeModal = useCallback(() => {
+    setShowModal(false);
+    setSuccess(null);
+    setError("");
+    setLoadingMode(null);
+    const firstProject = projects[0]?.id ?? "";
+    const firstAssessment = (projectAssessments[firstProject] ?? [])[0]?.name ?? "";
+    setForm({ full_name: "", email: "", project_id: firstProject, assessment_type: firstAssessment });
+  }, [projects, projectAssessments, setForm]);
+
   // Sync first assessment when project changes
   useEffect(() => {
     const opts = projectAssessments[form.project_id] ?? [];
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm((f) => ({ ...f, assessment_type: opts[0]?.name ?? "" }));
   }, [form.project_id]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -211,13 +222,14 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") closeModal(); };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [showModal]);
+  }, [showModal, closeModal]);
 
   // Deep links from the dashboard: ?stage= (six-stage pipeline), legacy
   // ?status=, ?project=, ?invite=1
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const stage = params.get("stage") ?? params.get("status");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (stage && (PIPELINE_STAGES as readonly string[]).includes(stage)) setStatusFilter(stage);
     const project = params.get("project");
     if (project) setProjectFilter(project);
@@ -228,16 +240,6 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
   }, []);
 
   const currentAssessments = projectAssessments[form.project_id] ?? [];
-
-  const closeModal = () => {
-    setShowModal(false);
-    setSuccess(null);
-    setError("");
-    setLoadingMode(null);
-    const firstProject = projects[0]?.id ?? "";
-    const firstAssessment = (projectAssessments[firstProject] ?? [])[0]?.name ?? "";
-    setForm({ full_name: "", email: "", project_id: firstProject, assessment_type: firstAssessment });
-  };
 
   const resetForm = () => {
     setSuccess(null);
@@ -551,7 +553,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                   <label className="mb-1.5 block text-sm font-medium text-slate-300">{copy.project}</label>
                   {projects.length === 0 ? (
                     <p className="rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-[var(--it-muted)]">
-                      {copy.noProjects} — <a href="/projects/new" className="text-[var(--it-link)] hover:underline">{copy.createFirst}</a>
+                      {copy.noProjects} — <Link href="/projects/new" className="text-[var(--it-link)] hover:underline">{copy.createFirst}</Link>
                     </p>
                   ) : (
                     <select

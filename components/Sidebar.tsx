@@ -51,22 +51,17 @@ interface SidebarProps {
   reviewCount?: number;
 }
 
-export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
-  const pathname = usePathname();
-  const nav = useTranslations("nav");
-  const locale = toAppLocale(useLocale());
-  const es = locale === "es";
-  const [mobileOpen, setMobileOpen] = useState(false);
+interface SidebarContentProps {
+  es: boolean;
+  isActive: (href: string) => boolean;
+  locale: ReturnType<typeof toAppLocale>;
+  nav: (key: string) => string;
+  onNavigate: () => void;
+  reviewCount: number;
+}
 
-  // Compare against the logical path so /es/projects highlights the same item
-  // as /projects. Links themselves keep the /es prefix for Spanish workspaces.
-  const logicalPath = stripLocalePrefix(pathname);
-  const isActive = (href: string) => {
-    if (href === "/dashboard") return logicalPath === "/dashboard";
-    return logicalPath.startsWith(href);
-  };
-
-  const SidebarContent = () => (
+function SidebarContent({ es, isActive, locale, nav, onNavigate, reviewCount }: SidebarContentProps) {
+  return (
     <div className="flex h-full flex-col">
       {/* Logo */}
       <div className="flex items-center gap-3 border-b enterprise-divider px-6 py-5">
@@ -94,7 +89,7 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
                 <Link
                   key={item.href}
                   href={localePath(item.href, locale)}
-                  onClick={() => setMobileOpen(false)}
+                  onClick={onNavigate}
                   className={cn(
                     "group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium tracking-[0.005em] transition-colors duration-150",
                     active
@@ -128,6 +123,22 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
       </nav>
     </div>
   );
+}
+
+export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
+  const pathname = usePathname();
+  const nav = useTranslations("nav");
+  const locale = toAppLocale(useLocale());
+  const es = locale === "es";
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Compare against the logical path so /es/projects highlights the same item
+  // as /projects. Links themselves keep the /es prefix for Spanish workspaces.
+  const logicalPath = stripLocalePrefix(pathname);
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return logicalPath === "/dashboard";
+    return logicalPath.startsWith(href);
+  };
 
   return (
     <>
@@ -150,13 +161,27 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <SidebarContent />
+        <SidebarContent
+          es={es}
+          isActive={isActive}
+          locale={locale}
+          nav={nav}
+          onNavigate={() => setMobileOpen(false)}
+          reviewCount={reviewCount}
+        />
       </aside>
 
       <aside
         className="hidden lg:flex print:hidden h-full w-64 flex-shrink-0 flex-col border-r enterprise-divider bg-[var(--it-sidebar)]"
       >
-        <SidebarContent />
+        <SidebarContent
+          es={es}
+          isActive={isActive}
+          locale={locale}
+          nav={nav}
+          onNavigate={() => setMobileOpen(false)}
+          reviewCount={reviewCount}
+        />
       </aside>
     </>
   );
