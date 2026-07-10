@@ -53,18 +53,18 @@ export default function ReportsClient({
         noProjects: "Aún no hay proyectos. Cree un proyecto e invite candidatos para ver informes.",
         selectProject: "Seleccionar proyecto",
         stats: {
-          totalScored: "Total puntuados",
-          averageScore: "Puntuación promedio",
+          totalScored: "Candidatos con resultados",
+          averageScore: "Promedio de candidatos",
           topScore: "Mejor puntuación",
-          passRate: "Tasa 60+",
+          passRate: "Candidatos 60+",
         },
-        rankings: "Ranking de candidatos",
-        scored: "puntuados",
+        rankings: "Ranking ejecutivo de candidatos",
+        scored: "con informe",
         noCompleted: "Aún no hay evaluaciones completadas para este proyecto",
         topRecommendation: "Recomendación principal",
         topCandidate: "El candidato principal",
         scoredText: "obtuvo",
-        onAssessment: "en",
+        onAssessment: "como promedio",
         advance: " Recomendamos avanzar a entrevista.",
         review: " Revise el perfil antes de avanzar.",
         distribution: "Distribución de puntuaciones",
@@ -72,6 +72,7 @@ export default function ReportsClient({
         comprehensive: "Informes completos de candidatos",
         comprehensiveSubtitle: "Abra el informe ejecutivo dentro de la plataforma para revisar evidencia y tomar decisiones",
         candidates: (count: number) => `${count} candidato${count === 1 ? "" : "s"}`,
+        assessmentsCompleted: (count: number) => `${count} evaluación${count === 1 ? "" : "es"} completada${count === 1 ? "" : "s"}`,
         noEmail: "Sin correo",
         avgScore: "promedio",
         fullReport: "Abrir informe",
@@ -84,18 +85,18 @@ export default function ReportsClient({
         noProjects: "No projects yet. Create a project and invite candidates to see reports.",
         selectProject: "Select Project",
         stats: {
-          totalScored: "Total Scored",
-          averageScore: "Average Score",
+          totalScored: "Candidates scored",
+          averageScore: "Candidate average",
           topScore: "Top Score",
-          passRate: "Pass Rate (60+)",
+          passRate: "Candidates 60+",
         },
-        rankings: "Candidate Rankings",
-        scored: "scored",
+        rankings: "Executive candidate ranking",
+        scored: "with reports",
         noCompleted: "No completed assessments for this project yet",
         topRecommendation: "Top Recommendation",
         topCandidate: "The top candidate",
         scoredText: "scored",
-        onAssessment: "on",
+        onAssessment: "on average",
         advance: " We recommend advancing them to the interview stage.",
         review: " Review their profile before advancing.",
         distribution: "Score Distribution",
@@ -103,18 +104,14 @@ export default function ReportsClient({
         comprehensive: "Comprehensive Candidate Reports",
         comprehensiveSubtitle: "Open the executive report inside the platform to review evidence and make decisions",
         candidates: (count: number) => `${count} candidate${count !== 1 ? "s" : ""}`,
+        assessmentsCompleted: (count: number) => `${count} completed assessment${count !== 1 ? "s" : ""}`,
         noEmail: "No email",
         avgScore: "avg score",
         fullReport: "Open report",
       };
 
   const results = initialResults;
-  const avgScore = results.length
-    ? Math.round(results.reduce((s, r) => s + r.score, 0) / results.length)
-    : 0;
-  const topScore = results[0]?.score ?? 0;
 
-  // Group results by candidate for the Full Report feature
   const candidateGroups = useMemo(() => {
     const map = new Map<string, { name: string; email: string; id: string | null; results: Result[] }>();
     results.forEach(r => {
@@ -128,13 +125,24 @@ export default function ReportsClient({
       existing.results.push(r);
       map.set(key, existing);
     });
-    // Sort by avg score descending
     return [...map.entries()].sort((a, b) => {
       const avgA = a[1].results.reduce((s, r) => s + r.score, 0) / a[1].results.length;
       const avgB = b[1].results.reduce((s, r) => s + r.score, 0) / b[1].results.length;
       return avgB - avgA;
     });
   }, [results]);
+  const candidateRankings = useMemo(
+    () =>
+      candidateGroups.map(([candidateKey, group]) => {
+        const avg = Math.round(group.results.reduce((sum, result) => sum + result.score, 0) / group.results.length);
+        return { candidateKey, group, avg, tone: scoreTone(avg) };
+      }),
+    [candidateGroups]
+  );
+  const avgScore = candidateRankings.length
+    ? Math.round(candidateRankings.reduce((s, r) => s + r.avg, 0) / candidateRankings.length)
+    : 0;
+  const topScore = candidateRankings[0]?.avg ?? 0;
 
   const scoreBands = [
     { label: "90-100", tone: "bg-[var(--it-success)]" },
@@ -179,12 +187,12 @@ export default function ReportsClient({
 
           <div className="flex flex-wrap items-center gap-8 border-t border-[var(--it-hairline)] pt-4">
             {[
-              { label: copy.stats.totalScored, value: results.length ? String(results.length) : "-" },
-              { label: copy.stats.averageScore, value: results.length ? String(avgScore) : "-" },
-              { label: copy.stats.topScore, value: results.length ? String(topScore) : "-" },
+              { label: copy.stats.totalScored, value: candidateRankings.length ? String(candidateRankings.length) : "-" },
+              { label: copy.stats.averageScore, value: candidateRankings.length ? String(avgScore) : "-" },
+              { label: copy.stats.topScore, value: candidateRankings.length ? String(topScore) : "-" },
               {
                 label: copy.stats.passRate,
-                value: results.length ? `${Math.round((results.filter(r => r.score >= 60).length / results.length) * 100)}%` : "-",
+                value: candidateRankings.length ? `${Math.round((candidateRankings.filter(r => r.avg >= 60).length / candidateRankings.length) * 100)}%` : "-",
               },
             ].map((s) => (
               <div key={s.label}>
@@ -199,20 +207,18 @@ export default function ReportsClient({
               <div className="flex items-center justify-between border-b border-[var(--it-hairline)] px-6 py-4">
                 <h2 className="text-base font-semibold text-[var(--it-text)]">{copy.rankings}</h2>
                 <span className="rounded-full border border-[var(--it-success)]/25 bg-[rgba(22,163,74,0.1)] px-2.5 py-1 text-xs text-[#15803d]">
-                  {results.length} {copy.scored}
+                  {candidateRankings.length} {copy.scored}
                 </span>
               </div>
 
-              {results.length === 0 ? (
+              {candidateRankings.length === 0 ? (
                 <p className="px-6 py-10 text-sm text-[var(--it-muted)]">{copy.noCompleted}</p>
               ) : (
                 <div className="divide-y divide-[var(--it-hairline)]">
-                  {results.map((result, i) => {
-                    const candidate = result.candidates;
-                    const initials = candidate?.full_name?.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase() ?? "??";
-                    const tone = scoreTone(result.score);
+                  {candidateRankings.map(({ candidateKey, group, avg, tone }, i) => {
+                    const initials = group.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
                     return (
-                      <div key={result.id} className="px-6 py-4 transition-colors hover:bg-gray-900/[0.02]">
+                      <div key={candidateKey} className="px-6 py-4 transition-colors hover:bg-gray-900/[0.02]">
                         <div className="flex items-center gap-4">
                           <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
                             i === 0 ? "bg-[rgba(217,119,6,0.15)] text-[#b45309]" :
@@ -226,26 +232,41 @@ export default function ReportsClient({
                             {initials}
                           </div>
                           <div className="flex-1 min-w-0">
-                            {result.candidate_id ? (
-                              <Link href={`/candidates/${result.candidate_id}`} className="block truncate text-sm font-medium text-[var(--it-text)] transition-colors hover:text-[var(--it-link)]">
-                                {candidate?.full_name ?? copy.unknown}
+                            {group.id ? (
+                              <Link href={`/candidates/${group.id}/report`} className="block truncate text-sm font-medium text-[var(--it-text)] transition-colors hover:text-[var(--it-link)]">
+                                {group.name}
                               </Link>
                             ) : (
-                              <p className="truncate text-sm font-medium text-[var(--it-text)]">{candidate?.full_name ?? copy.unknown}</p>
+                              <p className="truncate text-sm font-medium text-[var(--it-text)]">{group.name}</p>
                             )}
-                            <p className="truncate text-xs text-[var(--it-muted)]">{result.assessments ? termName(result.assessments.name, es ? "es" : "en") : copy.assessment}</p>
+                            <p className="truncate text-xs text-[var(--it-muted)]">{group.email || copy.noEmail}</p>
+                            <div className="mt-1.5 flex flex-wrap gap-1.5">
+                              {group.results.map(r => (
+                                <span key={r.id} className="rounded bg-gray-900/[0.04] px-2 py-0.5 text-xs text-[var(--it-muted)]">
+                                  {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
+                                </span>
+                              ))}
+                            </div>
                           </div>
                           <div className="text-right flex-shrink-0">
-                            <p className={`text-xl font-semibold ${tone.text}`}>{result.score}</p>
-                            <p className="text-xs text-[var(--it-faint)]">
-                              {new Date(result.completed_at).toLocaleDateString(dateLocale, { month: "short", day: "numeric" })}
-                            </p>
+                            <p className={`text-xl font-semibold ${tone.text}`}>{avg}</p>
+                            <p className="text-xs text-[var(--it-faint)]">{copy.avgScore}</p>
                           </div>
+                          {group.id ? (
+                            <Link
+                              href={`/candidates/${group.id}/report`}
+                              className="hidden flex-shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-3 py-2 text-xs font-medium text-[var(--it-link)] transition-colors hover:bg-[var(--it-primary)]/25 sm:flex"
+                            >
+                              <FileText className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
+                              {copy.fullReport}
+                            </Link>
+                          ) : null}
                         </div>
                         <div className="mt-3 ml-[88px]">
                           <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-900/[0.06]">
-                            <div className={`h-1.5 rounded-full ${tone.bar}`} style={{ width: `${Math.min(result.score, 100)}%` }} />
+                            <div className={`h-1.5 rounded-full ${tone.bar}`} style={{ width: `${Math.min(avg, 100)}%` }} />
                           </div>
+                          <p className="mt-2 text-xs text-[var(--it-faint)]">{copy.assessmentsCompleted(group.results.length)}</p>
                         </div>
                       </div>
                     );
@@ -259,10 +280,9 @@ export default function ReportsClient({
                 <div className="rounded-xl border border-[var(--it-success)]/20 bg-[rgba(22,163,74,0.05)] p-5">
                   <h3 className="mb-3 text-sm font-semibold text-[#15803d]">{copy.topRecommendation}</h3>
                   <p className="text-sm leading-relaxed text-[var(--it-muted)]">
-                    <span className="font-medium text-[var(--it-text)]">{results[0].candidates?.full_name ?? copy.topCandidate}</span> {copy.scoredText}{" "}
-                    <span className="font-medium text-[#15803d]">{results[0].score}</span> {copy.onAssessment}{" "}
-                    {results[0].assessments?.name ?? copy.assessment}.
-                    {results[0].score >= 75
+                    <span className="font-medium text-[var(--it-text)]">{candidateRankings[0]?.group.name ?? copy.topCandidate}</span> {copy.scoredText}{" "}
+                    <span className="font-medium text-[#15803d]">{candidateRankings[0]?.avg ?? "-"}</span> {copy.onAssessment}.
+                    {(candidateRankings[0]?.avg ?? 0) >= 75
                       ? copy.advance
                       : copy.review}
                   </p>
@@ -276,13 +296,13 @@ export default function ReportsClient({
                 ) : (
                   <div className="space-y-2">
                     {scoreBands.map((band) => {
-                      const count = results.filter((r) => {
-                        if (band.label === "90-100") return r.score >= 90;
-                        if (band.label === "75-89") return r.score >= 75 && r.score < 90;
-                        if (band.label === "60-74") return r.score >= 60 && r.score < 75;
-                        return r.score < 60;
+                      const count = candidateRankings.filter((r) => {
+                        if (band.label === "90-100") return r.avg >= 90;
+                        if (band.label === "75-89") return r.avg >= 75 && r.avg < 90;
+                        if (band.label === "60-74") return r.avg >= 60 && r.avg < 75;
+                        return r.avg < 60;
                       }).length;
-                      const pct = results.length ? Math.round((count / results.length) * 100) : 0;
+                      const pct = candidateRankings.length ? Math.round((count / candidateRankings.length) * 100) : 0;
                       return (
                         <div key={band.label} className="flex items-center gap-3">
                           <span className="w-14 text-xs text-[var(--it-faint)]">{band.label}</span>
@@ -298,75 +318,6 @@ export default function ReportsClient({
               </div>
             </div>
           </div>
-
-          {/* Per-Candidate Full Reports */}
-          {candidateGroups.length > 0 && (
-            <div className="enterprise-card rounded-xl overflow-hidden">
-              <div className="flex items-center justify-between border-b border-[var(--it-hairline)] px-6 py-4">
-                <div>
-                  <h2 className="text-base font-semibold text-[var(--it-text)]">{copy.comprehensive}</h2>
-                  <p className="mt-0.5 text-xs text-[var(--it-muted)]">{copy.comprehensiveSubtitle}</p>
-                </div>
-                <span className="rounded-full border border-[var(--it-primary)]/25 bg-[var(--it-primary-soft)] px-2.5 py-1 text-xs text-[var(--it-link)]">
-                  {copy.candidates(candidateGroups.length)}
-                </span>
-              </div>
-              <div className="divide-y divide-[var(--it-hairline)]">
-                {candidateGroups.map(([candidateKey, group]) => {
-                  const groupAvg = Math.round(group.results.reduce((s, r) => s + r.score, 0) / group.results.length);
-                  const avgTone = scoreTone(groupAvg).text;
-                  const initials = group.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
-                  return (
-                    <div key={candidateKey} className="px-6 py-4 transition-colors hover:bg-gray-900/[0.02]">
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-                        <div className="flex min-w-0 flex-1 items-center gap-4">
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-[var(--it-text)]">
-                            {initials}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            {group.id ? (
-                              <Link href={`/candidates/${group.id}`} className="block break-words text-sm font-medium text-[var(--it-text)] transition-colors hover:text-[var(--it-link)]">
-                                {group.name}
-                              </Link>
-                            ) : (
-                              <p className="break-words text-sm font-medium text-[var(--it-text)]">{group.name}</p>
-                            )}
-                            <p className="truncate text-xs text-[var(--it-muted)]">{group.email || copy.noEmail}</p>
-                            <div className="mt-1.5 flex flex-wrap gap-1.5">
-                              {group.results.map(r => (
-                                <span key={r.id} className="rounded bg-gray-900/[0.04] px-2 py-0.5 text-xs text-[var(--it-muted)]">
-                                  {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
-                                </span>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
-                          <div className="text-left sm:mr-4 sm:text-right">
-                            <p className={`text-2xl font-semibold ${avgTone}`}>{groupAvg}</p>
-                            <p className="text-xs text-[var(--it-faint)]">{copy.avgScore}</p>
-                          </div>
-                          {group.id ? (
-                            <Link
-                              href={`/candidates/${group.id}/report`}
-                              className="flex flex-shrink-0 cursor-pointer items-center gap-2 rounded-lg border border-[var(--it-primary)]/30 bg-[var(--it-primary-soft)] px-3 py-2 text-xs font-medium text-[var(--it-link)] transition-colors hover:bg-[var(--it-primary)]/25"
-                            >
-                              <FileText className="h-3.5 w-3.5" strokeWidth={1.8} aria-hidden="true" />
-                              {copy.fullReport}
-                            </Link>
-                          ) : (
-                            <span className="flex-shrink-0 rounded-lg border border-[var(--it-hairline)] px-3 py-2 text-xs font-medium text-[var(--it-muted)]">
-                              {copy.fullReport}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </>
       )}
     </div>
