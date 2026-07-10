@@ -3,28 +3,21 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   BarChart3,
-  ChevronsLeft,
-  ChevronsRight,
   ClipboardCheck,
   FolderKanban,
   Inbox,
   LayoutDashboard,
   Menu,
-  Settings,
   Users,
   X,
   type LucideIcon,
 } from "lucide-react";
-import { AccountMenu } from "@/components/dashboard/AccountMenu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { BrandLockup, BrandLogoMark } from "@/components/brand/BrandLogo";
+import { BrandLockup } from "@/components/brand/BrandLogo";
 import { localePath, stripLocalePrefix, toAppLocale } from "@/lib/i18n/locales";
 import { cn } from "@/lib/utils";
-
-const COLLAPSE_KEY = "it-sidebar-collapsed";
 
 type NavItem = { href: string; labelKey: string; icon: LucideIcon };
 
@@ -51,40 +44,19 @@ const navGroups: { kicker: { en: string; es: string } | null; items: NavItem[] }
     kicker: { en: "Insight", es: "Análisis" },
     items: [{ href: "/reports", labelKey: "reports", icon: BarChart3 }],
   },
-  {
-    kicker: null,
-    items: [{ href: "/settings", labelKey: "settings", icon: Settings }],
-  },
 ];
 
 interface SidebarProps {
   /** Candidates waiting for review — the Inbox workload badge. */
   reviewCount?: number;
-  userName?: string;
-  userEmail?: string;
 }
 
-export default function Sidebar({ reviewCount = 0, userName, userEmail }: SidebarProps) {
+export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const nav = useTranslations("nav");
   const locale = toAppLocale(useLocale());
   const es = locale === "es";
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-
-  // Read the persisted collapse state after mount to avoid an SSR/client markup
-  // mismatch (localStorage isn't available on the server).
-  useEffect(() => {
-    setCollapsed(window.localStorage.getItem(COLLAPSE_KEY) === "1");
-  }, []);
-
-  const toggleCollapsed = () => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      window.localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
-      return next;
-    });
-  };
 
   // Compare against the logical path so /es/projects highlights the same item
   // as /projects. Links themselves keep the /es prefix for Spanish workspaces.
@@ -94,121 +66,68 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
     return logicalPath.startsWith(href);
   };
 
-  const SidebarContent = ({ collapsible = false }: { collapsible?: boolean }) => {
-    const isCollapsed = collapsible && collapsed;
-    return (
-      <TooltipProvider delayDuration={200}>
-        <div className="flex flex-col h-full">
-          {/* Logo */}
-          <div className={cn("flex items-center gap-3 border-b enterprise-divider py-5", isCollapsed ? "justify-center px-3" : "px-6")}>
-            {isCollapsed ? (
-              <BrandLogoMark className="h-9 w-9 rounded-lg" />
-            ) : (
-              <BrandLockup
-                subtitle={es ? "Sistema de evaluación" : "Assessment OS"}
-                markClassName="h-9 w-9 rounded-lg"
-                titleClassName="text-[13px] leading-tight"
-                subtitleClassName="text-[11px] leading-tight text-[var(--it-faint)]"
-              />
-            )}
-          </div>
+  const SidebarContent = () => (
+    <div className="flex h-full flex-col">
+      {/* Logo */}
+      <div className="flex items-center gap-3 border-b enterprise-divider px-6 py-5">
+        <BrandLockup
+          subtitle={es ? "Sistema de evaluación" : "Assessment OS"}
+          markClassName="h-9 w-9 rounded-lg"
+          titleClassName="text-[13px] leading-tight"
+          subtitleClassName="text-[11px] leading-tight text-[var(--it-faint)]"
+        />
+      </div>
 
-          {/* Navigation — grouped areas of work */}
-          <nav className="flex-1 px-3 py-4">
-            {navGroups.map((group, gi) => (
-              <div
-                key={gi}
-                className={cn(
-                  gi > 0 && "mt-5",
-                  gi > 0 && isCollapsed && "mt-3 border-t enterprise-divider pt-3"
-                )}
-              >
-                {group.kicker && !isCollapsed && (
-                  <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.09em] text-[var(--it-faint)]">
-                    {es ? group.kicker.es : group.kicker.en}
-                  </p>
-                )}
-                <div className="space-y-1">
+      {/* Navigation — grouped areas of work */}
+      <nav className="flex-1 px-3 py-4">
+        {navGroups.map((group, gi) => (
+          <div key={gi} className={cn(gi > 0 && "mt-5")}>
+            {group.kicker && (
+              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.09em] text-[var(--it-faint)]">
+                {es ? group.kicker.es : group.kicker.en}
+              </p>
+            )}
+            <div className="space-y-1">
             {group.items.map((item) => {
               const active = isActive(item.href);
-              const link = (
+              return (
                 <Link
                   key={item.href}
                   href={localePath(item.href, locale)}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
                     "group flex items-center gap-3 rounded-md px-3 py-2 text-[13px] font-medium tracking-[0.005em] transition-colors duration-150",
-                    isCollapsed && "justify-center",
                     active
                       ? "bg-gray-900/[0.055] text-[var(--it-text)]"
-                      : "text-[var(--it-muted)] hover:bg-gray-900/[0.03] hover:text-slate-100"
+                      : "text-[var(--it-muted)] hover:bg-gray-900/[0.03] hover:text-[var(--it-text)]"
                   )}
                 >
                   <item.icon
-                    className={cn("h-[18px] w-[18px] flex-shrink-0 transition-colors", active ? "text-slate-100" : "text-[var(--it-faint)] group-hover:text-slate-300")}
+                    className={cn("h-[18px] w-[18px] flex-shrink-0 transition-colors", active ? "text-[var(--it-text)]" : "text-[var(--it-faint)] group-hover:text-[var(--it-muted)]")}
                     strokeWidth={1.8}
                   />
-                  {!isCollapsed && (
-                    <>
-                      <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
-                      {item.href === "/inbox" && reviewCount > 0 && (
-                        <span
-                          className={cn(
-                            "rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums",
-                            active
-                              ? "border-gray-900/10 bg-gray-900/[0.06] text-slate-100"
-                              : "border-[var(--it-border)] bg-[var(--it-bg)] text-[var(--it-muted)] group-hover:text-slate-200"
-                          )}
-                        >
-                          {reviewCount}
-                        </span>
+                  <span className="min-w-0 flex-1 truncate">{nav(item.labelKey)}</span>
+                  {item.href === "/inbox" && reviewCount > 0 && (
+                    <span
+                      className={cn(
+                        "rounded-full border px-2 py-0.5 text-[11px] font-semibold tabular-nums",
+                        active
+                          ? "border-gray-900/10 bg-gray-900/[0.06] text-[var(--it-text)]"
+                          : "border-[var(--it-border)] bg-[var(--it-bg)] text-[var(--it-muted)] group-hover:text-[var(--it-text)]"
                       )}
-                    </>
+                    >
+                      {reviewCount}
+                    </span>
                   )}
                 </Link>
               );
-
-              if (!isCollapsed) return link;
-
-              return (
-                <Tooltip key={item.href}>
-                  <TooltipTrigger asChild>{link}</TooltipTrigger>
-                  <TooltipContent side="right" sideOffset={12}>
-                    {nav(item.labelKey)}
-                    {item.href === "/inbox" && reviewCount > 0 ? ` (${reviewCount})` : ""}
-                  </TooltipContent>
-                </Tooltip>
-              );
             })}
-                </div>
-              </div>
-            ))}
-          </nav>
-
-          {/* Collapse toggle — desktop rail only */}
-          {collapsible && (
-            <button
-              type="button"
-              onClick={toggleCollapsed}
-              title={isCollapsed ? (es ? "Expandir" : "Expand") : es ? "Contraer" : "Collapse"}
-              className={cn(
-                "mx-3 mb-2 flex items-center gap-2 rounded-lg px-2.5 py-2 text-[12px] font-medium text-[var(--it-faint)] transition-colors hover:bg-gray-900/[0.02] hover:text-slate-300 cursor-pointer",
-                isCollapsed && "justify-center"
-              )}
-            >
-              {isCollapsed ? <ChevronsRight className="h-4 w-4 flex-shrink-0" strokeWidth={1.8} /> : <ChevronsLeft className="h-4 w-4 flex-shrink-0" strokeWidth={1.8} />}
-              {!isCollapsed && <span>{es ? "Contraer" : "Collapse"}</span>}
-            </button>
-          )}
-
-          {/* Footer — profile card, opens the shared account menu */}
-          <div className="border-t enterprise-divider px-3 py-3">
-            <AccountMenu variant="sidebar" collapsed={isCollapsed} userName={userName} userEmail={userEmail} />
+            </div>
           </div>
-        </div>
-      </TooltipProvider>
-    );
-  };
+        ))}
+      </nav>
+    </div>
+  );
 
   return (
     <>
@@ -235,12 +154,9 @@ export default function Sidebar({ reviewCount = 0, userName, userEmail }: Sideba
       </aside>
 
       <aside
-        className={cn(
-          "hidden lg:flex print:hidden flex-col flex-shrink-0 h-full bg-[var(--it-sidebar)] border-r enterprise-divider transition-[width] duration-200 ease-out motion-reduce:transition-none",
-          collapsed ? "w-[76px]" : "w-64"
-        )}
+        className="hidden lg:flex print:hidden h-full w-64 flex-shrink-0 flex-col border-r enterprise-divider bg-[var(--it-sidebar)]"
       >
-        <SidebarContent collapsible />
+        <SidebarContent />
       </aside>
     </>
   );

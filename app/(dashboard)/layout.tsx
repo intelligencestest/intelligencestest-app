@@ -1,5 +1,6 @@
 import Sidebar from "@/components/Sidebar";
 import { AccountMenu } from "@/components/dashboard/AccountMenu";
+import { AppBreadcrumbs } from "@/components/dashboard/AppBreadcrumbs";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
 import { getLocale } from "next-intl/server";
@@ -41,14 +42,17 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="enterprise-shell flex h-screen overflow-hidden">
-      <Sidebar reviewCount={reviewCount} userName={userName} userEmail={userEmail} />
+      <Sidebar reviewCount={reviewCount} />
       <main className="flex-1 overflow-y-auto">
-        <div className="min-h-full space-y-8 p-6 sm:p-8 lg:p-12 print:p-0">
-          <div className="sticky top-0 z-30 -mx-6 -mt-6 flex justify-end border-b border-[var(--it-hairline)] bg-[var(--it-bg)]/85 px-6 py-3 backdrop-blur-md sm:-mx-8 sm:-mt-8 sm:px-8 lg:-mx-12 lg:-mt-12 lg:px-12 print:hidden">
+        <div className="min-h-full print:p-0">
+          <div className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-4 border-b border-[var(--it-hairline)] bg-[var(--it-bg)]/92 px-6 py-2.5 backdrop-blur-md sm:px-8 lg:px-10 print:hidden">
+            <AppBreadcrumbs />
             <AccountMenu userEmail={userEmail} userName={userName} />
           </div>
-          {planSummary ? <TrialBanner summary={planSummary} locale={locale} /> : null}
-          {children}
+          <div className="space-y-6 px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
+            {planSummary ? <TrialBanner summary={planSummary} locale={locale} /> : null}
+            {children}
+          </div>
         </div>
       </main>
     </div>

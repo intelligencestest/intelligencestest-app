@@ -3,7 +3,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
-import { SettingsNav } from "@/components/settings/SettingsNav";
 
 type CompanyState = {
   name: string;
@@ -122,10 +121,7 @@ export default function CompanySettingsPage() {
         </div>
       )}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
-        <SettingsNav />
-
-        <div>
+      <div className="mt-8">
           <div className="border-t border-[var(--it-hairline)] pt-4">
             <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.title}</h2>
             <p className="mt-1 text-sm text-[var(--it-muted)]">{copy.description}</p>
@@ -201,7 +197,6 @@ export default function CompanySettingsPage() {
               {saving ? t("savingLanguage") : copy.saveChanges}
             </button>
           </div>
-        </div>
       </div>
     </div>
   );

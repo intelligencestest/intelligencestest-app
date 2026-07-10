@@ -5,7 +5,6 @@ import { Check, Minus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
-import { SettingsNav } from "@/components/settings/SettingsNav";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 
 const PAYPAL_MANAGE_URL = "https://www.paypal.com/myaccount/autopay/";
@@ -302,10 +301,7 @@ export default function BillingSettingsPage() {
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[216px_minmax(0,1fr)] lg:items-start">
-        <SettingsNav />
-
-        <section>
+      <section className="mt-8">
           {/* Account summary — one typographic block, no cards */}
           <div className="border-b border-[var(--it-hairline)] pb-8">
             <h2 className="text-2xl font-semibold text-[var(--it-text)]">{loading ? copy.loading : planName}</h2>
@@ -418,8 +414,7 @@ export default function BillingSettingsPage() {
               </a>
             </p>
           ) : null}
-        </section>
-      </div>
+      </section>
     </div>
   );
 }

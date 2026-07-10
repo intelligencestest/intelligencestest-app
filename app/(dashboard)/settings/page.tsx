@@ -3,7 +3,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
-import { SettingsNav } from "@/components/settings/SettingsNav";
 
 type ProfileState = {
   name: string;
@@ -143,10 +142,7 @@ export default function SettingsPage() {
         </div>
       )}
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[240px_minmax(0,1fr)] lg:items-start">
-        <SettingsNav />
-
-        <div>
+      <div className="mt-8">
           {/* Language — fixed at signup */}
           <div className="flex items-center justify-between gap-4 border-t border-[var(--it-hairline)] pt-4">
             <div className="min-w-0">
@@ -238,7 +234,6 @@ export default function SettingsPage() {
               {profileSaving ? t("savingLanguage") : copy.saveChanges}
             </button>
           </div>
-        </div>
       </div>
     </div>
   );
