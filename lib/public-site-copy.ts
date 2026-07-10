@@ -95,13 +95,13 @@ const signalBars = {
 const es: PublicCopyInternal = {
   nav: {
     primaryAria: "Navegación principal",
-    features: "Plataforma",
-    assessments: "Evaluaciones",
-    faq: "FAQ",
-    contact: "Contacto",
-    demo: "Comenzar",
-    login: "Ingresar",
-    signup: "Crear cuenta",
+    features: "Producto",
+    assessments: "Precios",
+    faq: "Seguridad",
+    contact: "Soporte",
+    demo: "Comenzar prueba gratuita",
+    login: "Iniciar sesión",
+    signup: "Prueba gratuita",
   },
   footer: {
     body: "Evaluaciones psicométricas y cognitivas para equipos de selección que necesitan comparar candidatos con criterios claros y trazables.",
@@ -245,13 +245,13 @@ const es: PublicCopyInternal = {
 const en: PublicCopyInternal = {
   nav: {
     primaryAria: "Primary navigation",
-    features: "Platform",
-    assessments: "Assessments",
-    faq: "FAQ",
-    contact: "Contact",
-    demo: "Get started",
+    features: "Product",
+    assessments: "Pricing",
+    faq: "Security",
+    contact: "Support",
+    demo: "Start free trial",
     login: "Log in",
-    signup: "Create account",
+    signup: "Free trial",
   },
   footer: {
     body: "Psychometric and cognitive assessments for hiring teams that need clear, comparable candidate signals.",

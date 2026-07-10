@@ -95,13 +95,21 @@ export async function proxy(request: NextRequest) {
     (p) => logicalPath === p || logicalPath.startsWith(p + "/")
   );
   const isAuthPage = AUTH_PAGES.some((p) => logicalPath === p);
+  const isHome = logicalPath === "/";
+  const cookieLocale = request.cookies.get(LANGUAGE_COOKIE)?.value;
+
+  if (isHome && user) {
+    const target = request.nextUrl.clone();
+    const dashboardPrefix = underEs || cookieLocale === "es" ? LOCALE_PREFIX : "";
+    target.pathname = `${dashboardPrefix}/dashboard`;
+    return withLocaleCookie(NextResponse.redirect(target), forcedLocale, request);
+  }
 
   // Canonicalize Spanish workspaces onto the /es prefix. The lang cookie is a
   // cache of company.language, so an authenticated Spanish user who lands on an
   // unprefixed in-app route (e.g. a deep link that omitted the prefix) is sent
   // to its /es form — keeping the whole app visibly under /es. English (the
   // default) is never redirected.
-  const cookieLocale = request.cookies.get(LANGUAGE_COOKIE)?.value;
   if (!underEs && isProtected && user && cookieLocale === "es") {
     const target = request.nextUrl.clone();
     target.pathname = `${LOCALE_PREFIX}${logicalPath}`;

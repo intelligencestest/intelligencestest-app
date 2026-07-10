@@ -26,9 +26,9 @@ export async function PublicHeader({ copy }: { copy: PublicCopy }) {
           <BrandMark />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-400 lg:flex" aria-label={copy.nav.primaryAria}>
-          <a href={`${home}#features`} className="transition hover:text-[var(--it-text)]">{copy.nav.features}</a>
-          <a href={`${home}#assessments`} className="transition hover:text-[var(--it-text)]">{copy.nav.assessments}</a>
-          <a href={`${home}#faq`} className="transition hover:text-[var(--it-text)]">{copy.nav.faq}</a>
+          <a href={`${home}#product`} className="transition hover:text-[var(--it-text)]">{copy.nav.features}</a>
+          <a href={`${home}#pricing`} className="transition hover:text-[var(--it-text)]">{copy.nav.assessments}</a>
+          <a href={`${home}#security`} className="transition hover:text-[var(--it-text)]">{copy.nav.faq}</a>
           <Link href={localePath("/contact", locale)} className="transition hover:text-[var(--it-text)]">{copy.nav.contact}</Link>
         </nav>
         <div className="flex items-center gap-2.5">
