@@ -234,8 +234,19 @@ export default async function Home() {
             </h2>
             <p className="mt-4 text-base leading-7 text-[var(--it-muted)]">{t.reportBody}</p>
           </div>
-          <div className="mx-auto mt-14 max-w-4xl">
-            <ReportFrame t={t} />
+          {/* Decorative report stack behind the main sample report. */}
+          <div className="relative mx-auto mt-20 max-w-4xl">
+            <div
+              aria-hidden="true"
+              className="absolute -top-6 inset-x-10 h-16 rounded-2xl border border-[var(--it-hairline)] bg-[#fdfdfc] shadow-[0_1px_2px_rgba(16,24,40,0.03)]"
+            />
+            <div
+              aria-hidden="true"
+              className="absolute -top-3 inset-x-5 h-16 rounded-2xl border border-[var(--it-hairline)] bg-[#fefefe] shadow-[0_1px_2px_rgba(16,24,40,0.04)]"
+            />
+            <div className="relative">
+              <ReportFrame t={t} />
+            </div>
           </div>
         </div>
       </section>
