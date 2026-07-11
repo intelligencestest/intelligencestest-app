@@ -8,12 +8,7 @@ import { toAppLocale } from "@/lib/i18n/locales";
 import { analyzeResult } from "@/lib/report-scoring";
 import { assessmentName as termName, categoryLabel as termCategory, dimensionLabel as termDimension } from "@/lib/i18n/assessment-terms";
 import { buildAssessmentIntelligence, toExecutiveBrief } from "@/lib/assessment-intelligence";
-import type {
-  AssessmentIntelligenceReport,
-  ConfidenceLevel,
-  IntelligenceRecommendation,
-  RiskSeverity,
-} from "@/lib/assessment-intelligence";
+import type { ConfidenceLevel, RiskSeverity } from "@/lib/assessment-intelligence";
 import type { EvidenceDirection } from "@/lib/assessment-intelligence/types";
 import { ConfidenceGauge } from "@/components/dashboard/ConfidenceGauge";
 import ExportPdfButton from "../ExportPdfButton";
@@ -57,12 +52,11 @@ const BAND_STYLE: Record<Band, { label: Record<ReportLang, string>; text: string
   },
 };
 
-const RECOMMENDATION_STYLE: Record<IntelligenceRecommendation["level"], { dot: string; text: string; bg: string; border: string }> = {
-  strong: { dot: "bg-[var(--it-success)]", text: "text-[#166534]", bg: "bg-[rgba(22,163,74,0.1)]", border: "border-[var(--it-success)]/25" },
-  proceed: { dot: "bg-[var(--it-success)]", text: "text-[#166534]", bg: "bg-[rgba(22,163,74,0.1)]", border: "border-[var(--it-success)]/25" },
+/** The memo's decision verdict (ExecutiveBrief.recommendation.level). */
+const DECISION_STYLE: Record<string, { dot: string; text: string; bg: string; border: string }> = {
+  interview: { dot: "bg-[var(--it-success)]", text: "text-[#166534]", bg: "bg-[rgba(22,163,74,0.1)]", border: "border-[var(--it-success)]/25" },
   review: { dot: "bg-[var(--it-warning)]", text: "text-[#92400e]", bg: "bg-[rgba(217,119,6,0.1)]", border: "border-[var(--it-warning)]/25" },
-  caution: { dot: "bg-[var(--it-danger)]", text: "text-[#991b1b]", bg: "bg-[rgba(220,38,38,0.1)]", border: "border-[var(--it-danger)]/25" },
-  notRecommended: { dot: "bg-[var(--it-danger)]", text: "text-[#991b1b]", bg: "bg-[rgba(220,38,38,0.1)]", border: "border-[var(--it-danger)]/25" },
+  do_not_proceed: { dot: "bg-[var(--it-danger)]", text: "text-[#991b1b]", bg: "bg-[rgba(220,38,38,0.1)]", border: "border-[var(--it-danger)]/25" },
 };
 
 const CONFIDENCE_STYLE: Record<ConfidenceLevel, { label: Record<ReportLang, string>; tone: "high" | "moderate" | "low" }> = {
@@ -95,6 +89,23 @@ const COPY = {
       caution: "Cautela",
       notRecommended: "No recomendado",
     } as Record<string, string>,
+    decisionLevel: {
+      interview: "Entrevistar",
+      review: "Revisión humana",
+      do_not_proceed: "No avanzar",
+    } as Record<string, string>,
+    engineSignal: "Señal del motor",
+    humanNote:
+      "Esta recomendación es una ayuda a la decisión basada en evidencia de evaluaciones completadas. La decisión final es siempre del equipo de selección.",
+    whyTitle: "Por qué esta recomendación",
+    whySubtitle: "Fortalezas respaldadas por evidencia de evaluación, no por impresiones.",
+    riskVerify: "Cómo verificarlo",
+    risksSubtitle: "Cada riesgo incluye la evidencia que lo origina y cómo validarlo en entrevista.",
+    verifyNextTitle: "Qué validar a continuación",
+    verifyNextSubtitle: "La lista corta antes de la entrevista.",
+    auditTitle: "Metodología y auditabilidad",
+    auditTrace: (signals: number, assessments: number) =>
+      `${signals} señal${signals === 1 ? "" : "es"} de evidencia trazable${signals === 1 ? "" : "s"} · ${assessments} evaluaci${assessments === 1 ? "ón completada" : "ones completadas"}`,
     title: "Revisión ejecutiva del candidato",
     subtitle: "Diseñado para revisar evidencia, validar riesgos y tomar una decisión dentro de la plataforma.",
     reviewCandidate: "Revisar candidato",
@@ -156,6 +167,23 @@ const COPY = {
       caution: "Caution",
       notRecommended: "Not recommended",
     } as Record<string, string>,
+    decisionLevel: {
+      interview: "Interview",
+      review: "Human review",
+      do_not_proceed: "Do not proceed",
+    } as Record<string, string>,
+    engineSignal: "Engine signal",
+    humanNote:
+      "This recommendation is decision support built from completed-assessment evidence. The final decision always belongs to the hiring team.",
+    whyTitle: "Why this recommendation",
+    whySubtitle: "Strengths backed by assessment evidence, not impressions.",
+    riskVerify: "How to verify",
+    risksSubtitle: "Each risk includes the evidence behind it and how to validate it in the interview.",
+    verifyNextTitle: "What to validate next",
+    verifyNextSubtitle: "The short list before the interview.",
+    auditTitle: "Methodology and auditability",
+    auditTrace: (signals: number, assessments: number) =>
+      `${signals} traceable evidence signal${signals === 1 ? "" : "s"} · ${assessments} completed assessment${assessments === 1 ? "" : "s"}`,
     title: "Candidate executive review",
     subtitle: "Built to review evidence, validate risks, and make a decision inside the platform.",
     reviewCandidate: "Review candidate",
@@ -271,22 +299,6 @@ function MarkerList({ items, tone = "text-slate-200" }: { items: string[]; tone?
   );
 }
 
-function directionBorder(direction: EvidenceDirection) {
-  if (direction === "positive") return "border-[var(--it-success)]/25";
-  if (direction === "risk") return "border-[var(--it-danger)]/25";
-  if (direction === "mixed") return "border-[var(--it-warning)]/25";
-  return "border-[var(--it-hairline)]";
-}
-
-function topEvidence(report: AssessmentIntelligenceReport) {
-  return [...report.evidenceSignals]
-    .sort((a, b) => {
-      const rank = { risk: 4, mixed: 3, positive: 2, neutral: 1 } satisfies Record<EvidenceDirection, number>;
-      return rank[b.direction] - rank[a.direction] || b.normalizedScore - a.normalizedScore;
-    })
-    .slice(0, 7);
-}
-
 export default async function ExecutiveReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const locale: ReportLang = toAppLocale(await getLocale());
@@ -349,7 +361,6 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   const projectName = candidate.hiring_projects?.name ?? "—";
   const companyName = company?.name ?? "—";
   const reportDate = new Date().toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
-  const invitedDate = new Date(candidate.created_at).toLocaleDateString(dateLocale, { day: "numeric", month: "long", year: "numeric" });
 
   const completedAssessmentIds = new Set(myResults.map((r) => r.assessment_id));
   const pending = (projectAssessments ?? []).filter((pa) => !completedAssessmentIds.has(pa.assessment_id));
@@ -380,14 +391,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   });
   const executiveBrief = toExecutiveBrief(intelligence);
 
-  const recommendationStyle = RECOMMENDATION_STYLE[executiveBrief.recommendation.sourceLevel];
+  const decisionStyle = DECISION_STYLE[executiveBrief.recommendation.level] ?? DECISION_STYLE.review;
   const confidenceStyle = CONFIDENCE_STYLE[executiveBrief.confidence.sourceLevel];
-  const competencies = [...intelligence.competencyEvidence].sort((a, b) => b.score - a.score).slice(0, 6);
-  const evidenceSignals = topEvidence(intelligence);
-  const positiveSignals = intelligence.evidenceSignals.filter((signal) => signal.direction === "positive");
-  const riskSignals = intelligence.evidenceSignals.filter((signal) => signal.direction === "risk");
-  const mixedSignals = intelligence.evidenceSignals.filter((signal) => signal.direction === "mixed");
-  const hasContradiction = mixedSignals.length > 0 || (positiveSignals.length > 0 && riskSignals.length > 0);
   const sourceAssessments = Array.from(
     new Set(intelligence.evidenceSignals.map((signal) => termName(signal.assessmentName, locale)))
   );
@@ -435,16 +440,21 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--it-faint)]">{L.eyebrow as string}</p>
-                <Pill className={`${recommendationStyle.bg} ${recommendationStyle.text} ${recommendationStyle.border}`}>
-                  <span className={`mr-2 h-1.5 w-1.5 rounded-full ${recommendationStyle.dot}`} aria-hidden="true" />
-                  {(L.recLevel as Record<string, string>)[executiveBrief.recommendation.sourceLevel] ?? executiveBrief.recommendation.title}
+                <Pill className={`${decisionStyle.bg} ${decisionStyle.text} ${decisionStyle.border}`}>
+                  <span className={`mr-2 h-1.5 w-1.5 rounded-full ${decisionStyle.dot}`} aria-hidden="true" />
+                  {(L.decisionLevel as Record<string, string>)[executiveBrief.recommendation.level] ?? executiveBrief.recommendation.title}
                 </Pill>
+                {/* Auditability: the engine's raw signal stays visible next to the decision. */}
+                <span className="text-xs text-[var(--it-faint)]">
+                  {L.engineSignal as string}: {(L.recLevel as Record<string, string>)[executiveBrief.recommendation.sourceLevel]}
+                </span>
               </div>
               {/* Editorial register — the verdict is the document's voice (design-language.md §2) */}
               <h1 className="font-editorial mt-5 max-w-4xl text-4xl font-medium leading-[1.12] text-[var(--it-text)] sm:text-5xl">
                 {executiveBrief.recommendation.title}
               </h1>
               <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{executiveBrief.recommendation.rationale}</p>
+              <p className="mt-4 max-w-3xl text-[13px] leading-6 text-[var(--it-muted)]">{L.humanNote as string}</p>
 
               <div className="mt-8 flex min-w-0 items-center gap-4">
                 <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-[var(--it-text)]">
@@ -505,139 +515,100 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
         </section>
 
         <div className="mt-2">
+          {/* 1 · Why this recommendation — strengths backed by evidence. */}
           <SectionShell
-            title={L.executiveSummary as string}
-            aside={
-              <p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">
-                {(L.invitedOn as (date: string) => string)(invitedDate)}
-              </p>
-            }
+            title={L.whyTitle as string}
+            aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.whySubtitle as string}</p>}
           >
-            <div className="grid gap-5 lg:grid-cols-[1fr_1fr]">
-              <div className="rounded-xl bg-gray-900/[0.03] p-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">{L.keyMessage as string}</p>
-                <p className="font-editorial mt-3 text-2xl font-medium leading-snug text-[var(--it-text)]">{intelligence.executiveSummary.headline}</p>
-                <p className="mt-4 text-sm leading-7 text-slate-300">{intelligence.executiveSummary.summary}</p>
-              </div>
-              <MarkerList items={executiveBrief.evidence.map((item) => item.signal).slice(0, 4)} />
-            </div>
+            {executiveBrief.strengths.length ? (
+              <MarkerList items={executiveBrief.strengths} />
+            ) : (
+              <EmptyLine>{L.noStrengths as string}</EmptyLine>
+            )}
           </SectionShell>
 
+          {/* 2 · Risks to verify — evidence, impact, and how to check each one. */}
+          <SectionShell
+            title={L.risks as string}
+            aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.risksSubtitle as string}</p>}
+          >
+            {executiveBrief.risks.length ? (
+              <div className="space-y-4">
+                {executiveBrief.risks.map((risk) => (
+                  <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.03)] p-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-[var(--it-text)]">{risk.title}</p>
+                      <Pill className="border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.08)] text-[#991b1b]">
+                        {SEVERITY_LABEL[risk.severity][locale]}
+                      </Pill>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">{risk.evidence}</p>
+                    <p className="mt-2 text-[13px] leading-6 text-[var(--it-muted)]">{risk.businessImpact}</p>
+                    <p className="mt-4 border-t border-[var(--it-hairline)] pt-3 text-sm leading-6 text-[var(--it-text)]">
+                      <span className="font-semibold">{L.riskVerify as string}: </span>
+                      {risk.verify}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <EmptyLine>{L.noRisks as string}</EmptyLine>
+            )}
+          </SectionShell>
+
+          {/* 3 · Evidence — one document-style table, strongest signals first. */}
           <SectionShell
             title={L.evidenceTitle as string}
             aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.evidenceSubtitle as string}</p>}
           >
-            <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
-              <div>
-                <h3 className="mb-4 text-sm font-semibold text-[var(--it-text)]">{L.competencies as string}</h3>
-                <div className="space-y-3">
-                  {competencies.map((competency) => {
-                    const tone = band(competency.score);
-                    return (
-                      <article key={competency.competencyId} className="rounded-xl border border-[var(--it-hairline)] p-4">
-                        <div className="mb-3 flex items-start justify-between gap-4">
-                          <div>
-                            <p className="text-sm font-semibold text-[var(--it-text)]">{competency.label}</p>
-                            <p className="mt-0.5 text-xs text-[var(--it-faint)]">{competency.category}</p>
-                          </div>
-                          <span className={`text-lg font-semibold ${BAND_STYLE[tone].text}`}>{competency.score}</span>
-                        </div>
-                        <ScoreLine score={competency.score} tone={tone} />
-                        <p className="mt-3 text-sm leading-6 text-slate-300">{competency.summary}</p>
-                      </article>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <h3 className="mb-4 text-sm font-semibold text-[var(--it-text)]">{L.supportingEvidence as string}</h3>
-                  <div className="space-y-3">
-                    {evidenceSignals.map((signal) => (
-                      <article key={signal.id} className={`rounded-xl border p-4 ${directionBorder(signal.direction)}`}>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Pill className="border-[var(--it-hairline)] bg-gray-900/[0.03] text-slate-300">{DIRECTION_LABEL[signal.direction][locale]}</Pill>
-                          <span className="text-xs text-[var(--it-faint)]">{termName(signal.assessmentName, locale)}</span>
-                        </div>
-                        <p className="mt-3 text-sm font-medium leading-6 text-[var(--it-text)]">{signal.statement}</p>
-                        <p className="mt-2 text-sm leading-6 text-slate-300">{signal.businessImpact}</p>
-                      </article>
-                    ))}
+            <div className="divide-y divide-[var(--it-hairline)]">
+              {executiveBrief.evidence.map((item) => (
+                <div key={item.id} className="grid gap-3 py-5 first:pt-0 last:pb-0 lg:grid-cols-[minmax(0,1fr)_72px] lg:items-start">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Pill className="border-[var(--it-hairline)] bg-gray-900/[0.03] text-slate-300">
+                        {DIRECTION_LABEL[item.direction][locale]}
+                      </Pill>
+                      <span className="text-xs text-[var(--it-faint)]">{termName(item.assessment, locale)}</span>
+                    </div>
+                    <p className="mt-2.5 text-sm font-medium leading-6 text-[var(--it-text)]">{item.signal}</p>
+                    <p className="mt-1.5 text-sm leading-6 text-slate-300">{item.businessImpact}</p>
                   </div>
+                  {typeof item.score === "number" ? (
+                    <p className={`text-right text-2xl font-semibold tabular-nums tracking-tight ${BAND_STYLE[band(item.score)].text}`}>
+                      {item.score}
+                    </p>
+                  ) : (
+                    <p className="text-right text-2xl font-semibold text-[var(--it-faint)]">—</p>
+                  )}
                 </div>
-
-                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-                  <div>
-                    <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.risks as string}</h3>
-                    {executiveBrief.risks.length ? (
-                      <div className="space-y-3">
-                        {executiveBrief.risks.map((risk) => (
-                          <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.04)] p-4">
-                            <div className="flex items-center justify-between gap-3">
-                              <p className="text-sm font-semibold text-[var(--it-text)]">{risk.title}</p>
-                              <Pill className="border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.1)] text-[#991b1b]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
-                            </div>
-                            <p className="mt-2 text-sm leading-6 text-slate-300">{risk.evidence}</p>
-                            <p className="mt-2 text-xs leading-5 text-[var(--it-muted)]">{risk.businessImpact}</p>
-                          </article>
-                        ))}
-                      </div>
-                    ) : (
-                      <EmptyLine>{L.noRisks as string}</EmptyLine>
-                    )}
-                  </div>
-
-                  <div>
-                    <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.contradictions as string}</h3>
-                    {hasContradiction ? (
-                      <div className="rounded-xl border border-[var(--it-warning)]/20 bg-[rgba(217,119,6,0.05)] p-4">
-                        <p className="text-sm leading-6 text-[#92400e]">
-                          {mixedSignals[0]?.statement ?? (L.mixedSignal as string)}
-                        </p>
-                        {mixedSignals[0]?.businessImpact && <p className="mt-2 text-xs leading-5 text-slate-300">{mixedSignals[0].businessImpact}</p>}
-                      </div>
-                    ) : (
-                      <EmptyLine>{L.noContradictions as string}</EmptyLine>
-                    )}
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </SectionShell>
 
-          <SectionShell title={L.businessTitle as string}>
-            <div className="grid gap-5 lg:grid-cols-3">
-              <div>
-                <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.strengths as string}</h3>
-                {executiveBrief.strengths.length ? (
-                  <MarkerList items={executiveBrief.strengths} />
-                ) : (
-                  <EmptyLine>{L.noStrengths as string}</EmptyLine>
-                )}
-              </div>
-              <div>
-                <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.development as string}</h3>
-                {intelligence.developmentAreas.length ? (
-                  <MarkerList items={intelligence.developmentAreas} />
-                ) : (
-                  <EmptyLine>{L.noDevelopment as string}</EmptyLine>
-                )}
-              </div>
-              <div>
-                <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.limitations as string}</h3>
-                <MarkerList
-                  tone="text-slate-300"
-                  items={Array.from(new Set([L.roleFitLimit as string, ...executiveBrief.limitations]))}
-                />
-              </div>
-            </div>
-          </SectionShell>
-
+          {/* 4 · What to validate next — the short list, then the full interview kit. */}
           <SectionShell
             title={L.interviewTitle as string}
             aside={<p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">{L.interviewSubtitle as string}</p>}
           >
+            {executiveBrief.verifyNext.length > 0 && (
+              <div className="mb-8">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--it-faint)]">
+                  {L.verifyNextTitle as string}
+                </p>
+                <p className="mt-1 text-[13px] text-[var(--it-muted)]">{L.verifyNextSubtitle as string}</p>
+                <ol className="mt-4 space-y-2.5">
+                  {executiveBrief.verifyNext.map((item, index) => (
+                    <li key={item} className="flex gap-3 text-sm leading-6 text-slate-300">
+                      <span className="w-6 flex-shrink-0 font-semibold tabular-nums text-[var(--it-faint)]">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      {item}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
             <div className="space-y-4">
               {intelligence.interviewQuestions.map((question, index) => (
                 <article key={`${question.competency}-${index}`} className="rounded-xl border border-[var(--it-hairline)] p-5">
@@ -719,15 +690,33 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             </div>
           </SectionShell>
 
-          <SectionShell title={L.methodologyTitle as string}>
+          {/* 5 · Methodology and auditability — how this memo was built, and its limits. */}
+          <SectionShell
+            title={L.auditTitle as string}
+            aside={
+              <p className="mt-4 text-sm leading-6 text-[var(--it-muted)]">
+                {(L.auditTrace as (signals: number, assessments: number) => string)(
+                  executiveBrief.source.evidenceSignalIds.length,
+                  executiveBrief.source.completedAssessmentCount
+                )}
+              </p>
+            }
+          >
             <div className="grid gap-8 lg:grid-cols-3">
               <div>
                 <p className="text-sm font-semibold text-[var(--it-text)]">{L.confidenceExplanation as string}</p>
                 <ul className="mt-4 space-y-3">
-                  {[...intelligence.confidence.factors, ...intelligence.confidence.limitations].map((factor) => (
+                  {[...executiveBrief.confidence.factors, ...executiveBrief.confidence.limitations].map((factor) => (
                     <li key={factor} className="text-sm leading-6 text-slate-300">{factor}</li>
                   ))}
                 </ul>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[var(--it-text)]">{L.limitations as string}</p>
+                <MarkerList
+                  tone="text-slate-300"
+                  items={Array.from(new Set([L.roleFitLimit as string, ...executiveBrief.limitations]))}
+                />
               </div>
               <div>
                 <p className="text-sm font-semibold text-[var(--it-text)]">{L.evidenceSources as string}</p>
@@ -736,10 +725,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                     <Pill key={source} className="border-[var(--it-hairline)] bg-gray-900/[0.03] text-slate-300">{source}</Pill>
                   ))}
                 </div>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-[var(--it-text)]">{L.engineVersion as string}</p>
-                <p className="mt-4 break-all font-mono text-xs text-[var(--it-muted)]">{intelligence.engineVersion}</p>
+                <p className="mt-5 text-sm font-semibold text-[var(--it-text)]">{L.engineVersion as string}</p>
+                <p className="mt-2 break-all font-mono text-xs text-[var(--it-muted)]">{executiveBrief.source.engineVersion}</p>
               </div>
             </div>
           </SectionShell>
