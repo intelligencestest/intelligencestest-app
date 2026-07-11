@@ -8,8 +8,8 @@ const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Intelligences Test – Human Assessment Platform",
-  description: "AI-powered human assessment platform for smarter hiring decisions.",
+  title: "IntelligencesTest | Hiring Decision OS",
+  description: "Evidence-based hiring decision support for recruiters and hiring managers.",
   icons: {
     icon: "/brand/intelligences-test-logo.png",
     apple: "/brand/intelligences-test-logo.png",
