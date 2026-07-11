@@ -1,11 +1,12 @@
 import { createAdminClient } from "@/lib/supabase-server";
+import { scoreAssessmentSubmission } from "@/lib/assessment-scoring";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { token, assessment_name, score, raw_answers } = body;
+  const { token, assessment_name, raw_answers } = body;
 
-  if (!token || !assessment_name || score === undefined) {
+  if (!token || !assessment_name || raw_answers === undefined) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
@@ -62,14 +63,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Assessment already submitted" }, { status: 409 });
   }
 
+  const calculated = scoreAssessmentSubmission(assessment_name, raw_answers);
+  if ("error" in calculated) {
+    return NextResponse.json({ error: calculated.error }, { status: 400 });
+  }
+
   // Save the result
   const { error: resultError } = await supabase.from("results").insert({
     company_id: candidate.company_id,
     candidate_id: candidate.id,
     assessment_id: assessment.id,
     project_id: candidate.project_id,
-    score,
-    raw_answers,
+    score: calculated.score,
+    raw_answers: calculated.answers,
     completed_at: new Date().toISOString(),
   });
 
@@ -101,6 +107,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({
     success: true,
+    score: calculated.score,
     all_assessments_completed: allAssignedAssessmentsComplete,
     remaining_assessment_count: hasAssignmentList
       ? Math.max(assignedAssessmentIds.size - completedAssessmentIds.size, 0)

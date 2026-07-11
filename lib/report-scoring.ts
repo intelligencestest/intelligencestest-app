@@ -3,58 +3,15 @@
 // If a scorer is missing or throws, the report degrades to score-only —
 // it never shows an interpretation produced by the wrong instrument.
 
-import { scoreResults } from "@/lib/questions/critical-thinking";
-import { scoreAQ } from "@/lib/questions/aq";
-import { scoreEI } from "@/lib/questions/emotional-intelligence";
-import { scoreLeadership } from "@/lib/questions/leadership-styles";
-import { scoreNumerical } from "@/lib/questions/numerical-intelligence";
-import { scorePersonality } from "@/lib/questions/personality-type";
-import { scoreSJT } from "@/lib/questions/situational-judgment";
-import { scoreAD } from "@/lib/questions/attention-detail";
-import { scoreVR } from "@/lib/questions/verbal-reasoning";
-import { scoreAR } from "@/lib/questions/abstract-reasoning";
-import { scoreMR } from "@/lib/questions/mechanical-reasoning";
-import { scoreCS } from "@/lib/questions/communication-skills";
-import { scorePS } from "@/lib/questions/problem-solving";
-import { scoreWS } from "@/lib/questions/work-style";
-import { scoreSA } from "@/lib/questions/sales-aptitude";
-import { scoreCServ } from "@/lib/questions/customer-service-skills";
-import { scoreTW } from "@/lib/questions/teamwork-collaboration";
-import { scoreTM } from "@/lib/questions/time-management";
-import { scoreST } from "@/lib/questions/stress-tolerance";
-import { scoreIE } from "@/lib/questions/integrity-ethics";
-import { scoreDM } from "@/lib/questions/decision-making";
-import { scoreLA } from "@/lib/questions/learning-agility";
+import {
+  AQ_ASSESSMENT_NAME,
+  ASSESSMENT_SCORERS,
+  extractAnswerArray,
+  type AssessmentScorer,
+} from "@/lib/assessment-scoring";
 
-type Answers = (number | null)[];
-type Scorer = (answers: Answers) => unknown;
-
-const AQ_NAME = "Adversity Quotient (AQ) Test";
-
-const SCORERS: Record<string, Scorer> = {
-  "Critical Thinking Test": scoreResults,
-  [AQ_NAME]: scoreAQ,
-  "Emotional Intelligence Test": scoreEI,
-  "Leadership Styles Test": scoreLeadership,
-  "Numerical Intelligence Test": scoreNumerical,
-  "Personality Type Test": scorePersonality,
-  "Situational Judgment Test": scoreSJT,
-  "Attention to Detail Test": scoreAD,
-  "Verbal Reasoning Test": scoreVR,
-  "Abstract Reasoning Test": scoreAR,
-  "Mechanical Reasoning Test": scoreMR,
-  "Communication Skills Test": scoreCS,
-  "Problem Solving Test": scorePS,
-  "Work Style Assessment": scoreWS,
-  "Sales Aptitude Test": scoreSA,
-  "Customer Service Skills Test": scoreCServ,
-  "Teamwork & Collaboration Test": scoreTW,
-  "Time Management Test": scoreTM,
-  "Stress Tolerance Test": scoreST,
-  "Integrity & Ethics Test": scoreIE,
-  "Decision Making Test": scoreDM,
-  "Learning Agility Test": scoreLA,
-};
+const SCORERS: Record<string, AssessmentScorer> = ASSESSMENT_SCORERS;
+const AQ_NAME = AQ_ASSESSMENT_NAME;
 
 export interface DimensionScore {
   label: string;
@@ -77,11 +34,12 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 export function analyzeResult(assessmentName: string, rawAnswers: unknown): EvidenceDetail | null {
   const scorer = SCORERS[assessmentName];
-  if (!scorer || !Array.isArray(rawAnswers)) return null;
+  const answers = extractAnswerArray(rawAnswers);
+  if (!scorer || !answers) return null;
 
   let out: unknown;
   try {
-    out = scorer(rawAnswers as Answers);
+    out = scorer(answers);
   } catch {
     return null;
   }
