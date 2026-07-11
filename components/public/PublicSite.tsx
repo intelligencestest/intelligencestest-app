@@ -16,10 +16,10 @@ import { BrandLockup } from "@/components/brand/BrandLogo";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import type { PublicCopy } from "@/lib/public-site-copy";
 
-function BrandMark() {
+function BrandMark({ subtitle = "Assessment Platform" }: { subtitle?: string } = {}) {
   return (
     <BrandLockup
-      subtitle="Assessment Platform"
+      subtitle={subtitle}
       markClassName="h-10 w-10 rounded-lg"
       titleClassName="leading-5"
       subtitleClassName="leading-4"
@@ -35,7 +35,7 @@ export async function PublicHeader({ copy }: { copy: PublicCopy }) {
     <header className="sticky top-0 z-40 border-b border-[#f3f4f6] bg-[#f8fafc]/92 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
         <Link href={home} aria-label="Intelligences Test home">
-          <BrandMark />
+          <BrandMark subtitle={locale === "es" ? "Plataforma de Evaluación" : "Assessment Platform"} />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-400 lg:flex" aria-label={copy.nav.primaryAria}>
           <a href={`${home}#product`} className="transition hover:text-[var(--it-text)]">{copy.nav.features}</a>
@@ -94,7 +94,7 @@ export async function PublicFooter({ copy }: { copy: PublicCopy }) {
       <div className="mx-auto max-w-7xl px-5 pt-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <BrandMark />
+            <BrandMark subtitle={locale === "es" ? "Plataforma de Evaluación" : "Assessment Platform"} />
             <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--it-muted)]">{copy.footer.body}</p>
           </div>
 

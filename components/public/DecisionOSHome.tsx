@@ -74,6 +74,46 @@ const copy = {
     finalTitle: "Make every hiring decision easier to defend.",
     finalBody: "Give your team a shared, evidence-based path from application to interview decision.",
     footer: "Evidence-based hiring decision support for modern HR teams.",
+    ui: {
+      workspace: "Workspace",
+      commandCenter: "Command center",
+      attentionInbox: "Attention inbox",
+      projects: "Projects",
+      candidates: "Candidates",
+      reports: "Reports",
+      activeRole: "Active role",
+      roleName: "Operations Lead",
+      roleCandidates: "12 candidates",
+      liveEvidence: "Live evidence",
+      interviewFirstList: "Candidates to interview first",
+      rankedBy: "Ranked by role evidence",
+      decisionBrief: "Decision brief",
+      recommendation: "Recommendation",
+      interviewFirst: "Interview first",
+      confidence: "Confidence",
+      confidenceValue: "High · 92%",
+      signalJudgment: "Decision judgment",
+      signalAlignment: "Role alignment",
+      signalLeadership: "People leadership",
+      signalStrong: "Strong",
+      signalVerify: "Verify",
+      riskToVerify: "Risk to verify",
+      riskText: "Limited evidence for delegation in a multi-team environment.",
+      openCount: "6 open",
+      briefWho: "Operations Lead · Northstar Logistics",
+      briefRationale: "Consistent evidence of analytical judgment, operational ownership, and calm decision-making under pressure.",
+      evidenceBody: "4 aligned assessment signals",
+      strengthsBody: "Prioritization · judgment · communication",
+      risksBody: "Delegation evidence is incomplete",
+      focusBody: "Cross-functional conflict and coaching",
+      verifySentence: "Ask for a recent example of delegating a critical operational decision.",
+      openFullEvidence: "Open full evidence",
+      kitTitle: "Operations Lead · Structured interview kit",
+      kitSubtitle: "Generated from role criteria and candidate evidence",
+      scorecard: "Scorecard guidance · 1–5 behavioral anchors",
+      coverage: "Role evidence coverage",
+      assessments: ["Decision Making", "Critical Thinking", "Communication Skills", "Integrity & Ethics"],
+    },
   },
   es: {
     nav: { product: "Producto", workflow: "Flujo", trust: "Confianza", login: "Iniciar sesión", demo: "Solicitar demo" },
@@ -112,6 +152,46 @@ const copy = {
     finalTitle: "Haga que cada decisión de contratación sea más fácil de defender.",
     finalBody: "Dé a su equipo un camino compartido y basado en evidencia desde la candidatura hasta la entrevista.",
     footer: "Apoyo a decisiones de contratación basado en evidencia para equipos de RR. HH.",
+    ui: {
+      workspace: "Espacio de trabajo",
+      commandCenter: "Centro de mando",
+      attentionInbox: "Bandeja de atención",
+      projects: "Proyectos",
+      candidates: "Candidatos",
+      reports: "Informes",
+      activeRole: "Rol activo",
+      roleName: "Líder de operaciones",
+      roleCandidates: "12 candidatos",
+      liveEvidence: "Evidencia activa",
+      interviewFirstList: "Candidatos para entrevistar primero",
+      rankedBy: "Ordenados por evidencia del rol",
+      decisionBrief: "Resumen de decisión",
+      recommendation: "Recomendación",
+      interviewFirst: "Entrevistar primero",
+      confidence: "Confianza",
+      confidenceValue: "Alta · 92%",
+      signalJudgment: "Juicio de decisión",
+      signalAlignment: "Encaje con el rol",
+      signalLeadership: "Liderazgo de personas",
+      signalStrong: "Sólido",
+      signalVerify: "Verificar",
+      riskToVerify: "Riesgo por verificar",
+      riskText: "Evidencia limitada sobre delegación en un entorno multiequipo.",
+      openCount: "6 abiertos",
+      briefWho: "Líder de operaciones · Northstar Logistics",
+      briefRationale: "Evidencia consistente de juicio analítico, responsabilidad operativa y toma de decisiones serena bajo presión.",
+      evidenceBody: "4 señales de evaluación alineadas",
+      strengthsBody: "Priorización · criterio · comunicación",
+      risksBody: "La evidencia de delegación es incompleta",
+      focusBody: "Conflicto interfuncional y coaching",
+      verifySentence: "Pida un ejemplo reciente de delegación de una decisión operativa crítica.",
+      openFullEvidence: "Ver evidencia completa",
+      kitTitle: "Líder de operaciones · Kit de entrevista estructurada",
+      kitSubtitle: "Generado a partir de los criterios del rol y la evidencia del candidato",
+      scorecard: "Guía de puntuación · anclas conductuales 1–5",
+      coverage: "Cobertura de evidencia del rol",
+      assessments: ["Toma de Decisiones", "Pensamiento Crítico", "Habilidades de Comunicación", "Integridad y Ética"],
+    },
   },
 } as const;
 
@@ -180,18 +260,18 @@ function CommandCenter({ locale }: { locale: Locale }) {
         </div>
         <div className="grid min-h-[510px] lg:grid-cols-[190px_1fr_270px]">
           <aside className="hidden border-r border-slate-200 bg-slate-50/70 p-5 lg:block" aria-label="Product preview navigation">
-            <p className="text-xs font-semibold text-slate-900">Workspace</p>
+            <p className="text-xs font-semibold text-slate-900">{t.ui.workspace}</p>
             <div className="mt-5 space-y-1 text-xs text-slate-500">
-              <p className="rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900">Command center</p>
-              <p className="px-3 py-2">Attention inbox</p>
-              <p className="px-3 py-2">Projects</p>
-              <p className="px-3 py-2">Candidates</p>
-              <p className="px-3 py-2">Reports</p>
+              <p className="rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900">{t.ui.commandCenter}</p>
+              <p className="px-3 py-2">{t.ui.attentionInbox}</p>
+              <p className="px-3 py-2">{t.ui.projects}</p>
+              <p className="px-3 py-2">{t.ui.candidates}</p>
+              <p className="px-3 py-2">{t.ui.reports}</p>
             </div>
             <div className="mt-8 border-t border-slate-200 pt-5">
-              <p className="text-[11px] uppercase text-slate-400">Active role</p>
-              <p className="mt-2 text-xs font-medium text-slate-700">Operations Lead</p>
-              <p className="mt-1 text-[11px] text-slate-400">12 candidates</p>
+              <p className="text-[11px] uppercase text-slate-400">{t.ui.activeRole}</p>
+              <p className="mt-2 text-xs font-medium text-slate-700">{t.ui.roleName}</p>
+              <p className="mt-1 text-[11px] text-slate-400">{t.ui.roleCandidates}</p>
             </div>
           </aside>
 
@@ -202,7 +282,7 @@ function CommandCenter({ locale }: { locale: Locale }) {
                 <p className="mt-1 text-xs text-slate-500">{t.commandNote}</p>
               </div>
               <span className="inline-flex w-fit items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live evidence
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> {t.ui.liveEvidence}
               </span>
             </div>
 
@@ -217,8 +297,8 @@ function CommandCenter({ locale }: { locale: Locale }) {
 
             <div className="mt-6">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-slate-800">Candidates to interview first</p>
-                <p className="text-[11px] text-slate-400">Ranked by role evidence</p>
+                <p className="text-xs font-semibold text-slate-800">{t.ui.interviewFirstList}</p>
+                <p className="text-[11px] text-slate-400">{t.ui.rankedBy}</p>
               </div>
               <div className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
                 {candidates.map((candidate, index) => (
@@ -240,29 +320,29 @@ function CommandCenter({ locale }: { locale: Locale }) {
 
           <aside className="border-t border-slate-200 bg-slate-50/70 p-5 lg:border-l lg:border-t-0">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-slate-800">Decision brief</p>
+              <p className="text-xs font-semibold text-slate-800">{t.ui.decisionBrief}</p>
               <span className="text-[10px] text-slate-400">Nadia Chen</span>
             </div>
             <div className="mt-5 flex items-center justify-between border-b border-slate-200 pb-5">
               <div>
-                <p className="text-[11px] uppercase text-slate-400">Recommendation</p>
-                <p className="mt-1 text-lg font-semibold text-slate-950">Interview first</p>
+                <p className="text-[11px] uppercase text-slate-400">{t.ui.recommendation}</p>
+                <p className="mt-1 text-lg font-semibold text-slate-950">{t.ui.interviewFirst}</p>
               </div>
               <div className="text-right">
-                <p className="text-[11px] text-slate-400">Confidence</p>
-                <p className="mt-1 text-sm font-semibold text-emerald-700">High · 92%</p>
+                <p className="text-[11px] text-slate-400">{t.ui.confidence}</p>
+                <p className="mt-1 text-sm font-semibold text-emerald-700">{t.ui.confidenceValue}</p>
               </div>
             </div>
             <div className="mt-5 space-y-4">
-              <Signal label="Decision judgment" value="Strong" width="92%" />
-              <Signal label="Role alignment" value="Strong" width="86%" />
-              <Signal label="People leadership" value="Verify" width="64%" warning />
+              <Signal label={t.ui.signalJudgment} value={t.ui.signalStrong} width="92%" />
+              <Signal label={t.ui.signalAlignment} value={t.ui.signalStrong} width="86%" />
+              <Signal label={t.ui.signalLeadership} value={t.ui.signalVerify} width="64%" warning />
             </div>
             <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
               <div className="flex items-center gap-2 text-xs font-medium text-amber-800">
-                <CircleAlert className="h-3.5 w-3.5" /> Risk to verify
+                <CircleAlert className="h-3.5 w-3.5" /> {t.ui.riskToVerify}
               </div>
-              <p className="mt-2 text-xs leading-5 text-slate-600">Limited evidence for delegation in a multi-team environment.</p>
+              <p className="mt-2 text-xs leading-5 text-slate-600">{t.ui.riskText}</p>
             </div>
           </aside>
         </div>
@@ -286,14 +366,15 @@ function Signal({ label, value, width, warning = false }: { label: string; value
 }
 
 function AttentionInbox({ locale }: { locale: Locale }) {
+  const t = copy[locale];
   return (
     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_16px_40px_-30px_rgba(15,23,42,0.24)]">
       <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
         <div className="flex items-center gap-2">
           <Inbox className="h-4 w-4 text-slate-500" />
-          <p className="text-sm font-semibold text-slate-900">Attention inbox</p>
+          <p className="text-sm font-semibold text-slate-900">{t.ui.attentionInbox}</p>
         </div>
-        <span className="rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-medium text-indigo-700">6 open</span>
+        <span className="rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-medium text-indigo-700">{t.ui.openCount}</span>
       </div>
       <div className="divide-y divide-white/8">
         {inboxItems[locale].map(([title, meta, action, tone]) => (
@@ -313,6 +394,7 @@ function AttentionInbox({ locale }: { locale: Locale }) {
 }
 
 function CandidateBrief({ locale }: { locale: Locale }) {
+  const t = copy[locale];
   const labels = locale === "en"
     ? { recommendation: "Recommendation", verdict: "Advance to structured interview", confidence: "High confidence", evidence: "Evidence", strengths: "Strengths", risks: "Risks", focus: "Interview focus", verify: "What to verify next" }
     : { recommendation: "Recomendación", verdict: "Avanzar a entrevista estructurada", confidence: "Confianza alta", evidence: "Evidencia", strengths: "Fortalezas", risks: "Riesgos", focus: "Foco de entrevista", verify: "Qué verificar después" };
@@ -320,9 +402,9 @@ function CandidateBrief({ locale }: { locale: Locale }) {
     <div className="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-[0_18px_50px_-36px_rgba(15,23,42,0.24)] sm:p-8">
       <div className="flex flex-col justify-between gap-5 border-b border-black/10 pb-6 sm:flex-row sm:items-start">
         <div>
-          <p className="text-xs font-semibold uppercase text-zinc-500">Executive candidate brief</p>
+          <p className="text-xs font-semibold uppercase text-zinc-500">{t.briefKicker}</p>
           <h3 className="mt-3 text-2xl font-semibold">Nadia Chen</h3>
-          <p className="mt-1 text-sm text-zinc-500">Operations Lead · Northstar Logistics</p>
+          <p className="mt-1 text-sm text-zinc-500">{t.ui.briefWho}</p>
         </div>
         <span className="inline-flex w-fit items-center gap-2 rounded-md border border-emerald-700/20 bg-emerald-700/[0.06] px-3 py-2 text-xs font-semibold text-emerald-800">
           <BadgeCheck className="h-4 w-4" /> {labels.confidence} · 92%
@@ -332,14 +414,14 @@ function CandidateBrief({ locale }: { locale: Locale }) {
         <div>
           <p className="text-xs font-semibold uppercase text-zinc-500">{labels.recommendation}</p>
           <p className="mt-3 text-2xl font-semibold leading-8">{labels.verdict}</p>
-          <p className="mt-4 text-sm leading-6 text-zinc-600">Consistent evidence of analytical judgment, operational ownership, and calm decision-making under pressure.</p>
+          <p className="mt-4 text-sm leading-6 text-zinc-600">{t.ui.briefRationale}</p>
         </div>
         <div className="grid gap-5 sm:grid-cols-2">
           {[
-            [labels.evidence, "4 aligned assessment signals", SearchCheck],
-            [labels.strengths, "Prioritization · judgment · communication", BarChart3],
-            [labels.risks, "Delegation evidence is incomplete", CircleAlert],
-            [labels.focus, "Cross-functional conflict and coaching", MessageSquareText],
+            [labels.evidence, t.ui.evidenceBody, SearchCheck],
+            [labels.strengths, t.ui.strengthsBody, BarChart3],
+            [labels.risks, t.ui.risksBody, CircleAlert],
+            [labels.focus, t.ui.focusBody, MessageSquareText],
           ].map(([title, body, Icon]) => {
             const ItemIcon = Icon as typeof SearchCheck;
             return (
@@ -355,15 +437,16 @@ function CandidateBrief({ locale }: { locale: Locale }) {
       <div className="flex flex-col gap-3 border-t border-black/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-semibold text-zinc-500">{labels.verify}</p>
-          <p className="mt-1 text-sm">Ask for a recent example of delegating a critical operational decision.</p>
+          <p className="mt-1 text-sm">{t.ui.verifySentence}</p>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-2 text-xs font-semibold text-indigo-700">Open full evidence <ArrowRight className="h-3.5 w-3.5" /></span>
+        <span className="inline-flex shrink-0 items-center gap-2 text-xs font-semibold text-indigo-700">{t.ui.openFullEvidence} <ArrowRight className="h-3.5 w-3.5" /></span>
       </div>
     </div>
   );
 }
 
 function InterviewKit({ locale }: { locale: Locale }) {
+  const t = copy[locale];
   const isEn = locale === "en";
   const rows = [
     [isEn ? "Suggested question" : "Pregunta sugerida", isEn ? "Tell me about a decision you made with incomplete operational data. How did you set the threshold to act?" : "Hábleme de una decisión que tomó con datos operativos incompletos. ¿Cómo definió el umbral para actuar?"],
@@ -375,10 +458,10 @@ function InterviewKit({ locale }: { locale: Locale }) {
     <div className="rounded-lg border border-slate-200 bg-white shadow-[0_16px_40px_-30px_rgba(15,23,42,0.2)]">
       <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-950">Operations Lead · Structured interview kit</p>
-          <p className="mt-1 text-xs text-slate-500">Generated from role criteria and candidate evidence</p>
+          <p className="text-sm font-semibold text-slate-950">{t.ui.kitTitle}</p>
+          <p className="mt-1 text-xs text-slate-500">{t.ui.kitSubtitle}</p>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600"><Target className="h-3.5 w-3.5" /> Decision judgment</span>
+        <span className="inline-flex w-fit items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600"><Target className="h-3.5 w-3.5" /> {t.ui.signalJudgment}</span>
       </div>
       <div className="divide-y divide-white/8">
         {rows.map(([label, body], index) => (
@@ -391,7 +474,7 @@ function InterviewKit({ locale }: { locale: Locale }) {
         ))}
       </div>
       <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-5 py-4">
-        <span className="text-xs text-slate-500">Scorecard guidance · 1–5 behavioral anchors</span>
+        <span className="text-xs text-slate-500">{t.ui.scorecard}</span>
         <ListChecks className="h-4 w-4 text-indigo-700" />
       </div>
     </div>
@@ -399,6 +482,7 @@ function InterviewKit({ locale }: { locale: Locale }) {
 }
 
 function RoleCalibration({ locale }: { locale: Locale }) {
+  const t = copy[locale];
   const isEn = locale === "en";
   const criteria = isEn
     ? [["Role", "Operations Lead"], ["Seniority", "Manager"], ["Must-have", "Judgment · ownership · communication"], ["Deal-breaker", "Low integrity evidence"], ["Priority", "Operate through ambiguity"]]
@@ -419,7 +503,7 @@ function RoleCalibration({ locale }: { locale: Locale }) {
       <div className="border-t border-slate-200 bg-indigo-50/50 p-5 sm:p-7 lg:border-l lg:border-t-0">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-950"><Sparkles className="h-4 w-4 text-indigo-700" /> {isEn ? "Recommended decision framework" : "Marco de decisión recomendado"}</div>
         <div className="mt-6 space-y-5">
-          {["Decision Making", "Critical Thinking", "Communication Skills", "Integrity & Ethics"].map((item, index) => (
+          {t.ui.assessments.map((item, index) => (
             <div key={item} className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3"><span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-[10px] text-slate-500 ring-1 ring-slate-200">0{index + 1}</span><span className="text-sm text-slate-700">{item}</span></div>
               <Check className="h-4 w-4 text-emerald-600" />
@@ -427,7 +511,7 @@ function RoleCalibration({ locale }: { locale: Locale }) {
           ))}
         </div>
         <div className="mt-7 border-t border-indigo-100 pt-5">
-          <div className="flex justify-between text-xs"><span className="text-slate-500">Role evidence coverage</span><span className="font-semibold text-slate-800">91%</span></div>
+          <div className="flex justify-between text-xs"><span className="text-slate-500">{t.ui.coverage}</span><span className="font-semibold text-slate-800">91%</span></div>
           <div className="mt-3 h-1.5 rounded-full bg-indigo-100"><div className="h-full w-[91%] rounded-full bg-indigo-600" /></div>
         </div>
       </div>
@@ -448,7 +532,7 @@ export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHr
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-5 px-5 sm:px-6 lg:px-8">
           <Link href={homeHref} aria-label="IntelligencesTest home">
             <BrandLockup
-              subtitle="Hiring Decision OS"
+              subtitle={t.eyebrow}
               markClassName="h-9 w-9 rounded-lg"
               titleClassName="text-slate-950"
               subtitleClassName="text-slate-500"

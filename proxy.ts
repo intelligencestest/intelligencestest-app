@@ -48,6 +48,17 @@ export async function proxy(request: NextRequest) {
     forcedLocale = "en";
   }
 
+  // Spanish is the default public experience: the bare homepage redirects to
+  // /es unless the visitor carries an explicit English signal (lang=en cookie,
+  // set by the English entry pages or an English workspace). DEFAULT_LOCALE
+  // stays "en" so the many toAppLocale fallbacks keep their behavior.
+  if (!underEs && logicalPath === "/") {
+    const cookieLang = request.cookies.get(LANGUAGE_COOKIE)?.value;
+    if (cookieLang !== "en") {
+      return withLocaleCookie(NextResponse.redirect(new URL(LOCALE_PREFIX, request.url)), "es", request);
+    }
+  }
+
   // Downstream signal for i18n/request.ts. Cloned so we can also carry any auth
   // cookies Supabase refreshes below.
   const requestHeaders = new Headers(request.headers);
