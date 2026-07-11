@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AlertTriangle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 
 export default function SecuritySettingsPage() {
   const flow = useTranslations("authFlow");
@@ -23,9 +25,20 @@ export default function SecuritySettingsPage() {
         changePasswordTitle: "Cambiar contraseña",
         changePasswordText: "Establezca una nueva contraseña directamente, sin salir de la sesión actual.",
         passwordChanged: "Contraseña actualizada correctamente.",
+        accountEmailTitle: "Correo de la cuenta",
+        accountEmailText: "Este es el correo con el que inicia sesión y donde recibe las notificaciones del workspace.",
+        accountEmailChange: "Para cambiar el correo de acceso, contacte con soporte y verificaremos la titularidad de la cuenta.",
+        contactSupport: "Contactar con soporte",
+        notesTitle: "Cómo protegemos su cuenta",
+        notes: [
+          "Las sesiones se gestionan con autenticación gestionada y cifrada; nunca almacenamos su contraseña en texto plano.",
+          "Los enlaces de evaluación de candidatos son tokenizados y caducan a los 7 días.",
+          "Los datos de cada empresa viven en un workspace aislado: ningún otro cliente puede acceder a sus candidatos o informes.",
+        ],
         dangerZone: "Zona de riesgo",
-        dangerText: "Estas acciones son irreversibles. Proceda con cautela.",
-        dangerComingSoon: "Próximamente",
+        dangerText:
+          "Estas acciones son irreversibles. Durante el lanzamiento se procesan manualmente por nuestro equipo, previa verificación de identidad, en un plazo máximo de 72 horas.",
+        requestViaSupport: "Solicitar por soporte",
         deleteData: "Eliminar todos los datos de evaluación",
         closeAccount: "Cerrar cuenta",
       }
@@ -41,15 +54,37 @@ export default function SecuritySettingsPage() {
         changePasswordTitle: "Change password",
         changePasswordText: "Set a new password directly, without leaving your current session.",
         passwordChanged: "Password updated successfully.",
+        accountEmailTitle: "Account email",
+        accountEmailText: "This is the email you sign in with and where workspace notifications are delivered.",
+        accountEmailChange: "To change your sign-in email, contact support and we will verify account ownership first.",
+        contactSupport: "Contact support",
+        notesTitle: "How your account is protected",
+        notes: [
+          "Sessions use managed, encrypted authentication; your password is never stored in plain text.",
+          "Candidate assessment links are tokenized and expire after 7 days.",
+          "Each company's data lives in an isolated workspace: no other customer can access your candidates or reports.",
+        ],
         dangerZone: "Danger zone",
-        dangerText: "These actions are irreversible. Please proceed with caution.",
-        dangerComingSoon: "Coming soon",
+        dangerText:
+          "These actions are irreversible. During launch they are processed manually by our team, after identity verification, within 72 hours.",
+        requestViaSupport: "Request via support",
         deleteData: "Delete all assessment data",
         closeAccount: "Close account",
       };
 
+  const appLocale = toAppLocale(locale);
+  const contactHref = localePath("/contact", appLocale);
+
   // -- Reset-link flow (unchanged behavior from the old single-page settings) --
   const [email, setEmail] = useState<string | null>(null);
+
+  // The account-email section shows the session email up front.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user?.email) setEmail(data.user.email);
+    });
+  }, []);
   const [resetSaving, setResetSaving] = useState(false);
   const [resetMessage, setResetMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -125,8 +160,21 @@ export default function SecuritySettingsPage() {
       </div>
 
       <div className="mt-8">
-          {/* Change password */}
+          {/* Account email */}
           <div className="border-t border-[var(--it-hairline)] pt-4">
+            <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.accountEmailTitle}</h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.accountEmailText}</p>
+            <p className="mt-4 text-sm font-medium tabular-nums text-[var(--it-text)]">{email ?? "…"}</p>
+            <p className="mt-2 text-[13px] leading-6 text-[var(--it-muted)]">
+              {copy.accountEmailChange}{" "}
+              <Link href={contactHref} className="font-medium text-[var(--it-link)] hover:underline">
+                {copy.contactSupport}
+              </Link>
+            </p>
+          </div>
+
+          {/* Change password */}
+          <div className="mt-10 border-t border-[var(--it-hairline)] pt-4">
             <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.changePasswordTitle}</h2>
             <p className="mt-1 text-sm leading-6 text-[var(--it-muted)]">{copy.changePasswordText}</p>
 
@@ -212,28 +260,39 @@ export default function SecuritySettingsPage() {
             )}
           </div>
 
+          {/* Security notes — real facts about how the account is protected. */}
+          <div className="mt-10 border-t border-[var(--it-hairline)] pt-4">
+            <h2 className="text-lg font-semibold text-[var(--it-text)]">{copy.notesTitle}</h2>
+            <ul className="mt-3 max-w-2xl space-y-2.5">
+              {copy.notes.map((note) => (
+                <li key={note} className="flex gap-3 text-sm leading-6 text-[var(--it-muted)]">
+                  <span className="mt-2.5 h-1 w-1 flex-shrink-0 rounded-full bg-[var(--it-faint)]" aria-hidden="true" />
+                  {note}
+                </li>
+              ))}
+            </ul>
+          </div>
+
           {/* Danger zone — the one place a tinted, bordered container is warranted:
-              it needs to read as a distinct, high-caution area, not a settings section. */}
+              it needs to read as a distinct, high-caution area, not a settings section.
+              During launch these are honest support-routed requests, not buttons that
+              pretend to work. */}
           <div className="mt-10 rounded-xl border border-[var(--it-danger)]/25 bg-[rgba(220,38,38,0.04)] p-6">
             <h2 className="mb-3 text-base font-semibold text-[#b91c1c]">{copy.dangerZone}</h2>
-            <p className="mb-4 text-sm text-[var(--it-muted)]">{copy.dangerText}</p>
+            <p className="mb-4 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.dangerText}</p>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                disabled
-                title={copy.dangerComingSoon}
-                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#b91c1c] opacity-50"
+              <Link
+                href={contactHref}
+                className="inline-flex items-center justify-center rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#b91c1c] transition-colors hover:bg-[rgba(220,38,38,0.06)]"
               >
-                {copy.deleteData} · {copy.dangerComingSoon}
-              </button>
-              <button
-                type="button"
-                disabled
-                title={copy.dangerComingSoon}
-                className="cursor-not-allowed rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#b91c1c] opacity-50"
+                {copy.deleteData} — {copy.requestViaSupport}
+              </Link>
+              <Link
+                href={contactHref}
+                className="inline-flex items-center justify-center rounded-lg border border-[var(--it-danger)]/30 px-4 py-2.5 text-sm font-medium text-[#b91c1c] transition-colors hover:bg-[rgba(220,38,38,0.06)]"
               >
-                {copy.closeAccount} · {copy.dangerComingSoon}
-              </button>
+                {copy.closeAccount} — {copy.requestViaSupport}
+              </Link>
             </div>
           </div>
       </div>

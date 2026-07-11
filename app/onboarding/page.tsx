@@ -76,35 +76,35 @@ export default function OnboardingPage() {
 
   const copy = es
     ? {
-        eyebrow: "Configuracion inicial",
-        welcomeTitle: "Configure su espacio de evaluacion.",
+        eyebrow: "Configuración inicial",
+        welcomeTitle: "Configure su espacio de evaluación.",
         welcomeBody:
           "En menos de un minuto dejaremos lista la cuenta para crear el primer proyecto, invitar candidatos y revisar informes ejecutivos.",
-        included: ["14 dias de prueba", "2 proyectos", "10 invitaciones de candidatos"],
-        start: "Comenzar configuracion",
+        included: ["14 días de prueba", "2 proyectos", "10 invitaciones de candidatos"],
+        start: "Comenzar configuración",
         companyTitle: "Empresa",
-        companyBody: "Estos datos ayudan a adaptar el espacio a su operacion de seleccion.",
+        companyBody: "Estos datos ayudan a adaptar el espacio a su operación de selección.",
         companyName: "Nombre de la empresa",
         companyPlaceholder: "Acme Recruitment Ltd",
         industry: "Industria",
-        profileTitle: "Volumen de contratacion",
-        profileBody: "Use esta informacion para priorizar limites, soporte y futuras recomendaciones.",
-        companySize: "Tamano de empresa",
+        profileTitle: "Volumen de contratación",
+        profileBody: "Usamos esta información para priorizar límites, soporte y futuras recomendaciones.",
+        companySize: "Tamaño de empresa",
         hiresPerMonth: "Contrataciones al mes",
         languageTitle: "Idioma y siguiente paso",
-        languageBody: "El idioma se aplicara al panel, invitaciones, evaluaciones e informes.",
-        language: "Idioma de evaluacion",
-        afterSetup: "Despues de configurar",
+        languageBody: "El idioma se aplicará al panel, las invitaciones, las evaluaciones y los informes.",
+        language: "Idioma de evaluación",
+        afterSetup: "Después de configurar",
         createProject: "Crear el primer proyecto",
         createProjectHint: "Recomendado para ver valor de inmediato.",
         dashboard: "Ir al panel",
         dashboardHint: "Revisar el espacio antes de crear proyectos.",
         back: "Volver",
         next: "Continuar",
-        finish: "Finalizar configuracion",
+        finish: "Finalizar configuración",
         saving: "Guardando...",
         requiredFields: "Complete los campos obligatorios antes de continuar.",
-        genericError: "Algo salio mal. Intente de nuevo.",
+        genericError: "Algo salió mal. Intente de nuevo.",
         stepLabel: (current: number, total: number) => `Paso ${current} de ${total}`,
       }
     : {
@@ -199,7 +199,7 @@ export default function OnboardingPage() {
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-4xl flex-col justify-center">
         <div className="mb-8 flex items-center justify-center">
           <BrandLockup
-            subtitle={es ? "Plataforma de evaluacion" : "Assessment Platform"}
+            subtitle={es ? "Plataforma de evaluación" : "Assessment Platform"}
             markClassName="h-10 w-10"
             titleClassName="tracking-normal"
           />
@@ -236,7 +236,7 @@ export default function OnboardingPage() {
                           ? copy.profileTitle
                           : copy.languageTitle}
                   </p>
-                  <h1 className="mt-3 text-3xl font-semibold tracking-[-0.01em] text-[var(--it-text)]">
+                  <h1 className="font-editorial mt-3 text-3xl font-medium text-[var(--it-text)]">
                     {step === 0
                       ? copy.welcomeTitle
                       : step === 1

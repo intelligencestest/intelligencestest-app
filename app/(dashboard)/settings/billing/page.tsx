@@ -121,6 +121,23 @@ export default function BillingSettingsPage() {
         billingHistoryText:
           "Sus facturas y recibos de PayPal están disponibles directamente en su cuenta de PayPal.",
         manageInPayPal: "Gestionar en PayPal",
+        bannerTrialActive: (days: number) =>
+          days === 1
+            ? "Su prueba gratuita finaliza mañana. Elija un plan para no perder acceso."
+            : `Su prueba gratuita está activa — quedan ${days} días. Elija un plan antes de que finalice.`,
+        bannerTrialExpired:
+          "Su prueba ha finalizado. Sus datos se conservan: elija un plan para reactivar el workspace.",
+        bannerPending:
+          "Activación de PayPal en curso. Suele confirmarse en unos minutos; si tarda más de una hora, contacte con soporte.",
+        bannerPastDue:
+          "El último cobro no se completó. Actualice su método de pago en PayPal para mantener el acceso.",
+        bannerCancelled:
+          "Su suscripción está cancelada. Sus datos se conservan: elija un plan para reactivarla cuando quiera.",
+        bannerEnterprise:
+          "Su plan Enterprise se gestiona con el equipo comercial. Para cambios de límites o facturación, contacte con nosotros.",
+        bannerSupport: "Contactar con soporte",
+        nearLimit: "cerca del límite",
+        atLimit: "límite alcanzado",
       }
     : {
         title: "Plan and billing",
@@ -170,6 +187,23 @@ export default function BillingSettingsPage() {
         featurePrioritySupport: "Priority support",
         billingHistoryText: "Your PayPal invoices and receipts are available directly in your PayPal account.",
         manageInPayPal: "Manage in PayPal",
+        bannerTrialActive: (days: number) =>
+          days === 1
+            ? "Your free trial ends tomorrow. Choose a plan to keep access."
+            : `Your free trial is active — ${days} days left. Choose a plan before it ends.`,
+        bannerTrialExpired:
+          "Your trial has ended. Your data is preserved: choose a plan to reactivate the workspace.",
+        bannerPending:
+          "PayPal activation in progress. It usually confirms within minutes; if it takes more than an hour, contact support.",
+        bannerPastDue:
+          "The last charge did not complete. Update your payment method in PayPal to keep access.",
+        bannerCancelled:
+          "Your subscription is cancelled. Your data is preserved: choose a plan to reactivate whenever you want.",
+        bannerEnterprise:
+          "Your Enterprise plan is managed by the commercial team. For limit or billing changes, contact us.",
+        bannerSupport: "Contact support",
+        nearLimit: "near the limit",
+        atLimit: "limit reached",
       };
 
   useEffect(() => {
@@ -294,12 +328,58 @@ export default function BillingSettingsPage() {
     }
   }
 
+  // One state banner, highest-urgency state wins. Happy-path active
+  // subscriptions get no banner — the summary line already says "Active".
+  const banner = ((): { tone: "info" | "warning" | "danger"; text: string; action?: { label: string; href: string; external?: boolean } } | null => {
+    if (!planData) return null;
+    if (planData.subscriptionStatus === "past_due")
+      return { tone: "danger", text: copy.bannerPastDue, action: { label: copy.manageInPayPal, href: PAYPAL_MANAGE_URL, external: true } };
+    if (planData.subscriptionStatus === "pending_payment")
+      return { tone: "warning", text: copy.bannerPending, action: { label: copy.bannerSupport, href: localePath("/contact", locale) } };
+    if (planData.isTrialExpired && planData.subscriptionStatus !== "active")
+      return { tone: "danger", text: copy.bannerTrialExpired };
+    if (planData.subscriptionStatus === "cancelled")
+      return { tone: "info", text: copy.bannerCancelled };
+    if (activeTrial && planData.trialDaysLeft !== null)
+      return { tone: planData.trialDaysLeft <= 3 ? "warning" : "info", text: copy.bannerTrialActive(planData.trialDaysLeft) };
+    if (planData.planId === "enterprise")
+      return { tone: "info", text: copy.bannerEnterprise, action: { label: copy.bannerSupport, href: localePath("/contact", locale) } };
+    return null;
+  })();
+
+  const bannerTone = {
+    info: "border-[rgba(79,70,229,0.25)] bg-[rgba(79,70,229,0.05)] text-[#3730a3]",
+    warning: "border-[rgba(217,119,6,0.28)] bg-[rgba(217,119,6,0.06)] text-[#92400e]",
+    danger: "border-[rgba(220,38,38,0.25)] bg-[rgba(220,38,38,0.05)] text-[#991b1b]",
+  } as const;
+
   return (
     <div className="mx-auto max-w-[1200px]">
       <div>
         <h1 className="text-[30px] font-semibold leading-[38px] tracking-[-0.01em] text-[var(--it-text)]">{copy.title}</h1>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{copy.description}</p>
       </div>
+
+      {banner && (
+        <div className={`mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 ${bannerTone[banner.tone]}`}>
+          <p className="text-sm leading-6">{banner.text}</p>
+          {banner.action &&
+            (banner.action.external ? (
+              <a
+                href={banner.action.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-semibold underline-offset-4 hover:underline"
+              >
+                {banner.action.label} →
+              </a>
+            ) : (
+              <Link href={banner.action.href} className="text-sm font-semibold underline-offset-4 hover:underline">
+                {banner.action.label} →
+              </Link>
+            ))}
+        </div>
+      )}
 
       <section className="mt-8">
           {/* Account summary — one typographic block, no cards */}
@@ -321,22 +401,30 @@ export default function BillingSettingsPage() {
 
             {planData ? (
               <div className="mt-6 max-w-xl space-y-3">
-                {usageRows.map((row) => (
-                  <div key={row.label} className="flex items-center gap-4">
-                    <span className="w-40 shrink-0 text-[13px] text-[var(--it-muted)]">{row.label}</span>
-                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-900/[0.06]">
-                      {row.limit !== null ? (
-                        <span
-                          className={`block h-full rounded-full ${usageTone(row.used, row.limit)}`}
-                          style={{ width: `${usagePercent(row.used, row.limit)}%` }}
-                        />
+                {usageRows.map((row) => {
+                  const ratio = row.limit !== null && row.limit > 0 ? row.used / row.limit : 0;
+                  return (
+                    <div key={row.label} className="flex items-center gap-4">
+                      <span className="w-40 shrink-0 text-[13px] text-[var(--it-muted)]">{row.label}</span>
+                      <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-900/[0.06]">
+                        {row.limit !== null ? (
+                          <span
+                            className={`block h-full rounded-full ${usageTone(row.used, row.limit)}`}
+                            style={{ width: `${usagePercent(row.used, row.limit)}%` }}
+                          />
+                        ) : null}
+                      </div>
+                      {ratio >= 1 ? (
+                        <span className="shrink-0 text-[11px] font-semibold text-[#b91c1c]">{copy.atLimit}</span>
+                      ) : ratio >= 0.8 ? (
+                        <span className="shrink-0 text-[11px] font-semibold text-[#b45309]">{copy.nearLimit}</span>
                       ) : null}
+                      <span className="w-20 shrink-0 text-right text-[13px] tabular-nums text-slate-300">
+                        {row.used}/{row.limit ?? copy.unlimited}
+                      </span>
                     </div>
-                    <span className="w-20 shrink-0 text-right text-[13px] tabular-nums text-slate-300">
-                      {row.used}/{row.limit ?? copy.unlimited}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : null}
           </div>
