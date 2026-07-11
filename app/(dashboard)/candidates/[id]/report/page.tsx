@@ -7,7 +7,7 @@ import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-se
 import { toAppLocale } from "@/lib/i18n/locales";
 import { analyzeResult } from "@/lib/report-scoring";
 import { assessmentName as termName, categoryLabel as termCategory, dimensionLabel as termDimension } from "@/lib/i18n/assessment-terms";
-import { buildAssessmentIntelligence } from "@/lib/assessment-intelligence";
+import { buildAssessmentIntelligence, toExecutiveBrief } from "@/lib/assessment-intelligence";
 import type {
   AssessmentIntelligenceReport,
   ConfidenceLevel,
@@ -378,9 +378,10 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
       rawAnswers: result.raw_answers,
     })),
   });
+  const executiveBrief = toExecutiveBrief(intelligence);
 
-  const recommendationStyle = RECOMMENDATION_STYLE[intelligence.recommendation.level];
-  const confidenceStyle = CONFIDENCE_STYLE[intelligence.confidence.level];
+  const recommendationStyle = RECOMMENDATION_STYLE[executiveBrief.recommendation.sourceLevel];
+  const confidenceStyle = CONFIDENCE_STYLE[executiveBrief.confidence.sourceLevel];
   const competencies = [...intelligence.competencyEvidence].sort((a, b) => b.score - a.score).slice(0, 6);
   const evidenceSignals = topEvidence(intelligence);
   const positiveSignals = intelligence.evidenceSignals.filter((signal) => signal.direction === "positive");
@@ -436,14 +437,14 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--it-faint)]">{L.eyebrow as string}</p>
                 <Pill className={`${recommendationStyle.bg} ${recommendationStyle.text} ${recommendationStyle.border}`}>
                   <span className={`mr-2 h-1.5 w-1.5 rounded-full ${recommendationStyle.dot}`} aria-hidden="true" />
-                  {(L.recLevel as Record<string, string>)[intelligence.recommendation.level] ?? intelligence.recommendation.title}
+                  {(L.recLevel as Record<string, string>)[executiveBrief.recommendation.sourceLevel] ?? executiveBrief.recommendation.title}
                 </Pill>
               </div>
               {/* Editorial register — the verdict is the document's voice (design-language.md §2) */}
               <h1 className="font-editorial mt-5 max-w-4xl text-4xl font-medium leading-[1.12] text-[var(--it-text)] sm:text-5xl">
-                {intelligence.recommendation.title}
+                {executiveBrief.recommendation.title}
               </h1>
-              <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{intelligence.recommendation.rationale}</p>
+              <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-300">{executiveBrief.recommendation.rationale}</p>
 
               <div className="mt-8 flex min-w-0 items-center gap-4">
                 <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-[var(--it-hairline)] bg-[var(--it-bg)] text-sm font-semibold text-[var(--it-text)]">
@@ -486,10 +487,10 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
               <div className="mt-6 border-t border-[var(--it-hairline)] pt-5">
                 <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--it-faint)]">{L.confidence as string}</p>
                 <ConfidenceGauge
-                  score={intelligence.confidence.score}
+                  score={executiveBrief.confidence.score}
                   tone={confidenceStyle.tone}
                   label={confidenceStyle.label[locale]}
-                  sublabel={`${intelligence.confidence.score}/100`}
+                  sublabel={`${executiveBrief.confidence.score}/100`}
                 />
               </div>
 
@@ -518,7 +519,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 <p className="font-editorial mt-3 text-2xl font-medium leading-snug text-[var(--it-text)]">{intelligence.executiveSummary.headline}</p>
                 <p className="mt-4 text-sm leading-7 text-slate-300">{intelligence.executiveSummary.summary}</p>
               </div>
-              <MarkerList items={intelligence.executiveSummary.evidence.slice(0, 4)} />
+              <MarkerList items={executiveBrief.evidence.map((item) => item.signal).slice(0, 4)} />
             </div>
           </SectionShell>
 
@@ -569,15 +570,15 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
                   <div>
                     <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.risks as string}</h3>
-                    {intelligence.risks.length ? (
+                    {executiveBrief.risks.length ? (
                       <div className="space-y-3">
-                        {intelligence.risks.slice(0, 4).map((risk) => (
+                        {executiveBrief.risks.map((risk) => (
                           <article key={risk.id} className="rounded-xl border border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.04)] p-4">
                             <div className="flex items-center justify-between gap-3">
-                              <p className="text-sm font-semibold text-[var(--it-text)]">{risk.competencyLabel}</p>
+                              <p className="text-sm font-semibold text-[var(--it-text)]">{risk.title}</p>
                               <Pill className="border-[var(--it-danger)]/20 bg-[rgba(220,38,38,0.1)] text-[#991b1b]">{SEVERITY_LABEL[risk.severity][locale]}</Pill>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-slate-300">{risk.statement}</p>
+                            <p className="mt-2 text-sm leading-6 text-slate-300">{risk.evidence}</p>
                             <p className="mt-2 text-xs leading-5 text-[var(--it-muted)]">{risk.businessImpact}</p>
                           </article>
                         ))}
@@ -609,8 +610,8 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
             <div className="grid gap-5 lg:grid-cols-3">
               <div>
                 <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.strengths as string}</h3>
-                {intelligence.strengths.length ? (
-                  <MarkerList items={intelligence.strengths} />
+                {executiveBrief.strengths.length ? (
+                  <MarkerList items={executiveBrief.strengths} />
                 ) : (
                   <EmptyLine>{L.noStrengths as string}</EmptyLine>
                 )}
@@ -627,7 +628,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
                 <h3 className="mb-3 text-sm font-semibold text-[var(--it-text)]">{L.limitations as string}</h3>
                 <MarkerList
                   tone="text-slate-300"
-                  items={Array.from(new Set([L.roleFitLimit as string, ...intelligence.methodologyLimitations]))}
+                  items={Array.from(new Set([L.roleFitLimit as string, ...executiveBrief.limitations]))}
                 />
               </div>
             </div>

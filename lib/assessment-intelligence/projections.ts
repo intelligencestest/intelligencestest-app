@@ -1,5 +1,10 @@
 import type {
   AssessmentIntelligenceReport,
+  ConfidenceLevel,
+  ExecutiveBrief,
+  ExecutiveBriefConfidenceLevel,
+  ExecutiveBriefDecisionLevel,
+  EvidenceDirection,
   IntelligenceRecommendation,
   QueueIntelligenceProjection,
   RiskSeverity,
@@ -17,6 +22,7 @@ export const RECOMMENDATION_ORDER: Record<RecommendationLevel, number> = {
 };
 
 const RISK_ORDER: Record<RiskSeverity, number> = { high: 0, medium: 1, low: 2 };
+const EVIDENCE_ORDER: Record<EvidenceDirection, number> = { risk: 0, mixed: 1, positive: 2, neutral: 3 };
 
 export function emptyQueueIntelligenceProjection(): QueueIntelligenceProjection {
   return {
@@ -82,5 +88,106 @@ export function toQueueIntelligenceProjection(
     interviewQuestionCount: report.interviewQuestions.length,
     evidenceSignalIds: report.recommendation.evidenceSignalIds,
     sourceAssessmentIds,
+  };
+}
+
+function toDecisionLevel(level: IntelligenceRecommendation["level"]): ExecutiveBriefDecisionLevel {
+  if (level === "strong" || level === "proceed") return "interview";
+  if (level === "caution" || level === "notRecommended") return "do_not_proceed";
+  return "review";
+}
+
+function toBriefConfidence(level: ConfidenceLevel): ExecutiveBriefConfidenceLevel {
+  return level === "moderate" ? "medium" : level;
+}
+
+function uniqueStrings(items: string[]): string[] {
+  return Array.from(new Set(items.map((item) => item.trim()).filter(Boolean)));
+}
+
+/**
+ * Canonical candidate report projection for the product UI.
+ *
+ * This keeps the full intelligence engine as the source of truth while giving
+ * the report screen one stable, decision-oriented object: who to interview,
+ * why, what evidence supports it, and what to verify next.
+ */
+export function toExecutiveBrief(report: AssessmentIntelligenceReport): ExecutiveBrief {
+  const sortedRisks = [...report.risks].sort((a, b) => RISK_ORDER[a.severity] - RISK_ORDER[b.severity]);
+  const risks = sortedRisks.slice(0, 3).map((risk) => ({
+    id: risk.id,
+    severity: risk.severity,
+    title: risk.competencyLabel,
+    evidence: risk.statement,
+    businessImpact: risk.businessImpact,
+    verify: risk.validationFocus,
+    evidenceSignalIds: risk.evidenceSignalIds,
+  }));
+
+  const evidence = [...report.evidenceSignals]
+    .sort((a, b) => {
+      const directionDelta = EVIDENCE_ORDER[a.direction] - EVIDENCE_ORDER[b.direction];
+      if (directionDelta !== 0) return directionDelta;
+      return b.normalizedScore - a.normalizedScore;
+    })
+    .slice(0, 5)
+    .map((signal) => ({
+      id: signal.id,
+      assessment: signal.assessmentName,
+      signal: signal.statement,
+      businessImpact: signal.businessImpact,
+      direction: signal.direction,
+      score: signal.normalizedScore,
+      evidenceSignalIds: [signal.id],
+    }));
+
+  const strengths = report.strengths.length
+    ? report.strengths.slice(0, 3)
+    : [...report.evidenceSignals]
+        .filter((signal) => signal.direction === "positive")
+        .sort((a, b) => b.normalizedScore - a.normalizedScore)
+        .slice(0, 3)
+        .map((signal) => signal.statement);
+
+  const verifyNext = uniqueStrings([
+    ...risks.map((risk) => risk.verify),
+    ...report.recommendation.nextSteps,
+    ...report.interviewQuestions.slice(0, 2).map((question) => question.question),
+  ]).slice(0, 5);
+
+  const limitations = uniqueStrings([
+    ...report.recommendation.limitations,
+    ...report.confidence.limitations,
+    ...report.methodologyLimitations,
+  ]).slice(0, 5);
+
+  return {
+    recommendation: {
+      level: toDecisionLevel(report.recommendation.level),
+      sourceLevel: report.recommendation.level,
+      title: report.recommendation.title,
+      rationale: report.recommendation.rationale,
+    },
+    confidence: {
+      level: toBriefConfidence(report.confidence.level),
+      sourceLevel: report.confidence.level,
+      score: report.confidence.score,
+      factors: report.confidence.factors,
+      limitations: report.confidence.limitations,
+    },
+    strengths,
+    risks,
+    evidence,
+    verifyNext,
+    limitations,
+    source: {
+      engineVersion: report.engineVersion,
+      completedAssessmentCount: report.completedAssessmentCount,
+      evidenceSignalIds: uniqueStrings([
+        ...report.recommendation.evidenceSignalIds,
+        ...evidence.flatMap((item) => item.evidenceSignalIds),
+        ...risks.flatMap((risk) => risk.evidenceSignalIds),
+      ]),
+    },
   };
 }

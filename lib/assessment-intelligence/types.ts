@@ -264,6 +264,55 @@ export interface QueueIntelligenceProjection {
   sourceAssessmentIds: string[];
 }
 
+export type ExecutiveBriefDecisionLevel = "interview" | "review" | "do_not_proceed";
+export type ExecutiveBriefConfidenceLevel = "high" | "medium" | "low";
+
+export interface ExecutiveBrief {
+  recommendation: {
+    /** Product-level decision bucket for the report UI. */
+    level: ExecutiveBriefDecisionLevel;
+    /** Original engine recommendation, kept for auditability. */
+    sourceLevel: IntelligenceRecommendation["level"];
+    title: string;
+    rationale: string;
+  };
+  confidence: {
+    /** Product-level confidence bucket for the report UI. */
+    level: ExecutiveBriefConfidenceLevel;
+    /** Original engine confidence, kept for auditability and styling. */
+    sourceLevel: ConfidenceLevel;
+    score: number;
+    factors: string[];
+    limitations: string[];
+  };
+  strengths: string[];
+  risks: Array<{
+    id: string;
+    severity: RiskSeverity;
+    title: string;
+    evidence: string;
+    businessImpact: string;
+    verify: string;
+    evidenceSignalIds: string[];
+  }>;
+  evidence: Array<{
+    id: string;
+    assessment: string;
+    signal: string;
+    businessImpact: string;
+    direction: EvidenceDirection;
+    score?: number;
+    evidenceSignalIds: string[];
+  }>;
+  verifyNext: string[];
+  limitations: string[];
+  source: {
+    engineVersion: string;
+    completedAssessmentCount: number;
+    evidenceSignalIds: string[];
+  };
+}
+
 export interface AssessmentIntelligenceReport {
   engineVersion: string;
   locale: IntelligenceLocale;

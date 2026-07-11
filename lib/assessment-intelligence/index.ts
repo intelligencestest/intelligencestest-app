@@ -2,6 +2,7 @@ export { ASSESSMENT_INTELLIGENCE_ENGINE_VERSION, buildAssessmentIntelligence } f
 export {
   emptyQueueIntelligenceProjection,
   RECOMMENDATION_ORDER,
+  toExecutiveBrief,
   toQueueIntelligenceProjection,
 } from "./projections";
 export { COMPETENCY_TAXONOMY } from "./taxonomy";
@@ -16,6 +17,9 @@ export type {
   ConfidenceAnalysis,
   CriticalThinkingScoreDetails,
   EvidenceSignal,
+  ExecutiveBrief,
+  ExecutiveBriefConfidenceLevel,
+  ExecutiveBriefDecisionLevel,
   HiringRisk,
   IntelligenceRecommendation,
   InterviewValidationQuestion,

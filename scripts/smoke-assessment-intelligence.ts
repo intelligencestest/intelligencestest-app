@@ -15,6 +15,7 @@ const {
   ASSESSMENT_INTELLIGENCE_ENGINE_VERSION,
   buildAssessmentIntelligence,
   RECOMMENDATION_ORDER,
+  toExecutiveBrief,
   toQueueIntelligenceProjection,
 } = require("../lib/assessment-intelligence");
 const { toEnterpriseReportData } = require("../lib/report-pdf");
@@ -134,10 +135,33 @@ for (const risk of mixedEvidence.risks) {
 }
 
 const queueProjection = toQueueIntelligenceProjection(mixedEvidence);
+const executiveBrief = toExecutiveBrief(mixedEvidence);
 assert.equal(
   queueProjection.primaryRisk !== null && queueProjection.primaryRisk.evidenceSignalIds.length > 0,
   true,
   "Queue intelligence projection should expose the leading risk with supporting evidence.",
+);
+assert.equal(
+  executiveBrief.recommendation.level === "interview" ||
+    executiveBrief.recommendation.level === "review" ||
+    executiveBrief.recommendation.level === "do_not_proceed",
+  true,
+  "Executive brief should expose a product-level decision bucket.",
+);
+assert.equal(
+  executiveBrief.risks.length > 0 && executiveBrief.risks[0].verify.length > 0,
+  true,
+  "Executive brief should expose top risks with validation focus.",
+);
+assert.equal(
+  executiveBrief.evidence.length > 0 && executiveBrief.evidence[0].evidenceSignalIds.length > 0,
+  true,
+  "Executive brief should expose supporting evidence with source IDs.",
+);
+assert.equal(
+  executiveBrief.verifyNext.length > 0,
+  true,
+  "Executive brief should expose what to verify next.",
 );
 assert.equal(
   queueProjection.interviewKitReady && queueProjection.interviewQuestionCount > 0,
