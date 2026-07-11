@@ -1,8 +1,12 @@
+import type { Metadata } from "next";
 import Sidebar from "@/components/Sidebar";
 import { AccountMenu } from "@/components/dashboard/AccountMenu";
 import { AppBreadcrumbs } from "@/components/dashboard/AppBreadcrumbs";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
+
+// Private product surface: never indexed (robots.ts is advisory; this is not).
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createServerSupabaseClient();

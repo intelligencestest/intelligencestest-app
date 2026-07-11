@@ -346,8 +346,8 @@ export default function NewProjectPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* ── Project Details ─────────────────────────────────────── */}
-        <div className="bg-[#ffffff] border border-[#f3f4f6] rounded-xl p-6 space-y-5">
-          <h2 className="text-base font-semibold text-[var(--it-text)] border-b border-[#f3f4f6] pb-3">{copy.details}</h2>
+        <div className="bg-[#ffffff] border border-[var(--it-hairline)] rounded-xl p-6 space-y-5">
+          <h2 className="text-base font-semibold text-[var(--it-text)] border-b border-[var(--it-hairline)] pb-3">{copy.details}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -358,7 +358,7 @@ export default function NewProjectPage() {
                 value={form.name}
                 onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                 placeholder={copy.projectPlaceholder}
-                className="w-full px-4 py-3 rounded-lg bg-[#f8fafc] border border-[#f3f4f6] text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm"
+                className="w-full px-4 py-3 rounded-lg bg-white border border-[var(--it-border)] text-[var(--it-text)] placeholder-[var(--it-faint)] focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm"
               />
             </div>
             <div>
@@ -367,7 +367,7 @@ export default function NewProjectPage() {
                 type="date"
                 value={form.deadline}
                 onChange={(e) => setForm((f) => ({ ...f, deadline: e.target.value }))}
-                className="w-full px-4 py-3 rounded-lg bg-[#f8fafc] border border-[#f3f4f6] text-slate-100 focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm [color-scheme:dark]"
+                className="w-full px-4 py-3 rounded-lg bg-white border border-[var(--it-border)] text-[var(--it-text)] focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm"
               />
             </div>
             <div className="sm:col-span-2">
@@ -377,15 +377,15 @@ export default function NewProjectPage() {
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                 placeholder={copy.descriptionPlaceholder}
-                className="w-full px-4 py-3 rounded-lg bg-[#f8fafc] border border-[#f3f4f6] text-slate-100 placeholder-slate-600 focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm resize-none"
+                className="w-full px-4 py-3 rounded-lg bg-white border border-[var(--it-border)] text-[var(--it-text)] placeholder-[var(--it-faint)] focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm resize-none"
               />
             </div>
           </div>
         </div>
 
         {/* ── Role Template ────────────────────────────────────────── */}
-        <div className="bg-[#ffffff] border border-[#f3f4f6] rounded-xl p-6">
-          <div className="mb-5 border-b border-[#f3f4f6] pb-4">
+        <div className="bg-[#ffffff] border border-[var(--it-hairline)] rounded-xl p-6">
+          <div className="mb-5 border-b border-[var(--it-hairline)] pb-4">
             <h2 className="text-base font-semibold text-[var(--it-text)]">{copy.roleTemplate}</h2>
             <p className="text-xs text-slate-500 mt-1">
               {copy.roleHint}
@@ -420,7 +420,7 @@ export default function NewProjectPage() {
                       ? "border-[#4f46e5] bg-[#4f46e5]/8 ring-1 ring-[#4f46e5]/30"
                       : isCustom
                       ? "border-dashed border-slate-600/50 bg-[#f8fafc]/40 hover:border-slate-500/70"
-                      : "border-[#f3f4f6] bg-[#f8fafc] hover:border-[#d1d5db]"
+                      : "border-[var(--it-hairline)] bg-[var(--it-surface-muted)] hover:border-[var(--it-border)]"
                   }`}
                 >
                   {/* Selected checkmark */}
@@ -454,13 +454,13 @@ export default function NewProjectPage() {
                   {/* Badges */}
                   {!isCustom && (
                     <div className="flex flex-wrap gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[var(--it-hairline)] bg-[#f8fafc] px-2 py-0.5 text-[10px] font-medium text-slate-400">
                         <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
                         </svg>
                         {matchedCount} {copy.tests}
                       </span>
-                      <span className="inline-flex items-center gap-1 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                      <span className="inline-flex items-center gap-1 rounded-full border border-[var(--it-hairline)] bg-[#f8fafc] px-2 py-0.5 text-[10px] font-medium text-slate-400">
                         <svg className="h-2.5 w-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                         </svg>
@@ -484,7 +484,7 @@ export default function NewProjectPage() {
 
           {/* Active template badge */}
           {activeTemplate && (
-            <div className="mt-4 flex items-center gap-2 rounded-lg border border-[#f3f4f6] bg-[#f8fafc] px-3 py-2">
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-[var(--it-hairline)] bg-[#f8fafc] px-3 py-2">
               <span className={`h-1.5 w-1.5 rounded-full ${activeTemplate.dotClass}`} />
               <p className="text-xs text-slate-400">
                 <span className="font-medium text-slate-300">{copy.roles[activeTemplate.id]?.role ?? activeTemplate.role}</span>
@@ -497,8 +497,8 @@ export default function NewProjectPage() {
         </div>
 
         {/* ── Assessment Selection ─────────────────────────────────── */}
-        <div className="bg-[#ffffff] border border-[#f3f4f6] rounded-xl p-6">
-          <div className="mb-5 flex flex-col gap-3 border-b border-[#f3f4f6] pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="bg-[#ffffff] border border-[var(--it-hairline)] rounded-xl p-6">
+          <div className="mb-5 flex flex-col gap-3 border-b border-[var(--it-hairline)] pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-base font-semibold text-[var(--it-text)]">
                 {activeTemplate && activeTemplate.id !== "custom"
@@ -513,14 +513,14 @@ export default function NewProjectPage() {
             </div>
             <div className="flex shrink-0 items-center gap-2">
               {selectedAssessments.length > 0 && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-slate-400">
+                <span className="inline-flex items-center gap-1 rounded-full border border-[var(--it-hairline)] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-slate-400">
                   <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                   </svg>
                   ~{selectedMinutes} min
                 </span>
               )}
-              <span className="inline-flex w-fit items-center rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-slate-400">
+              <span className="inline-flex w-fit items-center rounded-full border border-[var(--it-hairline)] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-slate-400">
                 {selectedAssessments.length} {copy.selected}
               </span>
             </div>
@@ -550,14 +550,14 @@ export default function NewProjectPage() {
                           className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-colors ${
                             selected
                               ? "border-[#4f46e5] bg-[#4f46e5]/10"
-                              : "border-[#f3f4f6] bg-[#f8fafc] hover:border-[#d1d5db]"
+                              : "border-[var(--it-hairline)] bg-[var(--it-surface-muted)] hover:border-[var(--it-border)]"
                           }`}
                         >
                           <input
                             type="checkbox"
                             checked={selected}
                             onChange={() => toggleAssessment(assessment.id)}
-                            className="mt-1 h-4 w-4 cursor-pointer rounded border-[#f3f4f6] bg-[#ffffff] accent-[#4f46e5]"
+                            className="mt-1 h-4 w-4 cursor-pointer rounded border-[var(--it-hairline)] bg-[#ffffff] accent-[#4f46e5]"
                           />
                           <span className="min-w-0 flex-1">
                             <span className="block text-sm font-medium text-[var(--it-text)]">{termName(assessment.name, es ? "es" : "en")}</span>
@@ -584,7 +584,7 @@ export default function NewProjectPage() {
         <div className="flex items-center gap-3 justify-end">
           <Link
             href="/projects"
-            className="px-5 py-2.5 rounded-lg border border-[#f3f4f6] text-slate-400 hover:text-slate-200 hover:border-[#d1d5db] text-sm font-medium transition-colors"
+            className="px-5 py-2.5 rounded-lg border border-[var(--it-hairline)] text-slate-400 hover:text-slate-200 hover:border-[#d1d5db] text-sm font-medium transition-colors"
           >
             {copy.cancel}
           </Link>

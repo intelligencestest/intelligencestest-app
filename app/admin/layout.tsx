@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getInternalAdmin } from "@/lib/internal-admin";
 import CommandPalette from "@/components/admin/CommandPalette";
@@ -13,6 +14,9 @@ const NAV = [
  * violet INTERNAL chrome so an operator always knows which side they're on.
  * Pages must still guard their own data (layout and page render in parallel).
  */
+// Private product surface: never indexed (robots.ts is advisory; this is not).
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const adminCtx = await getInternalAdmin();
 
