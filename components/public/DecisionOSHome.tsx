@@ -22,6 +22,8 @@ import {
   Users,
 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/BrandLogo";
+import { PublicFooter } from "@/components/public/PublicSite";
+import type { PublicCopy } from "@/lib/public-site-copy";
 
 type Locale = "en" | "es";
 
@@ -31,6 +33,7 @@ type DecisionOSHomeProps = {
   loginHref: string;
   demoHref: string;
   sampleHref: string;
+  publicCopy: PublicCopy;
 };
 
 const copy = {
@@ -140,9 +143,9 @@ const toneClass: Record<string, string> = {
 function SectionIntro({ kicker, title, body }: { kicker: string; title: string; body: string }) {
   return (
     <div className="max-w-2xl">
-      <p className="text-xs font-semibold uppercase text-indigo-300">{kicker}</p>
-      <h2 className="mt-4 text-3xl font-semibold leading-tight text-white sm:text-4xl">{title}</h2>
-      <p className="mt-5 text-base leading-7 text-zinc-400">{body}</p>
+      <p className="text-xs font-semibold uppercase text-indigo-700">{kicker}</p>
+      <h2 className="mt-4 text-3xl font-semibold leading-tight text-slate-950 sm:text-4xl">{title}</h2>
+      <p className="mt-5 text-base leading-7 text-slate-600">{body}</p>
     </div>
   );
 }
@@ -167,87 +170,87 @@ function CommandCenter({ locale }: { locale: Locale }) {
 
   return (
     <div className="relative mx-auto mt-14 max-w-6xl lg:mt-18">
-      <div className="absolute inset-x-20 -top-10 h-40 bg-indigo-500/15 blur-3xl" aria-hidden="true" />
-      <div className="relative overflow-hidden rounded-lg border border-white/10 bg-[#111113] shadow-[0_32px_100px_rgba(0,0,0,0.5)]">
-        <div className="flex h-11 items-center gap-2 border-b border-white/8 bg-white/[0.025] px-4">
-          <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-          <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-          <span className="h-2.5 w-2.5 rounded-full bg-zinc-700" />
-          <span className="ml-3 hidden text-[11px] text-zinc-600 sm:block">app.intelligencestest.com/dashboard</span>
+      <div className="absolute inset-x-24 -top-8 h-32 bg-indigo-100/70 blur-3xl" aria-hidden="true" />
+      <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_24px_70px_-36px_rgba(15,23,42,0.28)]">
+        <div className="flex h-11 items-center gap-2 border-b border-slate-200 bg-slate-50 px-4">
+          <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+          <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+          <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+          <span className="ml-3 hidden text-[11px] text-slate-400 sm:block">app.intelligencestest.com/dashboard</span>
         </div>
         <div className="grid min-h-[510px] lg:grid-cols-[190px_1fr_270px]">
-          <aside className="hidden border-r border-white/8 p-5 lg:block" aria-label="Product preview navigation">
-            <p className="text-xs font-semibold text-white">Workspace</p>
-            <div className="mt-5 space-y-1 text-xs text-zinc-500">
-              <p className="rounded-md bg-white/[0.06] px-3 py-2 text-zinc-100">Command center</p>
+          <aside className="hidden border-r border-slate-200 bg-slate-50/70 p-5 lg:block" aria-label="Product preview navigation">
+            <p className="text-xs font-semibold text-slate-900">Workspace</p>
+            <div className="mt-5 space-y-1 text-xs text-slate-500">
+              <p className="rounded-md border border-slate-200 bg-white px-3 py-2 text-slate-900">Command center</p>
               <p className="px-3 py-2">Attention inbox</p>
               <p className="px-3 py-2">Projects</p>
               <p className="px-3 py-2">Candidates</p>
               <p className="px-3 py-2">Reports</p>
             </div>
-            <div className="mt-8 border-t border-white/8 pt-5">
-              <p className="text-[11px] uppercase text-zinc-600">Active role</p>
-              <p className="mt-2 text-xs font-medium text-zinc-300">Operations Lead</p>
-              <p className="mt-1 text-[11px] text-zinc-600">12 candidates</p>
+            <div className="mt-8 border-t border-slate-200 pt-5">
+              <p className="text-[11px] uppercase text-slate-400">Active role</p>
+              <p className="mt-2 text-xs font-medium text-slate-700">Operations Lead</p>
+              <p className="mt-1 text-[11px] text-slate-400">12 candidates</p>
             </div>
           </aside>
 
           <div className="min-w-0 p-5 sm:p-7">
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
               <div>
-                <p className="text-lg font-semibold text-white">{t.command}</p>
-                <p className="mt-1 text-xs text-zinc-500">{t.commandNote}</p>
+                <p className="text-lg font-semibold text-slate-950">{t.command}</p>
+                <p className="mt-1 text-xs text-slate-500">{t.commandNote}</p>
               </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-md border border-emerald-400/20 bg-emerald-400/8 px-3 py-1.5 text-xs font-medium text-emerald-300">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" /> Live evidence
+              <span className="inline-flex w-fit items-center gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live evidence
               </span>
             </div>
 
-            <div className="mt-7 grid grid-cols-3 gap-3 border-y border-white/8 py-5">
+            <div className="mt-7 grid grid-cols-3 gap-3 border-y border-slate-200 py-5">
               {[["6", t.attention], ["11", t.reviewed], ["38", t.signals]].map(([value, label]) => (
                 <div key={label}>
-                  <p className="text-xl font-semibold tabular-nums text-white sm:text-2xl">{value}</p>
-                  <p className="mt-1 text-[11px] text-zinc-500 sm:text-xs">{label}</p>
+                  <p className="text-xl font-semibold tabular-nums text-slate-950 sm:text-2xl">{value}</p>
+                  <p className="mt-1 text-[11px] text-slate-500 sm:text-xs">{label}</p>
                 </div>
               ))}
             </div>
 
             <div className="mt-6">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-zinc-200">Candidates to interview first</p>
-                <p className="text-[11px] text-zinc-600">Ranked by role evidence</p>
+                <p className="text-xs font-semibold text-slate-800">Candidates to interview first</p>
+                <p className="text-[11px] text-slate-400">Ranked by role evidence</p>
               </div>
-              <div className="mt-3 divide-y divide-white/8 rounded-lg border border-white/8 bg-white/[0.025]">
+              <div className="mt-3 divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
                 {candidates.map((candidate, index) => (
                   <div key={candidate[0]} className="grid gap-3 px-4 py-4 sm:grid-cols-[28px_1fr_auto] sm:items-center">
-                    <span className="text-xs tabular-nums text-zinc-600">0{index + 1}</span>
+                    <span className="text-xs tabular-nums text-slate-400">0{index + 1}</span>
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-sm font-medium text-zinc-100">{candidate[0]}</p>
-                        <span className="rounded-md bg-white/[0.06] px-2 py-0.5 text-[10px] text-zinc-400">{candidate[2]}</span>
+                        <p className="text-sm font-medium text-slate-900">{candidate[0]}</p>
+                        <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600">{candidate[2]}</span>
                       </div>
-                      <p className="mt-1 text-xs text-zinc-600">{candidate[1]} · {candidate[4]}</p>
+                      <p className="mt-1 text-xs text-slate-500">{candidate[1]} · {candidate[4]}</p>
                     </div>
-                    <p className="text-sm font-semibold tabular-nums text-zinc-200">{candidate[3]}</p>
+                    <p className="text-sm font-semibold tabular-nums text-slate-800">{candidate[3]}</p>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <aside className="border-t border-white/8 bg-black/20 p-5 lg:border-l lg:border-t-0">
+          <aside className="border-t border-slate-200 bg-slate-50/70 p-5 lg:border-l lg:border-t-0">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold text-zinc-200">Decision brief</p>
-              <span className="text-[10px] text-zinc-600">Nadia Chen</span>
+              <p className="text-xs font-semibold text-slate-800">Decision brief</p>
+              <span className="text-[10px] text-slate-400">Nadia Chen</span>
             </div>
-            <div className="mt-5 flex items-center justify-between border-b border-white/8 pb-5">
+            <div className="mt-5 flex items-center justify-between border-b border-slate-200 pb-5">
               <div>
-                <p className="text-[11px] uppercase text-zinc-600">Recommendation</p>
-                <p className="mt-1 text-lg font-semibold text-white">Interview first</p>
+                <p className="text-[11px] uppercase text-slate-400">Recommendation</p>
+                <p className="mt-1 text-lg font-semibold text-slate-950">Interview first</p>
               </div>
               <div className="text-right">
-                <p className="text-[11px] text-zinc-600">Confidence</p>
-                <p className="mt-1 text-sm font-semibold text-emerald-300">High · 92%</p>
+                <p className="text-[11px] text-slate-400">Confidence</p>
+                <p className="mt-1 text-sm font-semibold text-emerald-700">High · 92%</p>
               </div>
             </div>
             <div className="mt-5 space-y-4">
@@ -255,11 +258,11 @@ function CommandCenter({ locale }: { locale: Locale }) {
               <Signal label="Role alignment" value="Strong" width="86%" />
               <Signal label="People leadership" value="Verify" width="64%" warning />
             </div>
-            <div className="mt-6 rounded-lg border border-amber-400/15 bg-amber-400/[0.04] p-4">
-              <div className="flex items-center gap-2 text-xs font-medium text-amber-200">
+            <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+              <div className="flex items-center gap-2 text-xs font-medium text-amber-800">
                 <CircleAlert className="h-3.5 w-3.5" /> Risk to verify
               </div>
-              <p className="mt-2 text-xs leading-5 text-zinc-400">Limited evidence for delegation in a multi-team environment.</p>
+              <p className="mt-2 text-xs leading-5 text-slate-600">Limited evidence for delegation in a multi-team environment.</p>
             </div>
           </aside>
         </div>
@@ -272,11 +275,11 @@ function Signal({ label, value, width, warning = false }: { label: string; value
   return (
     <div>
       <div className="flex justify-between gap-3 text-[11px]">
-        <span className="text-zinc-500">{label}</span>
-        <span className={warning ? "text-amber-300" : "text-zinc-300"}>{value}</span>
+        <span className="text-slate-500">{label}</span>
+        <span className={warning ? "text-amber-700" : "text-slate-700"}>{value}</span>
       </div>
-      <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/8">
-        <div className={`h-full rounded-full ${warning ? "bg-amber-400" : "bg-indigo-400"}`} style={{ width }} />
+      <div className="mt-2 h-1 overflow-hidden rounded-full bg-slate-200">
+        <div className={`h-full rounded-full ${warning ? "bg-amber-500" : "bg-indigo-600"}`} style={{ width }} />
       </div>
     </div>
   );
@@ -284,24 +287,24 @@ function Signal({ label, value, width, warning = false }: { label: string; value
 
 function AttentionInbox({ locale }: { locale: Locale }) {
   return (
-    <div className="overflow-hidden rounded-lg border border-white/10 bg-[#111113]">
-      <div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_16px_40px_-30px_rgba(15,23,42,0.24)]">
+      <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
         <div className="flex items-center gap-2">
-          <Inbox className="h-4 w-4 text-zinc-500" />
-          <p className="text-sm font-semibold text-zinc-100">Attention inbox</p>
+          <Inbox className="h-4 w-4 text-slate-500" />
+          <p className="text-sm font-semibold text-slate-900">Attention inbox</p>
         </div>
-        <span className="rounded-md bg-indigo-400/10 px-2 py-1 text-[11px] font-medium text-indigo-300">6 open</span>
+        <span className="rounded-md bg-indigo-50 px-2 py-1 text-[11px] font-medium text-indigo-700">6 open</span>
       </div>
       <div className="divide-y divide-white/8">
         {inboxItems[locale].map(([title, meta, action, tone]) => (
-          <div key={title} className="group flex items-center gap-3 px-5 py-4 transition-colors hover:bg-white/[0.025]">
+          <div key={title} className="group flex items-center gap-3 px-5 py-4 transition-colors hover:bg-slate-50">
             <StatusDot tone={tone} />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm text-zinc-200">{title}</p>
-              <p className="mt-1 truncate text-xs text-zinc-600">{meta}</p>
+              <p className="truncate text-sm text-slate-800">{title}</p>
+              <p className="mt-1 truncate text-xs text-slate-500">{meta}</p>
             </div>
-            <span className="hidden text-xs text-zinc-500 sm:block">{action}</span>
-            <ChevronRight className="h-4 w-4 text-zinc-700 transition-colors group-hover:text-zinc-400" />
+            <span className="hidden text-xs text-slate-500 sm:block">{action}</span>
+            <ChevronRight className="h-4 w-4 text-slate-300 transition-colors group-hover:text-slate-600" />
           </div>
         ))}
       </div>
@@ -314,7 +317,7 @@ function CandidateBrief({ locale }: { locale: Locale }) {
     ? { recommendation: "Recommendation", verdict: "Advance to structured interview", confidence: "High confidence", evidence: "Evidence", strengths: "Strengths", risks: "Risks", focus: "Interview focus", verify: "What to verify next" }
     : { recommendation: "Recomendación", verdict: "Avanzar a entrevista estructurada", confidence: "Confianza alta", evidence: "Evidencia", strengths: "Fortalezas", risks: "Riesgos", focus: "Foco de entrevista", verify: "Qué verificar después" };
   return (
-    <div className="rounded-lg border border-white/10 bg-[#f4f2ed] p-5 text-[#18181b] sm:p-8">
+    <div className="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-[0_18px_50px_-36px_rgba(15,23,42,0.24)] sm:p-8">
       <div className="flex flex-col justify-between gap-5 border-b border-black/10 pb-6 sm:flex-row sm:items-start">
         <div>
           <p className="text-xs font-semibold uppercase text-zinc-500">Executive candidate brief</p>
@@ -369,27 +372,27 @@ function InterviewKit({ locale }: { locale: Locale }) {
     [isEn ? "Weak signal" : "Señal débil", isEn ? "Relies on intuition without a threshold, owner, or feedback loop." : "Depende de la intuición sin umbral, responsable ni ciclo de aprendizaje."],
   ];
   return (
-    <div className="rounded-lg border border-white/10 bg-[#111113]">
-      <div className="flex flex-col gap-4 border-b border-white/8 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <div className="rounded-lg border border-slate-200 bg-white shadow-[0_16px_40px_-30px_rgba(15,23,42,0.2)]">
+      <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-white">Operations Lead · Structured interview kit</p>
-          <p className="mt-1 text-xs text-zinc-600">Generated from role criteria and candidate evidence</p>
+          <p className="text-sm font-semibold text-slate-950">Operations Lead · Structured interview kit</p>
+          <p className="mt-1 text-xs text-slate-500">Generated from role criteria and candidate evidence</p>
         </div>
-        <span className="inline-flex w-fit items-center gap-2 rounded-md border border-white/10 px-3 py-1.5 text-xs text-zinc-400"><Target className="h-3.5 w-3.5" /> Decision judgment</span>
+        <span className="inline-flex w-fit items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-600"><Target className="h-3.5 w-3.5" /> Decision judgment</span>
       </div>
       <div className="divide-y divide-white/8">
         {rows.map(([label, body], index) => (
           <div key={label} className="grid gap-3 p-5 sm:grid-cols-[150px_1fr] sm:p-6">
-            <p className="flex items-center gap-2 text-xs font-semibold text-zinc-500">
-              <span className="text-zinc-700">0{index + 1}</span>{label}
+            <p className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+              <span className="text-slate-300">0{index + 1}</span>{label}
             </p>
-            <p className={`text-sm leading-6 ${index === 2 ? "text-emerald-200" : index === 3 ? "text-amber-200" : "text-zinc-300"}`}>{body}</p>
+            <p className={`text-sm leading-6 ${index === 2 ? "text-emerald-700" : index === 3 ? "text-amber-800" : "text-slate-700"}`}>{body}</p>
           </div>
         ))}
       </div>
-      <div className="flex items-center justify-between border-t border-white/8 bg-white/[0.02] px-5 py-4">
-        <span className="text-xs text-zinc-500">Scorecard guidance · 1–5 behavioral anchors</span>
-        <ListChecks className="h-4 w-4 text-indigo-300" />
+      <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-5 py-4">
+        <span className="text-xs text-slate-500">Scorecard guidance · 1–5 behavioral anchors</span>
+        <ListChecks className="h-4 w-4 text-indigo-700" />
       </div>
     </div>
   );
@@ -401,127 +404,128 @@ function RoleCalibration({ locale }: { locale: Locale }) {
     ? [["Role", "Operations Lead"], ["Seniority", "Manager"], ["Must-have", "Judgment · ownership · communication"], ["Deal-breaker", "Low integrity evidence"], ["Priority", "Operate through ambiguity"]]
     : [["Rol", "Líder de operaciones"], ["Seniority", "Manager"], ["Esencial", "Criterio · responsabilidad · comunicación"], ["Descarte", "Baja evidencia de integridad"], ["Prioridad", "Operar con ambigüedad"]];
   return (
-    <div className="grid overflow-hidden rounded-lg border border-white/10 bg-[#111113] lg:grid-cols-[1fr_0.9fr]">
+    <div className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_16px_40px_-30px_rgba(15,23,42,0.2)] lg:grid-cols-[1fr_0.9fr]">
       <div className="p-5 sm:p-7">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white"><BriefcaseBusiness className="h-4 w-4 text-indigo-300" /> {isEn ? "Role profile" : "Perfil del rol"}</div>
-        <div className="mt-6 divide-y divide-white/8 border-y border-white/8">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-950"><BriefcaseBusiness className="h-4 w-4 text-indigo-700" /> {isEn ? "Role profile" : "Perfil del rol"}</div>
+        <div className="mt-6 divide-y divide-slate-100 border-y border-slate-200">
           {criteria.map(([label, value]) => (
             <div key={label} className="grid gap-2 py-4 sm:grid-cols-[110px_1fr]">
-              <span className="text-xs text-zinc-600">{label}</span>
-              <span className="text-sm text-zinc-300">{value}</span>
+              <span className="text-xs text-slate-500">{label}</span>
+              <span className="text-sm text-slate-700">{value}</span>
             </div>
           ))}
         </div>
       </div>
-      <div className="border-t border-white/8 bg-indigo-400/[0.035] p-5 sm:p-7 lg:border-l lg:border-t-0">
-        <div className="flex items-center gap-2 text-sm font-semibold text-white"><Sparkles className="h-4 w-4 text-indigo-300" /> {isEn ? "Recommended decision framework" : "Marco de decisión recomendado"}</div>
+      <div className="border-t border-slate-200 bg-indigo-50/50 p-5 sm:p-7 lg:border-l lg:border-t-0">
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-950"><Sparkles className="h-4 w-4 text-indigo-700" /> {isEn ? "Recommended decision framework" : "Marco de decisión recomendado"}</div>
         <div className="mt-6 space-y-5">
           {["Decision Making", "Critical Thinking", "Communication Skills", "Integrity & Ethics"].map((item, index) => (
             <div key={item} className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3"><span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.06] text-[10px] text-zinc-500">0{index + 1}</span><span className="text-sm text-zinc-300">{item}</span></div>
-              <Check className="h-4 w-4 text-emerald-300" />
+              <div className="flex items-center gap-3"><span className="flex h-6 w-6 items-center justify-center rounded-md bg-white text-[10px] text-slate-500 ring-1 ring-slate-200">0{index + 1}</span><span className="text-sm text-slate-700">{item}</span></div>
+              <Check className="h-4 w-4 text-emerald-600" />
             </div>
           ))}
         </div>
-        <div className="mt-7 border-t border-white/8 pt-5">
-          <div className="flex justify-between text-xs"><span className="text-zinc-500">Role evidence coverage</span><span className="font-semibold text-zinc-200">91%</span></div>
-          <div className="mt-3 h-1.5 rounded-full bg-white/8"><div className="h-full w-[91%] rounded-full bg-indigo-400" /></div>
+        <div className="mt-7 border-t border-indigo-100 pt-5">
+          <div className="flex justify-between text-xs"><span className="text-slate-500">Role evidence coverage</span><span className="font-semibold text-slate-800">91%</span></div>
+          <div className="mt-3 h-1.5 rounded-full bg-indigo-100"><div className="h-full w-[91%] rounded-full bg-indigo-600" /></div>
         </div>
       </div>
     </div>
   );
 }
 
-export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHref }: DecisionOSHomeProps) {
+export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHref, publicCopy }: DecisionOSHomeProps) {
   const t = copy[locale];
   const trustItems = locale === "en"
     ? [["Evidence for every recommendation", SearchCheck], ["Visible confidence levels", Gauge], ["Human override", UserCheck], ["Complete audit trail", History], ["Transparent candidate experience", ShieldCheck]]
     : [["Evidencia para cada recomendación", SearchCheck], ["Niveles de confianza visibles", Gauge], ["Decisión humana", UserCheck], ["Registro de auditoría completo", History], ["Experiencia transparente del candidato", ShieldCheck]];
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#09090b] text-zinc-100">
-      <header className="sticky top-0 z-50 border-b border-white/8 bg-[#09090b]/90 backdrop-blur-xl">
+    <main className="min-h-screen overflow-hidden bg-white text-[#0f172a]">
+      <div className="[--color-slate-50:#f8fafc] [--color-slate-100:#f1f5f9] [--color-slate-200:#e2e8f0] [--color-slate-300:#cbd5e1] [--color-slate-400:#94a3b8] [--color-slate-500:#64748b] [--color-slate-600:#475569] [--color-slate-700:#334155] [--color-slate-800:#1e293b] [--color-slate-900:#0f172a] [--color-slate-950:#020617]">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/92 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-5 px-5 sm:px-6 lg:px-8">
           <Link href={homeHref} aria-label="IntelligencesTest home">
             <BrandLockup
               subtitle="Hiring Decision OS"
               markClassName="h-9 w-9 rounded-lg"
-              titleClassName="text-zinc-100"
-              subtitleClassName="text-zinc-600"
+              titleClassName="text-slate-950"
+              subtitleClassName="text-slate-500"
             />
           </Link>
-          <nav className="hidden items-center gap-7 text-sm text-zinc-500 lg:flex" aria-label="Primary navigation">
-            <a href="#product" className="transition-colors hover:text-white">{t.nav.product}</a>
-            <a href="#workflow" className="transition-colors hover:text-white">{t.nav.workflow}</a>
-            <a href="#trust" className="transition-colors hover:text-white">{t.nav.trust}</a>
+          <nav className="hidden items-center gap-7 text-sm text-slate-500 lg:flex" aria-label="Primary navigation">
+            <a href="#product" className="transition-colors hover:text-slate-950">{t.nav.product}</a>
+            <a href="#workflow" className="transition-colors hover:text-slate-950">{t.nav.workflow}</a>
+            <a href="#trust" className="transition-colors hover:text-slate-950">{t.nav.trust}</a>
           </nav>
           <div className="flex items-center gap-2">
-            <Link href={loginHref} className="hidden px-3 py-2 text-sm font-medium text-zinc-400 transition-colors hover:text-white sm:inline-flex">{t.nav.login}</Link>
-            <Link href={demoHref} className="inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-semibold text-zinc-950 transition-colors hover:bg-zinc-200">{t.nav.demo}<ArrowRight className="h-4 w-4" /></Link>
+            <Link href={loginHref} className="hidden px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-950 sm:inline-flex">{t.nav.login}</Link>
+            <Link href={demoHref} className="inline-flex items-center gap-2 rounded-md bg-indigo-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-800">{t.nav.demo}<ArrowRight className="h-4 w-4" /></Link>
           </div>
         </div>
       </header>
 
-      <section className="relative border-b border-white/8 px-5 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:px-8">
-        <div className="absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_at_top,rgba(79,70,229,0.14),transparent_62%)]" aria-hidden="true" />
+      <section className="relative border-b border-slate-200 bg-[#fbfbfc] px-5 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:px-8">
+        <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_top,rgba(79,70,229,0.07),transparent_65%)]" aria-hidden="true" />
         <div className="relative mx-auto max-w-7xl">
           <div className="mx-auto max-w-4xl text-center">
-            <p className="text-xs font-semibold uppercase text-indigo-300">{t.eyebrow}</p>
-            <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] text-white sm:text-6xl lg:text-7xl">{t.heroTitle}</h1>
-            <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-zinc-400">{t.heroBody}</p>
+            <p className="text-xs font-semibold uppercase text-indigo-700">{t.eyebrow}</p>
+            <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] text-slate-950 sm:text-6xl lg:text-7xl">{t.heroTitle}</h1>
+            <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600">{t.heroBody}</p>
             <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href={demoHref} className="inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
-              <Link href={sampleHref} className="inline-flex items-center justify-center gap-2 rounded-md border border-white/14 bg-white/[0.035] px-5 py-3 text-sm font-semibold text-zinc-200 transition hover:bg-white/[0.07]">{t.sample}<FileCheck2 className="h-4 w-4" /></Link>
+              <Link href={demoHref} className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
+              <Link href={sampleHref} className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">{t.sample}<FileCheck2 className="h-4 w-4" /></Link>
             </div>
-            <p className="mt-6 text-xs text-zinc-600">{t.heroNote}</p>
+            <p className="mt-6 text-xs text-slate-500">{t.heroNote}</p>
           </div>
           <CommandCenter locale={locale} />
         </div>
       </section>
 
-      <section id="product" className="scroll-mt-20 border-b border-white/8 py-20 sm:py-28">
+      <section id="product" className="scroll-mt-20 border-b border-slate-200 bg-white py-20 sm:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-center lg:gap-20 lg:px-8">
           <SectionIntro kicker={t.inboxKicker} title={t.inboxTitle} body={t.inboxBody} />
           <AttentionInbox locale={locale} />
         </div>
       </section>
 
-      <section id="candidate-brief" className="scroll-mt-20 border-b border-white/8 bg-[#0d0d0f] py-20 sm:py-28">
+      <section id="candidate-brief" className="scroll-mt-20 border-b border-slate-200 bg-slate-50 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <SectionIntro kicker={t.briefKicker} title={t.briefTitle} body={t.briefBody} />
           <div className="mt-12"><CandidateBrief locale={locale} /></div>
         </div>
       </section>
 
-      <section id="workflow" className="scroll-mt-20 border-b border-white/8 py-20 sm:py-28">
+      <section id="workflow" className="scroll-mt-20 border-b border-slate-200 bg-white py-20 sm:py-28">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 sm:px-6 lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-20 lg:px-8">
           <SectionIntro kicker={t.interviewKicker} title={t.interviewTitle} body={t.interviewBody} />
           <InterviewKit locale={locale} />
         </div>
       </section>
 
-      <section className="border-b border-white/8 bg-[#0d0d0f] py-20 sm:py-28">
+      <section className="border-b border-slate-200 bg-slate-50 py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
             <SectionIntro kicker={t.calibrationKicker} title={t.calibrationTitle} body={t.calibrationBody} />
-            <div className="hidden justify-end lg:flex"><BriefcaseBusiness className="h-16 w-16 text-white/5" /></div>
+            <div className="hidden justify-end lg:flex"><BriefcaseBusiness className="h-16 w-16 text-slate-200" /></div>
           </div>
           <div className="mt-12"><RoleCalibration locale={locale} /></div>
         </div>
       </section>
 
-      <section id="trust" className="scroll-mt-20 border-b border-white/8 py-20 sm:py-28">
+      <section id="trust" className="scroll-mt-20 border-b border-slate-200 bg-white py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8">
           <div className="grid gap-14 lg:grid-cols-[0.85fr_1.15fr] lg:gap-24">
             <SectionIntro kicker={t.trustKicker} title={t.trustTitle} body={t.trustBody} />
-            <div className="divide-y divide-white/8 border-y border-white/8">
+            <div className="divide-y divide-slate-200 border-y border-slate-200">
               {trustItems.map(([label, Icon]) => {
                 const TrustIcon = Icon as typeof SearchCheck;
                 return (
                   <div key={label as string} className="flex items-center gap-4 py-5">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-md bg-white/[0.04]"><TrustIcon className="h-4 w-4 text-indigo-300" /></span>
-                    <span className="text-sm text-zinc-300">{label as string}</span>
-                    <Check className="ml-auto h-4 w-4 text-zinc-600" />
+                    <span className="flex h-9 w-9 items-center justify-center rounded-md bg-indigo-50"><TrustIcon className="h-4 w-4 text-indigo-700" /></span>
+                    <span className="text-sm text-slate-700">{label as string}</span>
+                    <Check className="ml-auto h-4 w-4 text-emerald-600" />
                   </div>
                 );
               })}
@@ -535,10 +539,10 @@ export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHr
             ].map(([Icon, title, body]) => {
               const FeatureIcon = Icon as typeof LockKeyhole;
               return (
-                <div key={title as string} className="rounded-lg border border-white/8 p-6">
-                  <FeatureIcon className="h-5 w-5 text-zinc-500" />
-                  <h3 className="mt-5 text-sm font-semibold text-white">{title as string}</h3>
-                  <p className="mt-2 text-sm leading-6 text-zinc-500">{body as string}</p>
+                <div key={title as string} className="rounded-lg border border-slate-200 bg-white p-6">
+                  <FeatureIcon className="h-5 w-5 text-slate-500" />
+                  <h3 className="mt-5 text-sm font-semibold text-slate-950">{title as string}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{body as string}</p>
                 </div>
               );
             })}
@@ -546,21 +550,16 @@ export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHr
         </div>
       </section>
 
-      <section className="relative px-5 py-24 sm:px-6 sm:py-32 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(79,70,229,0.12),transparent_62%)]" aria-hidden="true" />
+      <section className="relative bg-[#f6f7fb] px-5 py-24 sm:px-6 sm:py-32 lg:px-8">
         <div className="relative mx-auto max-w-3xl text-center">
-          <h2 className="text-balance text-4xl font-semibold leading-tight text-white sm:text-5xl">{t.finalTitle}</h2>
-          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-zinc-400">{t.finalBody}</p>
-          <Link href={demoHref} className="mt-9 inline-flex items-center justify-center gap-2 rounded-md bg-white px-5 py-3 text-sm font-semibold text-zinc-950 transition hover:bg-zinc-200">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
+          <h2 className="text-balance text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">{t.finalTitle}</h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-600">{t.finalBody}</p>
+          <Link href={demoHref} className="mt-9 inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
 
-      <footer className="border-t border-white/8">
-        <div className="mx-auto flex max-w-7xl flex-col gap-5 px-5 py-8 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <BrandLockup markClassName="h-8 w-8 rounded-md" titleClassName="text-zinc-200" subtitleClassName="text-zinc-600" subtitle="Hiring Decision OS" />
-          <p className="text-xs text-zinc-600">{t.footer}</p>
-        </div>
-      </footer>
+      </div>
+      <PublicFooter copy={publicCopy} />
     </main>
   );
 }
