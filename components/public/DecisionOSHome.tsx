@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/BrandLogo";
 import { PublicFooter } from "@/components/public/PublicSite";
+import { AuroraBackground } from "@/components/ui/aurora-background";
+import { DisplayCards } from "@/components/ui/display-cards";
 import type { PublicCopy } from "@/lib/public-site-copy";
 
 type Locale = "en" | "es";
@@ -113,6 +115,11 @@ const copy = {
       scorecard: "Scorecard guidance · 1–5 behavioral anchors",
       coverage: "Role evidence coverage",
       assessments: ["Decision Making", "Critical Thinking", "Communication Skills", "Integrity & Ethics"],
+      heroCards: [
+        { kind: "recommendation", title: "Interview priority", description: "Nadia Chen · Interview first", meta: "High confidence · 92%" },
+        { kind: "risk", title: "Risk to verify", description: "Delegation evidence is incomplete", meta: "Add to structured interview" },
+        { kind: "interview", title: "Interview focus", description: "Cross-functional conflict and coaching", meta: "3 role-specific questions ready" },
+      ],
     },
   },
   es: {
@@ -191,6 +198,11 @@ const copy = {
       scorecard: "Guía de puntuación · anclas conductuales 1–5",
       coverage: "Cobertura de evidencia del rol",
       assessments: ["Toma de Decisiones", "Pensamiento Crítico", "Habilidades de Comunicación", "Integridad y Ética"],
+      heroCards: [
+        { kind: "recommendation", title: "Prioridad de entrevista", description: "Nadia Chen · Entrevistar primero", meta: "Confianza alta · 92%" },
+        { kind: "risk", title: "Riesgo por verificar", description: "La evidencia sobre delegación está incompleta", meta: "Añadir a la entrevista estructurada" },
+        { kind: "interview", title: "Foco de entrevista", description: "Conflicto transversal y coaching", meta: "3 preguntas específicas listas" },
+      ],
     },
   },
 } as const;
@@ -550,21 +562,25 @@ export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHr
         </div>
       </header>
 
-      <section className="relative border-b border-slate-200 bg-[#fbfbfc] px-5 pb-20 pt-20 sm:px-6 sm:pb-28 sm:pt-28 lg:px-8">
-        <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_at_top,rgba(79,70,229,0.07),transparent_65%)]" aria-hidden="true" />
-        <div className="relative mx-auto max-w-7xl">
-          <div className="mx-auto max-w-4xl text-center">
-            <p className="text-xs font-semibold uppercase text-indigo-700">{t.eyebrow}</p>
-            <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] text-slate-950 sm:text-6xl lg:text-7xl">{t.heroTitle}</h1>
-            <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600">{t.heroBody}</p>
-            <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link href={demoHref} className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
-              <Link href={sampleHref} className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">{t.sample}<FileCheck2 className="h-4 w-4" /></Link>
+      <section className="border-b border-slate-200">
+        <AuroraBackground className="px-5 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
+              <div className="max-w-3xl text-center lg:text-left">
+                <p className="text-xs font-semibold uppercase text-indigo-700">{t.eyebrow}</p>
+                <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] text-slate-950 sm:text-6xl lg:text-7xl">{t.heroTitle}</h1>
+                <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600 lg:mx-0">{t.heroBody}</p>
+                <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
+                  <Link href={demoHref} className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
+                  <Link href={sampleHref} className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">{t.sample}<FileCheck2 className="h-4 w-4" /></Link>
+                </div>
+                <p className="mt-6 text-xs text-slate-500">{t.heroNote}</p>
+              </div>
+              <DisplayCards cards={t.ui.heroCards} />
             </div>
-            <p className="mt-6 text-xs text-slate-500">{t.heroNote}</p>
+            <CommandCenter locale={locale} />
           </div>
-          <CommandCenter locale={locale} />
-        </div>
+        </AuroraBackground>
       </section>
 
       <section id="product" className="scroll-mt-20 border-b border-slate-200 bg-white py-20 sm:py-28">

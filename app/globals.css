@@ -98,6 +98,26 @@ body {
   }
 }
 
+@keyframes aurora-drift {
+  0% { background-position: 50% 50%, 50% 50%; }
+  50% { background-position: 10% 50%, 90% 45%; }
+  100% { background-position: 50% 50%, 50% 50%; }
+}
+
+.aurora-field {
+  background-image:
+    repeating-linear-gradient(100deg, #ffffff 0%, #ffffff 7%, transparent 10%, transparent 12%, #ffffff 16%),
+    repeating-linear-gradient(100deg, #3b82f6 10%, #a5b4fc 15%, #93c5fd 20%, #ddd6fe 25%, #60a5fa 30%);
+  background-position: 50% 50%, 50% 50%;
+  background-size: 300% 200%, 200% 100%;
+  animation: aurora-drift 18s ease-in-out infinite;
+  filter: saturate(0.8);
+}
+
+.aurora-field-mask {
+  mask-image: radial-gradient(ellipse at 82% 8%, black 8%, transparent 68%);
+}
+
 /* premium-card is retired: it resolves to the same calm surface as
    .enterprise-card so the few screens still referencing it match the rest
    of the product. */
@@ -257,7 +277,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-up,
-  .animate-soft-pulse {
+  .animate-soft-pulse,
+  .aurora-field {
     animation: none;
   }
 
