@@ -13,15 +13,16 @@ import {
   LANGUAGE_STORAGE_KEY,
   localePath,
   toAppLocale,
+  type AppLocale,
 } from "@/lib/i18n/locales";
 
 const INDUSTRIES = [
-  { value: "Recruitment Agency", en: "Recruitment agency", es: "Agencia de reclutamiento" },
-  { value: "Call Center / BPO", en: "Call center / BPO", es: "Call center / BPO" },
-  { value: "SME / Startup", en: "SME / Startup", es: "Pyme / Startup" },
-  { value: "Consulting Firm", en: "Consulting firm", es: "Consultora" },
-  { value: "Enterprise HR", en: "Enterprise HR", es: "RR. HH. corporativo" },
-  { value: "Other", en: "Other", es: "Otro" },
+  { value: "Recruitment Agency", en: "Recruitment agency", es: "Agencia de reclutamiento", fr: "Cabinet de recrutement" },
+  { value: "Call Center / BPO", en: "Call center / BPO", es: "Call center / BPO", fr: "Centre d'appels / BPO" },
+  { value: "SME / Startup", en: "SME / Startup", es: "Pyme / Startup", fr: "PME / Startup" },
+  { value: "Consulting Firm", en: "Consulting firm", es: "Consultora", fr: "Cabinet de conseil" },
+  { value: "Enterprise HR", en: "Enterprise HR", es: "RR. HH. corporativo", fr: "RH d'entreprise" },
+  { value: "Other", en: "Other", es: "Otro", fr: "Autre" },
 ] as const;
 
 const COMPANY_SIZES = [
@@ -43,6 +44,7 @@ const HIRING_VOLUMES = [
 const LANGUAGES = [
   { value: "es", labelKey: "spanish", code: "ES" },
   { value: "en", labelKey: "english", code: "EN" },
+  { value: "fr", labelKey: "french", code: "FR" },
 ] as const;
 
 type NextAction = "project" | "dashboard";
@@ -52,8 +54,141 @@ type OnboardingForm = {
   industry: string;
   company_size: string;
   hires_per_month: string;
-  language: "en" | "es";
+  language: AppLocale;
   next_action: NextAction;
+};
+
+const onboardingCopy: Record<AppLocale, {
+  brandSubtitle: string;
+  eyebrow: string;
+  welcomeTitle: string;
+  welcomeBody: string;
+  included: string[];
+  start: string;
+  companyTitle: string;
+  companyBody: string;
+  companyName: string;
+  companyPlaceholder: string;
+  industry: string;
+  profileTitle: string;
+  profileBody: string;
+  companySize: string;
+  hiresPerMonth: string;
+  languageTitle: string;
+  languageBody: string;
+  language: string;
+  afterSetup: string;
+  createProject: string;
+  createProjectHint: string;
+  dashboard: string;
+  dashboardHint: string;
+  back: string;
+  next: string;
+  finish: string;
+  saving: string;
+  requiredFields: string;
+  genericError: string;
+  stepLabel: (current: number, total: number) => string;
+}> = {
+  es: {
+    brandSubtitle: "Plataforma de evaluación",
+    eyebrow: "Configuración inicial",
+    welcomeTitle: "Configure su espacio de evaluación.",
+    welcomeBody:
+      "En menos de un minuto dejaremos lista la cuenta para crear el primer proyecto, invitar candidatos y revisar informes ejecutivos.",
+    included: ["14 días de prueba", "2 proyectos", "10 invitaciones de candidatos"],
+    start: "Comenzar configuración",
+    companyTitle: "Empresa",
+    companyBody: "Estos datos ayudan a adaptar el espacio a su operación de selección.",
+    companyName: "Nombre de la empresa",
+    companyPlaceholder: "Acme Recruitment Ltd",
+    industry: "Industria",
+    profileTitle: "Volumen de contratación",
+    profileBody: "Usamos esta información para priorizar límites, soporte y futuras recomendaciones.",
+    companySize: "Tamaño de empresa",
+    hiresPerMonth: "Contrataciones al mes",
+    languageTitle: "Idioma y siguiente paso",
+    languageBody: "El idioma se aplicará al panel, las invitaciones, las evaluaciones y los informes.",
+    language: "Idioma de evaluación",
+    afterSetup: "Después de configurar",
+    createProject: "Crear el primer proyecto",
+    createProjectHint: "Recomendado para ver valor de inmediato.",
+    dashboard: "Ir al panel",
+    dashboardHint: "Revisar el espacio antes de crear proyectos.",
+    back: "Volver",
+    next: "Continuar",
+    finish: "Finalizar configuración",
+    saving: "Guardando...",
+    requiredFields: "Complete los campos obligatorios antes de continuar.",
+    genericError: "Algo salió mal. Intente de nuevo.",
+    stepLabel: (current: number, total: number) => `Paso ${current} de ${total}`,
+  },
+  en: {
+    brandSubtitle: "Assessment Platform",
+    eyebrow: "Initial setup",
+    welcomeTitle: "Set up your assessment workspace.",
+    welcomeBody:
+      "In less than a minute, we will prepare the account to create the first project, invite candidates, and review executive reports.",
+    included: ["14-day trial", "2 projects", "10 candidate invitations"],
+    start: "Start setup",
+    companyTitle: "Company",
+    companyBody: "These details help tailor the workspace to your hiring operation.",
+    companyName: "Company name",
+    companyPlaceholder: "Acme Recruitment Ltd",
+    industry: "Industry",
+    profileTitle: "Hiring volume",
+    profileBody: "Use this information to prioritize limits, support, and future recommendations.",
+    companySize: "Company size",
+    hiresPerMonth: "Hires per month",
+    languageTitle: "Language and next step",
+    languageBody: "The language applies to the dashboard, invitations, assessments, and reports.",
+    language: "Assessment language",
+    afterSetup: "After setup",
+    createProject: "Create the first project",
+    createProjectHint: "Recommended to see value immediately.",
+    dashboard: "Go to dashboard",
+    dashboardHint: "Review the workspace before creating projects.",
+    back: "Back",
+    next: "Continue",
+    finish: "Finish setup",
+    saving: "Saving...",
+    requiredFields: "Complete the required fields before continuing.",
+    genericError: "Something went wrong. Please try again.",
+    stepLabel: (current: number, total: number) => `Step ${current} of ${total}`,
+  },
+  fr: {
+    brandSubtitle: "Plateforme d'évaluation",
+    eyebrow: "Configuration initiale",
+    welcomeTitle: "Configurez votre espace d'évaluation.",
+    welcomeBody:
+      "En moins d'une minute, nous préparerons le compte pour créer votre premier projet, inviter des candidats et consulter les rapports exécutifs.",
+    included: ["14 jours d'essai", "2 projets", "10 invitations de candidats"],
+    start: "Commencer la configuration",
+    companyTitle: "Entreprise",
+    companyBody: "Ces informations permettent d'adapter l'espace à votre activité de recrutement.",
+    companyName: "Nom de l'entreprise",
+    companyPlaceholder: "Acme Recruitment Ltd",
+    industry: "Secteur",
+    profileTitle: "Volume de recrutement",
+    profileBody: "Nous utilisons ces informations pour prioriser les limites, le support et les futures recommandations.",
+    companySize: "Taille de l'entreprise",
+    hiresPerMonth: "Recrutements par mois",
+    languageTitle: "Langue et étape suivante",
+    languageBody: "La langue s'appliquera au tableau de bord, aux invitations, aux évaluations et aux rapports.",
+    language: "Langue d'évaluation",
+    afterSetup: "Après la configuration",
+    createProject: "Créer le premier projet",
+    createProjectHint: "Recommandé pour voir immédiatement la valeur.",
+    dashboard: "Aller au tableau de bord",
+    dashboardHint: "Examiner l'espace avant de créer des projets.",
+    back: "Retour",
+    next: "Continuer",
+    finish: "Terminer la configuration",
+    saving: "Enregistrement...",
+    requiredFields: "Complétez les champs obligatoires avant de continuer.",
+    genericError: "Une erreur s'est produite. Veuillez réessayer.",
+    stepLabel: (current: number, total: number) => `Étape ${current} sur ${total}`,
+  },
 };
 
 export default function OnboardingPage() {
@@ -61,7 +196,6 @@ export default function OnboardingPage() {
   const language = useTranslations("language");
   const locale = useLocale();
   const initialLocale = toAppLocale(locale);
-  const es = initialLocale === "es";
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<OnboardingForm>({
     company_name: "",
@@ -74,71 +208,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const copy = es
-    ? {
-        eyebrow: "Configuración inicial",
-        welcomeTitle: "Configure su espacio de evaluación.",
-        welcomeBody:
-          "En menos de un minuto dejaremos lista la cuenta para crear el primer proyecto, invitar candidatos y revisar informes ejecutivos.",
-        included: ["14 días de prueba", "2 proyectos", "10 invitaciones de candidatos"],
-        start: "Comenzar configuración",
-        companyTitle: "Empresa",
-        companyBody: "Estos datos ayudan a adaptar el espacio a su operación de selección.",
-        companyName: "Nombre de la empresa",
-        companyPlaceholder: "Acme Recruitment Ltd",
-        industry: "Industria",
-        profileTitle: "Volumen de contratación",
-        profileBody: "Usamos esta información para priorizar límites, soporte y futuras recomendaciones.",
-        companySize: "Tamaño de empresa",
-        hiresPerMonth: "Contrataciones al mes",
-        languageTitle: "Idioma y siguiente paso",
-        languageBody: "El idioma se aplicará al panel, las invitaciones, las evaluaciones y los informes.",
-        language: "Idioma de evaluación",
-        afterSetup: "Después de configurar",
-        createProject: "Crear el primer proyecto",
-        createProjectHint: "Recomendado para ver valor de inmediato.",
-        dashboard: "Ir al panel",
-        dashboardHint: "Revisar el espacio antes de crear proyectos.",
-        back: "Volver",
-        next: "Continuar",
-        finish: "Finalizar configuración",
-        saving: "Guardando...",
-        requiredFields: "Complete los campos obligatorios antes de continuar.",
-        genericError: "Algo salió mal. Intente de nuevo.",
-        stepLabel: (current: number, total: number) => `Paso ${current} de ${total}`,
-      }
-    : {
-        eyebrow: "Initial setup",
-        welcomeTitle: "Set up your assessment workspace.",
-        welcomeBody:
-          "In less than a minute, we will prepare the account to create the first project, invite candidates, and review executive reports.",
-        included: ["14-day trial", "2 projects", "10 candidate invitations"],
-        start: "Start setup",
-        companyTitle: "Company",
-        companyBody: "These details help tailor the workspace to your hiring operation.",
-        companyName: "Company name",
-        companyPlaceholder: "Acme Recruitment Ltd",
-        industry: "Industry",
-        profileTitle: "Hiring volume",
-        profileBody: "Use this information to prioritize limits, support, and future recommendations.",
-        companySize: "Company size",
-        hiresPerMonth: "Hires per month",
-        languageTitle: "Language and next step",
-        languageBody: "The language applies to the dashboard, invitations, assessments, and reports.",
-        language: "Assessment language",
-        afterSetup: "After setup",
-        createProject: "Create the first project",
-        createProjectHint: "Recommended to see value immediately.",
-        dashboard: "Go to dashboard",
-        dashboardHint: "Review the workspace before creating projects.",
-        back: "Back",
-        next: "Continue",
-        finish: "Finish setup",
-        saving: "Saving...",
-        requiredFields: "Complete the required fields before continuing.",
-        genericError: "Something went wrong. Please try again.",
-        stepLabel: (current: number, total: number) => `Step ${current} of ${total}`,
-      };
+  const copy = onboardingCopy[initialLocale];
 
   const totalSteps = 4;
   const canContinue =
@@ -199,7 +269,7 @@ export default function OnboardingPage() {
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-4xl flex-col justify-center">
         <div className="mb-8 flex items-center justify-center">
           <BrandLockup
-            subtitle={es ? "Plataforma de evaluación" : "Assessment Platform"}
+            subtitle={copy.brandSubtitle}
             markClassName="h-10 w-10"
             titleClassName="tracking-normal"
           />
@@ -315,7 +385,7 @@ export default function OnboardingPage() {
                           selected={form.industry === industry.value}
                           onClick={() => setForm((f) => ({ ...f, industry: industry.value }))}
                         >
-                          {es ? industry.es : industry.en}
+                          {industry[initialLocale]}
                         </ChoiceButton>
                       ))}
                     </div>

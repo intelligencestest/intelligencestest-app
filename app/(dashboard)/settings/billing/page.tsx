@@ -5,7 +5,7 @@ import { ArrowRight, Check, Minus } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { PayPalSubscribeButton } from "@/components/billing/PayPalSubscribeButton";
-import { localePath, toAppLocale } from "@/lib/i18n/locales";
+import { localePath, toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 const PAYPAL_MANAGE_URL = "https://www.paypal.com/myaccount/autopay/";
 
@@ -63,148 +63,279 @@ function FeatureValue({
   return <span className="text-sm font-semibold tabular-nums text-[var(--it-text)]">{value}</span>;
 }
 
+const dateLocaleByAppLocale: Record<AppLocale, string> = {
+  es: "es-ES",
+  en: "en-US",
+  fr: "fr-FR",
+};
+
+interface BillingCopy {
+  title: string;
+  description: string;
+  trialEnds: string;
+  trialEnded: string;
+  daysLeft: (days: number) => string;
+  paymentMode: string;
+  candidates: string;
+  projects: string;
+  recruiters: string;
+  unlimited: string;
+  unlimitedShort: string;
+  availablePlans: string;
+  availablePlansText: string;
+  matrixLabel: string;
+  freeTrial: string;
+  starter: string;
+  professional: string;
+  enterprise: string;
+  trialPrice: string;
+  starterPrice: string;
+  professionalPrice: string;
+  enterprisePrice: string;
+  current: string;
+  contactSales: string;
+  loading: string;
+  billingUnavailable: string;
+  manual: string;
+  paypal: string;
+  legacy: (plan: string) => string;
+  subscriptionLabels: { manual: string; pending_payment: string; active: string; past_due: string; cancelled: string };
+  included: string;
+  notIncluded: string;
+  featureRecruiters: string;
+  featureCandidateInvitations: string;
+  featureProjects: string;
+  featureExecutiveReports: string;
+  featureAssessments: string;
+  featureTeamCollaboration: string;
+  featurePrioritySupport: string;
+  billingHistoryText: string;
+  manageInPayPal: string;
+  bannerTrialActive: (days: number) => string;
+  bannerTrialExpired: string;
+  bannerPending: string;
+  bannerPastDue: string;
+  bannerCancelled: string;
+  bannerEnterprise: string;
+  bannerSupport: string;
+  nearLimit: string;
+  atLimit: string;
+  mostTeamsTag: string;
+}
+
+const billingCopy: Record<AppLocale, BillingCopy> = {
+  es: {
+    title: "Plan y facturación",
+    description: "Gestione su prueba, límites de uso y suscripción de IntelligencesTest.",
+    trialEnds: "La prueba finaliza",
+    trialEnded: "La prueba finalizó",
+    daysLeft: (days: number) => (days === 1 ? "Queda 1 día" : `Quedan ${days} días`),
+    paymentMode: "PayPal está disponible para Starter y Professional. Enterprise se gestiona con el equipo comercial.",
+    candidates: "Candidatos este mes",
+    projects: "Proyectos activos",
+    recruiters: "Reclutadores",
+    unlimited: "sin límite",
+    unlimitedShort: "Sin límite",
+    availablePlans: "Planes disponibles",
+    availablePlansText: "Elija el plan que corresponde a su volumen actual.",
+    matrixLabel: "Qué incluye",
+    freeTrial: "Prueba gratuita",
+    starter: "Starter",
+    professional: "Professional",
+    enterprise: "Enterprise",
+    trialPrice: "14 días gratis",
+    starterPrice: "49 €/mes",
+    professionalPrice: "149 €/mes",
+    enterprisePrice: "Contactar con ventas",
+    current: "Actual",
+    contactSales: "Contactar con ventas",
+    loading: "Cargando facturación...",
+    billingUnavailable: "No se pudo cargar la información actual del plan.",
+    manual: "Manual",
+    paypal: "PayPal",
+    legacy: (plan: string) => `Plan anterior (${plan})`,
+    subscriptionLabels: {
+      manual: "Manual",
+      pending_payment: "Pago pendiente",
+      active: "Activo",
+      past_due: "Pago pendiente",
+      cancelled: "Cancelado",
+    },
+    included: "Incluido",
+    notIncluded: "No incluido",
+    featureRecruiters: "Reclutadores",
+    featureCandidateInvitations: "Invitaciones de candidatos",
+    featureProjects: "Proyectos",
+    featureExecutiveReports: "Informes ejecutivos",
+    featureAssessments: "Evaluaciones",
+    featureTeamCollaboration: "Colaboración de equipo",
+    featurePrioritySupport: "Soporte prioritario",
+    billingHistoryText:
+      "Sus facturas y recibos de PayPal están disponibles directamente en su cuenta de PayPal.",
+    manageInPayPal: "Gestionar en PayPal",
+    bannerTrialActive: (days: number) =>
+      days === 1
+        ? "Su prueba gratuita finaliza mañana. Elija un plan para no perder acceso."
+        : `Su prueba gratuita está activa — quedan ${days} días. Elija un plan antes de que finalice.`,
+    bannerTrialExpired:
+      "Su prueba ha finalizado. Sus datos se conservan: elija un plan para reactivar el workspace.",
+    bannerPending:
+      "Activación de PayPal en curso. Suele confirmarse en unos minutos; si tarda más de una hora, contacte con soporte.",
+    bannerPastDue:
+      "El último cobro no se completó. Actualice su método de pago en PayPal para mantener el acceso.",
+    bannerCancelled:
+      "Su suscripción está cancelada. Sus datos se conservan: elija un plan para reactivarla cuando quiera.",
+    bannerEnterprise:
+      "Su plan Enterprise se gestiona con el equipo comercial. Para cambios de límites o facturación, contacte con nosotros.",
+    bannerSupport: "Contactar con soporte",
+    nearLimit: "cerca del límite",
+    atLimit: "límite alcanzado",
+    mostTeamsTag: "La mayoría de equipos",
+  },
+  en: {
+    title: "Plan and billing",
+    description: "Manage your trial, usage limits, and IntelligencesTest subscription.",
+    trialEnds: "Trial ends",
+    trialEnded: "Trial ended",
+    daysLeft: (days: number) => (days === 1 ? "1 day left" : `${days} days left`),
+    paymentMode: "PayPal is available for Starter and Professional. Enterprise is handled by the commercial team.",
+    candidates: "Candidates this month",
+    projects: "Active projects",
+    recruiters: "Recruiters",
+    unlimited: "unlimited",
+    unlimitedShort: "Unlimited",
+    availablePlans: "Available plans",
+    availablePlansText: "Choose the plan that matches your current hiring volume.",
+    matrixLabel: "What's included",
+    freeTrial: "Free trial",
+    starter: "Starter",
+    professional: "Professional",
+    enterprise: "Enterprise",
+    trialPrice: "14-day free trial",
+    starterPrice: "€49/month",
+    professionalPrice: "€149/month",
+    enterprisePrice: "Contact Sales",
+    current: "Current",
+    contactSales: "Contact sales",
+    loading: "Loading billing...",
+    billingUnavailable: "We could not load your current plan information.",
+    manual: "Manual",
+    paypal: "PayPal",
+    legacy: (plan: string) => `Legacy plan (${plan})`,
+    subscriptionLabels: {
+      manual: "Manual",
+      pending_payment: "Pending payment",
+      active: "Active",
+      past_due: "Past due",
+      cancelled: "Cancelled",
+    },
+    included: "Included",
+    notIncluded: "Not included",
+    featureRecruiters: "Recruiters",
+    featureCandidateInvitations: "Candidate invitations",
+    featureProjects: "Projects",
+    featureExecutiveReports: "Executive reports",
+    featureAssessments: "Assessments",
+    featureTeamCollaboration: "Team collaboration",
+    featurePrioritySupport: "Priority support",
+    billingHistoryText: "Your PayPal invoices and receipts are available directly in your PayPal account.",
+    manageInPayPal: "Manage in PayPal",
+    bannerTrialActive: (days: number) =>
+      days === 1
+        ? "Your free trial ends tomorrow. Choose a plan to keep access."
+        : `Your free trial is active — ${days} days left. Choose a plan before it ends.`,
+    bannerTrialExpired:
+      "Your trial has ended. Your data is preserved: choose a plan to reactivate the workspace.",
+    bannerPending:
+      "PayPal activation in progress. It usually confirms within minutes; if it takes more than an hour, contact support.",
+    bannerPastDue:
+      "The last charge did not complete. Update your payment method in PayPal to keep access.",
+    bannerCancelled:
+      "Your subscription is cancelled. Your data is preserved: choose a plan to reactivate whenever you want.",
+    bannerEnterprise:
+      "Your Enterprise plan is managed by the commercial team. For limit or billing changes, contact us.",
+    bannerSupport: "Contact support",
+    nearLimit: "near the limit",
+    atLimit: "limit reached",
+    mostTeamsTag: "Most teams",
+  },
+  fr: {
+    title: "Offre et facturation",
+    description: "Gérez votre essai, vos limites d'utilisation et votre abonnement IntelligencesTest.",
+    trialEnds: "L'essai se termine",
+    trialEnded: "L'essai est terminé",
+    daysLeft: (days: number) => (days === 1 ? "Il reste 1 jour" : `Il reste ${days} jours`),
+    paymentMode: "PayPal est disponible pour Starter et Professional. Enterprise est géré par l'équipe commerciale.",
+    candidates: "Candidats ce mois-ci",
+    projects: "Projets actifs",
+    recruiters: "Recruteurs",
+    unlimited: "illimité",
+    unlimitedShort: "Illimité",
+    availablePlans: "Offres disponibles",
+    availablePlansText: "Choisissez l'offre adaptée à votre volume actuel.",
+    matrixLabel: "Ce qui est inclus",
+    freeTrial: "Essai gratuit",
+    starter: "Starter",
+    professional: "Professional",
+    enterprise: "Enterprise",
+    trialPrice: "14 jours gratuits",
+    starterPrice: "49 €/mois",
+    professionalPrice: "149 €/mois",
+    enterprisePrice: "Contacter l'équipe commerciale",
+    current: "Actuel",
+    contactSales: "Contacter l'équipe commerciale",
+    loading: "Chargement de la facturation...",
+    billingUnavailable: "Impossible de charger les informations de votre offre actuelle.",
+    manual: "Manuel",
+    paypal: "PayPal",
+    legacy: (plan: string) => `Ancienne offre (${plan})`,
+    subscriptionLabels: {
+      manual: "Manuel",
+      pending_payment: "Paiement en attente",
+      active: "Actif",
+      past_due: "Paiement en retard",
+      cancelled: "Annulé",
+    },
+    included: "Inclus",
+    notIncluded: "Non inclus",
+    featureRecruiters: "Recruteurs",
+    featureCandidateInvitations: "Invitations de candidats",
+    featureProjects: "Projets",
+    featureExecutiveReports: "Rapports exécutifs",
+    featureAssessments: "Évaluations",
+    featureTeamCollaboration: "Collaboration d'équipe",
+    featurePrioritySupport: "Support prioritaire",
+    billingHistoryText: "Vos factures et reçus PayPal sont disponibles directement dans votre compte PayPal.",
+    manageInPayPal: "Gérer dans PayPal",
+    bannerTrialActive: (days: number) =>
+      days === 1
+        ? "Votre essai gratuit se termine demain. Choisissez une offre pour conserver l'accès."
+        : `Votre essai gratuit est actif — il reste ${days} jours. Choisissez une offre avant qu'il ne se termine.`,
+    bannerTrialExpired:
+      "Votre essai est terminé. Vos données sont conservées : choisissez une offre pour réactiver l'espace de travail.",
+    bannerPending:
+      "Activation PayPal en cours. Cela se confirme généralement en quelques minutes ; si cela prend plus d'une heure, contactez le support.",
+    bannerPastDue:
+      "Le dernier paiement n'a pas abouti. Mettez à jour votre moyen de paiement dans PayPal pour conserver l'accès.",
+    bannerCancelled:
+      "Votre abonnement est annulé. Vos données sont conservées : choisissez une offre pour le réactiver quand vous le souhaitez.",
+    bannerEnterprise:
+      "Votre offre Enterprise est gérée par l'équipe commerciale. Pour toute modification de limites ou de facturation, contactez-nous.",
+    bannerSupport: "Contacter le support",
+    nearLimit: "proche de la limite",
+    atLimit: "limite atteinte",
+    mostTeamsTag: "La plupart des équipes",
+  },
+};
+
 export default function BillingSettingsPage() {
   const locale = toAppLocale(useLocale());
   const billingT = useTranslations("billing");
-  const es = locale === "es";
   const [planData, setPlanData] = useState<PlanData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<PaidPlanId>("professional");
 
-  const copy = es
-    ? {
-        title: "Plan y facturación",
-        description: "Gestione su prueba, límites de uso y suscripción de IntelligencesTest.",
-        trialEnds: "La prueba finaliza",
-        trialEnded: "La prueba finalizó",
-        daysLeft: (days: number) => (days === 1 ? "Queda 1 día" : `Quedan ${days} días`),
-        paymentMode: "PayPal está disponible para Starter y Professional. Enterprise se gestiona con el equipo comercial.",
-        candidates: "Candidatos este mes",
-        projects: "Proyectos activos",
-        recruiters: "Reclutadores",
-        unlimited: "sin límite",
-        unlimitedShort: "Sin límite",
-        availablePlans: "Planes disponibles",
-        availablePlansText: "Elija el plan que corresponde a su volumen actual.",
-        matrixLabel: "Qué incluye",
-        freeTrial: "Prueba gratuita",
-        starter: "Starter",
-        professional: "Professional",
-        enterprise: "Enterprise",
-        trialPrice: "14 días gratis",
-        starterPrice: "49 €/mes",
-        professionalPrice: "149 €/mes",
-        enterprisePrice: "Contactar con ventas",
-        current: "Actual",
-        contactSales: "Contactar con ventas",
-        loading: "Cargando facturación...",
-        billingUnavailable: "No se pudo cargar la información actual del plan.",
-        manual: "Manual",
-        paypal: "PayPal",
-        legacy: (plan: string) => `Plan anterior (${plan})`,
-        subscriptionLabels: {
-          manual: "Manual",
-          pending_payment: "Pago pendiente",
-          active: "Activo",
-          past_due: "Pago pendiente",
-          cancelled: "Cancelado",
-        },
-        included: "Incluido",
-        notIncluded: "No incluido",
-        featureRecruiters: "Reclutadores",
-        featureCandidateInvitations: "Invitaciones de candidatos",
-        featureProjects: "Proyectos",
-        featureExecutiveReports: "Informes ejecutivos",
-        featureAssessments: "Evaluaciones",
-        featureTeamCollaboration: "Colaboración de equipo",
-        featurePrioritySupport: "Soporte prioritario",
-        billingHistoryText:
-          "Sus facturas y recibos de PayPal están disponibles directamente en su cuenta de PayPal.",
-        manageInPayPal: "Gestionar en PayPal",
-        bannerTrialActive: (days: number) =>
-          days === 1
-            ? "Su prueba gratuita finaliza mañana. Elija un plan para no perder acceso."
-            : `Su prueba gratuita está activa — quedan ${days} días. Elija un plan antes de que finalice.`,
-        bannerTrialExpired:
-          "Su prueba ha finalizado. Sus datos se conservan: elija un plan para reactivar el workspace.",
-        bannerPending:
-          "Activación de PayPal en curso. Suele confirmarse en unos minutos; si tarda más de una hora, contacte con soporte.",
-        bannerPastDue:
-          "El último cobro no se completó. Actualice su método de pago en PayPal para mantener el acceso.",
-        bannerCancelled:
-          "Su suscripción está cancelada. Sus datos se conservan: elija un plan para reactivarla cuando quiera.",
-        bannerEnterprise:
-          "Su plan Enterprise se gestiona con el equipo comercial. Para cambios de límites o facturación, contacte con nosotros.",
-        bannerSupport: "Contactar con soporte",
-        nearLimit: "cerca del límite",
-        atLimit: "límite alcanzado",
-      }
-    : {
-        title: "Plan and billing",
-        description: "Manage your trial, usage limits, and IntelligencesTest subscription.",
-        trialEnds: "Trial ends",
-        trialEnded: "Trial ended",
-        daysLeft: (days: number) => (days === 1 ? "1 day left" : `${days} days left`),
-        paymentMode: "PayPal is available for Starter and Professional. Enterprise is handled by the commercial team.",
-        candidates: "Candidates this month",
-        projects: "Active projects",
-        recruiters: "Recruiters",
-        unlimited: "unlimited",
-        unlimitedShort: "Unlimited",
-        availablePlans: "Available plans",
-        availablePlansText: "Choose the plan that matches your current hiring volume.",
-        matrixLabel: "What's included",
-        freeTrial: "Free trial",
-        starter: "Starter",
-        professional: "Professional",
-        enterprise: "Enterprise",
-        trialPrice: "14-day free trial",
-        starterPrice: "€49/month",
-        professionalPrice: "€149/month",
-        enterprisePrice: "Contact Sales",
-        current: "Current",
-        contactSales: "Contact sales",
-        loading: "Loading billing...",
-        billingUnavailable: "We could not load your current plan information.",
-        manual: "Manual",
-        paypal: "PayPal",
-        legacy: (plan: string) => `Legacy plan (${plan})`,
-        subscriptionLabels: {
-          manual: "Manual",
-          pending_payment: "Pending payment",
-          active: "Active",
-          past_due: "Past due",
-          cancelled: "Cancelled",
-        },
-        included: "Included",
-        notIncluded: "Not included",
-        featureRecruiters: "Recruiters",
-        featureCandidateInvitations: "Candidate invitations",
-        featureProjects: "Projects",
-        featureExecutiveReports: "Executive reports",
-        featureAssessments: "Assessments",
-        featureTeamCollaboration: "Team collaboration",
-        featurePrioritySupport: "Priority support",
-        billingHistoryText: "Your PayPal invoices and receipts are available directly in your PayPal account.",
-        manageInPayPal: "Manage in PayPal",
-        bannerTrialActive: (days: number) =>
-          days === 1
-            ? "Your free trial ends tomorrow. Choose a plan to keep access."
-            : `Your free trial is active — ${days} days left. Choose a plan before it ends.`,
-        bannerTrialExpired:
-          "Your trial has ended. Your data is preserved: choose a plan to reactivate the workspace.",
-        bannerPending:
-          "PayPal activation in progress. It usually confirms within minutes; if it takes more than an hour, contact support.",
-        bannerPastDue:
-          "The last charge did not complete. Update your payment method in PayPal to keep access.",
-        bannerCancelled:
-          "Your subscription is cancelled. Your data is preserved: choose a plan to reactivate whenever you want.",
-        bannerEnterprise:
-          "Your Enterprise plan is managed by the commercial team. For limit or billing changes, contact us.",
-        bannerSupport: "Contact support",
-        nearLimit: "near the limit",
-        atLimit: "limit reached",
-      };
+  const copy = billingCopy[locale];
 
   useEffect(() => {
     let mounted = true;
@@ -267,7 +398,7 @@ export default function BillingSettingsPage() {
       id: "professional" as const,
       name: copy.professional,
       price: copy.professionalPrice,
-      tag: es ? "La mayoría de equipos" : "Most teams",
+      tag: copy.mostTeamsTag,
     },
     {
       id: "enterprise" as const,
@@ -312,7 +443,7 @@ export default function BillingSettingsPage() {
     metaParts.push({ text: subscriptionLabel });
     metaParts.push({ text: planData.billingProvider === "paypal" ? copy.paypal : copy.manual });
     if (planData.trialEndsAt) {
-      const trialDateLabel = new Date(planData.trialEndsAt).toLocaleDateString(es ? "es-ES" : "en-US", {
+      const trialDateLabel = new Date(planData.trialEndsAt).toLocaleDateString(dateLocaleByAppLocale[locale], {
         day: "numeric",
         month: "short",
         year: "numeric",

@@ -1,3 +1,4 @@
+import { contentLocale } from "./types";
 import type { CompetencyDefinition, CompetencyId, IntelligenceLocale } from "./types";
 
 export const COMPETENCY_TAXONOMY: Record<CompetencyId, CompetencyDefinition> = {
@@ -382,7 +383,7 @@ export const COMPETENCY_TAXONOMY: Record<CompetencyId, CompetencyDefinition> = {
 };
 
 export function localize<T extends { en: string; es: string }>(text: T, locale: IntelligenceLocale): string {
-  return text[locale] ?? text.es;
+  return text[contentLocale(locale)] ?? text.es;
 }
 
 export function competencyLabel(id: CompetencyId, locale: IntelligenceLocale): string {

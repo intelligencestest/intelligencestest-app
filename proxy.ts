@@ -6,10 +6,11 @@ import {
   LANGUAGE_COOKIE,
   LANGUAGE_COOKIE_MAX_AGE,
   LOCALE_HEADER,
-  LOCALE_PREFIX,
-  hasLocalePrefix,
+  LOCALE_PREFIXES,
   isAppLocale,
+  localeFromPrefix,
   stripLocalePrefix,
+  toAppLocale,
   type AppLocale,
 } from "@/lib/i18n/locales";
 
@@ -28,22 +29,24 @@ const PROTECTED = [
 const AUTH_PAGES = ["/login", "/signup"];
 
 // Unprefixed public entry pages that must render in English regardless of any
-// stale cookie, mirroring how /es forces Spanish. Their Spanish counterparts
-// are reached via the /es prefix instead.
+// stale cookie, mirroring how /es and /fr force their locale. Their translated
+// counterparts are reached via the matching prefix instead.
 const ENGLISH_ENTRY = ["/login", "/signup", "/forgot-password", "/reset-password", "/verify-email"];
 
 export async function proxy(request: NextRequest) {
   const rawPathname = request.nextUrl.pathname;
-  const underEs = hasLocalePrefix(rawPathname);
-  // The path the app actually routes on, with any /es prefix removed.
+  // Which non-English locale (if any) the URL prefix forces — null if unprefixed.
+  const prefixLocale = localeFromPrefix(rawPathname);
+  const underPrefix = prefixLocale !== null;
+  // The path the app actually routes on, with any locale prefix removed.
   const logicalPath = stripLocalePrefix(rawPathname);
-  const prefix = underEs ? LOCALE_PREFIX : "";
+  const prefix = prefixLocale ? LOCALE_PREFIXES[prefixLocale]! : "";
 
   // A forced locale means the URL — not the cookie — decides the language for
-  // this request: es under /es, en on the English entry pages.
+  // this request: the prefix's locale under a prefix, en on the English entry pages.
   let forcedLocale: AppLocale | null = null;
-  if (underEs) {
-    forcedLocale = "es";
+  if (prefixLocale) {
+    forcedLocale = prefixLocale;
   } else if (ENGLISH_ENTRY.includes(logicalPath)) {
     forcedLocale = "en";
   }
@@ -51,11 +54,12 @@ export async function proxy(request: NextRequest) {
   // Spanish is the default public experience: the bare homepage redirects to
   // /es unless the visitor carries an explicit English signal (lang=en cookie,
   // set by the English entry pages or an English workspace). DEFAULT_LOCALE
-  // stays "en" so the many toAppLocale fallbacks keep their behavior.
-  if (!underEs && logicalPath === "/") {
+  // stays "en" so the many toAppLocale fallbacks keep their behavior. French is
+  // reached explicitly via /fr — it does not compete for this anonymous default.
+  if (!underPrefix && logicalPath === "/") {
     const cookieLang = request.cookies.get(LANGUAGE_COOKIE)?.value;
     if (cookieLang !== "en") {
-      return withLocaleCookie(NextResponse.redirect(new URL(LOCALE_PREFIX, request.url)), "es", request);
+      return withLocaleCookie(NextResponse.redirect(new URL(LOCALE_PREFIXES.es!, request.url)), "es", request);
     }
   }
 
@@ -70,7 +74,7 @@ export async function proxy(request: NextRequest) {
   }
 
   const buildResponse = () => {
-    if (underEs) {
+    if (underPrefix) {
       const url = request.nextUrl.clone();
       url.pathname = logicalPath;
       return NextResponse.rewrite(url, { request: { headers: requestHeaders } });
@@ -111,19 +115,21 @@ export async function proxy(request: NextRequest) {
 
   if (isHome && user) {
     const target = request.nextUrl.clone();
-    const dashboardPrefix = underEs || cookieLocale === "es" ? LOCALE_PREFIX : "";
+    const effectiveLocale = prefixLocale ?? toAppLocale(cookieLocale);
+    const dashboardPrefix = LOCALE_PREFIXES[effectiveLocale] ?? "";
     target.pathname = `${dashboardPrefix}/dashboard`;
     return withLocaleCookie(NextResponse.redirect(target), forcedLocale, request);
   }
 
-  // Canonicalize Spanish workspaces onto the /es prefix. The lang cookie is a
-  // cache of company.language, so an authenticated Spanish user who lands on an
-  // unprefixed in-app route (e.g. a deep link that omitted the prefix) is sent
-  // to its /es form — keeping the whole app visibly under /es. English (the
-  // default) is never redirected.
-  if (!underEs && isProtected && user && cookieLocale === "es") {
+  // Canonicalize non-English workspaces (Spanish, French) onto their prefix.
+  // The lang cookie is a cache of company.language, so an authenticated
+  // Spanish/French user who lands on an unprefixed in-app route (e.g. a deep
+  // link that omitted the prefix) is sent to its prefixed form — keeping the
+  // whole app visibly under that prefix. English (the default) is never redirected.
+  const cookieLocalePrefix = isAppLocale(cookieLocale) ? LOCALE_PREFIXES[cookieLocale] : undefined;
+  if (!underPrefix && isProtected && user && cookieLocalePrefix) {
     const target = request.nextUrl.clone();
-    target.pathname = `${LOCALE_PREFIX}${logicalPath}`;
+    target.pathname = `${cookieLocalePrefix}${logicalPath}`;
     return NextResponse.redirect(target);
   }
 

@@ -25,9 +25,10 @@ import { BrandLockup } from "@/components/brand/BrandLogo";
 import { PublicFooter } from "@/components/public/PublicSite";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { DisplayCards } from "@/components/ui/display-cards";
+import type { AppLocale } from "@/lib/i18n/locales";
 import type { PublicCopy } from "@/lib/public-site-copy";
 
-type Locale = "en" | "es";
+type Locale = AppLocale;
 
 type DecisionOSHomeProps = {
   locale: Locale;
@@ -205,6 +206,88 @@ const copy = {
       ],
     },
   },
+  fr: {
+    nav: { product: "Produit", workflow: "Flux de travail", trust: "Confiance", login: "Connexion", demo: "Demander une démo" },
+    eyebrow: "Système d'aide à la décision de recrutement",
+    heroTitle: "Des décisions de recrutement, appuyées sur des preuves.",
+    heroBody: "Aidez vos équipes à savoir qui interviewer, pourquoi, et quels risques vérifier avant de trancher.",
+    demo: "Demander une démo",
+    sample: "Voir un exemple de rapport",
+    heroNote: "Aide à la décision pour les recruteurs et responsables de recrutement. Le jugement humain garde le contrôle.",
+    command: "Centre de pilotage du recruteur",
+    commandNote: "Mardi, 09h41 · 4 postes actifs",
+    attention: "Nécessite une attention",
+    reviewed: "Examinés aujourd'hui",
+    signals: "Éléments de preuve",
+    inboxKicker: "Boîte de priorités",
+    inboxTitle: "Commencez par ce qui nécessite une décision.",
+    inboxBody:
+      "Une file d'attente priorisée fait remonter les évaluations terminées, les invitations qui expirent, les profils solides, les risques et les processus de recrutement bloqués avant qu'ils ne deviennent des retards.",
+    briefKicker: "Résumé exécutif du candidat",
+    briefTitle: "Un résumé pour décider, pas un simple écran de scores.",
+    briefBody:
+      "Chaque recommandation est accompagnée d'un niveau de confiance, de preuves à l'appui, de risques visibles et de la prochaine question à laquelle votre équipe doit répondre.",
+    interviewKicker: "Préparation à l'entretien",
+    interviewTitle: "Transformez les preuves en un entretien plus précis.",
+    interviewBody:
+      "Les questions spécifiques au poste sont directement liées aux résultats du candidat, avec des relances et des critères de notation qui gardent l'évaluation structurée.",
+    calibrationKicker: "Calibration du poste",
+    calibrationTitle: "Définissez le niveau attendu avant d'examiner les personnes.",
+    calibrationBody:
+      "Définissez le poste, le niveau de séniorité, les compétences indispensables, les critères éliminatoires et les priorités. IntelligencesTest recommande la batterie d'évaluations et la grille de décision pour votre revue.",
+    trustKicker: "Supervision humaine",
+    trustTitle: "Transparent par conception. Responsable par défaut.",
+    trustBody:
+      "IntelligencesTest appuie le jugement de recrutement ; il ne prend pas la décision finale d'embauche. Votre équipe voit les preuves, comprend l'incertitude et assume chaque résultat.",
+    finalTitle: "Rendez chaque décision de recrutement plus facile à justifier.",
+    finalBody: "Testez gratuitement votre prochaine short-list — jusqu'à 10 candidats. Donnez à votre équipe un chemin partagé et fondé sur des preuves, de la candidature à la décision d'entretien.",
+    footer: "Aide à la décision de recrutement fondée sur des preuves pour les équipes RH modernes.",
+    ui: {
+      workspace: "Espace de travail",
+      commandCenter: "Centre de pilotage",
+      attentionInbox: "Boîte de priorités",
+      projects: "Projets",
+      candidates: "Candidats",
+      reports: "Rapports",
+      activeRole: "Poste actif",
+      roleName: "Responsable des opérations",
+      roleCandidates: "12 candidats",
+      liveEvidence: "Preuves en direct",
+      interviewFirstList: "Candidats à interviewer en premier",
+      rankedBy: "Classés selon les preuves du poste",
+      decisionBrief: "Résumé de décision",
+      recommendation: "Recommandation",
+      interviewFirst: "Interviewer en premier",
+      confidence: "Niveau de confiance",
+      confidenceValue: "Élevé · 92%",
+      signalJudgment: "Jugement décisionnel",
+      signalAlignment: "Adéquation au poste",
+      signalLeadership: "Leadership d'équipe",
+      signalStrong: "Solide",
+      signalVerify: "À vérifier",
+      riskToVerify: "Risque à vérifier",
+      riskText: "Preuves limitées de délégation dans un environnement multi-équipes.",
+      openCount: "6 ouverts",
+      briefWho: "Responsable des opérations · Northstar Logistics",
+      briefRationale: "Preuves cohérentes de jugement analytique, de responsabilité opérationnelle et de prise de décision posée sous pression.",
+      evidenceBody: "4 signaux d'évaluation alignés",
+      strengthsBody: "Priorisation · jugement · communication",
+      risksBody: "Les preuves de délégation sont incomplètes",
+      focusBody: "Conflits transverses et coaching",
+      verifySentence: "Demandez un exemple récent de délégation d'une décision opérationnelle critique.",
+      openFullEvidence: "Voir toutes les preuves",
+      kitTitle: "Responsable des opérations · Guide d'entretien structuré",
+      kitSubtitle: "Généré à partir des critères du poste et des preuves du candidat",
+      scorecard: "Grille de notation · repères comportementaux 1–5",
+      coverage: "Couverture des preuves du poste",
+      assessments: ["Prise de décision", "Pensée critique", "Compétences de communication", "Intégrité et éthique"],
+      heroCards: [
+        { kind: "recommendation", title: "Priorité d'entretien", description: "Nadia Chen · Interviewer en premier", meta: "Confiance élevée · 92%" },
+        { kind: "risk", title: "Risque à vérifier", description: "Les preuves de délégation sont incomplètes", meta: "Ajouter à l'entretien structuré" },
+        { kind: "interview", title: "Focus d'entretien", description: "Conflits transverses et coaching", meta: "3 questions spécifiques prêtes" },
+      ],
+    },
+  },
 } as const;
 
 const inboxItems = {
@@ -221,6 +304,13 @@ const inboxItems = {
     ["Perfil sólido detectado", "Nadia Chen · Líder de operaciones", "Abrir resumen", "info"],
     ["Señal de riesgo por verificar", "Alcance de liderazgo · baja cobertura", "Añadir foco", "danger"],
     ["Proyecto inactivo durante 5 días", "Analista financiero", "Resolver bloqueo", "neutral"],
+  ],
+  fr: [
+    ["3 candidats prêts pour la revue", "Preuves complètes", "Examiner maintenant", "success"],
+    ["2 invitations expirent aujourd'hui", "Développement commercial", "Envoyer un rappel", "warning"],
+    ["Profil solide détecté", "Nadia Chen · Responsable des opérations", "Ouvrir le résumé", "info"],
+    ["Signal de risque à vérifier", "Périmètre de leadership · faible couverture", "Ajouter au focus d'entretien", "danger"],
+    ["Projet inactif depuis 5 jours", "Analyste financier", "Débloquer", "neutral"],
   ],
 } as const;
 
@@ -246,19 +336,27 @@ function StatusDot({ tone }: { tone: string }) {
   return <span className={`h-2 w-2 shrink-0 rounded-full ${toneClass[tone]}`} aria-hidden="true" />;
 }
 
+const commandCenterCandidates: Record<Locale, string[][]> = {
+  en: [
+    ["Nadia Chen", "Operations Lead", "Strong evidence", "92%", "Interview first"],
+    ["Marcus Reed", "Operations Lead", "Proceed", "84%", "Review brief"],
+    ["Elena Ruiz", "Operations Lead", "Verify", "71%", "Risk to check"],
+  ],
+  es: [
+    ["Nadia Chen", "Líder de operaciones", "Evidencia sólida", "92%", "Entrevistar primero"],
+    ["Marcus Reed", "Líder de operaciones", "Avanzar", "84%", "Revisar resumen"],
+    ["Elena Ruiz", "Líder de operaciones", "Verificar", "71%", "Riesgo por revisar"],
+  ],
+  fr: [
+    ["Nadia Chen", "Responsable des opérations", "Preuves solides", "92%", "Interviewer en premier"],
+    ["Marcus Reed", "Responsable des opérations", "Avancer", "84%", "Revoir le résumé"],
+    ["Elena Ruiz", "Responsable des opérations", "Vérifier", "71%", "Risque à vérifier"],
+  ],
+};
+
 function CommandCenter({ locale }: { locale: Locale }) {
   const t = copy[locale];
-  const candidates = locale === "en"
-    ? [
-        ["Nadia Chen", "Operations Lead", "Strong evidence", "92%", "Interview first"],
-        ["Marcus Reed", "Operations Lead", "Proceed", "84%", "Review brief"],
-        ["Elena Ruiz", "Operations Lead", "Verify", "71%", "Risk to check"],
-      ]
-    : [
-        ["Nadia Chen", "Líder de operaciones", "Evidencia sólida", "92%", "Entrevistar primero"],
-        ["Marcus Reed", "Líder de operaciones", "Avanzar", "84%", "Revisar resumen"],
-        ["Elena Ruiz", "Líder de operaciones", "Verificar", "71%", "Riesgo por revisar"],
-      ];
+  const candidates = commandCenterCandidates[locale];
 
   return (
     <div className="relative mx-auto mt-14 max-w-6xl lg:mt-18">
@@ -405,11 +503,15 @@ function AttentionInbox({ locale }: { locale: Locale }) {
   );
 }
 
+const candidateBriefLabels: Record<Locale, Record<"recommendation" | "verdict" | "confidence" | "evidence" | "strengths" | "risks" | "focus" | "verify", string>> = {
+  en: { recommendation: "Recommendation", verdict: "Advance to structured interview", confidence: "High confidence", evidence: "Evidence", strengths: "Strengths", risks: "Risks", focus: "Interview focus", verify: "What to verify next" },
+  es: { recommendation: "Recomendación", verdict: "Avanzar a entrevista estructurada", confidence: "Confianza alta", evidence: "Evidencia", strengths: "Fortalezas", risks: "Riesgos", focus: "Foco de entrevista", verify: "Qué verificar después" },
+  fr: { recommendation: "Recommandation", verdict: "Passer à un entretien structuré", confidence: "Confiance élevée", evidence: "Preuves", strengths: "Forces", risks: "Risques", focus: "Focus d'entretien", verify: "Prochaine chose à vérifier" },
+};
+
 function CandidateBrief({ locale }: { locale: Locale }) {
   const t = copy[locale];
-  const labels = locale === "en"
-    ? { recommendation: "Recommendation", verdict: "Advance to structured interview", confidence: "High confidence", evidence: "Evidence", strengths: "Strengths", risks: "Risks", focus: "Interview focus", verify: "What to verify next" }
-    : { recommendation: "Recomendación", verdict: "Avanzar a entrevista estructurada", confidence: "Confianza alta", evidence: "Evidencia", strengths: "Fortalezas", risks: "Riesgos", focus: "Foco de entrevista", verify: "Qué verificar después" };
+  const labels = candidateBriefLabels[locale];
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-5 text-slate-950 shadow-[0_18px_50px_-36px_rgba(15,23,42,0.24)] sm:p-8">
       <div className="flex flex-col justify-between gap-5 border-b border-black/10 pb-6 sm:flex-row sm:items-start">
@@ -457,15 +559,30 @@ function CandidateBrief({ locale }: { locale: Locale }) {
   );
 }
 
+const interviewKitRows: Record<Locale, string[][]> = {
+  en: [
+    ["Suggested question", "Tell me about a decision you made with incomplete operational data. How did you set the threshold to act?"],
+    ["Follow-up probe", "What evidence would have changed your decision?"],
+    ["Strong answer", "Names the trade-off, sets a decision rule, and explains how the outcome was monitored."],
+    ["Weak signal", "Relies on intuition without a threshold, owner, or feedback loop."],
+  ],
+  es: [
+    ["Pregunta sugerida", "Hábleme de una decisión que tomó con datos operativos incompletos. ¿Cómo definió el umbral para actuar?"],
+    ["Pregunta de seguimiento", "¿Qué evidencia habría cambiado su decisión?"],
+    ["Respuesta sólida", "Nombra el equilibrio, define una regla de decisión y explica cómo supervisó el resultado."],
+    ["Señal débil", "Depende de la intuición sin umbral, responsable ni ciclo de aprendizaje."],
+  ],
+  fr: [
+    ["Question suggérée", "Parlez-moi d'une décision que vous avez prise avec des données opérationnelles incomplètes. Comment avez-vous fixé le seuil pour agir ?"],
+    ["Question de relance", "Quelles preuves auraient changé votre décision ?"],
+    ["Réponse solide", "Nomme le compromis, définit une règle de décision et explique comment le résultat a été suivi."],
+    ["Signal faible", "S'appuie sur l'intuition sans seuil, responsable ni boucle de retour."],
+  ],
+};
+
 function InterviewKit({ locale }: { locale: Locale }) {
   const t = copy[locale];
-  const isEn = locale === "en";
-  const rows = [
-    [isEn ? "Suggested question" : "Pregunta sugerida", isEn ? "Tell me about a decision you made with incomplete operational data. How did you set the threshold to act?" : "Hábleme de una decisión que tomó con datos operativos incompletos. ¿Cómo definió el umbral para actuar?"],
-    [isEn ? "Follow-up probe" : "Pregunta de seguimiento", isEn ? "What evidence would have changed your decision?" : "¿Qué evidencia habría cambiado su decisión?"],
-    [isEn ? "Strong answer" : "Respuesta sólida", isEn ? "Names the trade-off, sets a decision rule, and explains how the outcome was monitored." : "Nombra el equilibrio, define una regla de decisión y explica cómo supervisó el resultado."],
-    [isEn ? "Weak signal" : "Señal débil", isEn ? "Relies on intuition without a threshold, owner, or feedback loop." : "Depende de la intuición sin umbral, responsable ni ciclo de aprendizaje."],
-  ];
+  const rows = interviewKitRows[locale];
   return (
     <div className="rounded-lg border border-slate-200 bg-white shadow-[0_16px_40px_-30px_rgba(15,23,42,0.2)]">
       <div className="flex flex-col gap-4 border-b border-slate-200 p-5 sm:flex-row sm:items-center sm:justify-between">
@@ -493,16 +610,26 @@ function InterviewKit({ locale }: { locale: Locale }) {
   );
 }
 
+const roleCalibrationCriteria: Record<Locale, string[][]> = {
+  en: [["Role", "Operations Lead"], ["Seniority", "Manager"], ["Must-have", "Judgment · ownership · communication"], ["Deal-breaker", "Low integrity evidence"], ["Priority", "Operate through ambiguity"]],
+  es: [["Rol", "Líder de operaciones"], ["Seniority", "Manager"], ["Esencial", "Criterio · responsabilidad · comunicación"], ["Descarte", "Baja evidencia de integridad"], ["Prioridad", "Operar con ambigüedad"]],
+  fr: [["Poste", "Responsable des opérations"], ["Séniorité", "Manager"], ["Indispensable", "Jugement · responsabilité · communication"], ["Éliminatoire", "Faibles preuves d'intégrité"], ["Priorité", "Agir dans l'ambiguïté"]],
+};
+
+const roleCalibrationLabels: Record<Locale, { profile: string; framework: string }> = {
+  en: { profile: "Role profile", framework: "Recommended decision framework" },
+  es: { profile: "Perfil del rol", framework: "Marco de decisión recomendado" },
+  fr: { profile: "Profil du poste", framework: "Cadre de décision recommandé" },
+};
+
 function RoleCalibration({ locale }: { locale: Locale }) {
   const t = copy[locale];
-  const isEn = locale === "en";
-  const criteria = isEn
-    ? [["Role", "Operations Lead"], ["Seniority", "Manager"], ["Must-have", "Judgment · ownership · communication"], ["Deal-breaker", "Low integrity evidence"], ["Priority", "Operate through ambiguity"]]
-    : [["Rol", "Líder de operaciones"], ["Seniority", "Manager"], ["Esencial", "Criterio · responsabilidad · comunicación"], ["Descarte", "Baja evidencia de integridad"], ["Prioridad", "Operar con ambigüedad"]];
+  const criteria = roleCalibrationCriteria[locale];
+  const labels = roleCalibrationLabels[locale];
   return (
     <div className="grid overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_16px_40px_-30px_rgba(15,23,42,0.2)] lg:grid-cols-[1fr_0.9fr]">
       <div className="p-5 sm:p-7">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-950"><BriefcaseBusiness className="h-4 w-4 text-indigo-700" /> {isEn ? "Role profile" : "Perfil del rol"}</div>
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-950"><BriefcaseBusiness className="h-4 w-4 text-indigo-700" /> {labels.profile}</div>
         <div className="mt-6 divide-y divide-slate-100 border-y border-slate-200">
           {criteria.map(([label, value]) => (
             <div key={label} className="grid gap-2 py-4 sm:grid-cols-[110px_1fr]">
@@ -513,7 +640,7 @@ function RoleCalibration({ locale }: { locale: Locale }) {
         </div>
       </div>
       <div className="border-t border-slate-200 bg-indigo-50/50 p-5 sm:p-7 lg:border-l lg:border-t-0">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-950"><Sparkles className="h-4 w-4 text-indigo-700" /> {isEn ? "Recommended decision framework" : "Marco de decisión recomendado"}</div>
+        <div className="flex items-center gap-2 text-sm font-semibold text-slate-950"><Sparkles className="h-4 w-4 text-indigo-700" /> {labels.framework}</div>
         <div className="mt-6 space-y-5">
           {t.ui.assessments.map((item, index) => (
             <div key={item} className="flex items-center justify-between gap-3">
@@ -531,11 +658,15 @@ function RoleCalibration({ locale }: { locale: Locale }) {
   );
 }
 
+const trustItemsByLocale: Record<Locale, [string, typeof SearchCheck][]> = {
+  en: [["Evidence for every recommendation", SearchCheck], ["Visible confidence levels", Gauge], ["Human override", UserCheck], ["Complete audit trail", History], ["Transparent candidate experience", ShieldCheck]],
+  es: [["Evidencia para cada recomendación", SearchCheck], ["Niveles de confianza visibles", Gauge], ["Decisión humana", UserCheck], ["Registro de auditoría completo", History], ["Experiencia transparente del candidato", ShieldCheck]],
+  fr: [["Preuves pour chaque recommandation", SearchCheck], ["Niveaux de confiance visibles", Gauge], ["Décision humaine", UserCheck], ["Historique de décision complet", History], ["Expérience candidat transparente", ShieldCheck]],
+};
+
 export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHref, publicCopy }: DecisionOSHomeProps) {
   const t = copy[locale];
-  const trustItems = locale === "en"
-    ? [["Evidence for every recommendation", SearchCheck], ["Visible confidence levels", Gauge], ["Human override", UserCheck], ["Complete audit trail", History], ["Transparent candidate experience", ShieldCheck]]
-    : [["Evidencia para cada recomendación", SearchCheck], ["Niveles de confianza visibles", Gauge], ["Decisión humana", UserCheck], ["Registro de auditoría completo", History], ["Experiencia transparente del candidato", ShieldCheck]];
+  const trustItems = trustItemsByLocale[locale];
 
   return (
     <main className="min-h-screen overflow-hidden bg-white text-[#0f172a]">

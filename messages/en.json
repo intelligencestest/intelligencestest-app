@@ -403,7 +403,8 @@
   "language": {
     "english": "English",
     "spanish": "Español",
-    "switcher": "Language"
+    "switcher": "Language",
+    "french": "French"
   },
   "assessments": {
     "title": "Assessment Library",

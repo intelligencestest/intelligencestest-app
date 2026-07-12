@@ -409,8 +409,164 @@ const en: PublicCopyInternal = {
   },
 };
 
+const fr: PublicCopyInternal = {
+  nav: {
+    primaryAria: "Navigation principale",
+    features: "Produit",
+    assessments: "Tarifs",
+    faq: "Sécurité",
+    contact: "Support",
+    demo: "Commencer l'essai gratuit",
+    login: "Connexion",
+    signup: "Essai gratuit",
+  },
+  footer: {
+    explore: "Explorer",
+    body: "Évaluations psychométriques et cognitives pour les équipes de recrutement qui doivent comparer les candidats avec des critères clairs et traçables.",
+    product: "Produit",
+    authority: "Confiance",
+    methodology: "Méthodologie",
+    scientificFoundations: "Fondements scientifiques",
+    legal: "Mentions légales",
+    rights: "© 2026 IntelligencesTest. Tous droits réservés.",
+  },
+  home: {
+    eyebrow: "B2B pour le recrutement et le conseil RH",
+    heroTitle: "Comparez les candidats avant l'entretien avec des critères clairs et structurés",
+    heroBody:
+      "IntelligencesTest aide les cabinets de recrutement à comparer les candidats avant de les présenter au client, avec des preuves claires, des risques identifiés et des questions d'entretien structurées.",
+    primaryCta: "Commencer maintenant",
+    secondaryCta: "Découvrir les évaluations",
+    stats: [
+      { value: "22+", label: "évaluations actives" },
+      { value: "FR/EN/ES", label: "expérience multilingue" },
+      { value: "7 jours", label: "liens sécurisés" },
+    ],
+    boardAria: "Aperçu du flux d'évaluation",
+    boardTitle: "Pilotage des évaluations",
+    boardSubtitle: "Pipeline, invitations et résultats au même endroit",
+    boardStats: [
+      { value: "84%", label: "taux de complétion" },
+      { value: "18", label: "candidats actifs" },
+      { value: "4", label: "projets en cours" },
+    ],
+    boardRows: [
+      {
+        title: "Superviseur service client",
+        body: "Centre d'appels axé sur la communication, la résilience et la rigueur.",
+        badge: "En cours",
+        tone: "border-[rgba(79,70,229,0.25)] bg-[rgba(79,70,229,0.08)] text-[#4338ca]",
+        bars: [
+          { flex: 5, className: signalBars.completed },
+          { flex: 2, className: signalBars.started },
+          { flex: 3, className: signalBars.invited },
+        ],
+      },
+      {
+        title: "Analyste administratif",
+        body: "Batterie de raisonnement numérique, verbal et de précision opérationnelle.",
+        badge: "À examiner",
+        tone: "border-[rgba(217,119,6,0.28)] bg-[rgba(217,119,6,0.07)] text-[#b45309]",
+        bars: [
+          { flex: 7, className: signalBars.completed },
+          { flex: 1, className: signalBars.started },
+          { flex: 1, className: signalBars.expired },
+        ],
+      },
+    ],
+    featuresEyebrow: "Ce que ça résout",
+    featuresTitle: "Une plateforme pratique pour les équipes qui évaluent des talents au quotidien",
+    features: [
+      { index: "01", title: "Projets par poste", body: "Organisez vos processus par poste, client ou campagne et gardez chaque batterie séparée." },
+      { index: "02", title: "Invitations sans compte", body: "Les candidats reçoivent un lien sécurisé et passent l'évaluation sans créer de compte." },
+      { index: "03", title: "Comparaison traçable", body: "Résultats, classements et rapports sont conservés par projet pour la revue interne." },
+      { index: "04", title: "Pensé pour le Maroc et la francophonie", body: "Interface et invitations adaptées aux cabinets de recrutement francophones, avec l'anglais et l'espagnol disponibles." },
+    ],
+    assessmentsEyebrow: "Bibliothèque d'évaluations",
+    assessmentsTitle: "Cognitif, personnalité, leadership et compétences professionnelles",
+    assessmentsBody:
+      "Combinez les tests selon le poste : raisonnement, rigueur, intelligence émotionnelle, leadership, communication, résolution de problèmes et plus encore.",
+    assessmentGroups: [
+      { title: "Cognitives", body: "Pensée critique, raisonnement verbal, abstrait, mécanique et numérique." },
+      { title: "Comportementales", body: "AQ, intelligence émotionnelle, style de travail, gestion du stress et adaptabilité." },
+      { title: "Leadership", body: "Styles de leadership, prise de décision, collaboration et influence." },
+      { title: "Opérationnelles", body: "Rigueur, service client, communication et aptitude commerciale." },
+    ],
+    faqEyebrow: "Questions fréquentes",
+    faqTitle: "Conçu pour un usage réel en recrutement",
+    faq: [
+      { question: "Les candidats ont-ils besoin d'un compte ?", answer: "Non. Ils reçoivent un lien sécurisé par e-mail ou copié depuis le tableau de bord et passent l'évaluation directement." },
+      { question: "La plateforme fonctionne-t-elle en français ?", answer: "Oui, pour le tableau de bord et les invitations. Le contenu détaillé des évaluations et le texte généré des rapports restent disponibles en anglais ou en espagnol pour le moment." },
+      { question: "Est-ce adapté aux cabinets avec plusieurs clients ?", answer: "Oui. Vous pouvez créer des projets séparés par client, poste ou campagne pour garder candidats et résultats organisés." },
+      { question: "Les évaluations remplacent-elles l'entretien ?", answer: "Non. Elles fournissent des preuves comparables pour prioriser les entretiens et poser des questions plus précises — la décision finale reste celle du recruteur." },
+    ],
+    finalTitle: "Préparez votre prochain processus avec de meilleures preuves dès le départ",
+    finalBody: "Testez gratuitement votre prochaine short-list — jusqu'à 10 candidats. Parlez-nous de votre cas et nous vous montrerons comment structurer une batterie adaptée à votre cabinet.",
+  },
+  contact: {
+    badge: "Parlons-en",
+    title: "Contact commercial",
+    body: "Écrivez-nous à propos de votre activité de recrutement, du volume de candidats ou de vos besoins d'évaluation.",
+    demoTitle: "Demander une démo",
+    demoBody: "Nous vous présenterons le flux complet : projets, invitations, évaluations et rapports pour recruteurs.",
+    response: "Nous répondons généralement sous 1 jour ouvré.",
+    form: {
+      name: "Nom",
+      email: "E-mail professionnel",
+      company: "Cabinet / Entreprise",
+      role: "Fonction",
+      phone: "Téléphone",
+      companyType: "Type d'organisation",
+      employees: "Taille approximative",
+      message: "Message",
+      submitContact: "Envoyer le message",
+      submitDemo: "Demander une démo",
+      sending: "Envoi en cours...",
+      successContact: "Merci. Votre message a été envoyé avec succès.",
+      successDemo: "Merci. Nous avons bien reçu votre demande de démo.",
+      error: "Nous n'avons pas pu envoyer le formulaire. Veuillez réessayer.",
+      website: "Site web",
+      typeOptions: ["Cabinet de recrutement", "PME", "Centre d'appels", "Cabinet conseil RH", "Autre"],
+    },
+  },
+  legal: {
+    eyebrow: "Informations légales",
+    privacyTitle: "Politique de confidentialité",
+    termsTitle: "Conditions générales",
+    cookiesTitle: "Politique de cookies",
+    privacyIntro: "Dernière mise à jour : 2 juillet 2026. Cette politique explique comment IntelligencesTest traite les données des entreprises, des utilisateurs administrateurs et des candidats invités.",
+    termsIntro: "Dernière mise à jour : 2 juillet 2026. Ces conditions régissent l'accès et l'utilisation de la plateforme IntelligencesTest.",
+    cookiesIntro: "Dernière mise à jour : 2 juillet 2026. Cette politique décrit les cookies et technologies similaires utilisés par la plateforme.",
+    privacy: [
+      { title: "Responsable et contact", body: ["IntelligencesTest exploite la plateforme disponible sur app.intelligencestest.com. Pour toute question relative à la confidentialité, écrivez à contact@intelligencestest.com."] },
+      { title: "Données traitées", body: ["Nous pouvons traiter des données de compte, des données d'entreprise, des utilisateurs administrateurs, des projets de recrutement, des candidats invités, des réponses aux évaluations, des résultats, des données d'activité technique et des communications envoyées via les formulaires."] },
+      { title: "Finalité", body: ["Nous utilisons ces données pour fournir le service, authentifier les utilisateurs, envoyer des invitations, générer des résultats, assurer la sécurité, répondre aux demandes et améliorer la stabilité de la plateforme."] },
+      { title: "Candidats", body: ["Les candidats accèdent à la plateforme via des liens envoyés par l'entreprise qui les invite. L'entreprise cliente détermine le contexte d'utilisation des résultats et doit informer les candidats conformément à ses obligations légales applicables."] },
+      { title: "Conservation", body: ["Nous conservons les données tant que le compte est actif ou aussi longtemps que nécessaire pour fournir le service, respecter des obligations légales, résoudre des litiges ou conserver des registres de sécurité."] },
+      { title: "Sécurité et prestataires", body: ["Nous utilisons des contrôles techniques et des prestataires spécialisés pour l'hébergement, l'authentification, la base de données et l'e-mail transactionnel. Aucun système n'est infaillible, mais nous appliquons des mesures raisonnables pour protéger les informations."] },
+      { title: "Droits", body: ["Selon la loi applicable, les utilisateurs et les candidats peuvent demander l'accès, la correction, la suppression ou l'opposition au traitement de leurs données. Certaines demandes de candidats peuvent nécessiter une coordination avec l'entreprise à l'origine de l'invitation."] },
+    ],
+    terms: [
+      { title: "Utilisation autorisée", body: ["La plateforme est destinée aux organisations qui gèrent des processus de recrutement, d'évaluation interne ou de conseil en talents. Vous devez l'utiliser de manière licite et dans le respect des droits des candidats et des utilisateurs."] },
+      { title: "Comptes et sécurité", body: ["Chaque organisation est responsable de la confidentialité de ses identifiants, du contrôle de l'accès de ses utilisateurs et de la vérification des informations avant de prendre des décisions d'emploi."] },
+      { title: "Évaluations et décisions", body: ["Les résultats sont des outils d'aide à la décision et ne doivent pas constituer l'unique fondement d'une décision d'embauche, de refus ou de toute autre décision à fort impact. Nous recommandons de les combiner avec des entretiens structurés, l'expérience et les critères du poste."] },
+      { title: "Disponibilité", body: ["Nous nous efforçons de maintenir la plateforme disponible, mais des interruptions peuvent survenir en raison de maintenance, de prestataires tiers ou de causes hors de notre contrôle."] },
+      { title: "Propriété intellectuelle", body: ["La plateforme, ses designs, rapports, textes, logique d'évaluation et sa marque appartiennent à IntelligencesTest ou à ses concédants. Toute copie, revente ou exploitation du service sans autorisation écrite est interdite."] },
+      { title: "Suspension", body: ["Nous pouvons suspendre ou limiter l'accès en cas d'usage abusif détecté, de risque de sécurité, de non-respect des présentes conditions ou de demandes légales valables."] },
+    ],
+    cookies: [
+      { title: "Cookies nécessaires", body: ["Nous utilisons des cookies nécessaires à l'authentification, à la sécurité, à la session et à la langue. Sans eux, la connexion et l'expérience multilingue ne fonctionneraient pas correctement."] },
+      { title: "Préférences", body: ["Nous conservons des préférences telles que la langue sélectionnée afin que l'utilisateur n'ait pas à la reconfigurer à chaque visite."] },
+      { title: "Analytique", body: ["Si nous ajoutons des outils d'analyse à l'avenir, ils serviront à comprendre la performance et l'utilisation agrégée du site. Nous mettrons à jour cette politique le cas échéant."] },
+      { title: "Gestion", body: ["Vous pouvez supprimer les cookies depuis votre navigateur. Si vous le faites, il se peut que vous deviez vous reconnecter ou sélectionner à nouveau votre langue."] },
+    ],
+  },
+};
+
 export type PublicCopy = typeof es;
 
 export function getPublicCopy(locale: AppLocale): PublicCopy {
-  return locale === "en" ? en : es;
+  if (locale === "en") return en;
+  if (locale === "fr") return fr;
+  return es;
 }

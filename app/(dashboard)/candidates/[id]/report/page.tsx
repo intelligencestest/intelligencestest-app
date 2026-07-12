@@ -13,7 +13,7 @@ import type { EvidenceDirection } from "@/lib/assessment-intelligence/types";
 import { ConfidenceGauge } from "@/components/dashboard/ConfidenceGauge";
 import ExportPdfButton from "../ExportPdfButton";
 
-type ReportLang = "es" | "en";
+type ReportLang = "es" | "en" | "fr";
 type Band = "high" | "medium" | "low";
 
 type ResultRow = {
@@ -30,21 +30,21 @@ type ResultRow = {
 // enterprise dashboard instead of this page's own bespoke palette.
 const BAND_STYLE: Record<Band, { label: Record<ReportLang, string>; text: string; bg: string; bar: string; border: string }> = {
   high: {
-    label: { es: "Alto", en: "High" },
+    label: { es: "Alto", en: "High", fr: "Élevé" },
     text: "text-[#15803d]",
     bg: "bg-[rgba(22,163,74,0.1)]",
     bar: "bg-[var(--it-success)]",
     border: "border-[var(--it-success)]/20",
   },
   medium: {
-    label: { es: "Medio", en: "Medium" },
+    label: { es: "Medio", en: "Medium", fr: "Moyen" },
     text: "text-[#b45309]",
     bg: "bg-[rgba(217,119,6,0.1)]",
     bar: "bg-[var(--it-warning)]",
     border: "border-[var(--it-warning)]/20",
   },
   low: {
-    label: { es: "Bajo", en: "Low" },
+    label: { es: "Bajo", en: "Low", fr: "Faible" },
     text: "text-[#b91c1c]",
     bg: "bg-[rgba(220,38,38,0.1)]",
     bar: "bg-[var(--it-danger)]",
@@ -60,22 +60,22 @@ const DECISION_STYLE: Record<string, { dot: string; text: string; bg: string; bo
 };
 
 const CONFIDENCE_STYLE: Record<ConfidenceLevel, { label: Record<ReportLang, string>; tone: "high" | "moderate" | "low" }> = {
-  high: { label: { es: "Alta", en: "High" }, tone: "high" },
-  moderate: { label: { es: "Media", en: "Moderate" }, tone: "moderate" },
-  low: { label: { es: "Baja", en: "Low" }, tone: "low" },
+  high: { label: { es: "Alta", en: "High", fr: "Élevée" }, tone: "high" },
+  moderate: { label: { es: "Media", en: "Moderate", fr: "Moyenne" }, tone: "moderate" },
+  low: { label: { es: "Baja", en: "Low", fr: "Faible" }, tone: "low" },
 };
 
 const DIRECTION_LABEL: Record<EvidenceDirection, Record<ReportLang, string>> = {
-  positive: { es: "Evidencia favorable", en: "Favorable evidence" },
-  mixed: { es: "Evidencia mixta", en: "Mixed evidence" },
-  risk: { es: "Riesgo", en: "Risk" },
-  neutral: { es: "Evidencia neutral", en: "Neutral evidence" },
+  positive: { es: "Evidencia favorable", en: "Favorable evidence", fr: "Preuve favorable" },
+  mixed: { es: "Evidencia mixta", en: "Mixed evidence", fr: "Preuve mitigée" },
+  risk: { es: "Riesgo", en: "Risk", fr: "Risque" },
+  neutral: { es: "Evidencia neutral", en: "Neutral evidence", fr: "Preuve neutre" },
 };
 
 const SEVERITY_LABEL: Record<RiskSeverity, Record<ReportLang, string>> = {
-  high: { es: "Alto", en: "High" },
-  medium: { es: "Medio", en: "Medium" },
-  low: { es: "Bajo", en: "Low" },
+  high: { es: "Alto", en: "High", fr: "Élevé" },
+  medium: { es: "Medio", en: "Medium", fr: "Moyen" },
+  low: { es: "Bajo", en: "Low", fr: "Faible" },
 };
 
 const COPY = {
@@ -235,6 +235,84 @@ const COPY = {
     completedOn: (date: string) => `Completed on ${date}`,
     correct: (correct: number, total: number) => `${correct} of ${total} correct answers`,
   },
+  fr: {
+    back: "Retour au profil",
+    eyebrow: "Rapport exécutif",
+    recLevel: {
+      strong: "Solide",
+      proceed: "Avancer",
+      review: "Examiner",
+      caution: "Prudence",
+      notRecommended: "Non recommandé",
+    } as Record<string, string>,
+    decisionLevel: {
+      interview: "Interviewer",
+      review: "Revue humaine",
+      do_not_proceed: "Ne pas poursuivre",
+    } as Record<string, string>,
+    engineSignal: "Signal du moteur",
+    humanNote:
+      "Cette recommandation est une aide à la décision fondée sur les preuves des évaluations complétées. La décision finale revient toujours à l'équipe de recrutement.",
+    whyTitle: "Pourquoi cette recommandation",
+    whySubtitle: "Forces appuyées par des preuves d'évaluation, pas des impressions.",
+    riskVerify: "Comment vérifier",
+    risksSubtitle: "Chaque risque indique l'élément de preuve qui le sous-tend et la façon de le vérifier en entretien.",
+    verifyNextTitle: "Points à vérifier ensuite",
+    verifyNextSubtitle: "Les points prioritaires à vérifier avant l'entretien.",
+    auditTitle: "Méthodologie et traçabilité",
+    auditTrace: (signals: number, assessments: number) =>
+      `${signals} ${signals === 1 ? "signal" : "signaux"} de preuve traçable${signals === 1 ? "" : "s"} · ${assessments} évaluation${assessments === 1 ? "" : "s"} complétée${assessments === 1 ? "" : "s"}`,
+    title: "Revue exécutive du candidat",
+    subtitle: "Conçu pour examiner les preuves, valider les risques et prendre une décision au sein de la plateforme.",
+    reviewCandidate: "Examiner le candidat",
+    project: "Projet",
+    company: "Entreprise",
+    reportDate: "Date",
+    decision: "Décision",
+    keyMessage: "Message clé",
+    confidence: "Niveau de confiance",
+    overall: "Évaluation globale",
+    coverage: "Couverture",
+    completed: "complétées",
+    of100: "sur 100",
+    executiveSummary: "Résumé exécutif",
+    evidenceTitle: "Preuves",
+    evidenceSubtitle: "Signaux extraits uniquement des évaluations complétées.",
+    competencies: "Compétences",
+    supportingEvidence: "Preuves à l'appui",
+    risks: "Risques",
+    contradictions: "Contradictions",
+    assessmentCoverage: "Couverture des évaluations",
+    noRisks: "Aucun risque méthodologique clair n'a été détecté dans les preuves disponibles.",
+    noContradictions: "Aucun signal mixte significatif entre les instruments complétés.",
+    mixedSignal: "Des signaux favorables et de risque coexistent. L'entretien doit confirmer quel signal pèse le plus pour le poste.",
+    businessTitle: "Interprétation métier",
+    strengths: "Forces",
+    development: "Axes de développement",
+    limitations: "Limites",
+    noStrengths: "Aucune force n'est suffisamment étayée par des preuves solides.",
+    noDevelopment: "Aucun axe de développement spécifique au-delà des limites méthodologiques.",
+    interviewTitle: "Validation en entretien",
+    interviewSubtitle: "Questions directement liées aux forces ou aux risques rapportés.",
+    whyItMatters: "Pourquoi c'est important",
+    validates: "Compétence à vérifier",
+    breakdownTitle: "Détail des évaluations",
+    assessment: "Évaluation",
+    category: "Catégorie",
+    score: "Score",
+    interpretation: "Lecture",
+    dimensions: "Dimensions",
+    methodologyTitle: "Méthodologie",
+    confidenceExplanation: "Explication du niveau de confiance",
+    evidenceSources: "Sources de preuve",
+    engineVersion: "Version du moteur",
+    roleFitLimit: "En l'absence de modèle de compétences du poste, ce rapport évalue la performance aux évaluations complétées ; il n'affirme pas une adéquation complète au poste.",
+    invitedOn: (date: string) => `Invitation envoyée le ${date}`,
+    coverageText: (done: number, total: number, pending: number) =>
+      pending > 0 ? `${done}/${total} évaluations complétées ; ${pending} en attente.` : `${done}/${total} évaluations complétées.`,
+    completedOn: (date: string) => `Complétée le ${date}`,
+    correct: (correct: number, total: number) => `${correct} réponses correctes sur ${total}`,
+  },
 } satisfies Record<ReportLang, Record<string, unknown>>;
 
 function band(score: number): Band {
@@ -303,7 +381,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   const { id } = await params;
   const locale: ReportLang = toAppLocale(await getLocale());
   const L = COPY[locale];
-  const dateLocale = locale === "es" ? "es-ES" : "en-US";
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale];
 
   const supabase = await createServerSupabaseClient();
   const {
@@ -351,7 +429,7 @@ export default async function ExecutiveReportPage({ params }: { params: Promise<
   const myResults = results ?? [];
   if (myResults.length === 0) notFound();
 
-  const name = candidate.full_name?.trim() || (locale === "es" ? "Candidato" : "Candidate");
+  const name = candidate.full_name?.trim() || { es: "Candidato", en: "Candidate", fr: "Candidat" }[locale];
   const initials = name
     .split(" ")
     .map((part) => part[0])

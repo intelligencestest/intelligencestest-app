@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { PublicCopy } from "@/lib/public-site-copy";
+import type { AppLocale } from "@/lib/i18n/locales";
 
 type FormKind = "contact" | "demo";
 type ContactFormState = {
@@ -28,7 +29,7 @@ const initialState: ContactFormState = {
   website: "",
 };
 
-export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; kind: FormKind; locale: "en" | "es" }) {
+export default function ContactForm({ copy, kind, locale }: { copy: PublicCopy; kind: FormKind; locale: AppLocale }) {
   const [form, setForm] = useState<ContactFormState>(initialState);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);

@@ -424,11 +424,12 @@ export function contentFor(assessmentName: string, category: string | null): Ass
   );
 }
 
-export type ReportLang = "es" | "en";
+export type ReportLang = "es" | "en" | "fr";
 
 const TONES: Record<ReportLang, Record<"leadership" | "validation" | "mixed" | "probing", string>> = {
   es: { leadership: "Potencial y liderazgo", validation: "Validación de fortaleza", mixed: "Validación y contraste", probing: "Exploración de riesgo" },
   en: { leadership: "Potential and leadership", validation: "Strength validation", mixed: "Validation and contrast", probing: "Risk exploration" },
+  fr: { leadership: "Potentiel et leadership", validation: "Validation des forces", mixed: "Validation et contraste", probing: "Exploration des risques" },
 };
 
 /** Score-dependent interview questions for one assessment. */
@@ -582,6 +583,7 @@ export function executiveSummary(input: {
 export const BAND_LABEL: Record<ReportLang, Record<Band, string>> = {
   es: BAND_LABEL_ES,
   en: { high: "High", medium: "Medium", low: "Low" },
+  fr: { high: "Élevée", medium: "Moyenne", low: "Faible" },
 };
 
 export const RECOMMENDATION_LABEL: Record<ReportLang, Record<Recommendation, { label: string; short: string }>> = {
@@ -591,6 +593,12 @@ export const RECOMMENDATION_LABEL: Record<ReportLang, Record<Recommendation, { l
     reservations: { label: "Proceed with reservations", short: "With reservations" },
     interview: { label: "Additional interview required", short: "Additional interview" },
     not_recommended: { label: "Not recommended for this position", short: "Not recommended" },
+  },
+  fr: {
+    proceed: { label: "Passer à l'étape suivante", short: "Avancer" },
+    reservations: { label: "Avancer avec réserves", short: "Avec réserves" },
+    interview: { label: "Entretien complémentaire requis", short: "Entretien complémentaire" },
+    not_recommended: { label: "Non recommandé pour ce poste", short: "Non recommandé" },
   },
 };
 
@@ -694,8 +702,116 @@ const CATEGORY_FALLBACK_EN: Record<string, AssessmentContent> = {
     "High risk in service, leadership, or consultative sales roles."),
 };
 
+// ---------------------------------------------------------------------------
+// French layer — mirrors the English layer's fallback-only coverage: bespoke
+// instrument content (Integrity, Critical Thinking, AQ, EQ) is not yet
+// available in French, so those assessments use the category fallback below,
+// same as English does today.
+// ---------------------------------------------------------------------------
+
+function genericFr(focus: string, domain: string, highBehaviors: string[], lowRisk: string): AssessmentContent {
+  return {
+    focus,
+    meaning: {
+      high: {
+        behaviors: highBehaviors,
+        risk: `Risque faible au regard des exigences de ${domain} du poste.`,
+        considerations: `Le résultat justifie de confier au candidat une réelle responsabilité en matière de ${domain} dès le départ.`,
+      },
+      medium: {
+        behaviors: [
+          `Répond correctement aux exigences habituelles de ${domain}`,
+          "Les situations plus complexes peuvent nécessiter un accompagnement ou plus de temps",
+        ],
+        risk: `Risque modéré si le poste concentre de fortes exigences de ${domain}.`,
+        considerations: "Comparez les exigences réelles du poste à ce résultat avant de le pondérer.",
+      },
+      low: {
+        behaviors: [
+          `A montré des difficultés constantes dans les exercices de ${domain}`,
+          "Aura probablement besoin de structure et d'une supervision rapprochée dans ce domaine",
+        ],
+        risk: lowRisk,
+        considerations: "Évaluez si le poste permet de compenser ce point par le reste du profil.",
+      },
+    },
+    strengths: [
+      `Performance solide et constante en matière de ${domain}`,
+      "Résultats supérieurs à la norme du processus dans ce domaine",
+    ],
+    development: {
+      risks: [`Erreurs ou lenteur lorsque les exigences de ${domain} sont élevées`],
+      coaching: [`Plan de pratique guidée sur ${domain} pendant le premier trimestre`],
+      topics: [`Exemples concrets de travaux récents ayant nécessité ${domain}`],
+    },
+    interview: {
+      validation: [
+        `Décrivez la réussite professionnelle qui illustre le mieux votre capacité en matière de ${domain}.`,
+        "Quelle partie de ce type de travail vous vient naturellement, et laquelle demande un effort ?",
+      ],
+      probing: [
+        `Racontez une situation récente où ${domain} vous a mis en difficulté. Qu'avez-vous fait ?`,
+        "De quel soutien auriez-vous besoin de la part de votre manager dans ce domaine au cours des premiers mois ?",
+      ],
+      leadership: [`Comment élèveriez-vous le niveau d'exigence en matière de ${domain} au sein d'une équipe que vous dirigez ?`],
+    },
+  };
+}
+
+const CATEGORY_FALLBACK_FR: Record<string, AssessmentContent> = {
+  Cognitive: genericFr("Capacité de raisonnement et de résolution de problèmes", "le raisonnement et l'analyse",
+    ["Résout des problèmes nouveaux sans dépendre de procédures mémorisées", "Apprend rapidement les règles et les schémas"],
+    "Risque élevé dans les postes exigeant un diagnostic et une décision autonomes."),
+  "Numerical Reasoning": genericFr("Raisonnement quantitatif et numérique", "le travail avec les chiffres et les données",
+    ["Interprète les chiffres et les tendances avec précision", "Repère des erreurs numériques que d'autres manquent"],
+    "Risque élevé dans les fonctions de reporting, de gestion de caisse ou d'analyse quantitative."),
+  Personality: genericFr("Dispositions comportementales stables au travail", "la cohérence comportementale",
+    ["Le style de travail déclaré est cohérent selon les situations", "Comportement hautement prévisible pour l'équipe"],
+    "Risque de friction entre le style naturel et les exigences du poste."),
+  Resilience: genericFr("Stabilité et capacité de récupération sous pression", "la gestion de la pression",
+    ["Maintient sa performance face aux revers", "Récupère rapidement après une adversité"],
+    "Risque élevé dans les environnements de pression soutenue ou de rejet fréquent."),
+  Leadership: genericFr("Styles de leadership et aptitude à diriger des personnes", "la direction de personnes",
+    ["Adapte son style de direction à la situation et à la personne", "Assume la responsabilité des résultats de l'équipe"],
+    "Risque élevé si le poste exige de diriger des personnes dès le premier jour."),
+  Communication: genericFr("Clarté et efficacité de la communication au travail", "la communication",
+    ["Transmet des idées complexes avec clarté", "Adapte le message à l'audience"],
+    "Risque élevé dans les postes en contact avec la clientèle ou de coordination transverse."),
+  Teamwork: genericFr("Collaboration et contribution à l'équipe", "le travail d'équipe",
+    ["Priorise le résultat collectif plutôt que la reconnaissance individuelle", "Collabore sans supervision"],
+    "Risque de friction dans des équipes fortement interdépendantes."),
+  "Customer Service": genericFr("Orientation client et résolution", "le service client",
+    ["Maintient la qualité du service avec des clients difficiles", "Résout dès le premier contact lorsque c'est possible"],
+    "Risque élevé dans les opérations de contact direct avec la clientèle."),
+  Sales: genericFr("Aptitude commerciale et persuasion", "la vente",
+    ["Gère les objections sans nuire à la relation", "Persiste méthodiquement après un refus"],
+    "Risque élevé dans les fonctions commerciales avec objectifs individuels."),
+  Productivity: genericFr("Organisation, priorités et gestion du temps", "l'organisation et les priorités",
+    ["Priorise selon l'impact et respecte les délais de façon constante", "Protège le temps consacré à l'essentiel"],
+    "Risque de délais non respectés dans des postes à plusieurs fronts."),
+  Judgment: genericFr("Jugement dans des situations professionnelles réelles", "le jugement en situation réelle",
+    ["Choisit des actions sensées dans l'ambiguïté", "Pèse les conséquences avant d'agir"],
+    "Risque élevé dans les postes à décisions fréquentes sans supervision."),
+  "Workplace Judgment": genericFr("Jugement dans des situations professionnelles réelles", "le jugement en situation réelle",
+    ["Choisit des actions sensées dans l'ambiguïté", "Pèse les conséquences avant d'agir"],
+    "Risque élevé dans les postes à décisions fréquentes sans supervision."),
+  Technical: genericFr("Raisonnement technique et mécanique appliqué", "le raisonnement technique",
+    ["Comprend rapidement les systèmes physiques et les processus", "Diagnostique les pannes avec une logique structurée"],
+    "Risque élevé dans les postes techniques ou en atelier."),
+  Character: genericFr("Traits de caractère pertinents pour le poste", "la fiabilité comportementale",
+    ["Comportement cohérent entre ce qui est déclaré et ce qui est attendu", "Conduite stable sous pression"],
+    "Risque de conduite incohérente sous pression ou en cas de faible supervision."),
+  Behavioural: genericFr("Comportement au travail et modes d'apprentissage", "l'adaptation et l'apprentissage",
+    ["Intègre les retours et s'ajuste rapidement", "Apprend de ses erreurs sans les répéter"],
+    "Risque d'adaptation lente dans des environnements changeant rapidement."),
+  "Emotional Intelligence": genericFr("Lecture et gestion des émotions au travail", "l'efficacité interpersonnelle",
+    ["Perçoit le climat de l'équipe et adapte sa communication", "Gère les désaccords sans escalade"],
+    "Risque élevé dans les postes de service, de leadership ou de vente conseil."),
+};
+
 export function contentForLocale(assessmentName: string, category: string | null, lang: ReportLang): AssessmentContent {
   if (lang === "es") return contentFor(assessmentName, category);
+  if (lang === "fr") return (category ? CATEGORY_FALLBACK_FR[category] : undefined) ?? CATEGORY_FALLBACK_FR.Cognitive;
   return (category ? CATEGORY_FALLBACK_EN[category] : undefined) ?? CATEGORY_FALLBACK_EN.Cognitive;
 }
 
@@ -705,6 +821,10 @@ export function buildVerdictLocalized(
   lang: ReportLang
 ): Verdict {
   if (lang === "es") return buildVerdict(input);
+  // "fr" falls back to this English computation below — matches the fallback
+  // pattern used across lib/assessment-intelligence until French gets its own
+  // narrative pass. Note: as of 2026-07, nothing in the app imports this
+  // module — the live report page uses lib/assessment-intelligence instead.
 
   const { scores, assigned } = input;
   const n = scores.length;

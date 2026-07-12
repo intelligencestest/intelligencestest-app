@@ -1,6 +1,7 @@
 import { scoreAQ } from "@/lib/questions/aq";
 import { competencyLabel } from "../taxonomy";
 import { clampScore, evidenceDirection, evidenceStrength, normalizeScore } from "../scales";
+import { contentLocale } from "../types";
 import type { AQScoreDetails, AssessmentResultInput, CompetencyId, EvidenceSignal, IntelligenceLocale } from "../types";
 
 function answersFrom(rawAnswers: unknown): (number | null)[] | null {
@@ -172,7 +173,8 @@ function dimensionImpact(competencyId: CompetencyId, score: number, locale: Inte
       ? "Debe validarse con ejemplos laborales recientes antes de usarlo como evidencia de ajuste."
       : "Should be validated with recent work examples before using it as role-fit evidence.";
 
-  return (risk ? copy[competencyId]?.risk[locale] : copy[competencyId]?.positive[locale]) ?? fallback;
+  const cl = contentLocale(locale);
+  return (risk ? copy[competencyId]?.risk[cl] : copy[competencyId]?.positive[cl]) ?? fallback;
 }
 
 export function extractAQEvidence(input: AssessmentResultInput, locale: IntelligenceLocale): EvidenceSignal[] {
@@ -209,7 +211,7 @@ export function extractAQEvidence(input: AssessmentResultInput, locale: Intellig
   for (const dimension of DIMENSIONS) {
     const raw = scored[dimension.id];
     const normalizedScore = normalizeScore(raw, 50);
-    const label = dimension.label[locale];
+    const label = dimension.label[contentLocale(locale)];
     signals.push({
       id: `${assessmentId}:aq:${dimension.id}`,
       assessmentId,

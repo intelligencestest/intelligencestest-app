@@ -40,7 +40,7 @@ function isEmail(value: string) {
 
 type NormalizedPayload = {
   kind: "contact" | "demo";
-  locale: "en" | "es";
+  locale: "en" | "es" | "fr";
   name: string;
   email: string;
   company: string;
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
 
   const payload: NormalizedPayload = {
     kind: body.kind === "demo" ? "demo" : "contact",
-    locale: body.locale === "en" ? "en" : "es",
+    locale: body.locale === "en" ? "en" : body.locale === "fr" ? "fr" : "es",
     name: clean(body.name),
     email: clean(body.email).toLowerCase(),
     company: clean(body.company),
@@ -178,10 +178,12 @@ export async function POST(request: NextRequest) {
   };
 
   if (!payload.name || !payload.company || !payload.message || !isEmail(payload.email)) {
-    return NextResponse.json(
-      { error: payload.locale === "es" ? "Complete los campos obligatorios." : "Please complete the required fields." },
-      { status: 400 }
-    );
+    const errorByLocale: Record<NormalizedPayload["locale"], string> = {
+      es: "Complete los campos obligatorios.",
+      en: "Please complete the required fields.",
+      fr: "Veuillez compléter les champs obligatoires.",
+    };
+    return NextResponse.json({ error: errorByLocale[payload.locale] }, { status: 400 });
   }
 
   if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {

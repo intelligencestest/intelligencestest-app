@@ -13,6 +13,7 @@ import { extractSituationalJudgmentEvidence } from "./extractors/situational-jud
 import { extractTeamworkCollaborationEvidence } from "./extractors/teamwork-collaboration";
 import { assessmentKey, clampScore, evidenceStrength, riskSeverity } from "./scales";
 import { competencyCategory } from "./taxonomy";
+import { contentLocale } from "./types";
 import type {
   AssessmentIntelligenceReport,
   AssessmentResultInput,
@@ -81,7 +82,7 @@ const COPY = {
     riskPrefix: "Validate risk",
     strengthPrefix: "Validate strength",
   },
-} satisfies Record<IntelligenceLocale, Record<string, unknown>>;
+} satisfies Record<"es" | "en", Record<string, unknown>>;
 
 function average(values: number[]): number {
   if (!values.length) return 0;
@@ -89,7 +90,7 @@ function average(values: number[]): number {
 }
 
 function copy(locale: IntelligenceLocale) {
-  return COPY[locale];
+  return COPY[contentLocale(locale)];
 }
 
 function extractSignals(input: AssessmentResultInput, locale: IntelligenceLocale): EvidenceSignal[] {
@@ -250,7 +251,7 @@ function questionForRisk(risk: HiringRisk, locale: IntelligenceLocale): string {
     },
   };
 
-  return byCompetency[risk.competencyId]?.[locale] ?? (locale === "es"
+  return byCompetency[risk.competencyId]?.[contentLocale(locale)] ?? (locale === "es"
     ? `Comparta un ejemplo reciente que permita validar ${risk.competencyLabel.toLowerCase()} en el trabajo.`
     : `Share a recent example that would validate ${risk.competencyLabel.toLowerCase()} at work.`);
 }

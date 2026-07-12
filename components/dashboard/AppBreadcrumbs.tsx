@@ -47,6 +47,29 @@ const labels: Record<AppLocale, Record<string, string>> = {
     integrations: "Integraciones",
     admin: "Admin",
   },
+  fr: {
+    dashboard: "Tableau de bord",
+    inbox: "Messages",
+    projects: "Projets",
+    candidates: "Candidats",
+    assessments: "Évaluations",
+    reports: "Rapports",
+    settings: "Paramètres",
+    account: "Compte",
+    company: "Entreprise",
+    team: "Équipe",
+    security: "Sécurité",
+    billing: "Facturation",
+    subscriptions: "Abonnements",
+    integrations: "Intégrations",
+    admin: "Admin",
+  },
+};
+
+const ariaLabels: Record<AppLocale, { breadcrumb: string; dashboard: string }> = {
+  en: { breadcrumb: "Breadcrumb", dashboard: "Dashboard" },
+  es: { breadcrumb: "Ruta", dashboard: "Panel" },
+  fr: { breadcrumb: "Fil d'Ariane", dashboard: "Tableau de bord" },
 };
 
 function humanize(segment: string) {
@@ -97,13 +120,13 @@ export function AppBreadcrumbs() {
   const homeHref = localePath("/dashboard", locale);
 
   return (
-    <nav aria-label={locale === "es" ? "Ruta" : "Breadcrumb"} className="min-w-0">
+    <nav aria-label={ariaLabels[locale].breadcrumb} className="min-w-0">
       <ol className="flex min-w-0 items-center gap-2 text-[13px]">
         <li className="flex items-center">
           <Link
             href={homeHref}
             className="inline-flex h-7 w-7 items-center justify-center rounded-md text-[var(--it-muted)] transition-colors hover:bg-gray-900/[0.035] hover:text-[var(--it-text)]"
-            aria-label={locale === "es" ? "Panel" : "Dashboard"}
+            aria-label={ariaLabels[locale].dashboard}
           >
             <Home className="h-4 w-4" strokeWidth={1.8} />
           </Link>

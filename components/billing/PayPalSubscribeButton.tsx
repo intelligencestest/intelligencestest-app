@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { AppLocale } from "@/lib/i18n/locales";
 
-type Locale = "en" | "es";
+type Locale = AppLocale;
 type PayPalPlan = "starter" | "professional";
 
 interface PayPalSubscribeButtonProps {
@@ -78,30 +79,47 @@ function loadPayPalSdk(clientId: string) {
   });
 }
 
+const paypalCopy: Record<Locale, {
+  loading: string;
+  recording: string;
+  missing: string;
+  error: string;
+  success: string;
+  subscription: string;
+}> = {
+  es: {
+    loading: "Cargando PayPal...",
+    recording: "Registrando la suscripción...",
+    missing: "El pago con PayPal se está configurando. Contacte con ventas para activar este plan.",
+    error: "No pudimos completar el registro de PayPal. Inténtelo de nuevo.",
+    success: "Suscripción registrada. El equipo comercial confirmará la activación.",
+    subscription: "ID de suscripción",
+  },
+  en: {
+    loading: "Loading PayPal...",
+    recording: "Recording subscription...",
+    missing: "PayPal checkout is being configured. Contact sales to activate this plan.",
+    error: "We could not complete PayPal registration. Please try again.",
+    success: "Subscription recorded. The commercial team will confirm activation.",
+    subscription: "Subscription ID",
+  },
+  fr: {
+    loading: "Chargement de PayPal...",
+    recording: "Enregistrement de l'abonnement...",
+    missing: "Le paiement PayPal est en cours de configuration. Contactez l'équipe commerciale pour activer cette offre.",
+    error: "Nous n'avons pas pu finaliser l'enregistrement PayPal. Veuillez réessayer.",
+    success: "Abonnement enregistré. L'équipe commerciale confirmera l'activation.",
+    subscription: "ID d'abonnement",
+  },
+};
+
 export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "recording" | "configured" | "error" | "success">("loading");
   const [missingConfig, setMissingConfig] = useState<string[]>([]);
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
-  const es = locale === "es";
 
-  const copy = es
-    ? {
-        loading: "Cargando PayPal...",
-        recording: "Registrando la suscripción...",
-        missing: "El pago con PayPal se está configurando. Contacte con ventas para activar este plan.",
-        error: "No pudimos completar el registro de PayPal. Inténtelo de nuevo.",
-        success: "Suscripción registrada. El equipo comercial confirmará la activación.",
-        subscription: "ID de suscripción",
-      }
-    : {
-        loading: "Loading PayPal...",
-        recording: "Recording subscription...",
-        missing: "PayPal checkout is being configured. Contact sales to activate this plan.",
-        error: "We could not complete PayPal registration. Please try again.",
-        success: "Subscription recorded. The commercial team will confirm activation.",
-        subscription: "Subscription ID",
-      };
+  const copy = paypalCopy[locale];
 
   useEffect(() => {
     let cancelled = false;

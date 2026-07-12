@@ -154,12 +154,21 @@ function limitMessage(kind: LimitKind, used: number, limit: number) {
     project: `You've reached your plan limit (${used}/${limit} active projects). Upgrade your plan to keep creating projects.`,
     recruiter: `You've reached your plan limit (${used}/${limit} recruiters). Upgrade your plan to continue.`,
   };
-  return { es: es[kind], en: en[kind] };
+  const fr: Record<LimitKind, string> = {
+    candidate:
+      `Vous avez atteint la limite de votre offre (${used}/${limit} candidats ce mois-ci). Mettez à niveau votre offre pour continuer à inviter des candidats.`,
+    project:
+      `Vous avez atteint la limite de votre offre (${used}/${limit} projets actifs). Mettez à niveau votre offre pour continuer à créer des projets.`,
+    recruiter:
+      `Vous avez atteint la limite de votre offre (${used}/${limit} recruteurs). Mettez à niveau votre offre pour continuer.`,
+  };
+  return { es: es[kind], en: en[kind], fr: fr[kind] };
 }
 
 const TRIAL_EXPIRED_MESSAGE = {
   es: "Su prueba ha finalizado. Sus datos siguen disponibles; actualice su plan para continuar creando proyectos e invitando candidatos.",
   en: "Your trial has ended. Your existing data remains available; upgrade your plan to keep creating projects and inviting candidates.",
+  fr: "Votre période d'essai est terminée. Vos données restent disponibles ; mettez à niveau votre offre pour continuer à créer des projets et inviter des candidats.",
 };
 
 export interface LimitCheckResult {
@@ -167,7 +176,7 @@ export interface LimitCheckResult {
   reason?: "trial_expired" | "limit_reached";
   used?: number;
   limit?: number | null;
-  message?: { es: string; en: string };
+  message?: { es: string; en: string; fr: string };
 }
 
 /**

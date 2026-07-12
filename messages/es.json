@@ -403,7 +403,8 @@
   "language": {
     "english": "Inglés",
     "spanish": "Español",
-    "switcher": "Idioma"
+    "switcher": "Idioma",
+    "french": "Francés"
   },
   "assessments": {
     "title": "Biblioteca de Evaluaciones",

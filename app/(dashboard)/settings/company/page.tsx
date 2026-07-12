@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 type CompanyState = {
   name: string;
@@ -13,35 +14,59 @@ type CompanyState = {
   fullName: string;
 };
 
+const companyCopy: Record<AppLocale, {
+  title: string;
+  description: string;
+  companyName: string;
+  companyNamePlaceholder: string;
+  industry: string;
+  industryPlaceholder: string;
+  logoUrl: string;
+  logoUrlPlaceholder: string;
+  logoPreview: string;
+  saveChanges: string;
+}> = {
+  es: {
+    title: "Empresa",
+    description: "Información de empresa visible en informes e invitaciones.",
+    companyName: "Empresa",
+    companyNamePlaceholder: "Nombre de la empresa",
+    industry: "Industria",
+    industryPlaceholder: "Ej. Reclutamiento, call center, consultoría",
+    logoUrl: "URL del logo",
+    logoUrlPlaceholder: "https://empresa.com/logo.png",
+    logoPreview: "Logo de empresa",
+    saveChanges: "Guardar cambios",
+  },
+  en: {
+    title: "Company",
+    description: "Company details shown on reports and candidate invitations.",
+    companyName: "Company",
+    companyNamePlaceholder: "Company name",
+    industry: "Industry",
+    industryPlaceholder: "e.g. Recruitment, call center, consulting",
+    logoUrl: "Logo URL",
+    logoUrlPlaceholder: "https://company.com/logo.png",
+    logoPreview: "Company logo",
+    saveChanges: "Save changes",
+  },
+  fr: {
+    title: "Entreprise",
+    description: "Informations d'entreprise visibles sur les rapports et les invitations aux candidats.",
+    companyName: "Entreprise",
+    companyNamePlaceholder: "Nom de l'entreprise",
+    industry: "Secteur",
+    industryPlaceholder: "Ex. Recrutement, centre d'appels, conseil",
+    logoUrl: "URL du logo",
+    logoUrlPlaceholder: "https://entreprise.com/logo.png",
+    logoPreview: "Logo de l'entreprise",
+    saveChanges: "Enregistrer les modifications",
+  },
+};
+
 export default function CompanySettingsPage() {
   const t = useTranslations("settings");
-  const es = useLocale() === "es";
-
-  const copy = es
-    ? {
-        title: "Empresa",
-        description: "Información de empresa visible en informes e invitaciones.",
-        companyName: "Empresa",
-        companyNamePlaceholder: "Nombre de la empresa",
-        industry: "Industria",
-        industryPlaceholder: "Ej. Reclutamiento, call center, consultoría",
-        logoUrl: "URL del logo",
-        logoUrlPlaceholder: "https://empresa.com/logo.png",
-        logoPreview: "Logo de empresa",
-        saveChanges: "Guardar cambios",
-      }
-    : {
-        title: "Company",
-        description: "Company details shown on reports and candidate invitations.",
-        companyName: "Company",
-        companyNamePlaceholder: "Company name",
-        industry: "Industry",
-        industryPlaceholder: "e.g. Recruitment, call center, consulting",
-        logoUrl: "Logo URL",
-        logoUrlPlaceholder: "https://company.com/logo.png",
-        logoPreview: "Company logo",
-        saveChanges: "Save changes",
-      };
+  const copy = companyCopy[toAppLocale(useLocale())];
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
