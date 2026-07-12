@@ -13,7 +13,16 @@ type PublicCopyInternal = {
     login: string;
     signup: string;
   };
-  footer: { body: string; explore: string; product: string; legal: string; rights: string };
+  footer: {
+    body: string;
+    explore: string;
+    product: string;
+    authority: string;
+    methodology: string;
+    scientificFoundations: string;
+    legal: string;
+    rights: string;
+  };
   home: {
     eyebrow: string;
     heroTitle: string;
@@ -107,6 +116,9 @@ const es: PublicCopyInternal = {
     explore: "Explorar",
     body: "Evaluaciones psicométricas y cognitivas para equipos de selección que necesitan comparar candidatos con criterios claros y trazables.",
     product: "Producto",
+    authority: "Confianza",
+    methodology: "Metodología",
+    scientificFoundations: "Fundamentos científicos",
     legal: "Legal",
     rights: "© 2026 IntelligencesTest. Todos los derechos reservados.",
   },
@@ -258,6 +270,9 @@ const en: PublicCopyInternal = {
     explore: "Explore",
     body: "Psychometric and cognitive assessments for hiring teams that need clear, comparable candidate signals.",
     product: "Product",
+    authority: "Trust",
+    methodology: "Methodology",
+    scientificFoundations: "Scientific foundations",
     legal: "Legal",
     rights: "© 2026 IntelligencesTest. All rights reserved.",
   },

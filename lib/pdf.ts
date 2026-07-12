@@ -72,8 +72,8 @@ function baseReport({
     locale,
     theme: {
       mode: "light",
-      brandName: "Intelligences Test",
-      footerBrandName: "Powered by Intelligences Test",
+      brandName: "IntelligencesTest",
+      footerBrandName: "Powered by IntelligencesTest",
       primaryColor: "#1D4ED8",
       accentColor: "#2563EB",
     },
@@ -91,7 +91,7 @@ function baseReport({
       completedAt: date,
     },
     company: {
-      name: companyName || "Intelligences Test",
+      name: companyName || "IntelligencesTest",
     },
     assessments: [
       {

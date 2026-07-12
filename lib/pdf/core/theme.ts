@@ -37,8 +37,8 @@ export function createPdfTheme(input: PdfThemeInput = {}): PdfTheme {
     mode,
     direction: input.direction ?? "ltr",
     fontFamily: input.fontFamily ?? "Helvetica",
-    brandName: input.brandName ?? "Intelligences Test",
-    footerBrandName: input.footerBrandName ?? input.brandName ?? "Intelligences Test",
+    brandName: input.brandName ?? "IntelligencesTest",
+    footerBrandName: input.footerBrandName ?? input.brandName ?? "IntelligencesTest",
     logoUrl: input.logoUrl,
     coverLogoUrl: input.coverLogoUrl ?? input.logoUrl,
     page: {

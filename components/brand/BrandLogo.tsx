@@ -45,7 +45,7 @@ export function BrandLockup({
       <BrandLogoMark className={cn("h-11 w-11", markClassName)} />
       <div className="min-w-0">
         <p className={cn("truncate text-sm font-semibold tracking-tight text-[var(--it-text)]", titleClassName)}>
-          Intelligences Test
+          IntelligencesTest
         </p>
         {subtitle && (
           <p className={cn("truncate text-xs text-slate-500", subtitleClassName)}>

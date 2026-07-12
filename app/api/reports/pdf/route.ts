@@ -27,8 +27,8 @@ function withBrandDefaults(data: EnterpriseReportData): EnterpriseReportData {
     ...data,
     theme: {
       mode: "light",
-      brandName: "Intelligences Test",
-      footerBrandName: "Powered by Intelligences Test",
+      brandName: "IntelligencesTest",
+      footerBrandName: "Powered by IntelligencesTest",
       primaryColor: "#1D4ED8",
       accentColor: "#2563EB",
       ...data.theme,

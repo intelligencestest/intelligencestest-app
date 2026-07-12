@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { BrandLockup } from "@/components/brand/BrandLogo";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
+import { publicContentUrl } from "@/lib/public-links";
 import type { PublicCopy } from "@/lib/public-site-copy";
 
 function BrandMark({ subtitle = "Assessment Platform" }: { subtitle?: string } = {}) {
@@ -34,7 +35,7 @@ export async function PublicHeader({ copy }: { copy: PublicCopy }) {
   return (
     <header className="sticky top-0 z-40 border-b border-[#f3f4f6] bg-[#f8fafc]/92 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
-        <Link href={home} aria-label="Intelligences Test home">
+        <Link href={home} aria-label="IntelligencesTest home">
           <BrandMark subtitle={locale === "es" ? "Plataforma de Evaluación" : "Assessment Platform"} />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-400 lg:flex" aria-label={copy.nav.primaryAria}>
@@ -80,11 +81,18 @@ export async function PublicFooter({ copy }: { copy: PublicCopy }) {
       ],
     },
     {
+      title: copy.footer.authority,
+      links: [
+        { name: copy.footer.methodology, Icon: FileText, href: publicContentUrl("methodology", locale) },
+        { name: copy.footer.scientificFoundations, Icon: ShieldCheck, href: publicContentUrl("scientificFoundations", locale) },
+      ],
+    },
+    {
       title: copy.footer.legal,
       links: [
-        { name: copy.legal.privacyTitle, Icon: Scale, href: "/privacy" },
-        { name: copy.legal.termsTitle, Icon: FileText, href: "/terms" },
-        { name: copy.legal.cookiesTitle, Icon: Cookie, href: "/cookies" },
+        { name: copy.legal.privacyTitle, Icon: Scale, href: publicContentUrl("privacy", locale) },
+        { name: copy.legal.termsTitle, Icon: FileText, href: publicContentUrl("terms", locale) },
+        { name: copy.legal.cookiesTitle, Icon: Cookie, href: localePath("/cookies", locale) },
       ],
     },
   ];
@@ -98,7 +106,7 @@ export async function PublicFooter({ copy }: { copy: PublicCopy }) {
             <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--it-muted)]">{copy.footer.body}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 md:grid-cols-3 lg:col-span-8 lg:justify-items-end">
+          <div className="grid grid-cols-2 gap-10 md:grid-cols-4 lg:col-span-8 lg:justify-items-end">
             {columns.map(({ title, links }) => (
               <div key={title}>
                 <h3 className="text-sm font-semibold text-[var(--it-text)]">{title}</h3>

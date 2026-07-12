@@ -38,7 +38,7 @@ export function EnterpriseAssessmentReport({ data }: EnterpriseAssessmentReportP
   return (
     <Document
       author={reportData.company.name}
-      creator="Intelligences Test"
+      creator="IntelligencesTest"
       keywords={reportData.meta?.keywords?.join(", ")}
       language={locale}
       subject={reportData.meta?.description ?? messages.coverSubtitle}

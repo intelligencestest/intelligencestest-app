@@ -11,6 +11,7 @@ import {
   localePath,
   toAppLocale,
 } from "@/lib/i18n/locales";
+import { publicContentUrl } from "@/lib/public-links";
 import { BrandLockup } from "@/components/brand/BrandLogo";
 import { createClient } from "@/lib/supabase";
 
@@ -256,9 +257,9 @@ export default function LoginPage() {
 
             <p className="mt-6 text-center text-xs text-[var(--it-faint)]">
               {flow("signinAgreement")}{" "}
-              <Link href="/terms" className="text-slate-500 transition-colors hover:text-slate-300">{flow("terms")}</Link>
+              <Link href={publicContentUrl("terms", locale)} className="text-slate-500 transition-colors hover:text-slate-300">{flow("terms")}</Link>
               {" "}{flow("and")}{" "}
-              <Link href="/privacy" className="text-slate-500 transition-colors hover:text-slate-300">{flow("privacyPolicy")}</Link>
+              <Link href={publicContentUrl("privacy", locale)} className="text-slate-500 transition-colors hover:text-slate-300">{flow("privacyPolicy")}</Link>
             </p>
           </div>
         </section>

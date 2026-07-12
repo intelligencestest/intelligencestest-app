@@ -173,7 +173,7 @@ export default async function PrintReportPage({
           </section>
 
           <footer className="mt-10 border-t border-[#e2e8f0] pt-5 text-xs text-[#64748b]">
-            <p>This report is generated from workspace assessment results in Intelligences Test.</p>
+            <p>This report is generated from workspace assessment results in IntelligencesTest.</p>
           </footer>
         </div>
       </section>

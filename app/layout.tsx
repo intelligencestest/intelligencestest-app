@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { appUrl, getAppUrl } from "@/lib/app-url";
+import { localePath, toAppLocale } from "@/lib/i18n/locales";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
@@ -11,15 +13,36 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 // the product experience; SEO lives on the WordPress site. Spanish-first,
 // resolved through the existing locale system.
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const es = locale !== "en";
+  const locale = toAppLocale(await getLocale());
+  const es = locale === "es";
+  const title = es
+    ? "IntelligencesTest - Sistema de Soporte a Decisiones de Contratación"
+    : "IntelligencesTest - Hiring Decision Support System";
+  const description = es
+    ? "Plataforma de evaluación psicométrica que ayuda a los equipos de RR. HH. a tomar decisiones de contratación informadas con supervisión humana."
+    : "Psychometric assessment platform that helps HR teams make informed hiring decisions with human oversight.";
+  const pathname = localePath("/", locale);
+
   return {
-    title: es
-      ? "IntelligencesTest – Plataforma de Evaluación Humana"
-      : "IntelligencesTest – Human Assessment Platform",
-    description: es
-      ? "Evaluaciones psicométricas y cognitivas para decisiones de contratación con evidencia."
-      : "Psychometric and cognitive assessments for evidence-based hiring decisions.",
+    metadataBase: new URL(getAppUrl()),
+    applicationName: "IntelligencesTest",
+    title,
+    description,
+    alternates: {
+      canonical: pathname,
+      languages: {
+        es: "/es",
+        en: "/",
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: es ? "es_ES" : "en_US",
+      url: appUrl(pathname),
+      siteName: "IntelligencesTest",
+      title,
+      description,
+    },
     icons: {
       icon: "/brand/intelligences-test-logo.png",
       apple: "/brand/intelligences-test-logo.png",

@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { BrandLockup } from "@/components/brand/BrandLogo";
 import { localePath, toAppLocale } from "@/lib/i18n/locales";
+import { publicContentUrl } from "@/lib/public-links";
 import { createClient } from "@/lib/supabase";
 
 const GoogleIcon = () => (
@@ -262,9 +263,9 @@ export default function SignupPage() {
 
               <p className="mt-5 text-center text-xs text-[var(--it-faint)]">
                 {flow("signupAgreement")}{" "}
-                <Link href="/terms" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("terms")}</Link>
+                <Link href={publicContentUrl("terms", language)} className="text-slate-500 hover:text-slate-300 transition-colors">{flow("terms")}</Link>
                 {" "}{flow("and")}{" "}
-                <Link href="/privacy" className="text-slate-500 hover:text-slate-300 transition-colors">{flow("privacyPolicy")}</Link>
+                <Link href={publicContentUrl("privacy", language)} className="text-slate-500 hover:text-slate-300 transition-colors">{flow("privacyPolicy")}</Link>
               </p>
             </div>
           </div>

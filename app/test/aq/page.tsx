@@ -393,7 +393,7 @@ export default function AQTest({
         <div className="w-full max-w-md rounded-lg border border-[#f3f4f6] bg-[#ffffff] p-8 text-center shadow-xl shadow-black/30">
           <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#f3f4f6] bg-[#f8fafc] px-3 py-1 text-xs font-medium text-[#4338ca]">
             <BrandLogoMark className="h-5 w-5 rounded-md" imageClassName="p-0.5" />
-            Intelligences Test
+            IntelligencesTest
           </div>
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-50">
             <svg className="h-8 w-8 text-[#15803d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
