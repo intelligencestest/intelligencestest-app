@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { IE_QUESTIONS, IE_DURATION_SECONDS, scoreIE } from "@/lib/questions/integrity-ethics";
 import { IE_QUESTIONS_ES } from "@/lib/questions/es/integrity-ethics";
+import { IE_QUESTIONS_FR } from "@/lib/questions/fr/integrity-ethics";
 
 const questions: RunnerQuestion[] = IE_QUESTIONS.map((q) => ({
   id: q.id,
@@ -45,7 +46,14 @@ export default function IntegrityEthicsTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Lisez chaque scénario professionnel et sélectionnez la réponse la plus appropriée.",
+        "Choisissez la réponse qui reflète le plus haut niveau d'intégrité professionnelle.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={IE_QUESTIONS_ES}
+      frQuestions={IE_QUESTIONS_FR}
       submittingText="Scoring your integrity and ethics test..."
       scoreAnswers={(answers) => {
         const scored = scoreIE(answers);

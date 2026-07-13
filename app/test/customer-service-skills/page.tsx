@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { CSERV_QUESTIONS, CSERV_DURATION_SECONDS, scoreCServ } from "@/lib/questions/customer-service-skills";
 import { CSERV_QUESTIONS_ES } from "@/lib/questions/es/customer-service-skills";
+import { CSERV_QUESTIONS_FR } from "@/lib/questions/fr/customer-service-skills";
 
 const questions: RunnerQuestion[] = CSERV_QUESTIONS.map((q) => ({
   id: q.id,
@@ -45,7 +46,14 @@ export default function CustomerServiceSkillsTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Lisez chaque scénario de service client et sélectionnez la réponse la plus efficace.",
+        "Choisissez la réponse qui reflète les meilleures pratiques du service client.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={CSERV_QUESTIONS_ES}
+      frQuestions={CSERV_QUESTIONS_FR}
       submittingText="Scoring your customer service skills test..."
       scoreAnswers={(answers) => {
         const scored = scoreCServ(answers);

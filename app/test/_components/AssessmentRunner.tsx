@@ -62,11 +62,13 @@ interface AssessmentRunnerProps {
   questionTypeLabel: string;
   instructions: string[];
   instructionsEs?: string[];
+  instructionsFr?: string[];
   details?: Array<{ label: string; value: string }>;
   dimensionSummary?: Array<{ label: string; description: string; className: string }>;
   submittingText: string;
   autoAdvanceLikert?: boolean;
   esQuestions?: EsQuestionMap;
+  frQuestions?: EsQuestionMap;
   scoreAnswers: (answers: (number | null)[]) => ScoreResult;
 }
 
@@ -88,11 +90,13 @@ export default function AssessmentRunner({
   questionTypeLabel,
   instructions,
   instructionsEs,
+  instructionsFr,
   details,
   dimensionSummary,
   submittingText,
   autoAdvanceLikert = true,
   esQuestions,
+  frQuestions,
   scoreAnswers,
 }: AssessmentRunnerProps) {
   const [locale, setLocale] = useState<Locale>("es");
@@ -115,22 +119,22 @@ export default function AssessmentRunner({
 
   const s = UI_STRINGS[locale];
 
-  const localizedQuestions: RunnerQuestion[] =
-    locale === "es" && esQuestions
-      ? questions.map((q) => {
-          const esQ = esQuestions[q.id];
-          if (!esQ) return q;
-          if (q.kind === "choice" && esQ.options) {
-            return { ...q, text: esQ.text, options: [...esQ.options] };
-          }
-          return { ...q, text: esQ.text };
-        })
-      : questions;
+  const localeQuestionMap = locale === "es" ? esQuestions : locale === "fr" ? frQuestions : undefined;
+  const localizedQuestions: RunnerQuestion[] = localeQuestionMap
+    ? questions.map((q) => {
+        const localizedQ = localeQuestionMap[q.id];
+        if (!localizedQ) return q;
+        if (q.kind === "choice" && localizedQ.options) {
+          return { ...q, text: localizedQ.text, options: [...localizedQ.options] };
+        }
+        return { ...q, text: localizedQ.text };
+      })
+    : questions;
 
   useEffect(() => {
     Promise.resolve(searchParams).then((params) => {
       const rawLang = params.lang;
-      const resolvedLocale: Locale = rawLang === "en" ? "en" : "es";
+      const resolvedLocale: Locale = rawLang === "en" ? "en" : rawLang === "fr" ? "fr" : "es";
       setLocale(resolvedLocale);
       const strings = UI_STRINGS[resolvedLocale];
 
@@ -159,7 +163,7 @@ export default function AssessmentRunner({
           } else {
             // The candidate record carries the workspace language — it wins
             // over the URL parameter as the source of truth.
-            if (data.candidate?.language === "en" || data.candidate?.language === "es") {
+            if (data.candidate?.language === "en" || data.candidate?.language === "es" || data.candidate?.language === "fr") {
               setLocale(data.candidate.language);
             }
             setCandidate(data.candidate);
@@ -298,7 +302,12 @@ export default function AssessmentRunner({
     };
   });
 
-  const activeInstructions = locale === "es" && instructionsEs ? instructionsEs : instructions;
+  const activeInstructions =
+    locale === "es" && instructionsEs
+      ? instructionsEs
+      : locale === "fr" && instructionsFr
+        ? instructionsFr
+        : instructions;
   const likertLabels = [...s.likert];
   // The API keeps the English name as its key; only the display localizes.
   const displayName = i18nAssessmentName(assessmentName, locale);
@@ -358,7 +367,7 @@ export default function AssessmentRunner({
                 required
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
-                placeholder={locale === "es" ? "María García" : "Jane Smith"}
+                placeholder={locale === "es" ? "María García" : locale === "fr" ? "Camille Dubois" : "Jane Smith"}
                 className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
@@ -369,7 +378,7 @@ export default function AssessmentRunner({
                 type="email"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
-                placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
+                placeholder={locale === "es" ? "maria@ejemplo.com" : locale === "fr" ? "camille@exemple.fr" : "jane@example.com"}
                 className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>

@@ -8,6 +8,7 @@ import {
   scoreSJT,
 } from "@/lib/questions/situational-judgment";
 import { SJT_QUESTIONS_ES } from "@/lib/questions/es/situational-judgment";
+import { SJT_QUESTIONS_FR } from "@/lib/questions/fr/situational-judgment";
 
 const dimensionClassNames = SJT_DIMENSIONS.reduce<Record<string, string>>((acc, dimension) => {
   acc[dimension.label] = dimension.className;
@@ -58,7 +59,14 @@ export default function SituationalJudgmentTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Choisissez la réponse qui montre le meilleur jugement professionnel dans chaque scénario.",
+        "Certaines options peuvent être partiellement raisonnables ; sélectionnez la réponse globalement la plus solide.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={SJT_QUESTIONS_ES}
+      frQuestions={SJT_QUESTIONS_FR}
       submittingText="Scoring your situational judgment test..."
       scoreAnswers={(answers) => {
         const scored = scoreSJT(answers);

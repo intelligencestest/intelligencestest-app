@@ -8,6 +8,7 @@ import {
   scoreLeadership,
 } from "@/lib/questions/leadership-styles";
 import { LEADERSHIP_QUESTIONS_ES } from "@/lib/questions/es/leadership-styles";
+import { LEADERSHIP_QUESTIONS_FR } from "@/lib/questions/fr/leadership-styles";
 
 const questions: RunnerQuestion[] = LEADERSHIP_QUESTIONS.map((question) => ({
   id: question.id,
@@ -51,7 +52,14 @@ export default function LeadershipStylesTest({
         "Su estilo dominante se muestra tras la finalización y se guarda con el resultado.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Choisissez la réponse qui vous semble la plus naturelle dans chaque situation.",
+        "Il n'y a pas de bonnes ou de mauvaises réponses ; chaque réponse correspond à un style de leadership.",
+        "Votre style dominant s'affiche à la fin et est enregistré avec le résultat.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={LEADERSHIP_QUESTIONS_ES}
+      frQuestions={LEADERSHIP_QUESTIONS_FR}
       submittingText="Calculating your leadership style..."
       scoreAnswers={(answers) => {
         const scored = scoreLeadership(answers);

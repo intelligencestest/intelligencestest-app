@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { CS_QUESTIONS, CS_DURATION_SECONDS, CS_DIMENSIONS, scoreCS } from "@/lib/questions/communication-skills";
 import { CS_QUESTIONS_ES } from "@/lib/questions/es/communication-skills";
+import { CS_QUESTIONS_FR } from "@/lib/questions/fr/communication-skills";
 
 const dimensionClassNames = CS_DIMENSIONS.reduce<Record<string, string>>((acc, d) => {
   acc[d.label] = d.className;
@@ -51,7 +52,14 @@ export default function CommunicationSkillsTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Évaluez chaque affirmation de 1 (Pas du tout d'accord) à 5 (Tout à fait d'accord).",
+        "Répondez en fonction de la façon dont vous communiquez habituellement, pas selon un scénario idéal.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={CS_QUESTIONS_ES}
+      frQuestions={CS_QUESTIONS_FR}
       submittingText="Saving your communication skills profile..."
       scoreAnswers={(answers) => {
         const scored = scoreCS(answers);

@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { TW_QUESTIONS, TW_DURATION_SECONDS, TW_DIMENSIONS, scoreTW } from "@/lib/questions/teamwork-collaboration";
 import { TW_QUESTIONS_ES } from "@/lib/questions/es/teamwork-collaboration";
+import { TW_QUESTIONS_FR } from "@/lib/questions/fr/teamwork-collaboration";
 
 const dimensionClassNames = TW_DIMENSIONS.reduce<Record<string, string>>((acc, d) => {
   acc[d.label] = d.className;
@@ -51,7 +52,14 @@ export default function TeamworkCollaborationTest({
         "Sus resultados no se muestran al finalizar; los revisa el equipo de selección.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Évaluez chaque affirmation de 1 (Pas du tout d'accord) à 5 (Tout à fait d'accord).",
+        "Répondez selon votre comportement habituel en équipe, pas celui auquel vous aspirez.",
+        "Vos résultats ne s'affichent pas à la fin ; ils sont examinés par l'équipe de recrutement.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={TW_QUESTIONS_ES}
+      frQuestions={TW_QUESTIONS_FR}
       submittingText="Saving your teamwork profile..."
       scoreAnswers={(answers) => {
         const scored = scoreTW(answers);
