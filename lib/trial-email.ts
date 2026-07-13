@@ -9,7 +9,7 @@ import { appUrl } from "@/lib/app-url";
  * a later, separate decision.
  */
 
-export type TrialEmailLocale = "en" | "es";
+export type TrialEmailLocale = "en" | "es" | "fr";
 export type TrialEmailKind = "trial_started" | "trial_day1" | "trial_day2" | "trial_ending" | "trial_expired";
 
 const LOGO_URL = appUrl("/intelligencestest-email-logo.png");
@@ -26,102 +26,139 @@ function escapeHtml(value: string) {
 }
 
 function toLocale(value: unknown): TrialEmailLocale {
-  return value === "en" ? "en" : "es";
+  return value === "en" ? "en" : value === "fr" ? "fr" : "es";
 }
 
 function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
   const es = locale === "es";
+  const fr = locale === "fr";
 
   if (kind === "trial_started") {
     return {
-      subject: es ? "Su prueba de 14 días ha comenzado" : "Your 14-day trial has started",
+      subject: es ? "Su prueba de 14 días ha comenzado" : fr ? "Votre essai de 14 jours a commencé" : "Your 14-day trial has started",
       preheader: es
         ? "Cree su primer proyecto e invite candidatos para revisar un informe ejecutivo."
+        : fr
+        ? "Créez votre premier projet et invitez des candidats pour consulter un rapport exécutif."
         : "Invite your first candidate and see results in minutes.",
-      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
-      title: es ? "Su espacio de trabajo está listo" : "Your workspace is ready",
+      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : fr ? `Bonjour ${name ?? ""},` : `Hi ${name ?? "there"},`),
+      title: es ? "Su espacio de trabajo está listo" : fr ? "Votre espace de travail est prêt" : "Your workspace is ready",
       intro: es
         ? "Su prueba gratuita está activa durante 14 días. Puede crear 2 proyectos e invitar hasta 10 candidatos, sin necesidad de tarjeta de crédito."
+        : fr
+        ? "Votre essai gratuit est actif pendant 14 jours. Vous pouvez créer 2 projets et inviter jusqu'à 10 candidats, sans carte bancaire requise."
         : "You have 14 days to create up to 2 projects and invite up to 10 candidates — no credit card required. Start now to make the most of your trial.",
-      cta: es ? "Ir al panel" : "Go to dashboard",
+      cta: es ? "Ir al panel" : fr ? "Aller au tableau de bord" : "Go to dashboard",
       ctaUrl: DASHBOARD_URL,
-      noticeTitle: es ? "Su prueba" : "Your trial",
+      noticeTitle: es ? "Su prueba" : fr ? "Votre essai" : "Your trial",
       notice: es
         ? "Incluye 1 reclutador, 2 proyectos y 10 invitaciones de candidatos durante 14 días."
+        : fr
+        ? "Inclut 1 recruteur, 2 projets et 10 invitations de candidats pendant 14 jours."
         : "Includes 1 recruiter, 2 projects, and 10 candidate invitations for 14 days.",
     };
   }
 
   if (kind === "trial_day1") {
     return {
-      subject: es ? "¿Ha invitado ya a su primer candidato?" : "Have you invited your first candidate yet?",
-      preheader: es ? "Aproveche su prueba gratuita de 14 días." : "Make the most of your 14-day free trial.",
-      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
-      title: es ? "Aproveche su prueba gratuita" : "Make the most of your free trial",
+      subject: es ? "¿Ha invitado ya a su primer candidato?" : fr ? "Avez-vous déjà invité votre premier candidat ?" : "Have you invited your first candidate yet?",
+      preheader: es
+        ? "Aproveche su prueba gratuita de 14 días."
+        : fr
+        ? "Profitez pleinement de votre essai gratuit de 14 jours."
+        : "Make the most of your 14-day free trial.",
+      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : fr ? `Bonjour ${name ?? ""},` : `Hi ${name ?? "there"},`),
+      title: es ? "Aproveche su prueba gratuita" : fr ? "Profitez de votre essai gratuit" : "Make the most of your free trial",
       intro: es
         ? "Cree un proyecto de contratación e invite a un candidato para ver un informe ejecutivo real antes de que finalice su prueba."
+        : fr
+        ? "Créez un projet de recrutement et invitez un candidat pour consulter un vrai rapport exécutif avant la fin de votre essai."
         : "Create a hiring project and invite a candidate to see a real executive report before your trial ends.",
-      cta: es ? "Invitar a un candidato" : "Invite a candidate",
+      cta: es ? "Invitar a un candidato" : fr ? "Inviter un candidat" : "Invite a candidate",
       ctaUrl: DASHBOARD_URL,
-      noticeTitle: es ? "Prueba gratuita activa" : "Free trial active",
+      noticeTitle: es ? "Prueba gratuita activa" : fr ? "Essai gratuit actif" : "Free trial active",
       notice: es
         ? "Su prueba incluye 2 proyectos, 10 invitaciones de candidatos e informes ejecutivos. Sin tarjeta de crédito requerida."
+        : fr
+        ? "Votre essai inclut 2 projets, 10 invitations de candidats et des rapports exécutifs. Aucune carte bancaire requise."
         : "Your trial includes 2 projects, 10 candidate invitations, and executive reports. No credit card required.",
     };
   }
 
   if (kind === "trial_day2") {
     return {
-      subject: es ? "Continúe construyendo señales de selección" : "Keep building hiring signal",
-      preheader: es ? "Todavía tiene tiempo para probar la plataforma con candidatos reales." : "You still have time to test the platform with real candidates.",
-      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
-      title: es ? "Saque más valor de su prueba" : "Get more value from your trial",
+      subject: es ? "Continúe construyendo señales de selección" : fr ? "Continuez à construire des signaux de recrutement" : "Keep building hiring signal",
+      preheader: es
+        ? "Todavía tiene tiempo para probar la plataforma con candidatos reales."
+        : fr
+        ? "Vous avez encore le temps de tester la plateforme avec de vrais candidats."
+        : "You still have time to test the platform with real candidates.",
+      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : fr ? `Bonjour ${name ?? ""},` : `Hi ${name ?? "there"},`),
+      title: es ? "Saque más valor de su prueba" : fr ? "Tirez davantage parti de votre essai" : "Get more value from your trial",
       intro: es
         ? "Use su prueba para comparar candidatos en un proyecto real y revisar informes ejecutivos antes de elegir un plan."
+        : fr
+        ? "Utilisez votre essai pour comparer des candidats sur un projet réel et consulter des rapports exécutifs avant de choisir une offre."
         : "Use your trial to compare candidates in a real project and review executive reports before choosing a plan.",
-      cta: es ? "Ir al panel" : "Go to dashboard",
+      cta: es ? "Ir al panel" : fr ? "Aller au tableau de bord" : "Go to dashboard",
       ctaUrl: DASHBOARD_URL,
-      noticeTitle: es ? "Límites incluidos" : "Included limits",
+      noticeTitle: es ? "Límites incluidos" : fr ? "Limites incluses" : "Included limits",
       notice: es
         ? "Puede crear hasta 2 proyectos e invitar hasta 10 candidatos durante la prueba."
+        : fr
+        ? "Vous pouvez créer jusqu'à 2 projets et inviter jusqu'à 10 candidats pendant l'essai."
         : "You can create up to 2 projects and invite up to 10 candidates during the trial.",
     };
   }
 
   if (kind === "trial_ending") {
     return {
-      subject: es ? "Su prueba termina hoy" : "Your trial ends today",
-      preheader: es ? "Solicite una ampliación para continuar sin interrupciones." : "Request an extension to keep going without interruption.",
-      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
-      title: es ? "Su prueba termina hoy" : "Your trial ends today",
+      subject: es ? "Su prueba termina hoy" : fr ? "Votre essai se termine aujourd'hui" : "Your trial ends today",
+      preheader: es
+        ? "Solicite una ampliación para continuar sin interrupciones."
+        : fr
+        ? "Demandez une prolongation pour continuer sans interruption."
+        : "Request an extension to keep going without interruption.",
+      greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : fr ? `Bonjour ${name ?? ""},` : `Hi ${name ?? "there"},`),
+      title: es ? "Su prueba termina hoy" : fr ? "Votre essai se termine aujourd'hui" : "Your trial ends today",
       intro: es
         ? "Hoy es el último día de su prueba gratuita. Contacte con nuestro equipo comercial para elegir un plan y seguir invitando candidatos sin interrupción."
+        : fr
+        ? "Aujourd'hui est le dernier jour de votre essai gratuit. Contactez notre équipe commerciale pour choisir une offre et continuer à inviter des candidats sans interruption."
         : "Today is the last day of your free trial. Contact our sales team to choose a plan and keep inviting candidates without interruption.",
-      cta: es ? "Hablar con ventas" : "Talk to sales",
+      cta: es ? "Hablar con ventas" : fr ? "Contacter les ventes" : "Talk to sales",
       ctaUrl: CONTACT_URL,
-      noticeTitle: es ? "Termina hoy" : "Ends today",
+      noticeTitle: es ? "Termina hoy" : fr ? "Se termine aujourd'hui" : "Ends today",
       notice: es
         ? "Starter desde 49 €/mes, Professional desde 149 €/mes. Enterprise a medida — contacte con ventas."
+        : fr
+        ? "Starter à partir de 49 €/mois, Professional à partir de 149 €/mois. Enterprise sur mesure — contactez les ventes."
         : "Starter from €49/month, Professional from €149/month. Custom Enterprise — contact sales.",
     };
   }
 
   // trial_expired
   return {
-    subject: es ? "Su periodo de prueba ha finalizado" : "Your trial has ended",
+    subject: es ? "Su periodo de prueba ha finalizado" : fr ? "Votre période d'essai est terminée" : "Your trial has ended",
     preheader: es
       ? "Solicite una ampliación para continuar usando la plataforma."
+      : fr
+      ? "Demandez une prolongation pour continuer à utiliser la plateforme."
       : "Request an extension to keep using the platform.",
-    greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : `Hi ${name ?? "there"},`),
-    title: es ? "Su periodo de prueba ha finalizado" : "Your trial has ended",
+    greeting: (name?: string | null) => (es ? `Estimado/a ${name ?? "usuario/a"},` : fr ? `Bonjour ${name ?? ""},` : `Hi ${name ?? "there"},`),
+    title: es ? "Su periodo de prueba ha finalizado" : fr ? "Votre période d'essai est terminée" : "Your trial has ended",
     intro: es
       ? "Ya no puede invitar nuevos candidatos ni crear proyectos. Sus datos siguen disponibles. Contacte con nuestro equipo comercial para continuar."
+      : fr
+      ? "Vous ne pouvez plus inviter de nouveaux candidats ni créer de projets. Vos données restent disponibles. Contactez notre équipe commerciale pour continuer."
       : "You can no longer invite new candidates or create projects. Your existing data remains available. Contact our sales team to continue.",
-    cta: es ? "Contactar con ventas" : "Contact sales",
+    cta: es ? "Contactar con ventas" : fr ? "Contacter les ventes" : "Contact sales",
     ctaUrl: CONTACT_URL,
-    noticeTitle: es ? "Sus datos están a salvo" : "Your data is safe",
+    noticeTitle: es ? "Sus datos están a salvo" : fr ? "Vos données sont en sécurité" : "Your data is safe",
     notice: es
       ? "Todos sus proyectos, candidatos y resultados existentes siguen visibles — solo se bloquean las acciones nuevas."
+      : fr
+      ? "Tous vos projets, candidats et résultats existants restent visibles — seules les nouvelles actions sont bloquées."
       : "All your existing projects, candidates, and results remain visible — only new actions are blocked.",
   };
 }
@@ -160,7 +197,7 @@ function buildHtml(kind: TrialEmailKind, locale: TrialEmailLocale, name?: string
                     </td>
                     <td style="padding-left:13px;">
                       <div style="font-size:17px;line-height:21px;font-weight:700;color:#FFFFFF;">IntelligencesTest</div>
-                      <div style="font-size:12px;line-height:16px;color:#64748B;">${locale === "es" ? "Plataforma de evaluación humana" : "Human Assessment Platform"}</div>
+                      <div style="font-size:12px;line-height:16px;color:#64748B;">${locale === "es" ? "Plataforma de evaluación humana" : locale === "fr" ? "Plateforme d'évaluation humaine" : "Human Assessment Platform"}</div>
                     </td>
                   </tr>
                 </table>
@@ -206,8 +243,8 @@ function buildHtml(kind: TrialEmailKind, locale: TrialEmailLocale, name?: string
             </tr>
             <tr>
               <td style="padding:18px 8px 0 8px;text-align:center;">
-                <p style="margin:0;color:#475569;font-size:11px;line-height:18px;">${locale === "es" ? "Soporte" : "Support"}: support@intelligencestest.com</p>
-                <p style="margin:10px 0 0 0;color:#334155;font-size:11px;line-height:16px;">${locale === "es" ? "Con tecnología de IntelligencesTest" : "Powered by IntelligencesTest"}</p>
+                <p style="margin:0;color:#475569;font-size:11px;line-height:18px;">${locale === "es" ? "Soporte" : locale === "fr" ? "Support" : "Support"}: support@intelligencestest.com</p>
+                <p style="margin:10px 0 0 0;color:#334155;font-size:11px;line-height:16px;">${locale === "es" ? "Con tecnología de IntelligencesTest" : locale === "fr" ? "Propulsé par IntelligencesTest" : "Powered by IntelligencesTest"}</p>
               </td>
             </tr>
           </table>
