@@ -35,10 +35,35 @@ const testPaths: Record<string, string> = {
   "Learning Agility Test": "learning-agility",
 };
 
-type InviteEmailLocale = "en" | "es";
+type InviteEmailLocale = "en" | "es" | "fr";
 
 const localizedAssessmentNames: Record<InviteEmailLocale, Record<string, string>> = {
   en: {},
+  fr: {
+    "Critical Thinking Test": "Test de Pensée Critique",
+    "Adversity Quotient (AQ) Test": "Test de Quotient d'Adversité (AQ)",
+    "Emotional Intelligence Test": "Test d'Intelligence Émotionnelle",
+    "Leadership Styles Test": "Test de Styles de Leadership",
+    "Numerical Intelligence Test": "Test d'Intelligence Numérique",
+    "Personality Type Test": "Test de Type de Personnalité",
+    "Situational Judgment Test": "Test de Jugement Situationnel",
+    "Attention to Detail Test": "Test d'Attention aux Détails",
+    "Verbal Reasoning Test": "Test de Raisonnement Verbal",
+    "Abstract Reasoning Test": "Test de Raisonnement Abstrait",
+    "Mechanical Reasoning Test": "Test de Raisonnement Mécanique",
+    "Communication Skills Test": "Test de Compétences en Communication",
+    "Problem Solving Test": "Test de Résolution de Problèmes",
+    "Work Style Assessment": "Évaluation du Style de Travail",
+    "Work Style Test": "Test de Style de Travail",
+    "Sales Aptitude Test": "Test d'Aptitude Commerciale",
+    "Customer Service Skills Test": "Test de Service Client",
+    "Teamwork & Collaboration Test": "Test de Travail d'Équipe et Collaboration",
+    "Time Management Test": "Test de Gestion du Temps",
+    "Stress Tolerance Test": "Test de Tolérance au Stress",
+    "Integrity & Ethics Test": "Test d'Intégrité et d'Éthique",
+    "Decision Making Test": "Test de Prise de Décision",
+    "Learning Agility Test": "Test d'Agilité d'Apprentissage",
+  },
   es: {
     "Critical Thinking Test": "Prueba de Pensamiento Crítico",
     "Adversity Quotient (AQ) Test": "Prueba de Cociente de Adversidad (AQ)",
@@ -119,6 +144,33 @@ function inviteCopy(locale: InviteEmailLocale) {
       footerIntro: (companyName: string) => `Este correo fue enviado porque ${companyName} le invitó a completar una evaluación.`,
       support: "Soporte: support@intelligencestest.com | Preferencias de correo: gestionadas por la organización que invita.",
       powered: "Con tecnología de IntelligencesTest",
+    };
+  }
+
+  if (locale === "fr") {
+    return {
+      subject: (companyName: string) => `${companyName} - Invitation à une évaluation`,
+      preheader: (companyName: string) => `${companyName} vous a invité(e) à compléter une évaluation en ligne.`,
+      greeting: (name: string | null) => (name ? `Bonjour ${name},` : "Bonjour,"),
+      brandSubtitle: "Plateforme d'évaluation humaine",
+      logoAlt: "Logo IntelligencesTest",
+      title: (companyName: string) => `${companyName} vous a invité(e) à compléter une évaluation`,
+      intro:
+        "Cette évaluation aide l'équipe à mieux comprendre vos points forts et votre façon d'aborder les situations professionnelles. Installez-vous dans un endroit calme avant de commencer.",
+      whatToExpect: "À quoi vous attendre",
+      assessment: "Évaluation",
+      time: "Durée estimée",
+      questions: "Questions",
+      minutes: (minutes: number) => `${minutes} min`,
+      unknown: "Indiqué au démarrage",
+      cta: "Commencer l'évaluation",
+      expiryTitle: "Lien valide 7 jours",
+      expiry:
+        "Par sécurité, ce lien expire dans 7 jours. Si vous n'attendiez pas cette invitation, vous pouvez ignorer cet e-mail en toute sécurité.",
+      fallback: "Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :",
+      footerIntro: (companyName: string) => `Cet e-mail a été envoyé car ${companyName} vous a invité(e) à compléter une évaluation.`,
+      support: "Support : support@intelligencestest.com | Préférences d'e-mail : gérées par l'organisation invitante.",
+      powered: "Propulsé par IntelligencesTest",
     };
   }
 
@@ -441,7 +493,7 @@ export async function POST(request: NextRequest) {
     const absoluteUrl = `${appUrl}${testUrl}`;
     const logoUrl = EMAIL_LOGO_URL;
     const toAddress = email.toLowerCase().trim();
-    const emailLocale: InviteEmailLocale = lang === "es" ? "es" : "en";
+    const emailLocale: InviteEmailLocale = lang === "es" ? "es" : lang === "fr" ? "fr" : "en";
     const emailOptions: InviteEmailOptions = {
       candidateName: full_name?.trim() || null,
       companyName,

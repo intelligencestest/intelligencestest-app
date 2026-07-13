@@ -37,14 +37,14 @@ export default function ExportPdfButton({ variant = "standalone", ...props }: Ex
         candidateEmail: props.candidateEmail,
         companyName: props.companyName,
         projectName: props.projectName,
-        reportDate: new Date().toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
+        reportDate: new Date().toLocaleDateString(locale === "es" ? "es-ES" : locale === "fr" ? "fr-FR" : "en-US", {
           month: "long",
           day: "numeric",
           year: "numeric",
         }),
         reportId: `RPT-${props.candidateId.slice(0, 8).toUpperCase()}`,
         assessments: props.assessments,
-        locale: locale === "en" ? "en" : "es",
+        locale: locale === "en" ? "en" : locale === "fr" ? "fr" : "es",
       };
       await downloadComprehensiveReport(data);
     } catch {

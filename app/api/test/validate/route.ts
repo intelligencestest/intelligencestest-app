@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       full_name: candidate.full_name,
       email: candidate.email,
       status: candidate.status,
-      language: candidate.language === "en" ? "en" : "es",
+      language: candidate.language === "en" ? "en" : candidate.language === "fr" ? "fr" : "es",
       project_id: candidate.project_id,
       company_id: candidate.company_id,
     },

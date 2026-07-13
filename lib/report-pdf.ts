@@ -24,10 +24,10 @@ export interface ComprehensiveReportData {
   reportDate: string;
   reportId: string;
   assessments: AssessmentScore[];
-  locale?: "en" | "es";
+  locale?: "en" | "es" | "fr";
 }
 
-type Locale = "en" | "es";
+type Locale = "en" | "es" | "fr";
 
 const CATEGORY_BY_ASSESSMENT: Record<string, string> = {
   "Critical Thinking Test": "Cognitive",
@@ -71,10 +71,18 @@ const COPY = {
     unknownProject: "Assessment Project",
     competencyDescription: (name: string) => `Available evidence from ${name}.`,
   },
+  fr: {
+    title: "Rapport d'evaluation executif",
+    subtitle: "Document executif pour les decisions de recrutement",
+    overallScore: "Moyenne des evaluations completees",
+    unknownCompany: "Entreprise",
+    unknownProject: "Projet d'evaluation",
+    competencyDescription: (name: string) => `Preuves disponibles a partir de ${name}.`,
+  },
 } satisfies Record<Locale, Record<string, unknown>>;
 
 function localeOf(data: ComprehensiveReportData): Locale {
-  return data.locale === "en" ? "en" : "es";
+  return data.locale === "en" ? "en" : data.locale === "fr" ? "fr" : "es";
 }
 
 function clampScore(score: number): number {
@@ -113,7 +121,7 @@ export function toEnterpriseReportData(data: ComprehensiveReportData): Enterpris
   const assessments = normalizeAssessments(data.assessments);
   const intelligence = buildAssessmentIntelligence({ assessments, locale });
   const average = assessments.length ? clampScore(assessments.reduce((sum, item) => sum + item.score, 0) / assessments.length) : 0;
-  const candidateName = data.candidateName.trim() || (locale === "es" ? "Candidato" : "Candidate");
+  const candidateName = data.candidateName.trim() || (locale === "es" ? "Candidato" : locale === "fr" ? "Candidat" : "Candidate");
   const companyName = data.companyName.trim() || copy.unknownCompany;
   const projectName = data.projectName.trim() || copy.unknownProject;
 
@@ -164,7 +172,7 @@ export function toEnterpriseReportData(data: ComprehensiveReportData): Enterpris
       title: copy.title,
       subtitle: copy.subtitle,
       generatedAt: new Date().toISOString(),
-      confidentialityLabel: locale === "es" ? "Confidencial" : "Confidential",
+      confidentialityLabel: locale === "es" ? "Confidencial" : locale === "fr" ? "Confidentiel" : "Confidential",
     },
     candidate: {
       name: candidateName,

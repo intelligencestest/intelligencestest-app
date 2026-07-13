@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       full_name: name.trim(),
       email: email.toLowerCase().trim(),
       status: "invited",
-      language: project.companies?.language === "en" ? "en" : "es",
+      language: project.companies?.language === "en" ? "en" : project.companies?.language === "fr" ? "fr" : "es",
       token,
       token_expires_at: expiresAt,
     })
