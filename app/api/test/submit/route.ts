@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { scoreAssessmentSubmission } from "@/lib/assessment-scoring";
+import { assessmentRoute } from "@/lib/assessment-routes";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -44,10 +45,16 @@ export async function POST(request: NextRequest) {
 
   const { data: projectAssessments } = await supabase
     .from("project_assessments")
-    .select("assessment_id")
-    .eq("project_id", candidate.project_id);
+    .select("assessment_id, assessments(id, name)")
+    .eq("project_id", candidate.project_id)
+    .returns<{ assessment_id: string; assessments: { id: string; name: string } | { id: string; name: string }[] | null }[]>();
 
-  const assignedAssessmentIds = new Set((projectAssessments ?? []).map((row) => row.assessment_id));
+  const assignedAssessments = (projectAssessments ?? [])
+    .map((row) => (Array.isArray(row.assessments) ? row.assessments[0] : row.assessments))
+    .filter((a): a is { id: string; name: string } => a !== null)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  const assignedAssessmentIds = new Set(assignedAssessments.map((a) => a.id));
   if (assignedAssessmentIds.size > 0 && !assignedAssessmentIds.has(assessment.id)) {
     return NextResponse.json({ error: "Assessment is not assigned to this candidate" }, { status: 403 });
   }
@@ -95,6 +102,8 @@ export async function POST(request: NextRequest) {
     ? [...assignedAssessmentIds].every((id) => completedAssessmentIds.has(id))
     : true;
 
+  const nextAssessment = assignedAssessments.find((a) => !completedAssessmentIds.has(a.id)) ?? null;
+
   // Update candidate status + pipeline stage only when the assigned battery is complete.
   await supabase
     .from("candidates")
@@ -112,5 +121,8 @@ export async function POST(request: NextRequest) {
     remaining_assessment_count: hasAssignmentList
       ? Math.max(assignedAssessmentIds.size - completedAssessmentIds.size, 0)
       : 0,
+    next_assessment: nextAssessment
+      ? { name: nextAssessment.name, route: assessmentRoute(nextAssessment.name) }
+      : null,
   });
 }

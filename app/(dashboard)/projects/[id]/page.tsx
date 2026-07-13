@@ -2,32 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLocale } from "next-intl/server";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
+import { assessmentRoute } from "@/lib/assessment-routes";
 import ProjectDetailClient from "./ProjectDetailClient";
-
-const TEST_ROUTES: Record<string, string> = {
-  "Critical Thinking Test": "critical-thinking",
-  "Adversity Quotient (AQ) Test": "aq",
-  "Emotional Intelligence Test": "emotional-intelligence",
-  "Leadership Styles Test": "leadership-styles",
-  "Numerical Intelligence Test": "numerical-intelligence",
-  "Personality Type Test": "personality-type",
-  "Situational Judgment Test": "situational-judgment",
-  "Attention to Detail Test": "attention-detail",
-  "Verbal Reasoning Test": "verbal-reasoning",
-  "Abstract Reasoning Test": "abstract-reasoning",
-  "Mechanical Reasoning Test": "mechanical-reasoning",
-  "Communication Skills Test": "communication-skills",
-  "Problem Solving Test": "problem-solving",
-  "Work Style Assessment": "work-style",
-  "Sales Aptitude Test": "sales-aptitude",
-  "Customer Service Skills Test": "customer-service-skills",
-  "Teamwork & Collaboration Test": "teamwork-collaboration",
-  "Time Management Test": "time-management",
-  "Stress Tolerance Test": "stress-tolerance",
-  "Integrity & Ethics Test": "integrity-ethics",
-  "Decision Making Test": "decision-making",
-  "Learning Agility Test": "learning-agility",
-};
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -93,7 +69,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       return {
         id: a.id,
         name: a.name,
-        route: TEST_ROUTES[a.name] ?? a.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        route: assessmentRoute(a.name),
         duration_minutes: a.duration_minutes,
         question_count: a.question_count,
       };

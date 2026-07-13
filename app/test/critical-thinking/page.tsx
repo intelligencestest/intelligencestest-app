@@ -7,7 +7,7 @@ import { CT_QUESTIONS_ES } from "@/lib/questions/es/critical-thinking";
 import { CT_QUESTIONS_FR } from "@/lib/questions/fr/critical-thinking";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 
-type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "error";
+type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "battery-continue" | "error";
 
 interface CandidateInfo {
   id: string;
@@ -32,6 +32,7 @@ export default function CriticalThinkingTest({
   const [answers, setAnswers] = useState<(number | null)[]>(Array(CT_QUESTIONS.length).fill(null));
   const [secondsLeft, setSecondsLeft] = useState(CT_DURATION_SECONDS);
   const [result, setResult] = useState<ReturnType<typeof scoreResults> | null>(null);
+  const [nextAssessment, setNextAssessment] = useState<{ route: string; remaining: number } | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const answersRef = useRef<(number | null)[]>(Array(CT_QUESTIONS.length).fill(null));
   const submittedRef = useRef(false);
@@ -157,7 +158,7 @@ export default function CriticalThinkingTest({
     setResult(scored);
 
     if (token) {
-      await fetch("/api/test/submit", {
+      const res = await fetch("/api/test/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -167,6 +168,12 @@ export default function CriticalThinkingTest({
           raw_answers: finalAnswers,
         }),
       });
+      const data = await res.json().catch(() => null);
+      if (data?.next_assessment?.route && data.remaining_assessment_count > 0) {
+        setNextAssessment({ route: data.next_assessment.route, remaining: data.remaining_assessment_count });
+        setPhase("battery-continue");
+        return;
+      }
     }
 
     setPhase("completed");
@@ -343,6 +350,33 @@ export default function CriticalThinkingTest({
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-[var(--it-muted)]">{s.scoringAnswers}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (phase === "battery-continue" && nextAssessment) {
+    const continueUrl = `/test/${nextAssessment.route}?token=${token}&lang=${locale}`;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc] p-6">
+        <div className="w-full max-w-md rounded-lg border border-[var(--it-hairline)] bg-white p-8 text-center shadow-[0_1px_3px_rgba(16,24,40,0.05),0_12px_32px_-16px_rgba(16,24,40,0.12)]">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--it-hairline)] bg-[var(--it-surface-muted)] px-3 py-1 text-xs font-medium text-[var(--it-link)]">
+            <BrandLogoMark className="h-5 w-5 rounded-md" imageClassName="p-0.5" />
+            IntelligencesTest
+          </div>
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-50">
+            <svg className="h-8 w-8 text-[#15803d]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1 className="mb-3 text-2xl font-semibold text-[var(--it-text)]">{s.nextAssessmentTitle}</h1>
+          <p className="mb-6 leading-relaxed text-[var(--it-muted)]">{s.nextAssessmentBody(nextAssessment.remaining)}</p>
+          <a
+            href={continueUrl}
+            className="inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-[var(--it-primary)] py-3 font-semibold text-white shadow-sm transition-colors hover:bg-[var(--it-primary-hover)]"
+          >
+            {s.continueToNextButton}
+          </a>
         </div>
       </div>
     );

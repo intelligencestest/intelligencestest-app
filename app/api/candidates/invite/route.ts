@@ -4,36 +4,12 @@ import { appUrl, getAppUrl } from "@/lib/app-url";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { assessmentName as localizedAssessmentName } from "@/lib/i18n/assessment-terms";
 import { assertWithinLimit } from "@/lib/plan/limits";
+import { assessmentRoute } from "@/lib/assessment-routes";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { Resend } from "resend";
 
 const EMAIL_LOGO_URL = appUrl("/intelligencestest-email-logo.png");
-
-const testPaths: Record<string, string> = {
-  "Critical Thinking Test": "critical-thinking",
-  "Adversity Quotient (AQ) Test": "aq",
-  "Emotional Intelligence Test": "emotional-intelligence",
-  "Leadership Styles Test": "leadership-styles",
-  "Numerical Intelligence Test": "numerical-intelligence",
-  "Personality Type Test": "personality-type",
-  "Situational Judgment Test": "situational-judgment",
-  "Attention to Detail Test": "attention-detail",
-  "Verbal Reasoning Test": "verbal-reasoning",
-  "Abstract Reasoning Test": "abstract-reasoning",
-  "Mechanical Reasoning Test": "mechanical-reasoning",
-  "Communication Skills Test": "communication-skills",
-  "Problem Solving Test": "problem-solving",
-  "Work Style Assessment": "work-style",
-  "Sales Aptitude Test": "sales-aptitude",
-  "Customer Service Skills Test": "customer-service-skills",
-  "Teamwork & Collaboration Test": "teamwork-collaboration",
-  "Time Management Test": "time-management",
-  "Stress Tolerance Test": "stress-tolerance",
-  "Integrity & Ethics Test": "integrity-ethics",
-  "Decision Making Test": "decision-making",
-  "Learning Agility Test": "learning-agility",
-};
 
 type InviteEmailLocale = "en" | "es" | "fr";
 
@@ -100,6 +76,8 @@ interface InviteEmailOptions {
   testUrl: string;
   logoUrl: string;
   locale: InviteEmailLocale;
+  bundleCount: number;
+  bundleTotalMinutes: number;
 }
 
 function getPublicAppUrl() {
@@ -130,6 +108,8 @@ function inviteCopy(locale: InviteEmailLocale) {
       title: (companyName: string) => `${companyName} le ha invitado a completar una evaluación`,
       intro:
         "Esta evaluación ayuda al equipo a conocer mejor sus fortalezas y su forma de resolver situaciones de trabajo. Busque un lugar tranquilo antes de comenzar.",
+      bundleNotice: (count: number, minutes: number) =>
+        `Esta invitación incluye ${count} evaluaciones (aprox. ${minutes} min en total). Al terminar cada una, se le dirigirá automáticamente a la siguiente.`,
       whatToExpect: "Qué esperar",
       assessment: "Evaluación",
       time: "Tiempo estimado",
@@ -157,6 +137,8 @@ function inviteCopy(locale: InviteEmailLocale) {
       title: (companyName: string) => `${companyName} vous a invité(e) à compléter une évaluation`,
       intro:
         "Cette évaluation aide l'équipe à mieux comprendre vos points forts et votre façon d'aborder les situations professionnelles. Installez-vous dans un endroit calme avant de commencer.",
+      bundleNotice: (count: number, minutes: number) =>
+        `Cette invitation comprend ${count} évaluations (environ ${minutes} min au total). À la fin de chacune, vous serez automatiquement dirigé(e) vers la suivante.`,
       whatToExpect: "À quoi vous attendre",
       assessment: "Évaluation",
       time: "Durée estimée",
@@ -183,6 +165,8 @@ function inviteCopy(locale: InviteEmailLocale) {
     title: (companyName: string) => `${companyName} has invited you to complete an assessment`,
     intro:
       "This helps the recruitment team better understand your strengths and prepare a more structured interview. It does not replace human review or make an automatic hiring decision. Please find a quiet place before you begin.",
+    bundleNotice: (count: number, minutes: number) =>
+      `This invitation includes ${count} assessments (about ${minutes} min total). You'll move to the next one automatically after finishing each.`,
     whatToExpect: "What to expect",
     assessment: "Assessment",
     time: "Estimated time",
@@ -217,6 +201,7 @@ function buildInviteEmailText(opts: InviteEmailOptions): string {
     copy.title(opts.companyName),
     "",
     copy.intro,
+    ...(opts.bundleCount > 1 ? ["", copy.bundleNotice(opts.bundleCount, opts.bundleTotalMinutes)] : []),
     "",
     `${copy.assessment}: ${assessmentName}`,
     `${copy.time}: ${duration}`,
@@ -242,6 +227,7 @@ function buildInviteEmail(opts: InviteEmailOptions): string {
   const safeGreeting = escapeHtml(copy.greeting(candidateName));
   const safeTitle = escapeHtml(copy.title(opts.companyName));
   const safeIntro = escapeHtml(copy.intro);
+  const safeBundleNotice = opts.bundleCount > 1 ? escapeHtml(copy.bundleNotice(opts.bundleCount, opts.bundleTotalMinutes)) : null;
   const safeUrl = escapeHtml(opts.testUrl);
   const safeLogoUrl = escapeHtml(opts.logoUrl);
   const safeLogoAlt = escapeHtml(copy.logoAlt);
@@ -291,6 +277,7 @@ function buildInviteEmail(opts: InviteEmailOptions): string {
                       <h1 style="margin:0 0 10px 0;color:#FFFFFF;font-size:26px;line-height:33px;font-weight:700;letter-spacing:-0.01em;">${safeGreeting}</h1>
                       <p style="margin:0;color:#CBD5E1;font-size:17px;line-height:27px;font-weight:600;">${safeTitle}</p>
                       <p style="margin:14px 0 0 0;color:#94A3B8;font-size:15px;line-height:25px;">${safeIntro}</p>
+                      ${safeBundleNotice ? `<p style="margin:10px 0 0 0;color:#9BB8FF;font-size:13px;line-height:22px;font-weight:600;">${safeBundleNotice}</p>` : ""}
                     </td>
                   </tr>
                   <tr>
@@ -437,30 +424,28 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  if (!assessment_type) {
-    return NextResponse.json({ error: "Assessment type is required" }, { status: 400 });
-  }
-
-  const { data: assessment } = await admin
-    .from("assessments")
-    .select("id, name, duration_minutes, question_count")
-    .eq("name", assessment_type)
-    .single();
-
-  if (!assessment) {
-    return NextResponse.json({ error: "Assessment not found" }, { status: 404 });
-  }
-
-  const { data: linked } = await admin
+  // A shortlist's full assessment battery — the invite covers all of it,
+  // not just one test. `assessment_type` (if given) only overrides which
+  // one the candidate starts on; the rest follow automatically via
+  // /api/test/submit's next_assessment logic.
+  const { data: bundleRows } = await admin
     .from("project_assessments")
-    .select("assessment_id")
+    .select("assessment_id, assessments(id, name, duration_minutes, question_count)")
     .eq("project_id", project.id)
-    .eq("assessment_id", assessment.id)
-    .maybeSingle();
+    .returns<{ assessment_id: string; assessments: { id: string; name: string; duration_minutes: number | null; question_count: number | null } | { id: string; name: string; duration_minutes: number | null; question_count: number | null }[] | null }[]>();
 
-  if (!linked) {
-    return NextResponse.json({ error: "This assessment is not part of the selected project" }, { status: 403 });
+  const bundle = (bundleRows ?? [])
+    .map((row) => (Array.isArray(row.assessments) ? row.assessments[0] : row.assessments))
+    .filter((a): a is { id: string; name: string; duration_minutes: number | null; question_count: number | null } => a !== null)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  if (bundle.length === 0) {
+    return NextResponse.json({ error: "No assessments linked to this project" }, { status: 400 });
   }
+
+  const assessment = (assessment_type ? bundle.find((a) => a.name === assessment_type) : undefined) ?? bundle[0];
+  const bundleCount = bundle.length;
+  const bundleTotalMinutes = bundle.reduce((sum, a) => sum + (a.duration_minutes ?? 0), 0);
 
   const token = randomUUID();
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -484,7 +469,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create candidate" }, { status: 500 });
   }
 
-  const testPath = testPaths[assessment_type] ?? "critical-thinking";
+  const testPath = assessmentRoute(assessment.name);
   const langParam = `&lang=${lang}`;
   const testUrl = `/test/${testPath}?token=${candidate.token}${langParam}`;
 
@@ -497,12 +482,14 @@ export async function POST(request: NextRequest) {
     const emailOptions: InviteEmailOptions = {
       candidateName: full_name?.trim() || null,
       companyName,
-      assessmentName: localizedAssessmentName(assessment.name ?? assessment_type, lang),
+      assessmentName: localizedAssessmentName(assessment.name, lang),
       durationMinutes: assessment.duration_minutes ?? null,
       questionCount: assessment.question_count ?? null,
       testUrl: absoluteUrl,
       logoUrl,
       locale: emailLocale,
+      bundleCount,
+      bundleTotalMinutes,
     };
     const subject = buildInviteSubject({ companyName, locale: emailLocale });
 
