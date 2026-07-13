@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { DM_QUESTIONS, DM_DURATION_SECONDS, scoreDM } from "@/lib/questions/decision-making";
 import { DM_QUESTIONS_ES } from "@/lib/questions/es/decision-making";
+import { DM_QUESTIONS_FR } from "@/lib/questions/fr/decision-making";
 
 const questions: RunnerQuestion[] = DM_QUESTIONS.map((q) => ({
   id: q.id,
@@ -45,7 +46,14 @@ export default function DecisionMakingTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Lisez chaque scénario et sélectionnez la réponse de prise de décision la plus efficace.",
+        "Choisissez la réponse qui reflète une analyse solide, un bon jugement et une conscience du risque.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={DM_QUESTIONS_ES}
+      frQuestions={DM_QUESTIONS_FR}
       submittingText="Scoring your decision making test..."
       scoreAnswers={(answers) => {
         const scored = scoreDM(answers);

@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { LA_QUESTIONS, LA_DURATION_SECONDS, scoreLA } from "@/lib/questions/learning-agility";
 import { LA_QUESTIONS_ES } from "@/lib/questions/es/learning-agility";
+import { LA_QUESTIONS_FR } from "@/lib/questions/fr/learning-agility";
 
 const questions: RunnerQuestion[] = LA_QUESTIONS.map((q) => ({
   id: q.id,
@@ -45,7 +46,14 @@ export default function LearningAgilityTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Lisez chaque scénario et sélectionnez la réponse la plus agile et la plus efficace.",
+        "Choisissez la réponse qui démontre le mieux l'adaptabilité et un état d'esprit de croissance.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={LA_QUESTIONS_ES}
+      frQuestions={LA_QUESTIONS_FR}
       submittingText="Scoring your learning agility test..."
       scoreAnswers={(answers) => {
         const scored = scoreLA(answers);
