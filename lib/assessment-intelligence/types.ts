@@ -1,15 +1,4 @@
-// "fr" falls back to the English content branch throughout this engine until
-// French gets its own dedicated narrative pass (see the report/AGENTS notes on
-// scope) — this widening only makes that fallback type-safe, it does not add
-// French text.
 export type IntelligenceLocale = "en" | "es" | "fr";
-
-// Bilingual-only (es/en) content dictionaries throughout this engine use this
-// to resolve "fr" to its English content safely, without needing every
-// dictionary to carry a duplicate French entry.
-export function contentLocale(locale: IntelligenceLocale): "en" | "es" {
-  return locale === "fr" ? "en" : locale;
-}
 
 export type CompetencyId =
   | "analytical-reasoning"
@@ -77,6 +66,7 @@ export type ConfidenceLevel = "high" | "moderate" | "low";
 export interface LocalizedText {
   en: string;
   es: string;
+  fr?: string;
 }
 
 export interface CompetencyDefinition {

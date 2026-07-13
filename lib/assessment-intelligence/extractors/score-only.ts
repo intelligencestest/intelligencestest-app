@@ -23,19 +23,27 @@ export function extractScoreOnlyEvidence(input: AssessmentResultInput, locale: I
       statement:
         locale === "es"
           ? `${input.name}: puntuacion completada disponible, sin interpretacion metodologica especifica en esta fase.`
-          : `${input.name}: completed score available, without assessment-specific methodological interpretation in this phase.`,
+          : locale === "fr"
+            ? `${input.name} : score disponible, sans interprétation méthodologique spécifique à cette évaluation à ce stade.`
+            : `${input.name}: completed score available, without assessment-specific methodological interpretation in this phase.`,
       businessImpact:
         locale === "es"
           ? "La puntuacion puede informar la conversacion, pero no debe usarse sola como conclusion de ajuste al rol."
-          : "The score can inform the conversation, but should not be used alone as a role-fit conclusion.",
+          : locale === "fr"
+            ? "Le score peut alimenter l'échange, mais ne doit pas être utilisé seul pour conclure à l'adéquation au poste."
+            : "The score can inform the conversation, but should not be used alone as a role-fit conclusion.",
       limitation:
         locale === "es"
           ? "Este instrumento aun no esta mapeado al motor de inteligencia; la recomendacion debe tratarse como evidencia limitada."
-          : "This instrument is not yet mapped into the intelligence engine; the recommendation should be treated as limited evidence.",
+          : locale === "fr"
+            ? "Cet instrument n'est pas encore intégré au moteur d'analyse ; la recommandation doit être considérée comme une preuve limitée."
+            : "This instrument is not yet mapped into the intelligence engine; the recommendation should be treated as limited evidence.",
       rawEvidence:
         locale === "es"
           ? `Puntuacion completada ${normalizedScore}/100`
-          : `Completed score ${normalizedScore}/100`,
+          : locale === "fr"
+            ? `Score obtenu : ${normalizedScore}/100`
+            : `Completed score ${normalizedScore}/100`,
     },
   ];
 }

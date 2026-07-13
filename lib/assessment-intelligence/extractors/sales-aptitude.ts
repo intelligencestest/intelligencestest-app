@@ -33,53 +33,61 @@ const DIMENSIONS: Array<DimensionEvidenceConfig<SADimension>> = [
   {
     id: "Prospecting",
     competencyId: "prospecting-discipline",
-    label: { en: "Prospecting", es: "Prospeccion" },
+    label: { en: "Prospecting", es: "Prospeccion", fr: "Prospection" },
     positiveImpact: {
       en: "Supports targeted pipeline creation through research, qualification, and disciplined outreach.",
       es: "Respalda crear pipeline objetivo mediante investigacion, calificacion y alcance disciplinado.",
+      fr: "Favorise la création d'un pipeline ciblé grâce à la recherche, à la qualification et à une prise de contact rigoureuse.",
     },
     riskImpact: {
       en: "May rely on low-quality outreach or weak qualification, reducing pipeline efficiency.",
       es: "Puede depender de alcance de baja calidad o calificacion debil, reduciendo eficiencia del pipeline.",
+      fr: "Peut reposer sur une prise de contact de faible qualité ou une qualification insuffisante, ce qui réduit l'efficacité du pipeline.",
     },
   },
   {
     id: "Persuasion",
     competencyId: "consultative-selling",
-    label: { en: "Persuasion", es: "Persuasion" },
+    label: { en: "Persuasion", es: "Persuasion", fr: "Persuasion" },
     positiveImpact: {
       en: "Supports consultative value communication tied to buyer goals and evidence.",
       es: "Respalda comunicacion consultiva de valor conectada a objetivos y evidencia del comprador.",
+      fr: "Favorise une communication de valeur consultative liée aux objectifs et aux éléments fournis par l'acheteur.",
     },
     riskImpact: {
       en: "May default to generic pitching instead of connecting value to the buyer's situation.",
       es: "Puede caer en discurso generico en vez de conectar valor con la situacion del comprador.",
+      fr: "Peut conduire à un discours générique plutôt qu'à relier la valeur à la situation de l'acheteur.",
     },
   },
   {
     id: "Objection Handling",
     competencyId: "objection-handling",
-    label: { en: "Objection handling", es: "Manejo de objeciones" },
+    label: { en: "Objection handling", es: "Manejo de objeciones", fr: "Traitement des objections" },
     positiveImpact: {
       en: "Supports exploring resistance, clarifying value, and keeping conversations constructive.",
       es: "Respalda explorar resistencia, aclarar valor y mantener conversaciones constructivas.",
+      fr: "Favorise l'exploration des réticences, la clarification de la valeur et le maintien d'échanges constructifs.",
     },
     riskImpact: {
       en: "May discount, defend, or disengage before understanding the buyer's real concern.",
       es: "Puede descontar, defenderse o retirarse antes de entender la preocupacion real del comprador.",
+      fr: "Peut conduire à accorder une remise, se défendre ou se retirer avant de comprendre la préoccupation réelle de l'acheteur.",
     },
   },
   {
     id: "Closing",
     competencyId: "deal-advancement",
-    label: { en: "Closing", es: "Cierre" },
+    label: { en: "Closing", es: "Cierre", fr: "Conclusion" },
     positiveImpact: {
       en: "Supports clear next steps, ethical urgency, and practical deal advancement.",
       es: "Respalda pasos claros, urgencia etica y avance practico de oportunidades.",
+      fr: "Favorise des prochaines étapes claires, une urgence éthique et l'avancement pragmatique des opportunités.",
     },
     riskImpact: {
       en: "May allow deals to stall or use pressure tactics that weaken buyer trust.",
       es: "Puede permitir que oportunidades se estanquen o usar presion que debilite confianza del comprador.",
+      fr: "Peut laisser des opportunités s'enliser ou recourir à une pression qui affaiblit la confiance de l'acheteur.",
     },
   },
 ];
@@ -90,13 +98,14 @@ export function extractSalesAptitudeEvidence(input: AssessmentResultInput, local
     locale,
     assessmentKey: "sales-aptitude",
     kind: "sales",
-    assessmentLabel: { en: "sales aptitude", es: "aptitud comercial" },
+    assessmentLabel: { en: "sales aptitude", es: "aptitud comercial", fr: "aptitude commerciale" },
     overallCompetencyId: "consultative-selling",
     scored: scoreFrom(input),
     dimensions: DIMENSIONS,
     limitation: {
       en: "Sales Aptitude measures sales judgment in structured scenarios; it does not measure territory knowledge, quota history, network strength, or product expertise.",
       es: "Sales Aptitude mide juicio comercial en escenarios estructurados; no mide conocimiento de territorio, historial de cuota, red de contactos ni expertise de producto.",
+      fr: "Sales Aptitude mesure le jugement commercial dans des scénarios structurés ; il ne mesure ni la connaissance du territoire, ni l'historique de quotas, ni le réseau, ni l'expertise produit.",
     },
   });
 }

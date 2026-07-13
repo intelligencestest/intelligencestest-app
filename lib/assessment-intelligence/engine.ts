@@ -13,7 +13,6 @@ import { extractSituationalJudgmentEvidence } from "./extractors/situational-jud
 import { extractTeamworkCollaborationEvidence } from "./extractors/teamwork-collaboration";
 import { assessmentKey, clampScore, evidenceStrength, riskSeverity } from "./scales";
 import { competencyCategory } from "./taxonomy";
-import { contentLocale } from "./types";
 import type {
   AssessmentIntelligenceReport,
   AssessmentResultInput,
@@ -82,7 +81,30 @@ const COPY = {
     riskPrefix: "Validate risk",
     strengthPrefix: "Validate strength",
   },
-} satisfies Record<"es" | "en", Record<string, unknown>>;
+  fr: {
+    noRoleModel:
+      "Aucun modèle de compétences du poste n'a été fourni ; ce rapport évalue les résultats aux évaluations terminées, et non l'adéquation globale au poste.",
+    singleAssessment: "La conclusion repose sur une seule évaluation terminée ; le niveau de confiance ne peut donc pas être élevé.",
+    unsupported: "Certaines évaluations ne disposent pas encore d'une interprétation méthodologique spécifique dans le moteur d'analyse.",
+    mixedEvidence: "Les preuves sont contrastées entre les évaluations ou les dimensions ; le niveau de confiance est donc réduit.",
+    evidenceCount: (count: number) => `${count} évaluation${count === 1 ? "" : "s"} terminée${count === 1 ? "" : "s"} analysée${count === 1 ? "" : "s"}.`,
+    summaryHeadline: "Recommandation fondée sur des preuves terminées et traçables.",
+    summaryBody:
+      "La recommandation s'appuie sur des signaux de preuve issus des évaluations terminées. Les conclusions se limitent aux instruments disponibles et doivent être vérifiées lors d'un entretien structuré.",
+    proceedTitle: "Poursuivre avec une validation structurée",
+    reviewTitle: "Examiner avec une validation complémentaire",
+    cautionTitle: "Ne pas poursuivre sans éléments complémentaires",
+    strongTitle: "Poursuivre en priorité, sous réserve de validation",
+    proceedRationale: "Les preuves disponibles permettent de poursuivre le processus, avec une validation ciblée en entretien.",
+    reviewRationale: "Les preuves doivent être examinées avant de poursuivre, car des risques, des signaux contrastés ou une couverture limitée sont présents.",
+    cautionRationale: "Les preuves disponibles ne permettent pas d'étayer une conclusion favorable sans informations complémentaires.",
+    strongRationale: "Les preuves disponibles sont favorables et cohérentes, mais la décision finale dépend toujours du poste, de l'entretien et des références.",
+    defaultStep: "Vérifiez les signaux rapportés à l'aide d'exemples comportementaux récents avant toute décision finale.",
+    roleStep: "Comparez ces preuves aux compétences essentielles du poste avant de confirmer l'adéquation.",
+    riskPrefix: "Vérifier le risque",
+    strengthPrefix: "Vérifier la force",
+  },
+} satisfies Record<IntelligenceLocale, Record<string, unknown>>;
 
 function average(values: number[]): number {
   if (!values.length) return 0;
@@ -90,7 +112,7 @@ function average(values: number[]): number {
 }
 
 function copy(locale: IntelligenceLocale) {
-  return COPY[contentLocale(locale)];
+  return COPY[locale];
 }
 
 function extractSignals(input: AssessmentResultInput, locale: IntelligenceLocale): EvidenceSignal[] {
@@ -176,84 +198,104 @@ function buildRisks(signals: EvidenceSignal[], locale: IntelligenceLocale): Hiri
 }
 
 function questionForRisk(risk: HiringRisk, locale: IntelligenceLocale): string {
-  const byCompetency: Partial<Record<string, { en: string; es: string }>> = {
+  const byCompetency: Partial<Record<string, Record<IntelligenceLocale, string>>> = {
     "analytical-reasoning": {
       es: "Cuénteme sobre una decision reciente en la que tuvo que analizar informacion incompleta. Que evidencia uso y que asumio?",
       en: "Tell me about a recent decision where you had to analyze incomplete information. What evidence did you use and what did you assume?",
+      fr: "Parlez-moi d'une décision récente pour laquelle vous avez dû analyser des informations incomplètes. Quelles preuves avez-vous utilisées et quelles hypothèses avez-vous formulées ?",
     },
     "adversity-control": {
       es: "Describa una situacion dificil en la que encontro algo bajo su control. Que hizo primero?",
       en: "Describe a difficult situation where you found something within your control. What did you do first?",
+      fr: "Décrivez une situation difficile dans laquelle vous avez identifié un élément sur lequel vous pouviez agir. Qu'avez-vous fait en premier ?",
     },
     "personal-accountability": {
       es: "Cuénteme sobre un resultado negativo compartido por varias personas. Que parte asumio como responsabilidad propia?",
       en: "Tell me about a negative outcome shared by several people. Which part did you take ownership for?",
+      fr: "Parlez-moi d'un résultat négatif partagé par plusieurs personnes. Quelle part avez-vous assumée personnellement ?",
     },
     "setback-containment": {
       es: "Describa un contratiempo que pudo haber afectado otras areas de trabajo. Como evito que se extendiera?",
       en: "Describe a setback that could have affected other work areas. How did you prevent it from spreading?",
+      fr: "Décrivez un contretemps susceptible d'affecter d'autres domaines de travail. Comment avez-vous évité qu'il ne se propage ?",
     },
     "recovery-orientation": {
       es: "Cuénteme sobre una decepcion laboral importante. Cuanto tiempo tardo en recuperarse y que hizo para avanzar?",
       en: "Tell me about an important work disappointment. How long did recovery take and what did you do to move forward?",
+      fr: "Parlez-moi d'une déception professionnelle importante. Combien de temps vous a-t-il fallu pour vous en remettre et qu'avez-vous fait pour avancer ?",
     },
     "resilience-under-pressure": {
       es: "Describa una etapa de presion sostenida. Que habitos o decisiones le ayudaron a mantener efectividad?",
       en: "Describe a period of sustained pressure. Which habits or decisions helped you remain effective?",
+      fr: "Décrivez une période de pression soutenue. Quelles habitudes ou décisions vous ont aidé à rester efficace ?",
     },
     "professional-communication": {
       es: "Cuénteme sobre una ocasion en la que tuvo que adaptar su comunicacion para una audiencia dificil. Que cambio y por que?",
       en: "Tell me about a time you had to adapt your communication for a difficult audience. What changed and why?",
+      fr: "Parlez-moi d'une situation où vous avez dû adapter votre communication à un public difficile. Qu'avez-vous modifié et pourquoi ?",
     },
     "active-listening": {
       es: "Describa una situacion donde escuchar activamente cambio su decision o su respuesta.",
       en: "Describe a situation where active listening changed your decision or response.",
+      fr: "Décrivez une situation dans laquelle l'écoute active a modifié votre décision ou votre réponse.",
     },
     "integrity-judgment": {
       es: "Cuénteme sobre una vez en la que decir la verdad tenia un costo profesional. Como actuo?",
       en: "Tell me about a time when telling the truth carried a professional cost. How did you act?",
+      fr: "Parlez-moi d'une situation où dire la vérité avait un coût professionnel. Comment avez-vous agi ?",
     },
     "ethical-compliance": {
       es: "Describa una situacion donde tuvo que defender una regla, politica o estandar etico bajo presion.",
       en: "Describe a situation where you had to uphold a rule, policy, or ethical standard under pressure.",
+      fr: "Décrivez une situation où vous avez dû faire respecter une règle, une politique ou une norme éthique sous pression.",
     },
     "trust-reliability": {
       es: "Cuénteme sobre una ocasion en la que no podia cumplir un compromiso tal como estaba acordado. Como manejo la confianza?",
       en: "Tell me about a time you could not meet a commitment exactly as agreed. How did you protect trust?",
+      fr: "Parlez-moi d'une situation où vous ne pouviez pas respecter un engagement comme prévu. Comment avez-vous préservé la confiance ?",
     },
     adaptability: {
       es: "Describa un cambio inesperado que afecto su trabajo. Como reajusto prioridades y comunico el impacto?",
       en: "Describe an unexpected change that affected your work. How did you reset priorities and communicate impact?",
+      fr: "Décrivez un changement imprévu qui a affecté votre travail. Comment avez-vous réajusté vos priorités et communiqué ses conséquences ?",
     },
     "emotional-self-awareness": {
       es: "Cuénteme sobre una situacion laboral donde reconocer su propia emocion cambio su respuesta.",
       en: "Tell me about a work situation where recognizing your own emotion changed your response.",
+      fr: "Parlez-moi d'une situation professionnelle dans laquelle le fait de reconnaître votre propre émotion a modifié votre réponse.",
     },
     "emotional-self-regulation": {
       es: "Describa una conversacion tensa donde tuvo que controlar su primera reaccion para mantener efectividad.",
       en: "Describe a tense conversation where you had to manage your first reaction to remain effective.",
+      fr: "Décrivez une conversation tendue dans laquelle vous avez dû maîtriser votre première réaction pour rester efficace.",
     },
     "relationship-management": {
       es: "Cuénteme sobre una relacion laboral que tuvo que reparar despues de un malentendido o conflicto.",
       en: "Tell me about a work relationship you had to repair after a misunderstanding or conflict.",
+      fr: "Parlez-moi d'une relation professionnelle que vous avez dû réparer après un malentendu ou un conflit.",
     },
     "team-cooperation": {
       es: "Describa una ocasion en la que puso el resultado del equipo por encima de su preferencia personal.",
       en: "Describe a time when you put the team outcome ahead of your personal preference.",
+      fr: "Décrivez une situation où vous avez fait passer le résultat de l'équipe avant votre préférence personnelle.",
     },
     "team-reliability": {
       es: "Cuénteme sobre una vez en la que otros dependian de su entrega y aparecio un obstaculo. Que hizo?",
       en: "Tell me about a time others depended on your delivery and an obstacle appeared. What did you do?",
+      fr: "Parlez-moi d'une situation où d'autres personnes dépendaient de votre livraison et où un obstacle est apparu. Qu'avez-vous fait ?",
     },
     "conflict-resolution": {
       es: "Describa un desacuerdo laboral que resolvio directamente. Que hizo para separar el problema de lo personal?",
       en: "Describe a work disagreement you resolved directly. What did you do to separate the issue from the personal dynamic?",
+      fr: "Décrivez un désaccord professionnel que vous avez traité directement. Qu'avez-vous fait pour séparer le problème de la relation personnelle ?",
     },
   };
 
-  return byCompetency[risk.competencyId]?.[contentLocale(locale)] ?? (locale === "es"
+  return byCompetency[risk.competencyId]?.[locale] ?? (locale === "es"
     ? `Comparta un ejemplo reciente que permita validar ${risk.competencyLabel.toLowerCase()} en el trabajo.`
-    : `Share a recent example that would validate ${risk.competencyLabel.toLowerCase()} at work.`);
+    : locale === "fr"
+      ? `Partagez un exemple récent permettant de vérifier ${risk.competencyLabel.toLowerCase()} en situation de travail.`
+      : `Share a recent example that would validate ${risk.competencyLabel.toLowerCase()} at work.`);
 }
 
 function questionForStrength(signal: EvidenceSignal, locale: IntelligenceLocale): InterviewValidationQuestion {
@@ -262,11 +304,15 @@ function questionForStrength(signal: EvidenceSignal, locale: IntelligenceLocale)
     question:
       locale === "es"
         ? `Cuénteme sobre una situacion reciente donde demostro ${signal.competencyLabel.toLowerCase()} en un contexto de trabajo.`
-        : `Tell me about a recent work situation where you demonstrated ${signal.competencyLabel.toLowerCase()}.`,
+        : locale === "fr"
+          ? `Parlez-moi d'une situation professionnelle récente dans laquelle vous avez démontré ${signal.competencyLabel.toLowerCase()}.`
+          : `Tell me about a recent work situation where you demonstrated ${signal.competencyLabel.toLowerCase()}.`,
     reason:
       locale === "es"
         ? `${copy(locale).strengthPrefix}: confirmar que la senal se traduce en conducta laboral observable.`
-        : `${copy(locale).strengthPrefix}: confirm the signal translates into observable workplace behavior.`,
+        : locale === "fr"
+          ? `${copy(locale).strengthPrefix}: confirmer que ce signal se traduit par un comportement professionnel observable.`
+          : `${copy(locale).strengthPrefix}: confirm the signal translates into observable workplace behavior.`,
     evidenceSignalIds: [signal.id],
   };
 }
@@ -278,7 +324,9 @@ function buildInterviewQuestions(signals: EvidenceSignal[], risks: HiringRisk[],
     reason:
       locale === "es"
         ? `${risk.validationFocus}. Esta pregunta valida directamente la senal de riesgo reportada.`
-        : `${risk.validationFocus}. This question directly validates the reported risk signal.`,
+        : locale === "fr"
+          ? `${risk.validationFocus}. Cette question permet de vérifier directement le signal de risque rapporté.`
+          : `${risk.validationFocus}. This question directly validates the reported risk signal.`,
     evidenceSignalIds: risk.evidenceSignalIds,
     riskId: risk.id,
   }));
@@ -320,11 +368,11 @@ function calculateConfidence({
   }
   if (knownSignals.length >= 2) {
     score += 12;
-    factors.push(locale === "es" ? "Existen multiples senales metodologicas interpretables." : "Multiple methodologically interpretable signals are available.");
+    factors.push(locale === "es" ? "Existen multiples senales metodologicas interpretables." : locale === "fr" ? "Plusieurs signaux méthodologiques interprétables sont disponibles." : "Multiple methodologically interpretable signals are available.");
   }
   if (knownSignals.length > assessmentCount) {
     score += 8;
-    factors.push(locale === "es" ? "Hay detalle por dimensiones, no solo puntuacion general." : "Dimension-level detail is available, not only overall score.");
+    factors.push(locale === "es" ? "Hay detalle por dimensiones, no solo puntuacion general." : locale === "fr" ? "Des informations sont disponibles par dimension, et pas uniquement sous la forme d'un score global." : "Dimension-level detail is available, not only overall score.");
   }
   if (risks.some((risk) => risk.severity === "high")) score -= 18;
   else if (risks.length) score -= 10;

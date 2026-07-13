@@ -1,4 +1,3 @@
-import { contentLocale } from "./types";
 import type { CompetencyDefinition, CompetencyId, IntelligenceLocale } from "./types";
 
 export const COMPETENCY_TAXONOMY: Record<CompetencyId, CompetencyDefinition> = {
@@ -382,14 +381,62 @@ export const COMPETENCY_TAXONOMY: Record<CompetencyId, CompetencyDefinition> = {
   },
 };
 
-export function localize<T extends { en: string; es: string }>(text: T, locale: IntelligenceLocale): string {
-  return text[contentLocale(locale)] ?? text.es;
+const FRENCH_COMPETENCY_TEXT: Record<CompetencyId, { label: string; category: string }> = {
+  "analytical-reasoning": { label: "Raisonnement analytique", category: "Analyse" },
+  "decision-quality": { label: "Qualité de décision", category: "Prise de décision" },
+  "evidence-analysis": { label: "Analyse des preuves", category: "Prise de décision" },
+  "judgment-under-ambiguity": { label: "Jugement en situation d'incertitude", category: "Prise de décision" },
+  "risk-evaluation": { label: "Évaluation des risques", category: "Prise de décision" },
+  "decision-speed-calibration": { label: "Ajustement du rythme de décision", category: "Prise de décision" },
+  "structured-problem-solving": { label: "Résolution structurée de problèmes", category: "Résolution de problèmes" },
+  "professional-communication": { label: "Communication professionnelle", category: "Communication" },
+  "written-clarity": { label: "Clarté rédactionnelle", category: "Communication" },
+  "active-listening": { label: "Écoute active", category: "Communication" },
+  "interpersonal-awareness": { label: "Sensibilité interpersonnelle", category: "Communication" },
+  "integrity-judgment": { label: "Jugement d'intégrité", category: "Intégrité" },
+  "ethical-compliance": { label: "Respect de l'éthique", category: "Intégrité" },
+  "trust-reliability": { label: "Fiabilité", category: "Intégrité" },
+  adaptability: { label: "Adaptabilité", category: "Adaptabilité" },
+  "emotional-self-awareness": { label: "Conscience émotionnelle de soi", category: "Intelligence émotionnelle" },
+  "emotional-self-regulation": { label: "Régulation émotionnelle", category: "Intelligence émotionnelle" },
+  "achievement-motivation": { label: "Motivation de réussite", category: "Intelligence émotionnelle" },
+  "relationship-management": { label: "Gestion des relations", category: "Intelligence émotionnelle" },
+  "team-cooperation": { label: "Coopération en équipe", category: "Travail d'équipe" },
+  "team-reliability": { label: "Fiabilité au sein de l'équipe", category: "Travail d'équipe" },
+  "conflict-resolution": { label: "Gestion des conflits", category: "Travail d'équipe" },
+  "customer-empathy": { label: "Empathie client", category: "Service" },
+  "customer-issue-resolution": { label: "Résolution des problèmes clients", category: "Service" },
+  "customer-communication": { label: "Communication client", category: "Service" },
+  "service-composure": { label: "Maîtrise de soi en relation client", category: "Service" },
+  "prospecting-discipline": { label: "Discipline de prospection", category: "Vente" },
+  "consultative-selling": { label: "Vente consultative", category: "Vente" },
+  "objection-handling": { label: "Traitement des objections", category: "Vente" },
+  "deal-advancement": { label: "Avancement des opportunités", category: "Vente" },
+  "strategic-direction": { label: "Orientation stratégique", category: "Leadership" },
+  "people-development": { label: "Développement des collaborateurs", category: "Leadership" },
+  "team-cohesion": { label: "Cohésion d'équipe", category: "Leadership" },
+  "participative-leadership": { label: "Leadership participatif", category: "Leadership" },
+  "execution-standards": { label: "Exigence d'exécution", category: "Leadership" },
+  "directive-leadership": { label: "Leadership directif", category: "Leadership" },
+  "resilience-under-pressure": { label: "Résilience sous pression", category: "Résilience" },
+  "adversity-control": { label: "Maîtrise face à l'adversité", category: "Résilience" },
+  "personal-accountability": { label: "Responsabilité personnelle", category: "Résilience" },
+  "setback-containment": { label: "Maîtrise des répercussions des contretemps", category: "Résilience" },
+  "recovery-orientation": { label: "Capacité de rebond", category: "Résilience" },
+  "assessment-performance": { label: "Résultat à l'évaluation", category: "Preuves" },
+};
+
+export function localize<T extends { en: string; es: string; fr?: string }>(text: T, locale: IntelligenceLocale): string {
+  if (locale === "fr") return text.fr ?? text.en;
+  return text[locale];
 }
 
 export function competencyLabel(id: CompetencyId, locale: IntelligenceLocale): string {
+  if (locale === "fr") return FRENCH_COMPETENCY_TEXT[id].label;
   return localize(COMPETENCY_TAXONOMY[id].label, locale);
 }
 
 export function competencyCategory(id: CompetencyId, locale: IntelligenceLocale): string {
+  if (locale === "fr") return FRENCH_COMPETENCY_TEXT[id].category;
   return localize(COMPETENCY_TAXONOMY[id].category, locale);
 }

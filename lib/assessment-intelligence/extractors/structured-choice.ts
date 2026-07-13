@@ -45,37 +45,51 @@ function overallStatement(label: string, score: number, locale: IntelligenceLoca
   if (score >= 80) {
     return locale === "es"
       ? `Evidencia fuerte en ${label} dentro de la evaluacion completada.`
-      : `Strong evidence in ${label} within the completed assessment.`;
+      : locale === "fr"
+        ? `Preuves solides concernant ${label} dans l'évaluation terminée.`
+        : `Strong evidence in ${label} within the completed assessment.`;
   }
   if (score >= 65) {
     return locale === "es"
       ? `Evidencia favorable en ${label}, con validacion recomendada en entrevista.`
-      : `Favorable evidence in ${label}, with recommended interview validation.`;
+      : locale === "fr"
+        ? `Preuves favorables concernant ${label}, à vérifier lors d'un entretien.`
+        : `Favorable evidence in ${label}, with recommended interview validation.`;
   }
   if (score >= 50) {
     return locale === "es"
       ? `Evidencia mixta en ${label}; conviene revisar ejemplos laborales concretos.`
-      : `Mixed evidence in ${label}; concrete work examples should be reviewed.`;
+      : locale === "fr"
+        ? `Preuves contrastées concernant ${label} ; il convient d'examiner des exemples professionnels concrets.`
+        : `Mixed evidence in ${label}; concrete work examples should be reviewed.`;
   }
   return locale === "es"
     ? `Senal de riesgo en ${label} para roles donde esta capacidad sea critica.`
-    : `Risk signal in ${label} for roles where this capability is critical.`;
+    : locale === "fr"
+      ? `Signal de risque concernant ${label} pour les postes où cette capacité est essentielle.`
+      : `Risk signal in ${label} for roles where this capability is critical.`;
 }
 
 function dimensionStatement(label: string, score: number, locale: IntelligenceLocale): string {
   if (score >= 65) {
     return locale === "es"
       ? `${label}: evidencia favorable en la dimension completada.`
-      : `${label}: favorable evidence in the completed dimension.`;
+      : locale === "fr"
+        ? `${label} : preuves favorables dans la dimension évaluée.`
+        : `${label}: favorable evidence in the completed dimension.`;
   }
   if (score >= 50) {
     return locale === "es"
       ? `${label}: evidencia mixta; debe validarse consistencia con situaciones reales.`
-      : `${label}: mixed evidence; consistency should be validated with real situations.`;
+      : locale === "fr"
+        ? `${label} : preuves contrastées ; la cohérence doit être vérifiée dans des situations réelles.`
+        : `${label}: mixed evidence; consistency should be validated with real situations.`;
   }
   return locale === "es"
     ? `${label}: senal de riesgo que requiere validacion directa en entrevista.`
-    : `${label}: risk signal requiring direct interview validation.`;
+    : locale === "fr"
+      ? `${label} : signal de risque nécessitant une vérification directe en entretien.`
+      : `${label}: risk signal requiring direct interview validation.`;
 }
 
 function impactFor<D extends string>(
@@ -87,7 +101,9 @@ function impactFor<D extends string>(
   if (score >= 50) {
     return locale === "es"
       ? `${localize(dimension.positiveImpact, locale)} Debe confirmarse con evidencia conductual del rol.`
-      : `${localize(dimension.positiveImpact, locale)} It should be confirmed with role-specific behavioral evidence.`;
+      : locale === "fr"
+        ? `${localize(dimension.positiveImpact, locale)} Ce point doit être confirmé par des exemples comportementaux liés au poste.`
+        : `${localize(dimension.positiveImpact, locale)} It should be confirmed with role-specific behavioral evidence.`;
   }
   return localize(dimension.riskImpact, locale);
 }
@@ -127,14 +143,20 @@ export function buildStructuredChoiceEvidence<D extends string>({
         totalScore >= 65
           ? locale === "es"
             ? "Puede aportar evidencia util para roles donde esta competencia sea central, sujeto a entrevista estructurada."
-            : "May provide useful evidence for roles where this competency is central, subject to structured interview validation."
+            : locale === "fr"
+              ? "Peut apporter des éléments utiles pour les postes où cette compétence est centrale, sous réserve d'une vérification lors d'un entretien structuré."
+              : "May provide useful evidence for roles where this competency is central, subject to structured interview validation."
           : locale === "es"
             ? "Puede requerir mayor validacion antes de usar esta evaluacion como apoyo para avanzar en el proceso."
-            : "May require additional validation before using this assessment as support for advancing the process.",
+            : locale === "fr"
+              ? "Peut nécessiter une vérification complémentaire avant d'utiliser cette évaluation pour étayer la suite du processus."
+              : "May require additional validation before using this assessment as support for advancing the process.",
       limitation: localize(limitation, locale),
       rawEvidence: rawEvidenceSummary ?? (locale === "es"
         ? `${scored.correct}/${scored.total} respuestas correctas`
-        : `${scored.correct}/${scored.total} correct answers`),
+        : locale === "fr"
+          ? `${scored.correct}/${scored.total} réponses correctes`
+          : `${scored.correct}/${scored.total} correct answers`),
     },
   ];
 
