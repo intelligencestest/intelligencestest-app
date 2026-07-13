@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { AD_QUESTIONS, AD_DURATION_SECONDS, scoreAD } from "@/lib/questions/attention-detail";
 import { AD_QUESTIONS_ES } from "@/lib/questions/es/attention-detail";
+import { AD_QUESTIONS_FR } from "@/lib/questions/fr/attention-detail";
 
 const questions: RunnerQuestion[] = AD_QUESTIONS.map((q) => ({
   id: q.id,
@@ -45,7 +46,14 @@ export default function AttentionDetailTest({
         "Elija la respuesta más precisa entre las cuatro opciones.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Lisez chaque question avec attention — les petites différences comptent.",
+        "Repérez les erreurs orthographiques, les incohérences de données et les références erronées.",
+        "Choisissez la réponse la plus précise parmi les quatre options.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={AD_QUESTIONS_ES}
+      frQuestions={AD_QUESTIONS_FR}
       submittingText="Scoring your attention to detail test..."
       scoreAnswers={(answers) => {
         const scored = scoreAD(answers);

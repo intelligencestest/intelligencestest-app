@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { BrandLogoMark } from "@/components/brand/BrandLogo";
 import { CT_QUESTIONS, CT_DURATION_SECONDS, scoreResults } from "@/lib/questions/critical-thinking";
 import { CT_QUESTIONS_ES } from "@/lib/questions/es/critical-thinking";
+import { CT_QUESTIONS_FR } from "@/lib/questions/fr/critical-thinking";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 
 type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "error";
@@ -45,7 +46,7 @@ export default function CriticalThinkingTest({
   useEffect(() => {
     searchParams.then((params) => {
       const rawLang = params.lang;
-      const resolvedLocale: Locale = rawLang === "en" ? "en" : "es";
+      const resolvedLocale: Locale = rawLang === "en" ? "en" : rawLang === "fr" ? "fr" : "es";
       setLocale(resolvedLocale);
       const strings = UI_STRINGS[resolvedLocale];
 
@@ -73,7 +74,7 @@ export default function CriticalThinkingTest({
           } else {
             // The candidate record carries the workspace language — it wins
             // over the URL parameter as the source of truth.
-            if (data.candidate?.language === "en" || data.candidate?.language === "es") {
+            if (data.candidate?.language === "en" || data.candidate?.language === "es" || data.candidate?.language === "fr") {
               setLocale(data.candidate.language);
             }
             setCandidate(data.candidate);
@@ -204,8 +205,10 @@ export default function CriticalThinkingTest({
       ];
 
   const esQ = CT_QUESTIONS_ES[current + 1];
-  const question = locale === "es" && esQ
-    ? { ...CT_QUESTIONS[current], text: esQ.text, options: [...esQ.options] }
+  const frQ = CT_QUESTIONS_FR[current + 1];
+  const localizedQ = locale === "es" ? esQ : locale === "fr" ? frQ : undefined;
+  const question = localizedQ
+    ? { ...CT_QUESTIONS[current], text: localizedQ.text, options: [...localizedQ.options] }
     : CT_QUESTIONS[current];
 
   if (phase === "validating") {
@@ -241,9 +244,9 @@ export default function CriticalThinkingTest({
         <div className="max-w-md w-full rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
           <div className="mb-8 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">
-              {locale === "es" ? "Evaluación Cognitiva" : "Cognitive Assessment"}
+              {locale === "es" ? "Evaluación Cognitiva" : locale === "fr" ? "Évaluation Cognitive" : "Cognitive Assessment"}
             </div>
-            <h1 className="text-2xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : "Critical Thinking Test"}</h1>
+            <h1 className="text-2xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : locale === "fr" ? "Test de Pensée Critique" : "Critical Thinking Test"}</h1>
             <p className="text-slate-400 text-sm">{s.registerHeading}</p>
           </div>
 
@@ -260,7 +263,7 @@ export default function CriticalThinkingTest({
                 required
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
-                placeholder={locale === "es" ? "María García" : "Jane Smith"}
+                placeholder={locale === "es" ? "María García" : locale === "fr" ? "Camille Dubois" : "Jane Smith"}
                 className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
@@ -271,7 +274,7 @@ export default function CriticalThinkingTest({
                 type="email"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
-                placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
+                placeholder={locale === "es" ? "maria@ejemplo.com" : locale === "fr" ? "camille@exemple.fr" : "jane@example.com"}
                 className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
@@ -303,9 +306,9 @@ export default function CriticalThinkingTest({
         <div className="max-w-2xl w-full rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
           <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 mb-4">
-              {locale === "es" ? "Evaluación Cognitiva" : "Cognitive Assessment"}
+              {locale === "es" ? "Evaluación Cognitiva" : locale === "fr" ? "Évaluation Cognitive" : "Cognitive Assessment"}
             </div>
-            <h1 className="text-3xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : "Critical Thinking Test"}</h1>
+            <h1 className="text-3xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Pensamiento Crítico" : locale === "fr" ? "Test de Pensée Critique" : "Critical Thinking Test"}</h1>
             <p className="text-slate-400">{s.welcomePrefix}<span className="text-[var(--it-text)] font-medium">{candidate?.full_name}</span></p>
           </div>
 
@@ -377,7 +380,7 @@ export default function CriticalThinkingTest({
     <div className="min-h-screen flex flex-col">
       <div className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-[var(--it-text)]">{locale === "es" ? "Pensamiento Crítico" : "Critical Thinking Test"}</span>
+          <span className="text-sm font-medium text-[var(--it-text)]">{locale === "es" ? "Pensamiento Crítico" : locale === "fr" ? "Pensée Critique" : "Critical Thinking Test"}</span>
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">
