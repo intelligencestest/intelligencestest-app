@@ -7,6 +7,7 @@ import {
   scoreNumerical,
 } from "@/lib/questions/numerical-intelligence";
 import { NUMERICAL_QUESTIONS_ES } from "@/lib/questions/es/numerical-intelligence";
+import { NUMERICAL_QUESTIONS_FR } from "@/lib/questions/fr/numerical-intelligence";
 
 const questions: RunnerQuestion[] = NUMERICAL_QUESTIONS.map((question) => ({
   id: question.id,
@@ -49,7 +50,14 @@ export default function NumericalIntelligenceTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Choisissez la meilleure réponse pour chaque question de raisonnement numérique.",
+        "Utilisez du brouillon ou une calculatrice uniquement si votre organisation l'autorise.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={NUMERICAL_QUESTIONS_ES}
+      frQuestions={NUMERICAL_QUESTIONS_FR}
       submittingText="Scoring your numerical intelligence test..."
       scoreAnswers={(answers) => {
         const scored = scoreNumerical(answers);
