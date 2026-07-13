@@ -42,13 +42,13 @@ type DecisionOSHomeProps = {
 const copy = {
   en: {
     nav: { product: "Product", workflow: "Workflow", trust: "Trust", login: "Sign in", demo: "Request demo" },
-    eyebrow: "Hiring Decision OS",
-    heroTitle: "Hiring decisions, backed by evidence.",
+    eyebrow: "For Recruitment Agencies",
+    heroTitle: "Client-ready shortlist recommendations for recruitment agencies.",
     heroBody:
-      "Know who to interview, why they stand out, what to ask, and which risks to verify before your team makes the call.",
+      "Evaluate shortlisted candidates, compare structured evidence, identify risks, and prepare interview questions — so your team can defend every recommendation to the client.",
     demo: "Request demo",
     sample: "View sample report",
-    heroNote: "Decision support for recruiters and hiring managers. Human judgment stays in control.",
+    heroNote: "Decision support for recruitment agencies. Human judgment stays in control.",
     command: "Recruiter command center",
     commandNote: "Tuesday, 09:41 · 4 active roles",
     attention: "Needs attention",
@@ -74,9 +74,9 @@ const copy = {
     trustTitle: "Transparent by design. Accountable by default.",
     trustBody:
       "IntelligencesTest supports hiring judgment; it does not make the final hiring decision. Your team sees the evidence, understands uncertainty, and owns every outcome.",
-    finalTitle: "Make every hiring decision easier to defend.",
-    finalBody: "Give your team a shared, evidence-based path from application to interview decision.",
-    footer: "Evidence-based hiring decision support for modern HR teams.",
+    finalTitle: "Make every shortlist recommendation easier to defend to your client.",
+    finalBody: "Give your team a shared, evidence-based path from shortlist to client-ready recommendation.",
+    footer: "Evidence-based shortlist recommendations for recruitment agencies.",
     ui: {
       workspace: "Workspace",
       commandCenter: "Command center",

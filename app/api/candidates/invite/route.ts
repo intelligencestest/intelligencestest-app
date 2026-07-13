@@ -182,7 +182,7 @@ function inviteCopy(locale: InviteEmailLocale) {
     logoAlt: "IntelligencesTest logo",
     title: (companyName: string) => `${companyName} has invited you to complete an assessment`,
     intro:
-      "This assessment helps the team understand your strengths and how you approach work-related situations. Please find a quiet place before you begin.",
+      "This helps the recruitment team better understand your strengths and prepare a more structured interview. It does not replace human review or make an automatic hiring decision. Please find a quiet place before you begin.",
     whatToExpect: "What to expect",
     assessment: "Assessment",
     time: "Estimated time",

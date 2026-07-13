@@ -268,7 +268,7 @@ const en: PublicCopyInternal = {
   },
   footer: {
     explore: "Explore",
-    body: "Psychometric and cognitive assessments for hiring teams that need clear, comparable candidate signals.",
+    body: "Psychometric and cognitive assessments for recruitment agencies that need clear, client-ready candidate signals.",
     product: "Product",
     authority: "Trust",
     methodology: "Methodology",
@@ -352,14 +352,14 @@ const en: PublicCopyInternal = {
   contact: {
     badge: "Talk to us",
     title: "Contact sales",
-    body: "Tell us about your hiring operation, candidate volume, or assessment needs.",
+    body: "Tell us about your agency, candidate volume, or assessment needs.",
     demoTitle: "Request a demo",
-    demoBody: "We will walk you through projects, invitations, assessments, and recruiter reports.",
+    demoBody: "We will walk you through client shortlists, invitations, assessments, and recruiter reports.",
     response: "We usually respond within 1 business day.",
     form: {
       name: "Name",
       email: "Work email",
-      company: "Company",
+      company: "Agency",
       role: "Role",
       phone: "Phone",
       companyType: "Organization type",
