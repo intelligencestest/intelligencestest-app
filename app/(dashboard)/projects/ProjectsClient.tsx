@@ -19,6 +19,8 @@ interface Project {
   description: string | null;
   deadline: string | null;
   created_at: string;
+  client_name: string | null;
+  role_title: string | null;
 }
 
 interface Props {
@@ -163,6 +165,11 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
             return (
               <div key={project.id} className="enterprise-card enterprise-card-hover group rounded-xl p-5">
                 <div className="min-w-0">
+                  {project.client_name && (
+                    <p className="mb-1 truncate text-xs font-medium uppercase tracking-wide text-[var(--it-faint)]">
+                      {locale === "es" ? "Cliente" : "Client"}: {project.client_name}
+                    </p>
+                  )}
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="truncate text-base font-semibold text-[var(--it-text)] transition-colors group-hover:text-[var(--it-link)]">
                       {project.name}

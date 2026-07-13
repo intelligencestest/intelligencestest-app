@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, description, deadline, assessment_ids } = body;
+  const { name, description, deadline, assessment_ids, client_name, role_title } = body;
 
   if (!name) {
     return NextResponse.json({ error: "Project name is required" }, { status: 400 });
@@ -41,6 +41,8 @@ export async function POST(request: NextRequest) {
       description: description || null,
       deadline: deadline || null,
       status: "active",
+      client_name: client_name?.trim() || null,
+      role_title: role_title?.trim() || null,
     })
     .select("id")
     .single();

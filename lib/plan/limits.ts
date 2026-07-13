@@ -151,7 +151,7 @@ function limitMessage(kind: LimitKind, used: number, limit: number) {
   };
   const en: Record<LimitKind, string> = {
     candidate: `You've reached your plan limit (${used}/${limit} candidates this month). Upgrade your plan to keep inviting candidates.`,
-    project: `You've reached your plan limit (${used}/${limit} active projects). Upgrade your plan to keep creating projects.`,
+    project: `You've reached your plan limit (${used}/${limit} active client shortlists). Upgrade your plan to keep creating shortlists.`,
     recruiter: `You've reached your plan limit (${used}/${limit} recruiters). Upgrade your plan to continue.`,
   };
   const fr: Record<LimitKind, string> = {
@@ -167,7 +167,7 @@ function limitMessage(kind: LimitKind, used: number, limit: number) {
 
 const TRIAL_EXPIRED_MESSAGE = {
   es: "Su prueba ha finalizado. Sus datos siguen disponibles; actualice su plan para continuar creando proyectos e invitando candidatos.",
-  en: "Your trial has ended. Your existing data remains available; upgrade your plan to keep creating projects and inviting candidates.",
+  en: "Your trial has ended. Your existing data remains available; upgrade your plan to keep creating shortlists and inviting candidates.",
   fr: "Votre période d'essai est terminée. Vos données restent disponibles ; mettez à niveau votre offre pour continuer à créer des projets et inviter des candidats.",
 };
 

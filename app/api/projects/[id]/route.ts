@@ -24,7 +24,7 @@ export async function PATCH(
   if (!existing) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
   const body = await request.json();
-  const { name, description, deadline } = body;
+  const { name, description, deadline, client_name, role_title } = body;
   if (!name?.trim()) return NextResponse.json({ error: "Project name is required" }, { status: 400 });
 
   const { error } = await admin
@@ -33,6 +33,8 @@ export async function PATCH(
       name: name.trim(),
       description: description?.trim() || null,
       deadline: deadline || null,
+      client_name: client_name?.trim() || null,
+      role_title: role_title?.trim() || null,
     })
     .eq("id", id)
     .eq("company_id", profile.company_id);

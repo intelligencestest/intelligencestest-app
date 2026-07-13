@@ -62,7 +62,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const [{ data: project }, { data: paRows }, { data: candidateRows }, { data: libraryRows }] = await Promise.all([
     admin
       .from("hiring_projects")
-      .select("id, name, status, description, deadline, created_at")
+      .select("id, name, status, description, deadline, created_at, client_name, role_title")
       .eq("id", id)
       .eq("company_id", companyId)
       .single(),
@@ -111,7 +111,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     <div>
       <nav className="mb-6 flex items-center gap-2 text-sm">
         <Link href="/projects" className="text-slate-500 transition-colors hover:text-slate-300">
-          {locale === "es" ? "Proyectos" : "Projects"}
+          {locale === "es" ? "Proyectos" : "Client Shortlists"}
         </Link>
         <svg className="h-3 w-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

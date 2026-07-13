@@ -38,6 +38,8 @@ interface Props {
     description: string | null;
     deadline: string | null;
     created_at: string;
+    client_name: string | null;
+    role_title: string | null;
   };
   assessments: Assessment[];
   candidates: ProjectCandidate[];
@@ -53,7 +55,14 @@ interface EditForm {
   name: string;
   description: string;
   deadline: string;
+  clientName: string;
 }
+
+// English-only for now (agency pivot, Phase 2) — see app/(dashboard)/projects/new/page.tsx.
+const clientLabels = {
+  clientName: "Client name",
+  clientPlaceholder: "e.g. ABC Outsourcing",
+};
 
 function CopyButton({ text }: { text: string }) {
   const es = useLocale() === "es";
@@ -227,6 +236,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
     name: project.name,
     description: project.description ?? "",
     deadline: project.deadline ? project.deadline.slice(0, 10) : "",
+    clientName: project.client_name ?? "",
   });
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
@@ -267,6 +277,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           name: editForm.name,
           description: editForm.description,
           deadline: editForm.deadline,
+          client_name: editForm.clientName,
         }),
       });
       const data = await res.json();
@@ -371,6 +382,14 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
             <span className={cfg.class.split(" ").find((c) => c.startsWith("text-")) ?? "text-slate-300"}>{copy.status[project.status] ?? cfg.label}</span>
           </div>
+          {(project.client_name || project.role_title) && (
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--it-faint)]">
+              {[
+                project.client_name ? `${es ? "Cliente" : "Client"}: ${project.client_name}` : null,
+                project.role_title ? `${es ? "Rol" : "Role"}: ${project.role_title}` : null,
+              ].filter(Boolean).join(" · ")}
+            </p>
+          )}
           <h1 className="text-2xl font-semibold tracking-tight text-[var(--it-text)]">{project.name}</h1>
           {project.description && (
             <p className="mt-1.5 text-sm text-slate-500 leading-relaxed">{project.description}</p>
@@ -390,6 +409,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 name: project.name,
                 description: project.description ?? "",
                 deadline: project.deadline ? project.deadline.slice(0, 10) : "",
+                clientName: project.client_name ?? "",
               });
               setEditError("");
               setEditOpen(true);
@@ -699,6 +719,19 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
               {editError && (
                 <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-[#b91c1c]">
                   {editError}
+                </div>
+              )}
+              {!es && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    {clientLabels.clientName}
+                  </label>
+                  <input
+                    value={editForm.clientName}
+                    onChange={(e) => setEditForm((f) => ({ ...f, clientName: e.target.value }))}
+                    placeholder={clientLabels.clientPlaceholder}
+                    className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
+                  />
                 </div>
               )}
               <div>

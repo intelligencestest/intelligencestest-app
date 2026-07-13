@@ -148,6 +148,15 @@ const ROLE_TEMPLATES: RoleTemplate[] = [
 
 // ─── component ────────────────────────────────────────────────────────────────
 
+// English-only for now (agency pivot, Phase 2) — kept outside the bilingual
+// `copy` object below so the Spanish form stays exactly as it was until this
+// workflow is ported to other locales.
+const clientLabels = {
+  clientName: "Client name",
+  clientPlaceholder: "e.g. ABC Outsourcing",
+  clientRequired: "Client name is required.",
+};
+
 export default function NewProjectPage() {
   const router = useRouter();
   const es = useLocale() === "es";
@@ -207,12 +216,12 @@ export default function NewProjectPage() {
         } as Record<string, string>,
       }
     : {
-        projects: "Projects",
-        newProject: "New Project",
-        createProject: "Create Project",
-        subtitle: "Set up a new assessment project for your open role.",
-        details: "Project Details",
-        projectName: "Project Name",
+        projects: "Client Shortlists",
+        newProject: "New Client Shortlist",
+        createProject: "Create Shortlist",
+        subtitle: "Set up a new client shortlist for an open role.",
+        details: "Shortlist Details",
+        projectName: "Shortlist Name",
         projectPlaceholder: "e.g. Senior Sales Executive — Q3 2026",
         deadline: "Assessment Deadline",
         description: "Description",
@@ -226,15 +235,15 @@ export default function NewProjectPage() {
         assessmentsFor: (role: string) => `Assessments — ${role}`,
         selectAssessments: "Select Assessments",
         chooseManual: "Choose the tests candidates will complete. Nothing is selected automatically.",
-        chooseActive: "Choose the active tests candidates will complete for this project.",
+        chooseActive: "Choose the active tests candidates will complete for this shortlist.",
         selected: "selected",
         loading: "Loading assessments...",
         noneActive: "No active assessments are available yet.",
         questions: "questions",
         cancel: "Cancel",
         creating: "Creating...",
-        selectOne: "Select at least one assessment before creating the project.",
-        failed: "Failed to create project",
+        selectOne: "Select at least one assessment before creating the shortlist.",
+        failed: "Failed to create shortlist",
         roles: {} as Record<string, { role: string; description: string }>,
         category: {} as Record<string, string>,
       };
@@ -243,7 +252,7 @@ export default function NewProjectPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [selectedAssessments, setSelectedAssessments] = useState<string[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", deadline: "" });
+  const [form, setForm] = useState({ name: "", description: "", deadline: "", clientName: "" });
 
   useEffect(() => {
     fetch("/api/assessments")
@@ -298,11 +307,18 @@ export default function NewProjectPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!es && !form.clientName.trim()) {
+      setError(clientLabels.clientRequired);
+      return;
+    }
     if (selectedAssessments.length === 0) {
       setError(copy.selectOne);
       return;
     }
     setSaving(true);
+    const roleTitle = activeTemplate && activeTemplate.id !== "custom"
+      ? (copy.roles[activeTemplate.id]?.role ?? activeTemplate.role)
+      : null;
     const res = await fetch("/api/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -311,6 +327,8 @@ export default function NewProjectPage() {
         description: form.description || null,
         deadline: form.deadline || null,
         assessment_ids: selectedAssessments,
+        client_name: !es ? form.clientName.trim() : null,
+        role_title: roleTitle,
       }),
     });
     const data = await res.json();
@@ -349,6 +367,20 @@ export default function NewProjectPage() {
         <div className="bg-[#ffffff] border border-[var(--it-hairline)] rounded-xl p-6 space-y-5">
           <h2 className="text-base font-semibold text-[var(--it-text)] border-b border-[var(--it-hairline)] pb-3">{copy.details}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {!es && (
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  {clientLabels.clientName} <span className="text-[#b91c1c]">*</span>
+                </label>
+                <input
+                  required
+                  value={form.clientName}
+                  onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))}
+                  placeholder={clientLabels.clientPlaceholder}
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-[var(--it-border)] text-[var(--it-text)] placeholder-[var(--it-faint)] focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm"
+                />
+              </div>
+            )}
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium text-slate-300 mb-2">
                 {copy.projectName} <span className="text-[#b91c1c]">*</span>

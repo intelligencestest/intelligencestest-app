@@ -20,7 +20,7 @@ export default async function ProjectsPage() {
   const [{ data: projects }, { data: candidateCounts }] = await Promise.all([
     admin
       .from("hiring_projects")
-      .select("id, name, status, description, deadline, created_at")
+      .select("id, name, status, description, deadline, created_at, client_name, role_title")
       .eq("company_id", companyId)
       .order("created_at", { ascending: false }),
     admin
