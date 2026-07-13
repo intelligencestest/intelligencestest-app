@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { BrandLogoMark } from "@/components/brand/BrandLogo";
 import { AQ_QUESTIONS, AQ_DURATION_SECONDS, scoreAQ } from "@/lib/questions/aq";
 import { AQ_QUESTIONS_ES } from "@/lib/questions/es/aq";
+import { AQ_QUESTIONS_FR } from "@/lib/questions/fr/aq";
 import { UI_STRINGS, Locale } from "@/lib/i18n/runner-strings";
 
 type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "error";
@@ -37,6 +38,20 @@ const DIMENSION_LABEL_ES: Record<string, string> = {
   E: "Resistencia",
 };
 
+const CORE_FR = [
+  { letter: "C", name: "Contrôle", desc: "Le contrôle perçu face à l'adversité" },
+  { letter: "O", name: "Appropriation", desc: "Le niveau de responsabilité assumé" },
+  { letter: "R", name: "Portée", desc: "L'étendue de l'impact de l'adversité" },
+  { letter: "E", name: "Endurance", desc: "La durée de l'adversité" },
+];
+
+const DIMENSION_LABEL_FR: Record<string, string> = {
+  C: "Contrôle",
+  O: "Appropriation",
+  R: "Portée",
+  E: "Endurance",
+};
+
 export default function AQTest({
   searchParams,
 }: {
@@ -62,13 +77,13 @@ export default function AQTest({
   const [regError, setRegError] = useState("");
 
   const s = UI_STRINGS[locale];
-  const coreDimensions = locale === "es" ? CORE_ES : CORE_EN;
+  const coreDimensions = locale === "es" ? CORE_ES : locale === "fr" ? CORE_FR : CORE_EN;
   const likertLabels = [...s.likert];
 
   useEffect(() => {
     searchParams.then((params) => {
       const rawLang = params.lang;
-      const resolvedLocale: Locale = rawLang === "en" ? "en" : "es";
+      const resolvedLocale: Locale = rawLang === "en" ? "en" : rawLang === "fr" ? "fr" : "es";
       setLocale(resolvedLocale);
       const strings = UI_STRINGS[resolvedLocale];
 
@@ -96,7 +111,7 @@ export default function AQTest({
           } else {
             // The candidate record carries the workspace language — it wins
             // over the URL parameter as the source of truth.
-            if (data.candidate?.language === "en" || data.candidate?.language === "es") {
+            if (data.candidate?.language === "en" || data.candidate?.language === "es" || data.candidate?.language === "fr") {
               setLocale(data.candidate.language);
             }
             setCandidate(data.candidate);
@@ -204,13 +219,17 @@ export default function AQTest({
   const timeWarning = secondsLeft < 180;
 
   const esQAQ = AQ_QUESTIONS_ES[current + 1];
-  const question = locale === "es" && esQAQ
-    ? { ...AQ_QUESTIONS[current], text: esQAQ.text }
+  const frQAQ = AQ_QUESTIONS_FR[current + 1];
+  const localizedQAQ = locale === "es" ? esQAQ : locale === "fr" ? frQAQ : undefined;
+  const question = localizedQAQ
+    ? { ...AQ_QUESTIONS[current], text: localizedQAQ.text }
     : AQ_QUESTIONS[current];
 
   const dimensionLabel =
     locale === "es"
       ? (DIMENSION_LABEL_ES[question.dimension] ?? question.dimension)
+      : locale === "fr"
+      ? (DIMENSION_LABEL_FR[question.dimension] ?? question.dimension)
       : (question.dimension === "C" ? "Control" :
          question.dimension === "O" ? "Ownership" :
          question.dimension === "R" ? "Reach" : "Endurance");
@@ -248,9 +267,9 @@ export default function AQTest({
         <div className="max-w-md w-full rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
           <div className="mb-8 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-4">
-              {locale === "es" ? "Evaluación de Resiliencia" : "Resilience Assessment"}
+              {locale === "es" ? "Evaluación de Resiliencia" : locale === "fr" ? "Évaluation de Résilience" : "Resilience Assessment"}
             </div>
-            <h1 className="text-2xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Cociente de Adversidad (AQ)" : "Adversity Quotient (AQ) Test"}</h1>
+            <h1 className="text-2xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Cociente de Adversidad (AQ)" : locale === "fr" ? "Test de Quotient d'Adversité (AQ)" : "Adversity Quotient (AQ) Test"}</h1>
             <p className="text-slate-400 text-sm">{s.registerHeading}</p>
           </div>
 
@@ -267,7 +286,7 @@ export default function AQTest({
                 required
                 value={regName}
                 onChange={(e) => setRegName(e.target.value)}
-                placeholder={locale === "es" ? "María García" : "Jane Smith"}
+                placeholder={locale === "es" ? "María García" : locale === "fr" ? "Camille Dubois" : "Jane Smith"}
                 className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
@@ -278,7 +297,7 @@ export default function AQTest({
                 type="email"
                 value={regEmail}
                 onChange={(e) => setRegEmail(e.target.value)}
-                placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
+                placeholder={locale === "es" ? "maria@ejemplo.com" : locale === "fr" ? "camille@exemple.fr" : "jane@example.com"}
                 className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
               />
             </div>
@@ -310,9 +329,9 @@ export default function AQTest({
         <div className="max-w-2xl w-full rounded-xl border p-8" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
           <div className="mb-6 text-center">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20 mb-4">
-              {locale === "es" ? "Evaluación de Resiliencia" : "Resilience Assessment"}
+              {locale === "es" ? "Evaluación de Resiliencia" : locale === "fr" ? "Évaluation de Résilience" : "Resilience Assessment"}
             </div>
-            <h1 className="text-3xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Cociente de Adversidad (AQ)" : "Adversity Quotient (AQ) Test"}</h1>
+            <h1 className="text-3xl font-bold text-[var(--it-text)] mb-2">{locale === "es" ? "Prueba de Cociente de Adversidad (AQ)" : locale === "fr" ? "Test de Quotient d'Adversité (AQ)" : "Adversity Quotient (AQ) Test"}</h1>
             <p className="text-slate-400">{s.welcomePrefix}<span className="text-[var(--it-text)] font-medium">{candidate?.full_name}</span></p>
           </div>
 
@@ -331,7 +350,7 @@ export default function AQTest({
 
           <div className="p-4 rounded-lg mb-6" style={{ backgroundColor: "#f3f4f6" }}>
             <p className="text-sm font-medium text-[var(--it-text)] mb-3">
-              {locale === "es" ? "Esta prueba mide 4 dimensiones CORE:" : "This test measures 4 CORE dimensions:"}
+              {locale === "es" ? "Esta prueba mide 4 dimensiones CORE:" : locale === "fr" ? "Ce test mesure 4 dimensions CORE :" : "This test measures 4 CORE dimensions:"}
             </p>
             <div className="grid grid-cols-2 gap-2 text-sm">
               {coreDimensions.map(({ letter, name, desc }) => (
@@ -380,7 +399,7 @@ export default function AQTest({
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-400">
-            {locale === "es" ? "Calculando su puntuación AQ..." : "Calculating your AQ score..."}
+            {locale === "es" ? "Calculando su puntuación AQ..." : locale === "fr" ? "Calcul de votre score AQ en cours..." : "Calculating your AQ score..."}
           </p>
         </div>
       </div>
@@ -417,7 +436,7 @@ export default function AQTest({
     <div className="min-h-screen flex flex-col">
       <div className="border-b px-6 py-4 flex items-center justify-between" style={{ backgroundColor: "#ffffff", borderColor: "#f3f4f6" }}>
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-[var(--it-text)]">{locale === "es" ? "Evaluación AQ" : "AQ Assessment"}</span>
+          <span className="text-sm font-medium text-[var(--it-text)]">{locale === "es" ? "Evaluación AQ" : locale === "fr" ? "Évaluation AQ" : "AQ Assessment"}</span>
           <span className="text-xs text-slate-400">{candidate?.full_name}</span>
         </div>
         <div className="flex items-center gap-4">

@@ -8,6 +8,7 @@ import {
   scorePersonality,
 } from "@/lib/questions/personality-type";
 import { PERSONALITY_QUESTIONS_ES } from "@/lib/questions/es/personality-type";
+import { PERSONALITY_QUESTIONS_FR } from "@/lib/questions/fr/personality-type";
 
 const dimensionClassNames = PERSONALITY_DIMENSIONS.reduce<Record<string, string>>((acc, dimension) => {
   acc[dimension.label] = dimension.className;
@@ -58,7 +59,15 @@ export default function PersonalityTypeTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Évaluez chaque affirmation de 1 (Pas du tout d'accord) à 5 (Tout à fait d'accord).",
+        "Répondez selon votre comportement de travail habituel, pas une situation récente isolée.",
+        "Il n'y a pas de bonnes ou mauvaises réponses dans ce profil de personnalité.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={PERSONALITY_QUESTIONS_ES}
+      frQuestions={PERSONALITY_QUESTIONS_FR}
       submittingText="Saving your personality profile..."
       scoreAnswers={(answers) => {
         const scored = scorePersonality(answers);
