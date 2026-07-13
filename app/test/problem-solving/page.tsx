@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { PS_QUESTIONS, PS_DURATION_SECONDS, scorePS } from "@/lib/questions/problem-solving";
 import { PS_QUESTIONS_ES } from "@/lib/questions/es/problem-solving";
+import { PS_QUESTIONS_FR } from "@/lib/questions/fr/problem-solving";
 
 const questions: RunnerQuestion[] = PS_QUESTIONS.map((q) => ({
   id: q.id,
@@ -45,7 +46,14 @@ export default function ProblemSolvingTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Lisez chaque scénario professionnel et choisissez la réponse la plus efficace.",
+        "Sélectionnez l'option qui démontre le meilleur jugement et la meilleure approche.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={PS_QUESTIONS_ES}
+      frQuestions={PS_QUESTIONS_FR}
       submittingText="Scoring your problem solving test..."
       scoreAnswers={(answers) => {
         const scored = scorePS(answers);

@@ -3,6 +3,7 @@
 import AssessmentRunner, { RunnerQuestion } from "../_components/AssessmentRunner";
 import { VR_QUESTIONS, VR_DURATION_SECONDS, scoreVR } from "@/lib/questions/verbal-reasoning";
 import { VR_QUESTIONS_ES } from "@/lib/questions/es/verbal-reasoning";
+import { VR_QUESTIONS_FR } from "@/lib/questions/fr/verbal-reasoning";
 
 const questions: RunnerQuestion[] = VR_QUESTIONS.map((q) => ({
   id: q.id,
@@ -45,7 +46,14 @@ export default function VerbalReasoningTest({
         "Su puntuación no se muestra al finalizar; los resultados se guardan para revisión.",
         "La prueba se envía automáticamente cuando el temporizador llega a cero.",
       ]}
+      instructionsFr={[
+        "Répondez aux questions sur les analogies, relations entre mots et déductions logiques.",
+        "Lisez attentivement chaque question avant de sélectionner votre réponse.",
+        "Votre score ne s'affiche pas à la fin ; les résultats sont enregistrés pour examen.",
+        "Le test s'envoie automatiquement lorsque le temps atteint zéro.",
+      ]}
       esQuestions={VR_QUESTIONS_ES}
+      frQuestions={VR_QUESTIONS_FR}
       submittingText="Scoring your verbal reasoning test..."
       scoreAnswers={(answers) => {
         const scored = scoreVR(answers);
