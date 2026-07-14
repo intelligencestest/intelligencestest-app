@@ -115,6 +115,17 @@ export async function proxy(request: NextRequest) {
     return withLocaleCookie(NextResponse.redirect(target), forcedLocale, request);
   }
 
+  // The bare, unprefixed homepage always renders in English for anonymous
+  // visitors — same rule as /es and /fr forcing their own locale, just for
+  // the unprefixed root. Without this, a visitor with a stale lang=es/fr
+  // cookie (e.g. from having browsed /es or /fr earlier) would see the
+  // homepage in that old language instead of the agency-first English one.
+  if (isHome && !user && !underPrefix) {
+    requestHeaders.set(LOCALE_HEADER, "en");
+    response = buildResponse();
+    return withLocaleCookie(response, "en", request);
+  }
+
   // Canonicalize non-English workspaces (Spanish, French) onto their prefix.
   // The lang cookie is a cache of company.language, so an authenticated
   // Spanish/French user who lands on an unprefixed in-app route (e.g. a deep
