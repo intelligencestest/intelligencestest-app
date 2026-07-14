@@ -51,17 +51,11 @@ export async function proxy(request: NextRequest) {
     forcedLocale = "en";
   }
 
-  // Spanish is the default public experience: the bare homepage redirects to
-  // /es unless the visitor carries an explicit English signal (lang=en cookie,
-  // set by the English entry pages or an English workspace). DEFAULT_LOCALE
-  // stays "en" so the many toAppLocale fallbacks keep their behavior. French is
-  // reached explicitly via /fr — it does not compete for this anonymous default.
-  if (!underPrefix && logicalPath === "/") {
-    const cookieLang = request.cookies.get(LANGUAGE_COOKIE)?.value;
-    if (cookieLang !== "en") {
-      return withLocaleCookie(NextResponse.redirect(new URL(LOCALE_PREFIXES.es!, request.url)), "es", request);
-    }
-  }
+  // English is the default public experience (agency-first positioning): the
+  // bare homepage renders in English for anonymous visitors. /es and /fr
+  // remain reachable directly (and are still forced for anyone who lands
+  // under those prefixes) — they just no longer compete for the anonymous
+  // default the way /es did before the agency pivot.
 
   // Downstream signal for i18n/request.ts. Cloned so we can also carry any auth
   // cookies Supabase refreshes below.
