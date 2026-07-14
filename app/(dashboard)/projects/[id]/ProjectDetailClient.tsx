@@ -422,6 +422,15 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             {copy.edit}
           </button>
           <Link
+            href={`/projects/${project.id}/compare`}
+            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm font-medium text-[#4338ca] transition-colors hover:bg-[#f3f4f6] hover:text-blue-200"
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
+            </svg>
+            {es ? "Comparar candidatos" : "Compare candidates"}
+          </Link>
+          <Link
             href={`/reports?project=${project.id}`}
             className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm font-medium text-[#4338ca] transition-colors hover:bg-[#f3f4f6] hover:text-blue-200"
           >
