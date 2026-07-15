@@ -40,6 +40,7 @@ interface Props {
     created_at: string;
     client_name: string | null;
     role_title: string | null;
+    openings_count: number;
   };
   assessments: Assessment[];
   candidates: ProjectCandidate[];
@@ -56,12 +57,15 @@ interface EditForm {
   description: string;
   deadline: string;
   clientName: string;
+  openingsCount: string;
 }
 
 // English-only for now (agency pivot, Phase 2) — see app/(dashboard)/projects/new/page.tsx.
 const clientLabels = {
   clientName: "Client name",
   clientPlaceholder: "e.g. ABC Outsourcing",
+  openingsCount: "Number of openings",
+  openingsHint: "How many roles this shortlist is filling. Drives how many candidates the client-facing brief recommends.",
 };
 
 function CopyButton({ text }: { text: string }) {
@@ -237,6 +241,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
     description: project.description ?? "",
     deadline: project.deadline ? project.deadline.slice(0, 10) : "",
     clientName: project.client_name ?? "",
+    openingsCount: String(project.openings_count ?? 1),
   });
   const [editSaving, setEditSaving] = useState(false);
   const [editError, setEditError] = useState("");
@@ -278,6 +283,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           description: editForm.description,
           deadline: editForm.deadline,
           client_name: editForm.clientName,
+          openings_count: Math.max(1, parseInt(editForm.openingsCount, 10) || 1),
         }),
       });
       const data = await res.json();
@@ -410,6 +416,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 description: project.description ?? "",
                 deadline: project.deadline ? project.deadline.slice(0, 10) : "",
                 clientName: project.client_name ?? "",
+                openingsCount: String(project.openings_count ?? 1),
               });
               setEditError("");
               setEditOpen(true);
@@ -750,6 +757,22 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                     placeholder={clientLabels.clientPlaceholder}
                     className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
                   />
+                </div>
+              )}
+              {!es && (
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-300">
+                    {clientLabels.openingsCount}
+                  </label>
+                  <input
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={editForm.openingsCount}
+                    onChange={(e) => setEditForm((f) => ({ ...f, openingsCount: e.target.value }))}
+                    className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
+                  />
+                  <p className="mt-1.5 text-xs text-slate-500">{clientLabels.openingsHint}</p>
                 </div>
               )}
               <div>

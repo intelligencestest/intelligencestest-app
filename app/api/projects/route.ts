@@ -13,11 +13,13 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, description, deadline, assessment_ids, client_name, role_title } = body;
+  const { name, description, deadline, assessment_ids, client_name, role_title, openings_count } = body;
 
   if (!name) {
     return NextResponse.json({ error: "Project name is required" }, { status: 400 });
   }
+
+  const openingsCount = Number.isFinite(openings_count) && openings_count > 0 ? Math.floor(openings_count) : 1;
 
   const admin = createAdminClient();
   const { data: profile } = await admin.from("users").select("company_id").eq("id", user.id).single();
@@ -43,6 +45,7 @@ export async function POST(request: NextRequest) {
       status: "active",
       client_name: client_name?.trim() || null,
       role_title: role_title?.trim() || null,
+      openings_count: openingsCount,
     })
     .select("id")
     .single();

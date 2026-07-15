@@ -38,7 +38,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const [{ data: project }, { data: paRows }, { data: candidateRows }, { data: libraryRows }] = await Promise.all([
     admin
       .from("hiring_projects")
-      .select("id, name, status, description, deadline, created_at, client_name, role_title")
+      .select("id, name, status, description, deadline, created_at, client_name, role_title, openings_count")
       .eq("id", id)
       .eq("company_id", companyId)
       .single(),

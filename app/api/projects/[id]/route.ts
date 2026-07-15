@@ -24,18 +24,23 @@ export async function PATCH(
   if (!existing) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
   const body = await request.json();
-  const { name, description, deadline, client_name, role_title } = body;
+  const { name, description, deadline, client_name, role_title, openings_count } = body;
   if (!name?.trim()) return NextResponse.json({ error: "Project name is required" }, { status: 400 });
+
+  const update: Record<string, unknown> = {
+    name: name.trim(),
+    description: description?.trim() || null,
+    deadline: deadline || null,
+    client_name: client_name?.trim() || null,
+    role_title: role_title?.trim() || null,
+  };
+  if (openings_count !== undefined) {
+    update.openings_count = Number.isFinite(openings_count) && openings_count > 0 ? Math.floor(openings_count) : 1;
+  }
 
   const { error } = await admin
     .from("hiring_projects")
-    .update({
-      name: name.trim(),
-      description: description?.trim() || null,
-      deadline: deadline || null,
-      client_name: client_name?.trim() || null,
-      role_title: role_title?.trim() || null,
-    })
+    .update(update)
     .eq("id", id)
     .eq("company_id", profile.company_id);
 

@@ -155,6 +155,8 @@ const clientLabels = {
   clientName: "Client name",
   clientPlaceholder: "e.g. ABC Outsourcing",
   clientRequired: "Client name is required.",
+  openingsCount: "Number of openings",
+  openingsHint: "How many roles this shortlist is filling. Drives how many candidates the client-facing brief recommends.",
 };
 
 export default function NewProjectPage() {
@@ -252,7 +254,7 @@ export default function NewProjectPage() {
   const [assessments, setAssessments] = useState<Assessment[]>([]);
   const [selectedAssessments, setSelectedAssessments] = useState<string[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", description: "", deadline: "", clientName: "" });
+  const [form, setForm] = useState({ name: "", description: "", deadline: "", clientName: "", openingsCount: "1" });
 
   useEffect(() => {
     fetch("/api/assessments")
@@ -329,6 +331,7 @@ export default function NewProjectPage() {
         assessment_ids: selectedAssessments,
         client_name: !es ? form.clientName.trim() : null,
         role_title: roleTitle,
+        openings_count: !es ? Math.max(1, parseInt(form.openingsCount, 10) || 1) : 1,
       }),
     });
     const data = await res.json();
@@ -379,6 +382,20 @@ export default function NewProjectPage() {
                   placeholder={clientLabels.clientPlaceholder}
                   className="w-full px-4 py-3 rounded-lg bg-white border border-[var(--it-border)] text-[var(--it-text)] placeholder-[var(--it-faint)] focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm"
                 />
+              </div>
+            )}
+            {!es && (
+              <div className="sm:col-span-2">
+                <label className="block text-sm font-medium text-slate-300 mb-2">{clientLabels.openingsCount}</label>
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={form.openingsCount}
+                  onChange={(e) => setForm((f) => ({ ...f, openingsCount: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-lg bg-white border border-[var(--it-border)] text-[var(--it-text)] placeholder-[var(--it-faint)] focus:outline-none focus:border-[#4f46e5] focus:ring-1 focus:ring-[#4f46e5] transition-colors text-sm"
+                />
+                <p className="text-xs text-slate-500 mt-1.5">{clientLabels.openingsHint}</p>
               </div>
             )}
             <div className="sm:col-span-2">
