@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import GenerateClientBriefButton from "./GenerateClientBriefButton";
 
 interface Assessment {
   id: string;
@@ -446,6 +447,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             </svg>
             {es ? "Resumen para el cliente" : "Client summary"}
           </Link>
+          <GenerateClientBriefButton projectId={project.id} projectName={project.name} />
           <Link
             href={`/reports?project=${project.id}`}
             className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm font-medium text-[#4338ca] transition-colors hover:bg-[#f3f4f6] hover:text-blue-200"
