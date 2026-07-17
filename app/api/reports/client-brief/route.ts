@@ -20,6 +20,7 @@ import {
 } from "@/lib/pdf/client-brief-selection";
 import { renderHTMLToPDF } from "@/lib/pdf/render-pdf";
 
+import { sanitizeLogoUrl } from "@/lib/security/logo-url";
 // Separate, parallel pipeline for the client-facing brief only. Does not
 // touch app/api/reports/pdf/route.ts (internal brief, @react-pdf/renderer) —
 // that stays exactly as-is.
@@ -208,7 +209,7 @@ export async function POST(request: NextRequest) {
   const shortlistData: ShortlistData = {
     locale: clientLocale,
     agencyName: company.name,
-    agencyLogoUrl: company.logo_url || undefined,
+    agencyLogoUrl: sanitizeLogoUrl(company.logo_url) ?? undefined,
     roleTitle: project.role_title || project.name,
     shortlistName: project.name,
     clientName: project.client_name || undefined,

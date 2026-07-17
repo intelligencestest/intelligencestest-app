@@ -1,6 +1,5 @@
 import fs from "node:fs";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
 
 /**
  * HTML generator for the client-facing shortlist brief. Rendered to PDF via
@@ -100,7 +99,8 @@ function toInlineJson(value: unknown): string {
 }
 
 function fontFileUrl(file: string): string {
-  return pathToFileURL(path.join(process.cwd(), "public", "fonts", file)).href;
+  const fontPath = path.join(process.cwd(), "public", "fonts", file);
+  return `data:font/woff2;base64,${fs.readFileSync(fontPath).toString("base64")}`;
 }
 
 function copy(locale: ClientBriefLocale) {

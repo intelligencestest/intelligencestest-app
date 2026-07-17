@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
+import { validateLogoUrlInput } from "@/lib/security/logo-url";
 
 function clean(value: unknown, max = 500) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -61,10 +62,13 @@ export async function PATCH(request: NextRequest) {
   const fullName = clean(body?.full_name);
   const companyName = clean(body?.company_name);
   const industry = clean(body?.industry);
-  const logoUrl = clean(body?.logo_url, 1000);
+  const logoUrl = validateLogoUrlInput(body?.logo_url);
 
   if (!fullName || !companyName) {
     return NextResponse.json({ error: "Name and company are required." }, { status: 400 });
+  }
+  if (!logoUrl.ok) {
+    return NextResponse.json({ error: logoUrl.error }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -83,7 +87,7 @@ export async function PATCH(request: NextRequest) {
       .update({
         name: companyName,
         industry,
-        logo_url: logoUrl || null,
+        logo_url: logoUrl.value,
         updated_at: new Date().toISOString(),
       })
       .eq("id", company.id);

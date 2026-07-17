@@ -5,6 +5,7 @@ import { sendAuthEmail } from "@/lib/auth-email";
 import { toAppLocale } from "@/lib/i18n/locales";
 import { logAdminAction, requireInternalAdminForApi } from "@/lib/internal-admin";
 import { normalizePlan, PLAN_LIMITS, TRIAL_DURATION_DAYS } from "@/lib/plan/limits";
+import { validateLogoUrlInput } from "@/lib/security/logo-url";
 
 function clean(value: unknown, max = 500) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -202,7 +203,11 @@ export async function PATCH(request: NextRequest) {
   }
   if (typeof body?.language === "string") updates.language = toAppLocale(body.language);
   if (typeof body?.industry === "string") updates.industry = clean(body.industry);
-  if (typeof body?.logo_url === "string") updates.logo_url = clean(body.logo_url, 1000);
+  if (typeof body?.logo_url === "string") {
+    const logoUrl = validateLogoUrlInput(body.logo_url);
+    if (!logoUrl.ok) return jsonError(logoUrl.error, 400);
+    updates.logo_url = logoUrl.value;
+  }
 
   // Trial / subscription lifecycle — "ops — change plan" per the console's role model.
   if (typeof body?.trial_status === "string" && TRIAL_STATUSES.has(body.trial_status)) {
