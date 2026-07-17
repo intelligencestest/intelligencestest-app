@@ -318,24 +318,42 @@ function questionForStrength(signal: EvidenceSignal, locale: IntelligenceLocale)
 }
 
 function buildInterviewQuestions(signals: EvidenceSignal[], risks: HiringRisk[], locale: IntelligenceLocale): InterviewValidationQuestion[] {
-  const riskQuestions = risks.map((risk) => ({
-    competency: risk.competencyLabel,
-    question: questionForRisk(risk, locale),
-    reason:
-      locale === "es"
-        ? `${risk.validationFocus}. Esta pregunta valida directamente la senal de riesgo reportada.`
-        : locale === "fr"
-          ? `${risk.validationFocus}. Cette question permet de vérifier directement le signal de risque rapporté.`
-          : `${risk.validationFocus}. This question directly validates the reported risk signal.`,
-    evidenceSignalIds: risk.evidenceSignalIds,
-    riskId: risk.id,
-  }));
+  // Multiple signals (e.g. an assessment's "overall" signal and one of its
+  // per-dimension signals) can share the same competencyId. Track which
+  // competencies already have a question so we never ask the same thing twice.
+  const usedCompetencyIds = new Set<string>();
 
-  const strengthQuestions = signals
+  const riskQuestions = risks
+    .filter((risk) => {
+      if (usedCompetencyIds.has(risk.competencyId)) return false;
+      usedCompetencyIds.add(risk.competencyId);
+      return true;
+    })
+    .map((risk) => ({
+      competency: risk.competencyLabel,
+      question: questionForRisk(risk, locale),
+      reason:
+        locale === "es"
+          ? `${risk.validationFocus}. Esta pregunta valida directamente la senal de riesgo reportada.`
+          : locale === "fr"
+            ? `${risk.validationFocus}. Cette question permet de vérifier directement le signal de risque rapporté.`
+            : `${risk.validationFocus}. This question directly validates the reported risk signal.`,
+      evidenceSignalIds: risk.evidenceSignalIds,
+      riskId: risk.id,
+    }));
+
+  const strengthQuota = Math.max(0, 4 - riskQuestions.length);
+  const strengthQuestions: InterviewValidationQuestion[] = [];
+  const sortedPositiveSignals = signals
     .filter((signal) => signal.direction === "positive")
-    .sort((a, b) => b.normalizedScore - a.normalizedScore)
-    .slice(0, Math.max(0, 4 - riskQuestions.length))
-    .map((signal) => questionForStrength(signal, locale));
+    .sort((a, b) => b.normalizedScore - a.normalizedScore);
+
+  for (const signal of sortedPositiveSignals) {
+    if (strengthQuestions.length >= strengthQuota) break;
+    if (usedCompetencyIds.has(signal.competencyId)) continue;
+    usedCompetencyIds.add(signal.competencyId);
+    strengthQuestions.push(questionForStrength(signal, locale));
+  }
 
   return [...riskQuestions, ...strengthQuestions].slice(0, 6);
 }

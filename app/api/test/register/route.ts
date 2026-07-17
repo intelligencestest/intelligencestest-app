@@ -1,10 +1,21 @@
 import { createAdminClient } from "@/lib/supabase-server";
+import { checkRateLimit, clientIpFrom } from "@/lib/rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
+const RATE_LIMIT = 10;
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
+
 // Public endpoint — no auth required.
 // Used by the shared-link flow where candidates self-register before taking a test.
+// Rate-limited per IP since project_id is guessable and this endpoint would
+// otherwise let anyone spam candidate rows against any project UUID.
 export async function POST(request: NextRequest) {
+  const ip = clientIpFrom(request);
+  if (!checkRateLimit(`test-register:${ip}`, RATE_LIMIT, RATE_LIMIT_WINDOW_MS)) {
+    return NextResponse.json({ error: "Too many attempts. Please try again later." }, { status: 429 });
+  }
+
   const body = await request.json();
   const { name, email, project_id, assessment_name } = body;
 

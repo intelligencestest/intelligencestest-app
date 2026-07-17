@@ -36,20 +36,53 @@ export default function LoginPage() {
   const [recoveryRedirecting, setRecoveryRedirecting] = useState(false);
   const [error, setError] = useState("");
 
+  const completeLogin = async () => {
+    // Workspace language is the single source of truth: clear any legacy
+    // personal override and sync the session language from the company. The
+    // company language then decides whether the dashboard lives under /es.
+    window.localStorage.removeItem(LANGUAGE_OVERRIDE_STORAGE_KEY);
+    window.localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+    document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=; path=/; max-age=0; samesite=lax`;
+    const sync = await fetch("/api/auth/session-language", { method: "POST" })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+    const companyLocale = toAppLocale(sync?.language, locale);
+    router.push(localePath("/dashboard", companyLocale));
+    router.refresh();
+  };
+
   useEffect(() => {
     const url = new URL(window.location.href);
     const hashParams = new URLSearchParams(url.hash.replace(/^#/, ""));
-    const hasRecoveryToken =
-      url.searchParams.get("type") === "recovery" ||
-      hashParams.get("type") === "recovery" ||
-      Boolean(url.searchParams.get("code")) ||
-      Boolean(hashParams.get("access_token") && hashParams.get("refresh_token"));
+    const linkType = url.searchParams.get("type") ?? hashParams.get("type");
+    const accessToken = hashParams.get("access_token");
+    const refreshToken = hashParams.get("refresh_token");
 
-    if (!hasRecoveryToken) return;
+    const isRecovery = linkType === "recovery" || Boolean(url.searchParams.get("code"));
+    if (isRecovery) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRecoveryRedirecting(true);
+      window.location.replace(`${localePath("/reset-password", locale)}${url.search}${url.hash}`);
+      return;
+    }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setRecoveryRedirecting(true);
-    window.location.replace(`${localePath("/reset-password", locale)}${url.search}${url.hash}`);
+    // Signup confirmation / magic-link tokens land here as URL-fragment
+    // tokens (not a recovery link) — establish the session directly and go
+    // straight to the dashboard instead of routing through /reset-password,
+    // which is reserved for actual password-recovery links.
+    if (accessToken && refreshToken) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRecoveryRedirecting(true);
+      const supabase = createClient();
+      supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken }).then(({ error }) => {
+        if (error) {
+          setRecoveryRedirecting(false);
+          setError(flow("failedCreateAccount"));
+          return;
+        }
+        void completeLogin();
+      });
+    }
   }, [locale]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,18 +106,7 @@ export default function LoginPage() {
       }
       return;
     }
-    // Workspace language is the single source of truth: clear any legacy
-    // personal override and sync the session language from the company. The
-    // company language then decides whether the dashboard lives under /es.
-    window.localStorage.removeItem(LANGUAGE_OVERRIDE_STORAGE_KEY);
-    window.localStorage.removeItem(LANGUAGE_STORAGE_KEY);
-    document.cookie = `${LANGUAGE_OVERRIDE_COOKIE}=; path=/; max-age=0; samesite=lax`;
-    const sync = await fetch("/api/auth/session-language", { method: "POST" })
-      .then((r) => (r.ok ? r.json() : null))
-      .catch(() => null);
-    const companyLocale = toAppLocale(sync?.language, locale);
-    router.push(localePath("/dashboard", companyLocale));
-    router.refresh();
+    await completeLogin();
   };
 
   const handleGoogle = async () => {

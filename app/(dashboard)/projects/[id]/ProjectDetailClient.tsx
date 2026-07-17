@@ -383,7 +383,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
   return (
     <div className="mx-auto max-w-[1200px] space-y-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className={`mb-3 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium ${cfg.class}`}>
             <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
@@ -408,7 +408,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             )}
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={() => {

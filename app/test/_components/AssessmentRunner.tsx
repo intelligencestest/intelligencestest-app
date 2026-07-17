@@ -581,7 +581,7 @@ export default function AssessmentRunner({
             const selected = answers[current] === value;
             return (
               <button
-                key={option}
+                key={index}
                 onClick={() => selectAnswer(value)}
                 className={`flex w-full cursor-pointer items-center gap-4 rounded-lg border px-5 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--it-primary)] focus-visible:ring-offset-2 ${selected ? "border-[var(--it-primary)] bg-[var(--it-primary-soft)] text-[var(--it-text)]" : "border-[var(--it-hairline)] bg-white text-[var(--it-text)] hover:border-[#c7d2fe] hover:bg-[#f8faff]"}`}
               >

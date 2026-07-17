@@ -20,7 +20,10 @@ export async function POST(request: NextRequest) {
 
   const admin = createAdminClient();
 
-  // Guard: check if email already registered
+  // Guard: check if email already registered. The response below is
+  // identical to a fresh signup's success response either way — a distinct
+  // "already exists" error here would let an attacker enumerate registered
+  // emails by observing which addresses get a different response.
   const { data: existing } = await admin
     .from("users")
     .select("id")
@@ -28,7 +31,7 @@ export async function POST(request: NextRequest) {
     .maybeSingle();
 
   if (existing) {
-    return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 });
+    return NextResponse.json({ success: true });
   }
 
   // 1. Create company — every new signup starts on a time-boxed trial.
