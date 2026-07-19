@@ -6,69 +6,111 @@ import { renderHTMLToPDF } from "@/lib/pdf/render-pdf";
 // (lib/pdf/client-brief-template.ts + lib/pdf/render-pdf.ts). Static fixture
 // data — no database call. Distinct from /api/dev/client-brief-pdf, which
 // previews the older static @react-pdf/renderer agency-brief template.
+//
+// Fixture intentionally mirrors the editorial handoff's own reference
+// sample (Sara M. / Yassine B., Northstar Talent / Atlas Mobility Group)
+// so this render can be compared directly against the handoff's preview
+// PNGs and acceptance checks.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const FIXTURE: ShortlistData = {
   locale: "en",
-  agencyName: "Atlas Talent Partners",
+  agencyName: "Northstar Talent",
+  agencyTagline: "Executive search partners",
   agencyLogoUrl: undefined,
-  roleTitle: "Customer Service Agent",
-  shortlistName: "Customer Service Shortlist — July 2026",
-  clientName: "Meridian Retail Group",
-  date: "July 2026",
+  roleTitle: "Head of Regional Operations",
+  shortlistName: "Head of Regional Operations Shortlist",
+  clientName: "Atlas Mobility Group",
+  date: "15 July 2026",
   narrative:
-    "Of five candidates evaluated for the Customer Service Agent role, two stand out clearly. Sara M. is our strongest recommendation because she shows consistent, strong evidence across communication clarity, customer handling judgment, and structured problem solving. Yassine B. is worth considering as a secondary option — he is reliable and detail-oriented with a fast learning curve, though his verbal confidence under pressure should be confirmed in the interview.",
+    "Sara M. presents the strongest overall alignment with the role, combining clear stakeholder communication, disciplined analysis and consistent decision quality. Yassine B. also merits interview consideration, with a credible operational profile and a particularly strong response in decision-making scenarios. We recommend interviewing both candidates, using the focused questions that follow to test how each translates these capabilities into the client's operating environment.",
   cards: [
     {
       name: "Sara M.",
-      verdict: "Strongest recommendation for this role",
+      verdict: "strongest overall alignment, recommended for interview",
       isPrimary: true,
+      overallScore: 4.6,
       radar: [
-        { label: "Communication Clarity", value: 4.6 },
-        { label: "Customer Handling", value: 4.4 },
-        { label: "Structured Problem Solving", value: 4.2 },
-        { label: "Reliability", value: 4.0 },
-        { label: "Attention to Detail", value: 3.9 },
+        { label: "Communication clarity", value: 4.8 },
+        { label: "Analytical reasoning", value: 4.5 },
+        { label: "Decision quality", value: 4.6 },
+        { label: "Attention to detail", value: 4.4 },
+        { label: "Stakeholder judgement", value: 4.7 },
       ],
     },
     {
       name: "Yassine B.",
-      verdict: "Strong secondary option, confirm in interview",
+      verdict: "credible operational alignment, recommended for interview",
       isPrimary: false,
+      overallScore: 3.3,
       radar: [
-        { label: "Communication Clarity", value: 2.6 },
-        { label: "Customer Handling", value: 2.8 },
-        { label: "Structured Problem Solving", value: 2.4 },
-        { label: "Reliability", value: 3.6 },
-        { label: "Attention to Detail", value: 3.3 },
+        { label: "Communication clarity", value: 3.4 },
+        { label: "Analytical reasoning", value: 3.1 },
+        { label: "Decision quality", value: 3.9 },
+        { label: "Attention to detail", value: 2.7 },
+        { label: "Stakeholder judgement", value: 3.4 },
       ],
     },
   ],
   interviewPages: [
     {
       name: "Sara M.",
-      verdict: "Strongest recommendation for this role",
+      verdict: "Recommended for interview",
       isPrimary: true,
+      objectiveTitle: "Translate strong evidence into role-specific examples",
+      objectiveCopy:
+        "Sara's profile is strongest across communication, judgement and analytical discipline. Use the conversation to understand the scale of her ownership, how she makes trade-offs under pressure, and how she brings senior stakeholders with her.",
       questions: [
         {
-          question: "Tell me about a time you handled a very difficult or upset customer. What did you do?",
-          verifies: "Confirms composure and consistent judgment when customer volume and pressure increase.",
+          focusLabel: "Stakeholder judgement",
+          question: "Tell us about a high-stakes operational decision where senior stakeholders wanted different outcomes. How did you move the group forward?",
+          verifies: "Looks for a clear decision frame, explicit trade-offs, evidence of influence without over-reliance on authority, and a result the candidate can explain with precision.",
         },
         {
-          question: "Walk me through how you prioritize when you have several customer requests at once.",
-          verifies: "Confirms structured, repeatable problem-solving under real workload conditions.",
+          focusLabel: "Decision quality",
+          question: "Describe a moment when you had to act before all the information was available. What did you decide, and what changed your course?",
+          verifies: "Tests whether she distinguishes reversible from irreversible decisions, identifies the critical unknowns, and adjusts thoughtfully when new information appears.",
+        },
+        {
+          focusLabel: "Analytical reasoning",
+          question: "Walk us through an operational problem you diagnosed from conflicting data. Which signals mattered, and which did you set aside?",
+          verifies: "Looks for a structured hypothesis, disciplined use of evidence, awareness of data quality, and a clear connection between analysis and action.",
+        },
+        {
+          focusLabel: "Communication clarity",
+          question: "Give an example of a complex change you had to explain to teams with different levels of context. How did you make it actionable?",
+          verifies: "Tests whether she adapts the message without losing substance, creates a clear action path, and confirms understanding across audiences.",
         },
       ],
     },
     {
       name: "Yassine B.",
-      verdict: "Strong secondary option, confirm in interview",
+      verdict: "Recommended for interview",
       isPrimary: false,
+      objectiveTitle: "Explore decision ownership and execution discipline",
+      objectiveCopy:
+        "Yassine brings useful decision-making capability and credible operational instincts. Use the conversation to examine how he structures communication, protects execution quality, and turns sound judgement into reliable delivery across teams.",
       questions: [
         {
-          question: "Describe a situation where you had to explain something complex to a frustrated customer.",
-          verifies: "Confirms his ability to stay clear and composed when handling pressure directly.",
+          focusLabel: "Decision quality",
+          question: "Tell us about an operational decision you made that materially improved an outcome. What alternatives did you reject, and why?",
+          verifies: "Looks for clear ownership, a rational comparison of options, and a direct link between the decision, execution choices and measurable result.",
+        },
+        {
+          focusLabel: "Attention to detail",
+          question: "Describe a situation where a small operational detail could have created a larger failure. How did you identify and control it?",
+          verifies: "Tests whether he uses repeatable controls, identifies dependencies early, and balances precision with speed rather than relying on last-minute checking.",
+        },
+        {
+          focusLabel: "Communication clarity",
+          question: "How have you communicated a difficult operational decision to a team that initially disagreed with the direction?",
+          verifies: "Looks for a concise rationale, respect for dissenting views, a clear explanation of consequences, and specific steps used to secure execution.",
+        },
+        {
+          focusLabel: "Stakeholder judgement",
+          question: "Give an example of a commitment you renegotiated with a senior stakeholder. How did you protect trust while changing the plan?",
+          verifies: "Tests whether he raises constraints early, brings evidence to the conversation, proposes credible options, and leaves ownership unambiguous.",
         },
       ],
     },

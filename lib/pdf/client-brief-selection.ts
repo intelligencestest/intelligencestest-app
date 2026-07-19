@@ -18,8 +18,11 @@ export type RankedCandidate = {
   recommendationTitle: string;
   rationale: string;
   competencyEvidence: { label: string; score: number }[];
-  interviewQuestions: { question: string; reason: string }[];
+  confidence?: string;
+  interviewQuestions: { question: string; reason: string; competency: string }[];
 };
+
+import { findNaturalBreak, type CutoffDecision } from "@/lib/assessment-intelligence/evidence-methodology";
 
 /** A ranked candidate with its position in the recommended set attached. */
 export type RankedSlot = RankedCandidate & { rank: number };
@@ -34,17 +37,34 @@ export function recommendedPool(ranked: RankedCandidate[]): RankedCandidate[] {
   return ranked.filter((c) => c.level === "strong" || c.level === "proceed");
 }
 
-/** ~1.5-2x openings_count, floor 2 (matches the prior fixed-2 behavior for
- * the default single-opening shortlist), capped at however many candidates
- * actually cleared the strong/proceed bar. */
+/** openings + max(3, 50% of openings): every shortlist carries a real backup
+ * bench (at least 3 deep even for a single opening), scaling with seat count
+ * — 14 openings targets 21 recommended (14 primary + 7 backup). Always
+ * capped at however many candidates actually cleared the strong/proceed bar:
+ * the target never lowers the qualification floor, it only decides how many
+ * of the genuinely qualifying candidates the client sees. */
 export function targetRecommendedCount(openingsCount: number, poolSize: number): number {
-  const target = Math.round(openingsCount * 1.75);
-  return Math.max(2, Math.min(target, poolSize));
+  const target = openingsCount + Math.max(3, Math.round(openingsCount * 0.5));
+  return Math.min(target, poolSize);
+}
+
+/** Natural-break shortlist selection (evidence-methodology Stage 1): the
+ * strong/proceed bar is applied FIRST as an absolute floor, then
+ * findNaturalBreak decides how many of the qualifying pool to recommend —
+ * a real distributional break when one exists, the policy buffer otherwise.
+ * The CutoffDecision is returned for persistence/audit (spec §10). */
+export function selectShortlist(
+  candidates: RankedCandidate[],
+  openingsCount: number
+): { selected: RankedCandidate[]; cutoff: CutoffDecision | null } {
+  const pool = recommendedPool(rankCandidates(candidates));
+  if (pool.length === 0) return { selected: [], cutoff: null };
+  const cutoff = findNaturalBreak(pool.map((c) => c.score), openingsCount);
+  return { selected: pool.slice(0, cutoff.recommendedCount), cutoff };
 }
 
 export function selectRecommended(candidates: RankedCandidate[], openingsCount: number): RankedCandidate[] {
-  const pool = recommendedPool(rankCandidates(candidates));
-  return pool.slice(0, targetRecommendedCount(openingsCount, pool.length));
+  return selectShortlist(candidates, openingsCount).selected;
 }
 
 /**

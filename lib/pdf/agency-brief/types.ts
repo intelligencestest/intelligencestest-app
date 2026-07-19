@@ -4,17 +4,28 @@
 // should be free to diverge from the internal report without either one
 // constraining the other's evolution.
 
+export type ClientPriority = "Priority 1" | "Priority 2" | "Review" | "Lower priority" | "Incomplete";
+
 export interface AgencyBriefCandidate {
   name: string;
   /** Client-safe label only — e.g. "Recommended for client interview". Never a raw score or internal tier code. */
   recommendation: string;
+  /** Short scannable tier tag, distinct from the fuller `recommendation` sentence. Drives table/matrix grouping and card hierarchy. */
+  clientPriority: ClientPriority;
   roleFit: string;
   confidence: string;
   /** 1-2 sentence client-safe justification. No raw scores, no severity words. */
   summary: string;
+  /** One-line note for the Recommendation Matrix page — shorter than `summary`. */
+  matrixNote: string;
+  /** 2-4 word phrase used in the executive "client discussion priorities" roll-up (page 1) and the shortlist table's verification column. */
+  keyVerificationPhrase: string;
   strengths: string[];
   pointsToVerify: string[];
+  /** The interview question itself. */
   interviewFocus: string;
+  /** What a good answer to `interviewFocus` should demonstrate — used on the Client Interview Focus page. */
+  interviewVerifies: string;
 }
 
 export interface AgencyBriefSnapshot {

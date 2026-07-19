@@ -4,6 +4,7 @@ import { buildAssessmentIntelligence, type AssessmentResultInput } from "@/lib/a
 import { generateShortlistNarrative } from "@/lib/claude";
 import {
   buildClientBriefHTML,
+  defaultInterviewObjectiveTitle,
   type ClientBriefBenchEntry,
   type ClientBriefCandidateCard,
   type ClientBriefInterviewPage,
@@ -13,14 +14,15 @@ import {
 import {
   planClientBriefDocuments,
   radarForCandidate,
-  selectRecommended,
+  selectShortlist,
   sharedRadarDimensions,
   tierSelection,
   type RankedCandidate,
 } from "@/lib/pdf/client-brief-selection";
 import { renderHTMLToPDF } from "@/lib/pdf/render-pdf";
-
 import { sanitizeLogoUrl } from "@/lib/security/logo-url";
+import { displayedPercentile } from "@/lib/assessment-intelligence/evidence-methodology";
+
 // Separate, parallel pipeline for the client-facing brief only. Does not
 // touch app/api/reports/pdf/route.ts (internal brief, @react-pdf/renderer) —
 // that stays exactly as-is.
@@ -122,12 +124,13 @@ export async function POST(request: NextRequest) {
         : 0;
       return {
         name: candidate.full_name || "—",
+        confidence: report.confidence.level as string,
         level: report.recommendation.level,
         score: overallScore,
         recommendationTitle: report.recommendation.title,
         rationale: report.recommendation.rationale,
         competencyEvidence,
-        interviewQuestions: report.interviewQuestions.map((q) => ({ question: q.question, reason: q.reason })),
+        interviewQuestions: report.interviewQuestions.map((q) => ({ question: q.question, reason: q.reason, competency: q.competency })),
       };
     })
     .filter((c): c is RankedCandidate => c !== null);
@@ -137,7 +140,9 @@ export async function POST(request: NextRequest) {
   // by score within the strong/proceed pool. review/caution/notRecommended
   // and no-results candidates never reach this document — that language and
   // those candidates are internal-brief only.
-  const selected = selectRecommended(ranked, openingsCount);
+  const cohortScores = ranked.map((c) => c.score);
+  const { selected, cutoff } = selectShortlist(ranked, openingsCount);
+  if (cutoff) console.log(`[client-brief] cutoff ${cutoff.decisionType}: recommended ${cutoff.recommendedCount} (gap ${cutoff.selectedGap ?? "n/a"}, ratio ${cutoff.gapRatio?.toFixed(2) ?? "n/a"})`);
 
   if (selected.length === 0) {
     return NextResponse.json(
@@ -167,17 +172,24 @@ export async function POST(request: NextRequest) {
 
   const dimensions = sharedRadarDimensions(mainPrimary);
 
-  const cards: ClientBriefCandidateCard[] = mainPrimary.map((candidate, index) => ({
-    name: candidate.name,
-    verdict: candidate.recommendationTitle,
-    isPrimary: index === 0,
-    radar: radarForCandidate(candidate, dimensions),
-  }));
+  const cards: ClientBriefCandidateCard[] = mainPrimary.map((candidate, index) => {
+    const radar = radarForCandidate(candidate, dimensions);
+    const overallScore = radar.length ? radar.reduce((sum, point) => sum + point.value, 0) / radar.length : 0;
+    return {
+      name: candidate.name,
+      verdict: candidate.confidence ? `${candidate.recommendationTitle} · ${candidate.confidence} confidence` : candidate.recommendationTitle,
+      isPrimary: index === 0,
+      overallScore,
+      percentile: displayedPercentile(candidate.score, cohortScores),
+      radar,
+    };
+  });
 
   const benchEntries: ClientBriefBenchEntry[] = mainBackup.map((candidate) => ({
     rank: candidate.rank,
     name: candidate.name,
     score: candidate.score,
+    percentile: displayedPercentile(candidate.score, cohortScores),
     verdict: candidate.recommendationTitle,
   }));
 
@@ -185,7 +197,9 @@ export async function POST(request: NextRequest) {
     name: candidate.name,
     verdict: candidate.recommendationTitle,
     isPrimary: index === 0,
-    questions: candidate.interviewQuestions.slice(0, 3).map((q) => ({ question: q.question, verifies: q.reason })),
+    objectiveTitle: defaultInterviewObjectiveTitle(clientLocale),
+    objectiveCopy: candidate.rationale,
+    questions: candidate.interviewQuestions.slice(0, 4).map((q) => ({ focusLabel: q.competency, question: q.question, verifies: q.reason })),
   }));
 
   const narrative = await generateShortlistNarrative({
@@ -218,6 +232,7 @@ export async function POST(request: NextRequest) {
     cards,
     benchEntries,
     benchOmittedCount: plan.overflow?.backup.length ?? 0,
+    cutoffDecisionType: cutoff?.decisionType === "natural_break" || cutoff?.decisionType === "policy_fallback" ? cutoff.decisionType : undefined,
     interviewPages,
   };
 
@@ -231,6 +246,7 @@ export async function POST(request: NextRequest) {
       "Content-Type": "application/pdf",
       "X-Robots-Tag": "noindex, nofollow",
       ...(plan.overflow ? { "X-Client-Brief-Backup-Omitted": String(plan.overflow.backup.length) } : {}),
+      ...(cutoff ? { "X-Client-Brief-Cutoff": cutoff.decisionType } : {}),
     },
   });
 }
