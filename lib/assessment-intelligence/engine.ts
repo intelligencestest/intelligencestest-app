@@ -12,6 +12,7 @@ import { extractSalesAptitudeEvidence } from "./extractors/sales-aptitude";
 import { extractSituationalJudgmentEvidence } from "./extractors/situational-judgment";
 import { extractTeamworkCollaborationEvidence } from "./extractors/teamwork-collaboration";
 import { assessmentKey, clampScore, evidenceStrength, riskSeverity } from "./scales";
+import { computeConfidenceV1, robustSD } from "./evidence-methodology";
 import { competencyCategory } from "./taxonomy";
 import type {
   AssessmentIntelligenceReport,
@@ -175,8 +176,16 @@ function buildCompetencyEvidence(signals: EvidenceSignal[], locale: Intelligence
 function hasMixedEvidence(signals: EvidenceSignal[]): boolean {
   const hasPositive = signals.some((signal) => signal.direction === "positive");
   const hasRisk = signals.some((signal) => signal.direction === "risk");
-  const spread = Math.max(...signals.map((signal) => signal.normalizedScore), 0) - Math.min(...signals.map((signal) => signal.normalizedScore), 100);
-  return (hasPositive && hasRisk) || spread >= 35 || signals.some((signal) => signal.direction === "mixed");
+  // MAD-based dispersion (evidence-methodology Stage 2) replaces the old
+  // min/max range check: with 20+ dimension-level signals, a single small
+  // sub-dimension outlier made the range test flag nearly every candidate
+  // "mixed" — punishing measurement breadth instead of real inconsistency.
+  const dispersion = robustSD(signals.map((signal) => signal.normalizedScore));
+  // V2 veto calibration: only a genuinely weak dimension (<40, the existing
+  // high-severity line) vetoes an otherwise-positive profile. Mediocre
+  // 50-64 signals inform risks/limitations but no longer flag "mixed".
+  const hasSevereRisk = signals.some((signal) => signal.direction === "risk" && signal.normalizedScore < 40);
+  return (hasPositive && hasSevereRisk) || dispersion >= 25;
 }
 
 function buildRisks(signals: EvidenceSignal[], locale: IntelligenceLocale): HiringRisk[] {
@@ -373,50 +382,42 @@ function calculateConfidence({
   roleRequirementsProvided: boolean;
   locale: IntelligenceLocale;
 }): ConfidenceAnalysis {
+  // Confidence now comes from the deterministic null-honest fallback model
+  // (evidence-methodology Stage 2) instead of the old additive heuristic,
+  // which structurally capped every full-bundle candidate at 54 ("low").
   const c = copy(locale);
-  let score = 35;
   const factors: string[] = [];
   const limitations: string[] = [];
   const hasScoreOnly = signals.some((signal) => signal.kind === "score-only");
   const knownSignals = signals.filter((signal) => signal.kind !== "score-only");
 
-  if (assessmentCount >= 2) {
-    score += 15;
-    factors.push(c.evidenceCount(assessmentCount) as string);
+  const byCompetency = new Map<string, number[]>();
+  for (const signal of signals) {
+    const list = byCompetency.get(signal.competencyId) ?? [];
+    list.push(signal.normalizedScore);
+    byCompetency.set(signal.competencyId, list);
   }
+  const facetMeans = [...byCompetency.values()].map((values) => values.reduce((sum, v) => sum + v, 0) / values.length);
+
+  const v1 = computeConfidenceV1({
+    unitScores: signals.map((signal) => signal.normalizedScore),
+    expectedUnits: signals.length,
+    facetMeans: facetMeans.length >= 2 ? facetMeans : null,
+    flaggedUnits: 0,
+  });
+
+  if (assessmentCount >= 2) factors.push(c.evidenceCount(assessmentCount) as string);
   if (knownSignals.length >= 2) {
-    score += 12;
     factors.push(locale === "es" ? "Existen multiples senales metodologicas interpretables." : locale === "fr" ? "Plusieurs signaux méthodologiques interprétables sont disponibles." : "Multiple methodologically interpretable signals are available.");
   }
-  if (knownSignals.length > assessmentCount) {
-    score += 8;
-    factors.push(locale === "es" ? "Hay detalle por dimensiones, no solo puntuacion general." : locale === "fr" ? "Des informations sont disponibles par dimension, et pas uniquement sous la forme d'un score global." : "Dimension-level detail is available, not only overall score.");
-  }
-  if (risks.some((risk) => risk.severity === "high")) score -= 18;
-  else if (risks.length) score -= 10;
-  if (mixed) {
-    score -= 18;
-    limitations.push(c.mixedEvidence as string);
-  }
-  if (hasScoreOnly) {
-    score -= 8;
-    limitations.push(c.unsupported as string);
-  }
-  if (!roleRequirementsProvided) {
-    score -= 8;
-    limitations.push(c.noRoleModel as string);
-  }
-  if (assessmentCount === 1) {
-    score = Math.min(score, 49);
-    limitations.push(c.singleAssessment as string);
-  }
-  if (!roleRequirementsProvided) score = Math.min(score, 74);
-  if (mixed) score = Math.min(score, 59);
+  if (mixed) limitations.push(c.mixedEvidence as string);
+  if (hasScoreOnly) limitations.push(c.unsupported as string);
+  if (!roleRequirementsProvided) limitations.push(c.noRoleModel as string);
+  if (assessmentCount === 1) limitations.push(c.singleAssessment as string);
 
-  const bounded = clampScore(score);
   return {
-    score: bounded,
-    level: bounded >= 75 ? "high" : bounded >= 55 ? "moderate" : "low",
+    score: v1.score,
+    level: v1.level,
     factors: factors.length ? factors : [c.evidenceCount(assessmentCount) as string],
     limitations: Array.from(new Set(limitations)),
   };
@@ -447,7 +448,10 @@ function buildRecommendation({
   let title = c.reviewTitle as string;
   let rationale = c.reviewRationale as string;
 
-  if (assessmentAverage >= 85 && !hasRisk && !mixed && confidence.level === "high") {
+  // "strong": clean, consistent, high-scoring evidence with non-low
+  // confidence from the deterministic fallback model (single-assessment
+  // profiles gate to low via <4 valid units, so they can never be strong).
+  if (assessmentAverage >= 85 && !hasRisk && !mixed && confidence.level !== "low") {
     level = "strong";
     title = c.strongTitle as string;
     rationale = c.strongRationale as string;
@@ -469,7 +473,12 @@ function buildRecommendation({
   return {
     level,
     title,
-    rationale: `${rationale} ${limitations[0] ?? ""}`.trim(),
+    // Client-safe: never append confidence/limitation caveats here — those
+    // are internal-only and belong on confidenceCaveat/limitations instead.
+    // See lib/pdf/client-brief-template.ts and the client-summary page,
+    // which read only .rationale and must never see internal caveat text.
+    rationale,
+    confidenceCaveat: limitations[0] ?? null,
     confidence: confidence.level,
     evidenceSignalIds,
     riskIds: risks.map((risk) => risk.id),

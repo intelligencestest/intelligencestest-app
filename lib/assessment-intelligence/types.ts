@@ -233,7 +233,11 @@ export interface ConfidenceAnalysis {
 export interface IntelligenceRecommendation {
   level: "strong" | "proceed" | "review" | "caution" | "notRecommended";
   title: string;
+  /** Client-safe: the recommendation sentence only, never a confidence/limitation caveat. */
   rationale: string;
+  /** Internal-only. The leading confidence limitation (e.g. missing methodology
+   * coverage, mixed evidence) — never pass this to a client-facing surface. */
+  confidenceCaveat: string | null;
   confidence: ConfidenceLevel;
   evidenceSignalIds: string[];
   riskIds: string[];
