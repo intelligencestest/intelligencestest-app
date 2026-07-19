@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
 import Sidebar from "@/components/Sidebar";
 import { AccountMenu } from "@/components/dashboard/AccountMenu";
 import { AppBreadcrumbs } from "@/components/dashboard/AppBreadcrumbs";
+import { TrialBanner } from "@/components/dashboard/TrialBanner";
+import { toAppLocale } from "@/lib/i18n/locales";
+import { getPlanUsageSummary, type PlanUsageSummary } from "@/lib/plan/limits";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { createAdminClient } from "@/lib/supabase-server";
 
@@ -15,6 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   let userName: string | undefined;
   const userEmail: string | undefined = user?.email ?? undefined;
   let reviewCount = 0;
+  let planSummary: PlanUsageSummary | null = null;
 
   if (user) {
     const admin = createAdminClient();
@@ -34,8 +39,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         .eq("pipeline_stage", "completed")
         .eq("outcome", "pending");
       reviewCount = count ?? 0;
+
+      planSummary = await getPlanUsageSummary(admin, profile.company_id);
     }
   }
+
+  const locale = toAppLocale(await getLocale());
 
   return (
     <div className="enterprise-shell flex h-screen overflow-hidden">
@@ -47,6 +56,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <AccountMenu userEmail={userEmail} userName={userName} />
           </div>
           <div className="space-y-6 px-6 py-6 sm:px-8 lg:px-10 lg:py-8">
+            {planSummary ? (
+              <div className="print:hidden">
+                <TrialBanner summary={planSummary} locale={locale} />
+              </div>
+            ) : null}
             {children}
           </div>
         </div>

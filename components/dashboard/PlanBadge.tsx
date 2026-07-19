@@ -1,16 +1,17 @@
+import type { AppLocale } from "@/lib/i18n/locales";
 import type { PlanId } from "@/lib/plan/limits";
 
-const PLAN_LABEL: Record<PlanId, { en: string; es: string }> = {
-  trial: { en: "Free trial", es: "Prueba gratuita" },
-  starter: { en: "Starter", es: "Starter" },
-  professional: { en: "Professional", es: "Professional" },
-  enterprise: { en: "Enterprise", es: "Enterprise" },
+const PLAN_LABEL: Record<PlanId, Record<AppLocale, string>> = {
+  trial: { en: "Free trial", es: "Prueba gratuita", fr: "Essai gratuit" },
+  starter: { en: "Starter", es: "Starter", fr: "Starter" },
+  professional: { en: "Professional", es: "Professional", fr: "Professional" },
+  enterprise: { en: "Enterprise", es: "Enterprise", fr: "Enterprise" },
 };
 
 interface PlanBadgeProps {
   planId: PlanId | null;
   plan: string;
-  locale: "en" | "es";
+  locale: AppLocale;
 }
 
 /** Small pill used on the dashboard trial banner and the Settings → Billing card. */

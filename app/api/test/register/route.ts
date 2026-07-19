@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase-server";
 import { checkRateLimit, clientIpFrom } from "@/lib/rate-limit";
+import { assertWithinLimit } from "@/lib/plan/limits";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
@@ -72,6 +73,21 @@ export async function POST(request: NextRequest) {
 
   if (!linked) {
     return NextResponse.json({ error: "This assessment is not part of the project" }, { status: 403 });
+  }
+
+  // The company's monthly candidate cap applies to this open-link flow too —
+  // otherwise a shared public link bypasses the plan limit entirely. The
+  // message is candidate-facing: the upgrade conversation belongs to the
+  // company, not the applicant. (Covers expired trials as well.)
+  const limitCheck = await assertWithinLimit(admin, project.company_id, "candidate");
+  if (!limitCheck.ok) {
+    const closedMessage = {
+      es: "Este enlace de evaluación no acepta nuevos candidatos en este momento. Contacte con la empresa que le envió el enlace.",
+      en: "This assessment link is not accepting new candidates right now. Please contact the company that sent you the link.",
+      fr: "Ce lien d'évaluation n'accepte pas de nouveaux candidats pour le moment. Veuillez contacter l'entreprise qui vous a envoyé le lien.",
+    };
+    const companyLang = project.companies?.language === "en" ? "en" : project.companies?.language === "fr" ? "fr" : "es";
+    return NextResponse.json({ error: closedMessage[companyLang], reason: limitCheck.reason }, { status: 403 });
   }
 
   const token = randomUUID();
