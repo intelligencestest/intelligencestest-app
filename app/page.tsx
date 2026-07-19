@@ -69,7 +69,7 @@ export default async function Home() {
         locale={locale}
         homeHref={localePath("/", locale)}
         loginHref={localePath("/login", locale)}
-        demoHref={localePath("/contact", locale)}
+        signupHref={localePath("/signup", locale)}
         sampleHref="#candidate-brief"
         publicCopy={publicCopy}
       />

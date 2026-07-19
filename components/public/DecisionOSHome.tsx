@@ -34,19 +34,19 @@ type DecisionOSHomeProps = {
   locale: Locale;
   homeHref: string;
   loginHref: string;
-  demoHref: string;
+  signupHref: string;
   sampleHref: string;
   publicCopy: PublicCopy;
 };
 
 const copy = {
   en: {
-    nav: { product: "Product", workflow: "Workflow", trust: "Trust", login: "Sign in", demo: "Request demo" },
+    nav: { product: "Product", workflow: "Workflow", trust: "Trust", login: "Login", signup: "Sign up" },
     eyebrow: "For Recruitment Agencies",
     heroTitle: "Client-ready shortlist recommendations for recruitment agencies.",
     heroBody:
       "Evaluate shortlisted candidates, compare structured evidence, identify risks, and prepare interview questions — so your team can defend every recommendation to the client.",
-    demo: "Request demo",
+    signup: "Sign up",
     sample: "View sample report",
     heroNote: "Decision support for recruitment agencies. Human judgment stays in control.",
     command: "Recruiter command center",
@@ -124,12 +124,12 @@ const copy = {
     },
   },
   es: {
-    nav: { product: "Producto", workflow: "Flujo", trust: "Confianza", login: "Iniciar sesión", demo: "Solicitar demo" },
+    nav: { product: "Producto", workflow: "Flujo", trust: "Confianza", login: "Iniciar sesión", signup: "Registrarse" },
     eyebrow: "Sistema operativo de decisiones de contratación",
     heroTitle: "Decisiones de contratación, respaldadas por evidencia.",
     heroBody:
       "Sepa a quién entrevistar, por qué destaca, qué preguntar y qué riesgos verificar antes de que su equipo tome la decisión.",
-    demo: "Solicitar demo",
+    signup: "Registrarse",
     sample: "Ver informe de ejemplo",
     heroNote: "Apoyo a la decisión para recruiters y responsables de contratación. El juicio humano mantiene el control.",
     command: "Centro de mando del recruiter",
@@ -207,11 +207,11 @@ const copy = {
     },
   },
   fr: {
-    nav: { product: "Produit", workflow: "Flux de travail", trust: "Confiance", login: "Connexion", demo: "Demander une démo" },
+    nav: { product: "Produit", workflow: "Flux de travail", trust: "Confiance", login: "Connexion", signup: "S'inscrire" },
     eyebrow: "Système d'aide à la décision de recrutement",
     heroTitle: "Des décisions de recrutement, appuyées sur des preuves.",
     heroBody: "Aidez vos équipes à savoir qui interviewer, pourquoi, et quels risques vérifier avant de trancher.",
-    demo: "Demander une démo",
+    signup: "S'inscrire",
     sample: "Voir un exemple de rapport",
     heroNote: "Aide à la décision pour les recruteurs et responsables de recrutement. Le jugement humain garde le contrôle.",
     command: "Centre de pilotage du recruteur",
@@ -664,33 +664,34 @@ const trustItemsByLocale: Record<Locale, [string, typeof SearchCheck][]> = {
   fr: [["Preuves pour chaque recommandation", SearchCheck], ["Niveaux de confiance visibles", Gauge], ["Décision humaine", UserCheck], ["Historique de décision complet", History], ["Expérience candidat transparente", ShieldCheck]],
 };
 
-export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHref, publicCopy }: DecisionOSHomeProps) {
+export function DecisionOSHome({ locale, homeHref, loginHref, signupHref, sampleHref, publicCopy }: DecisionOSHomeProps) {
   const t = copy[locale];
   const trustItems = trustItemsByLocale[locale];
 
   return (
     <main className="min-h-screen overflow-hidden bg-white text-[#0f172a]">
       <div className="[--color-slate-50:#f8fafc] [--color-slate-100:#f1f5f9] [--color-slate-200:#e2e8f0] [--color-slate-300:#cbd5e1] [--color-slate-400:#94a3b8] [--color-slate-500:#64748b] [--color-slate-600:#475569] [--color-slate-700:#334155] [--color-slate-800:#1e293b] [--color-slate-900:#0f172a] [--color-slate-950:#020617]">
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/92 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-5 px-5 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 px-3 pt-4 sm:px-6 lg:px-8">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white/95 px-3 py-2.5 shadow-[0_18px_45px_-28px_rgba(15,23,42,0.45)] backdrop-blur-xl sm:px-4" aria-label="Primary navigation">
           <Link href={homeHref} aria-label="IntelligencesTest home">
             <BrandLockup
               subtitle={t.eyebrow}
-              markClassName="h-9 w-9 rounded-lg"
+              className="gap-2 sm:gap-3"
+              markClassName="h-8 w-8 rounded-lg sm:h-9 sm:w-9"
               titleClassName="text-slate-950"
-              subtitleClassName="text-slate-500"
+              subtitleClassName="hidden text-slate-500 sm:block"
             />
           </Link>
-          <nav className="hidden items-center gap-7 text-sm text-slate-500 lg:flex" aria-label="Primary navigation">
+          <div className="hidden items-center gap-7 text-sm text-slate-500 lg:flex">
             <a href="#product" className="transition-colors hover:text-slate-950">{t.nav.product}</a>
             <a href="#workflow" className="transition-colors hover:text-slate-950">{t.nav.workflow}</a>
             <a href="#trust" className="transition-colors hover:text-slate-950">{t.nav.trust}</a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Link href={loginHref} className="hidden px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-950 sm:inline-flex">{t.nav.login}</Link>
-            <Link href={demoHref} className="inline-flex items-center gap-2 rounded-md bg-indigo-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-800">{t.nav.demo}<ArrowRight className="h-4 w-4" /></Link>
           </div>
-        </div>
+          <div className="flex items-center gap-2">
+            <Link href={loginHref} className="inline-flex h-9 items-center justify-center rounded-lg px-3 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950">{t.nav.login}</Link>
+            <Link href={signupHref} className="inline-flex h-9 items-center justify-center gap-2 rounded-full bg-slate-950 px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-slate-800">{t.nav.signup}<ArrowRight className="hidden h-4 w-4 sm:block" /></Link>
+          </div>
+        </nav>
       </header>
 
       <section className="border-b border-slate-200">
@@ -702,7 +703,7 @@ export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHr
                 <h1 className="mt-6 text-balance text-5xl font-semibold leading-[1.05] text-slate-950 sm:text-6xl lg:text-7xl">{t.heroTitle}</h1>
                 <p className="mx-auto mt-7 max-w-2xl text-balance text-lg leading-8 text-slate-600 lg:mx-0">{t.heroBody}</p>
                 <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-                  <Link href={demoHref} className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
+                  <Link href={signupHref} className="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.signup}<ArrowRight className="h-4 w-4" /></Link>
                   <Link href={sampleHref} className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">{t.sample}<FileCheck2 className="h-4 w-4" /></Link>
                 </div>
                 <p className="mt-6 text-xs text-slate-500">{t.heroNote}</p>
@@ -785,7 +786,7 @@ export function DecisionOSHome({ locale, homeHref, loginHref, demoHref, sampleHr
         <div className="relative mx-auto max-w-3xl text-center">
           <h2 className="text-balance text-4xl font-semibold leading-tight text-slate-950 sm:text-5xl">{t.finalTitle}</h2>
           <p className="mx-auto mt-5 max-w-xl text-base leading-7 text-slate-600">{t.finalBody}</p>
-          <Link href={demoHref} className="mt-9 inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.demo}<ArrowRight className="h-4 w-4" /></Link>
+          <Link href={signupHref} className="mt-9 inline-flex items-center justify-center gap-2 rounded-md bg-indigo-700 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-800">{t.signup}<ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
 
