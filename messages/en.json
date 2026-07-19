@@ -456,8 +456,8 @@
     "planCandidatesAtLimit": "You've reached your monthly limit of {limit} candidates — upgrade your plan to continue inviting candidates.",
     "usageCandidates": "Candidates",
     "usageProjects": "Projects",
-    "starterPlanLabel": "Starter - €49/month",
-    "professionalPlanLabel": "Professional - €149/month",
+    "starterPlanLabel": "Starter - $49/month (founding rate)",
+    "professionalPlanLabel": "Professional - $109/month (founding rate)",
     "upgradeNow": "Upgrade plan",
     "contactSales": "Contact sales"
   }

@@ -21,8 +21,8 @@ import { Chip, EmptyRow, Section, StatCard, statusTone } from "@/components/admi
 
 const PLAN_LABELS: Record<string, string> = {
   trial: "Trial",
-  starter: "Starter · €49/mo",
-  professional: "Professional · €149/mo",
+  starter: "Starter · $49/mo founding",
+  professional: "Professional · $109/mo founding",
   enterprise: "Enterprise · custom",
 };
 

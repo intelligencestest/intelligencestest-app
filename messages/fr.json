@@ -456,8 +456,8 @@
     "planCandidatesAtLimit": "Vous avez atteint la limite mensuelle de {limit} candidats — mettez à niveau votre offre pour continuer à inviter des candidats.",
     "usageCandidates": "Candidats",
     "usageProjects": "Projets",
-    "starterPlanLabel": "Starter - 49 €/mois",
-    "professionalPlanLabel": "Professional - 149 €/mois",
+    "starterPlanLabel": "Starter - 49 $/mois (tarif fondateur)",
+    "professionalPlanLabel": "Professional - 109 $/mois (tarif fondateur)",
     "upgradeNow": "Mettre à niveau l'offre",
     "contactSales": "Contacter l'équipe commerciale"
   }

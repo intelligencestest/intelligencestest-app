@@ -23,7 +23,7 @@ interface PlanData {
   billingProvider: string;
   limits: { candidates: number | null; projects: number | null; recruiters: number | null };
   usage: { candidates: number; projects: number; recruiters: number };
-  priceEur: number | null;
+  pricing: { foundingUsd: number; listUsd: number } | null;
 }
 
 function usagePercent(used: number, limit: number | null) {
@@ -90,7 +90,9 @@ interface BillingCopy {
   enterprise: string;
   trialPrice: string;
   starterPrice: string;
+  starterPriceNote: string;
   professionalPrice: string;
+  professionalPriceNote: string;
   enterprisePrice: string;
   current: string;
   contactSales: string;
@@ -144,8 +146,10 @@ const billingCopy: Record<AppLocale, BillingCopy> = {
     professional: "Professional",
     enterprise: "Enterprise",
     trialPrice: "14 días gratis",
-    starterPrice: "49 €/mes",
-    professionalPrice: "149 €/mes",
+    starterPrice: "49 $/mes",
+    starterPriceNote: "Precio regular: 69 $/mes. Tarifa fundadora bloqueada 12 meses.",
+    professionalPrice: "109 $/mes",
+    professionalPriceNote: "Precio regular: 149 $/mes. Tarifa fundadora bloqueada 12 meses.",
     enterprisePrice: "Contactar con ventas",
     current: "Actual",
     contactSales: "Contactar con ventas",
@@ -212,8 +216,10 @@ const billingCopy: Record<AppLocale, BillingCopy> = {
     professional: "Professional",
     enterprise: "Enterprise",
     trialPrice: "14-day free trial",
-    starterPrice: "€49/month",
-    professionalPrice: "€149/month",
+    starterPrice: "$49/month",
+    starterPriceNote: "Regular price $69/mo. Founding rate locked for 12 months.",
+    professionalPrice: "$109/month",
+    professionalPriceNote: "Regular price $149/mo. Founding rate locked for 12 months.",
     enterprisePrice: "Contact Sales",
     current: "Current",
     contactSales: "Contact sales",
@@ -279,8 +285,10 @@ const billingCopy: Record<AppLocale, BillingCopy> = {
     professional: "Professional",
     enterprise: "Enterprise",
     trialPrice: "14 jours gratuits",
-    starterPrice: "49 €/mois",
-    professionalPrice: "149 €/mois",
+    starterPrice: "49 $/mois",
+    starterPriceNote: "Prix régulier : 69 $/mois. Tarif fondateur bloqué 12 mois.",
+    professionalPrice: "109 $/mois",
+    professionalPriceNote: "Prix régulier : 149 $/mois. Tarif fondateur bloqué 12 mois.",
     enterprisePrice: "Contacter l'équipe commerciale",
     current: "Actuel",
     contactSales: "Contacter l'équipe commerciale",
@@ -388,16 +396,18 @@ export default function BillingSettingsPage() {
         { label: copy.recruiters, used: planData.usage.recruiters, limit: planData.limits.recruiters },
       ]
     : [];
-  const planColumns: Array<{ id: PaidPlanId; name: string; price: string; tag?: string }> = [
+  const planColumns: Array<{ id: PaidPlanId; name: string; price: string; priceNote?: string; tag?: string }> = [
     {
       id: "starter" as const,
       name: copy.starter,
       price: copy.starterPrice,
+      priceNote: copy.starterPriceNote,
     },
     {
       id: "professional" as const,
       name: copy.professional,
       price: copy.professionalPrice,
+      priceNote: copy.professionalPriceNote,
       tag: copy.mostTeamsTag,
     },
     {
@@ -413,7 +423,7 @@ export default function BillingSettingsPage() {
     },
     {
       label: copy.featureCandidateInvitations,
-      values: { starter: "50", professional: "250", enterprise: copy.unlimitedShort },
+      values: { starter: "50", professional: "200", enterprise: copy.unlimitedShort },
     },
     {
       label: copy.featureProjects,
@@ -598,6 +608,9 @@ export default function BillingSettingsPage() {
                     <p className="mt-3 text-2xl font-semibold tabular-nums tracking-tight text-[var(--it-text)]">
                       {plan.price}
                     </p>
+                    {plan.priceNote ? (
+                      <p className="mt-1 text-[11px] leading-4 text-[var(--it-muted)]">{plan.priceNote}</p>
+                    ) : null}
                   </button>
                 );
               })}

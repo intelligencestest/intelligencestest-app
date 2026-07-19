@@ -130,10 +130,10 @@ function copy(kind: TrialEmailKind, locale: TrialEmailLocale) {
       ctaUrl: CONTACT_URL,
       noticeTitle: es ? "Termina hoy" : fr ? "Se termine aujourd'hui" : "Ends today",
       notice: es
-        ? "Starter desde 49 €/mes, Professional desde 149 €/mes. Enterprise a medida — contacte con ventas."
+        ? "Starter desde 49 $/mes, Professional desde 109 $/mes (tarifa fundadora). Enterprise a medida — contacte con ventas."
         : fr
-        ? "Starter à partir de 49 €/mois, Professional à partir de 149 €/mois. Enterprise sur mesure — contactez les ventes."
-        : "Starter from €49/month, Professional from €149/month. Custom Enterprise — contact sales.",
+        ? "Starter à partir de 49 $/mois, Professional à partir de 109 $/mois (tarif fondateur). Enterprise sur mesure — contactez les ventes."
+        : "Starter from $49/month, Professional from $109/month (founding rate). Custom Enterprise — contact sales.",
     };
   }
 

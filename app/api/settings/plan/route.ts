@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
-import { getPlanUsageSummary, PLAN_LIMITS, PLAN_PRICE_EUR } from "@/lib/plan/limits";
+import { getPlanUsageSummary, PLAN_LIMITS, PLAN_PRICING } from "@/lib/plan/limits";
 
 /** Read-only plan/trial/usage snapshot for the current user's company — feeds the dashboard trial banner and the Settings → Billing card. */
 export async function GET() {
@@ -37,11 +37,11 @@ export async function GET() {
     billingProvider: summary.billingProvider,
     limits: summary.limits,
     usage: summary.usage,
-    priceEur: summary.planId ? PLAN_PRICE_EUR[summary.planId] : null,
+    pricing: summary.planId ? PLAN_PRICING[summary.planId] : null,
     planCatalog: {
-      starter: { priceEur: PLAN_PRICE_EUR.starter, limits: PLAN_LIMITS.starter },
-      professional: { priceEur: PLAN_PRICE_EUR.professional, limits: PLAN_LIMITS.professional },
-      enterprise: { priceEur: PLAN_PRICE_EUR.enterprise, limits: PLAN_LIMITS.enterprise },
+      starter: { pricing: PLAN_PRICING.starter, limits: PLAN_LIMITS.starter },
+      professional: { pricing: PLAN_PRICING.professional, limits: PLAN_LIMITS.professional },
+      enterprise: { pricing: PLAN_PRICING.enterprise, limits: PLAN_LIMITS.enterprise },
     },
   });
 }

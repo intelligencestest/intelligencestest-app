@@ -18,18 +18,29 @@ export interface PlanLimits {
   recruiters: number | null;
 }
 
-/** Public plan caps used by signup, billing, and enforcement. Candidate limits are monthly invitations. */
+/** Public plan caps used by signup, billing, and enforcement. Candidate limits are monthly invitations.
+ * These MUST match what the marketing site (intelligencestest.com) promises — its live pricing section
+ * sells Starter 50 and Professional 200 candidates/month. */
 export const PLAN_LIMITS: Record<PlanId, PlanLimits> = {
   trial: { candidates: 10, projects: 2, recruiters: 1 },
   starter: { candidates: 50, projects: 2, recruiters: 1 },
-  professional: { candidates: 250, projects: 10, recruiters: 5 },
+  professional: { candidates: 200, projects: 10, recruiters: 5 },
   enterprise: { candidates: null, projects: null, recruiters: null },
 };
 
-export const PLAN_PRICE_EUR: Record<PlanId, number | null> = {
+export interface PlanPricing {
+  /** What new customers actually pay at checkout today (USD/month). */
+  foundingUsd: number;
+  /** The regular list price the founding rate is discounted from (USD/month). */
+  listUsd: number;
+}
+
+/** Launch pricing, mirroring the marketing site: USD, founding rate locked for
+ * 12 months, list price shown as the reference. null = not self-serve priced. */
+export const PLAN_PRICING: Record<PlanId, PlanPricing | null> = {
   trial: null,
-  starter: 49,
-  professional: 149,
+  starter: { foundingUsd: 49, listUsd: 69 },
+  professional: { foundingUsd: 109, listUsd: 149 },
   enterprise: null,
 };
 

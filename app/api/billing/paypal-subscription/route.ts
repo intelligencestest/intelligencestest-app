@@ -4,6 +4,7 @@ import {
   getPayPalSubscriptionConfig,
   type PayPalPlan,
 } from "@/lib/billing/paypal";
+import { sendPendingSubscriptionAlert } from "@/lib/ops-alert";
 import { normalizePlan } from "@/lib/plan/limits";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
 
@@ -94,6 +95,28 @@ export async function POST(request: NextRequest) {
 
   if (error) {
     return jsonError(error.message, 500);
+  }
+
+  // Activation is a manual ops step — make sure a human hears about it now.
+  // A failed alert must not fail the customer's checkout, but it is logged
+  // loudly because an unnoticed pending payment is the worst failure mode.
+  const { data: company } = await admin
+    .from("companies")
+    .select("name")
+    .eq("id", profile.company_id)
+    .maybeSingle();
+  const alertResult = await sendPendingSubscriptionAlert({
+    companyId: profile.company_id,
+    companyName: company?.name ?? null,
+    plan,
+    subscriptionId,
+    paypalStatus,
+    paypalMode: config.mode,
+  });
+  if (!alertResult.ok) {
+    console.error(
+      `[billing] ops alert failed for pending PayPal subscription ${subscriptionId} (company ${profile.company_id}): ${alertResult.error}`
+    );
   }
 
   return NextResponse.json({
