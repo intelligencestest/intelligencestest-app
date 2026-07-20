@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, createServerSupabaseClient } from "@/lib/supabase-server";
-import { validateLogoUrlInput } from "@/lib/security/logo-url";
+import {
+  DEFAULT_REPORT_PRIMARY_COLOR,
+  validatePrimaryColorInput,
+  validateReportFooterTextInput,
+} from "@/lib/security/company-branding";
+import { sanitizeLogoUrl, validateLogoUrlInput } from "@/lib/security/logo-url";
 
 function clean(value: unknown, max = 500) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -25,7 +30,7 @@ async function currentUserProfile() {
 
   const { data: company } = await admin
     .from("companies")
-    .select("id, name, email, logo_url, industry, language")
+    .select("id, name, email, logo_url, industry, language, primary_color, report_footer_text")
     .eq("id", profile.company_id)
     .single();
 
@@ -45,9 +50,11 @@ export async function GET() {
     role: profile.role ?? "admin",
     company_name: company?.name ?? "",
     company_email: company?.email ?? "",
-    logo_url: company?.logo_url ?? "",
+    logo_url: sanitizeLogoUrl(company?.logo_url) ?? "",
     industry: company?.industry ?? "",
     language: company?.language ?? "es",
+    primary_color: company?.primary_color ?? DEFAULT_REPORT_PRIMARY_COLOR,
+    report_footer_text: company?.report_footer_text ?? "",
   });
 }
 
@@ -63,12 +70,22 @@ export async function PATCH(request: NextRequest) {
   const companyName = clean(body?.company_name);
   const industry = clean(body?.industry);
   const logoUrl = validateLogoUrlInput(body?.logo_url);
+  const hasPrimaryColor = body && Object.prototype.hasOwnProperty.call(body, "primary_color");
+  const primaryColor = hasPrimaryColor ? validatePrimaryColorInput(body.primary_color) : null;
+  const hasReportFooterText = body && Object.prototype.hasOwnProperty.call(body, "report_footer_text");
+  const reportFooterText = hasReportFooterText ? validateReportFooterTextInput(body.report_footer_text) : null;
 
   if (!fullName || !companyName) {
     return NextResponse.json({ error: "Name and company are required." }, { status: 400 });
   }
   if (!logoUrl.ok) {
     return NextResponse.json({ error: logoUrl.error }, { status: 400 });
+  }
+  if (primaryColor && !primaryColor.ok) {
+    return NextResponse.json({ error: primaryColor.error }, { status: 400 });
+  }
+  if (reportFooterText && !reportFooterText.ok) {
+    return NextResponse.json({ error: reportFooterText.error }, { status: 400 });
   }
 
   const admin = createAdminClient();
@@ -82,14 +99,18 @@ export async function PATCH(request: NextRequest) {
   }
 
   if (company?.id) {
+    const companyUpdates: Record<string, string | null> = {
+      name: companyName,
+      industry,
+      logo_url: logoUrl.value,
+      updated_at: new Date().toISOString(),
+    };
+    if (primaryColor?.ok) companyUpdates.primary_color = primaryColor.value;
+    if (reportFooterText?.ok) companyUpdates.report_footer_text = reportFooterText.value;
+
     const { error: companyError } = await admin
       .from("companies")
-      .update({
-        name: companyName,
-        industry,
-        logo_url: logoUrl.value,
-        updated_at: new Date().toISOString(),
-      })
+      .update(companyUpdates)
       .eq("id", company.id);
 
     if (companyError) {

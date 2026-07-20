@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Copy, Link2, Loader2, Mail, Search, UserPlus, X } from "lucide-react";
 import { PIPELINE_STAGES, STATUS_CHIP_STYLE } from "@/lib/dashboard/stages";
+import BulkInvitePanel from "./BulkInvitePanel";
 
 interface Candidate {
   id: string;
@@ -350,6 +351,8 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
           {copy.inviteCandidate}
         </button>
       </div>
+
+      <BulkInvitePanel projects={projects} projectAssessments={projectAssessments} />
 
       {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row">

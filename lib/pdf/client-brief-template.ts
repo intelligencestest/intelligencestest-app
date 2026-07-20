@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { DEFAULT_REPORT_PRIMARY_COLOR, normalizePrimaryColor } from "@/lib/security/company-branding";
 
 /**
  * HTML generator for the client-facing shortlist brief. Rendered to PDF via
@@ -98,9 +99,11 @@ export interface ShortlistData {
   cutoffDecisionType?: "natural_break" | "policy_fallback";
   /** Agency brand color. Falls back to the editorial template's own accent when not set. */
   accentColor?: string;
+  /** Optional agency-supplied note rendered in the footer area on every page. */
+  reportFooterText?: string;
 }
 
-const DEFAULT_ACCENT = "#2457D6";
+const DEFAULT_ACCENT = DEFAULT_REPORT_PRIMARY_COLOR;
 const COMPACT_GRID_PAGE_SIZE = 9; // 3-per-row compact grid, 3 rows per physical page.
 
 function escapeHtml(value: string): string {
@@ -316,9 +319,16 @@ function footerHtml(c: ReturnType<typeof copy>, left: string, right: string): st
     </footer>`;
 }
 
-function reportLegalHtml(c: ReturnType<typeof copy>, disclaimer: string, left: string, right: string): string {
+function reportLegalHtml(
+  c: ReturnType<typeof copy>,
+  disclaimer: string,
+  left: string,
+  right: string,
+  reportFooterText?: string
+): string {
   return `
     <div class="report-legal">
+      ${reportFooterText ? `<p class="report-custom-note">${escapeHtml(reportFooterText)}</p>` : ""}
       <p class="report-disclaimer">${disclaimer}</p>
       ${footerHtml(c, left, right)}
     </div>`;
@@ -366,7 +376,8 @@ function coverPageHtml(data: ShortlistData, c: ReturnType<typeof copy>): string 
         c,
         `<strong>${escapeHtml(c.disclaimerLabel)}</strong> ${escapeHtml(c.disclaimer(data.agencyName))}`,
         `${escapeHtml(c.confidential)} · ${escapeHtml(data.agencyName)}`,
-        `${escapeHtml(c.preparedFor)} ${preparedForValue}`
+        `${escapeHtml(c.preparedFor)} ${preparedForValue}`,
+        data.reportFooterText
       )}
     </div>
   </section>`;
@@ -438,7 +449,7 @@ function executiveSummaryPageHtml(data: ShortlistData, c: ReturnType<typeof copy
       </div>
       ${data.cutoffDecisionType === "policy_fallback" ? `<p class="cutoff-note">${escapeHtml(c.poolContinuousNote)}</p>` : ""}
 
-      ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${escapeHtml(c.preparedFor)} ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, pageLabel)}
+      ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${escapeHtml(c.preparedFor)} ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, pageLabel, data.reportFooterText)}
     </div>
   </section>`;
 }
@@ -539,7 +550,7 @@ function compactGridPagesHtml(
           : `<div class="eyebrow">${escapeHtml(c.fullShortlist)}</div>`
       }
       <div class="cards-grid">${cardsHtml}</div>
-      ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`)}
+      ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`, data.reportFooterText)}
     </div>
   </section>`);
     pageNumber += 1;
@@ -563,7 +574,7 @@ function compactGridPagesHtml(
       }
       <div class="cards-grid" style="margin-top: 6mm;">${benchHtml}</div>
       ${isLastBenchPage && benchOmittedCount > 0 ? `<p class="bench-omitted">${escapeHtml(c.benchOmitted(benchOmittedCount))}</p>` : ""}
-      ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`)}
+      ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`, data.reportFooterText)}
     </div>
   </section>`);
       pageNumber += 1;
@@ -573,7 +584,13 @@ function compactGridPagesHtml(
   return pages.join("");
 }
 
-function interviewPageHtml(pageData: ClientBriefInterviewPage, c: ReturnType<typeof copy>, pageLabel: string, footerLeft: string): string {
+function interviewPageHtml(
+  pageData: ClientBriefInterviewPage,
+  c: ReturnType<typeof copy>,
+  pageLabel: string,
+  footerLeft: string,
+  reportFooterText?: string
+): string {
   const questionsHtml = pageData.questions
     .map(
       (q, index) => `
@@ -621,7 +638,8 @@ function interviewPageHtml(pageData: ClientBriefInterviewPage, c: ReturnType<typ
         c,
         escapeHtml(c.disclaimerShort),
         `${escapeHtml(c.confidential)} · <span class="engine-credit">${escapeHtml(c.engineCredit)} <strong>IntelligencesTest</strong></span>`,
-        pageLabel
+        pageLabel,
+        reportFooterText
       )}
     </div>
   </section>`;
@@ -629,7 +647,7 @@ function interviewPageHtml(pageData: ClientBriefInterviewPage, c: ReturnType<typ
 
 export function buildClientBriefHTML(data: ShortlistData): string {
   const c = copy(data.locale);
-  const accent = data.accentColor ?? DEFAULT_ACCENT;
+  const accent = normalizePrimaryColor(data.accentColor) ?? DEFAULT_ACCENT;
   const isCompact = data.cards.length > 2;
 
   // Page 2 is ALWAYS the approved editorial executive-summary spread (top-2
@@ -656,7 +674,13 @@ export function buildClientBriefHTML(data: ShortlistData): string {
   const interviewPagesHtml = data.interviewPages
     .map((page, index) => {
       const pageNumber = 1 + summaryPageCount + 1 + index;
-      return interviewPageHtml(page, c, `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`, "");
+      return interviewPageHtml(
+        page,
+        c,
+        `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`,
+        "",
+        data.reportFooterText
+      );
     })
     .join("");
 
@@ -764,6 +788,7 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .page-footer { padding-top: 2.8mm; border-top: 1px solid var(--hairline); display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 7.7pt; letter-spacing: 0.015em; }
     .page-number { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
     .report-legal { margin-top: auto; }
+    .report-custom-note { margin: 0 0 2.3mm; padding: 2.2mm 3mm; border-left: 1.5px solid var(--accent); background: var(--soft-blue); color: var(--body); font-size: 7.2pt; font-weight: 500; line-height: 1.35; white-space: pre-wrap; }
     .report-disclaimer { padding: 0 0 2.6mm; color: var(--muted); font-size: 7pt; line-height: 1.38; }
     .report-disclaimer strong { color: var(--body); font-weight: 600; }
 

@@ -20,6 +20,7 @@ import {
   type RankedCandidate,
 } from "@/lib/pdf/client-brief-selection";
 import { renderHTMLToPDF } from "@/lib/pdf/render-pdf";
+import { normalizePrimaryColor, validateReportFooterTextInput } from "@/lib/security/company-branding";
 import { sanitizeLogoUrl } from "@/lib/security/logo-url";
 import { displayedPercentile } from "@/lib/assessment-intelligence/evidence-methodology";
 
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
 
   const { data: company } = await admin
     .from("companies")
-    .select("name, logo_url, language")
+    .select("name, logo_url, language, primary_color, report_footer_text")
     .eq("id", companyId)
     .maybeSingle();
   if (!company) return NextResponse.json({ error: "Company not found" }, { status: 404 });
@@ -219,11 +220,14 @@ export async function POST(request: NextRequest) {
     year: "numeric",
     month: "long",
   });
+  const reportFooterText = validateReportFooterTextInput(company.report_footer_text);
 
   const shortlistData: ShortlistData = {
     locale: clientLocale,
     agencyName: company.name,
     agencyLogoUrl: sanitizeLogoUrl(company.logo_url) ?? undefined,
+    accentColor: normalizePrimaryColor(company.primary_color) ?? undefined,
+    reportFooterText: reportFooterText.ok ? reportFooterText.value ?? undefined : undefined,
     roleTitle: project.role_title || project.name,
     shortlistName: project.name,
     clientName: project.client_name || undefined,

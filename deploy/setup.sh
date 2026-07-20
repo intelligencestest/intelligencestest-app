@@ -11,7 +11,7 @@ REPO="https://github.com/intelligencestest/intelligencestest-app.git"
 DOMAIN="app.intelligencestest.com"
 APP_NAME="intelligencestest"
 
-echo "==> [1/9] Installing nvm + Node 20"
+echo "==> [1/10] Installing nvm + Node 20"
 if [ ! -d "$HOME/.nvm" ]; then
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 fi
@@ -24,12 +24,12 @@ nvm alias default 20
 node --version
 npm --version
 
-echo "==> [2/9] Installing PM2 and Nginx"
+echo "==> [2/10] Installing PM2 and Nginx"
 npm install -g pm2
 apt-get update -y
 apt-get install -y nginx certbot python3-certbot-nginx
 
-echo "==> [3/9] Cloning / updating repo"
+echo "==> [3/10] Cloning / updating repo"
 if [ -d "$APP_DIR/.git" ]; then
   echo "    Repo exists — pulling latest"
   git -C "$APP_DIR" pull
@@ -39,12 +39,13 @@ else
 fi
 cd "$APP_DIR"
 
-echo "==> [4/9] Writing .env.local"
+echo "==> [4/10] Writing .env.local"
 if [ ! -f ".env.local" ]; then
 cat > .env.local <<'ENV'
 NEXT_PUBLIC_SUPABASE_URL=https://yqedlmmcxiqwmnnzjmkb.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=REPLACE_WITH_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY=REPLACE_WITH_SERVICE_ROLE_KEY
+CRON_SECRET=REPLACE_WITH_LONG_RANDOM_SECRET
 ENV
   echo "    !! .env.local created — fill in the two keys before continuing"
   echo "    !! nano /var/www/intelligencestest-app/.env.local"
@@ -53,13 +54,13 @@ else
   echo "    .env.local already exists — skipping"
 fi
 
-echo "==> [5/9] Installing dependencies"
+echo "==> [5/10] Installing dependencies"
 npm ci
 
-echo "==> [6/9] Building Next.js"
+echo "==> [6/10] Building Next.js"
 npm run build
 
-echo "==> [7/9] Starting / restarting app with PM2"
+echo "==> [7/10] Starting / restarting app with PM2"
 if pm2 describe "$APP_NAME" > /dev/null 2>&1; then
   pm2 reload "$APP_NAME"
 else
@@ -68,7 +69,14 @@ fi
 pm2 save
 pm2 startup | tail -1 | bash   # auto-run the generated startup command
 
-echo "==> [8/9] Configuring Nginx"
+echo "==> [8/10] Configuring invite batch scheduler"
+install -m 0750 "$APP_DIR/deploy/process-invite-batches.sh" /usr/local/bin/intelligencestest-invite-batches
+touch /var/log/intelligencestest-invite-batches.log
+chmod 0640 /var/log/intelligencestest-invite-batches.log
+CRON_LINE="* * * * * /usr/local/bin/intelligencestest-invite-batches >> /var/log/intelligencestest-invite-batches.log 2>&1"
+(crontab -l 2>/dev/null | grep -v 'intelligencestest-invite-batches' || true; echo "$CRON_LINE") | crontab -
+
+echo "==> [9/10] Configuring Nginx"
 NGINX_CONF="/etc/nginx/sites-available/$APP_NAME"
 cp "$APP_DIR/deploy/nginx.conf" "$NGINX_CONF"
 # Update domain name in config (in case it differs)
@@ -85,7 +93,7 @@ nginx -t
 systemctl restart nginx
 systemctl enable nginx
 
-echo "==> [9/9] Requesting SSL certificate via Let's Encrypt"
+echo "==> [10/10] Requesting SSL certificate via Let's Encrypt"
 certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos -m admin@intelligencestest.com || \
   echo "    SSL skipped — run manually: certbot --nginx -d $DOMAIN"
 
@@ -94,3 +102,4 @@ echo "✓ Done. App is running at http://$DOMAIN (HTTP) or https://$DOMAIN (if S
 echo "  PM2 status:    pm2 status"
 echo "  App logs:      pm2 logs $APP_NAME"
 echo "  Nginx logs:    tail -f /var/log/nginx/error.log"
+echo "  Invite batches: tail -f /var/log/intelligencestest-invite-batches.log"

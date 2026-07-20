@@ -19,6 +19,8 @@ const FIXTURE: ShortlistData = {
   agencyName: "Northstar Talent",
   agencyTagline: "Executive search partners",
   agencyLogoUrl: undefined,
+  accentColor: "#B45309",
+  reportFooterText: "Prepared exclusively for Atlas Mobility Group by Northstar Talent.",
   roleTitle: "Head of Regional Operations",
   shortlistName: "Head of Regional Operations Shortlist",
   clientName: "Atlas Mobility Group",
