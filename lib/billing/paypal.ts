@@ -1,12 +1,17 @@
 export type PayPalPlan = "starter" | "professional";
 export type PayPalMode = "sandbox" | "live";
 
+// Genuine SANDBOX app + sandbox plans (Starter $49 / Professional $109
+// founding rates). The previous values here were, despite the name, the LIVE
+// client ID and LIVE plans at stale EUR prices — meaning any deploy without
+// explicit PayPal env vars rendered a real, chargeable checkout. These
+// fallbacks must only ever point at sandbox artifacts.
 const SANDBOX_FALLBACK_CLIENT_ID =
-  "AZRoQBDWp8KkLLLRl1z-9nttyd0OMEexEIA18Df1Vww6mbA-Z-eDnrbvKFS_uhW6hOVOtJN8mkFHzUhi";
+  "ASKEJrg83RgQYBRkKmyG-SO4BxmVQA6KWPwspJGnJaPuIMJmSFu51KAeWZxv-BLjVVIsT0RHNHw9Hytd";
 
 const SANDBOX_FALLBACK_PLANS: Record<PayPalPlan, string> = {
-  starter: "P-7NP11014340475318NJGPO4A",
-  professional: "P-3UG84991X17673328NJGPSZI",
+  starter: "P-84E667415H591160RNJOQHVY",
+  professional: "P-3H614029S9451523BNJOQHWA",
 };
 
 function readEnv(...names: string[]) {
