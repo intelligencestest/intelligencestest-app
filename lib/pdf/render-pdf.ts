@@ -32,6 +32,27 @@ export async function renderHTMLToPDF(html: string): Promise<Buffer> {
 
     await page.setContent(html, { waitUntil: "domcontentloaded" });
     await page.evaluate(() => document.fonts.ready);
+    // The agency logo is the one element in this template backed by a real
+    // network fetch (everything else is inline SVG or data: URIs). Waiting
+    // only on fonts/rAF let the snapshot race the image on a slow or loaded
+    // network path — it rendered fine on a fast local connection and came
+    // back blank from the production host. Give every <img> up to 5s to
+    // finish loading (or fail) before the page is considered ready; a
+    // logo that never loads still produces a PDF, just without the image.
+    await page.evaluate(() =>
+      Promise.all(
+        Array.from(document.images).map((img) =>
+          img.complete
+            ? Promise.resolve()
+            : new Promise<void>((resolve) => {
+                const done = () => resolve();
+                img.addEventListener("load", done, { once: true });
+                img.addEventListener("error", done, { once: true });
+                setTimeout(done, 5000);
+              })
+        )
+      )
+    );
     await page.evaluate(
       () =>
         new Promise<void>((resolve) => {
