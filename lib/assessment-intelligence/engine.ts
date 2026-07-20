@@ -57,7 +57,6 @@ const COPY = {
     defaultStep: "Validar las senales reportadas con ejemplos conductuales recientes antes de tomar una decision final.",
     roleStep: "Comparar esta evidencia con las competencias criticas del rol antes de confirmar ajuste.",
     riskPrefix: "Validar riesgo",
-    strengthPrefix: "Validar fortaleza",
   },
   en: {
     noRoleModel:
@@ -80,7 +79,6 @@ const COPY = {
     defaultStep: "Validate the reported signals with recent behavioral examples before making a final decision.",
     roleStep: "Compare this evidence with the role-critical competencies before confirming fit.",
     riskPrefix: "Validate risk",
-    strengthPrefix: "Validate strength",
   },
   fr: {
     noRoleModel:
@@ -103,7 +101,6 @@ const COPY = {
     defaultStep: "Vérifiez les signaux rapportés à l'aide d'exemples comportementaux récents avant toute décision finale.",
     roleStep: "Comparez ces preuves aux compétences essentielles du poste avant de confirmer l'adéquation.",
     riskPrefix: "Vérifier le risque",
-    strengthPrefix: "Vérifier la force",
   },
 } satisfies Record<IntelligenceLocale, Record<string, unknown>>;
 
@@ -307,26 +304,92 @@ function questionForRisk(risk: HiringRisk, locale: IntelligenceLocale): string {
       : `Share a recent example that would validate ${risk.competencyLabel.toLowerCase()} at work.`);
 }
 
-function questionForStrength(signal: EvidenceSignal, locale: IntelligenceLocale): InterviewValidationQuestion {
-  return {
-    competency: signal.competencyLabel,
-    question:
-      locale === "es"
-        ? `Cuénteme sobre una situacion reciente donde demostro ${signal.competencyLabel.toLowerCase()} en un contexto de trabajo.`
-        : locale === "fr"
-          ? `Parlez-moi d'une situation professionnelle récente dans laquelle vous avez démontré ${signal.competencyLabel.toLowerCase()}.`
-          : `Tell me about a recent work situation where you demonstrated ${signal.competencyLabel.toLowerCase()}.`,
-    reason:
-      locale === "es"
-        ? `${copy(locale).strengthPrefix}: confirmar que la senal se traduce en conducta laboral observable.`
-        : locale === "fr"
-          ? `${copy(locale).strengthPrefix}: confirmer que ce signal se traduit par un comportement professionnel observable.`
-          : `${copy(locale).strengthPrefix}: confirm the signal translates into observable workplace behavior.`,
-    evidenceSignalIds: [signal.id],
-  };
+// Rotating openers so a candidate's own set of strength questions doesn't
+// read as the same sentence four times with the trait swapped in -- picked
+// deterministically by position, not randomly, so the same input always
+// renders the same document.
+const STRENGTH_OPENERS: Record<IntelligenceLocale, ((label: string) => string)[]> = {
+  en: [
+    (l) => `Tell me about a recent situation where you relied on ${l}.`,
+    (l) => `Walk me through a specific example of ${l} from a recent role.`,
+    (l) => `Describe a time ${l} was tested under real pressure or a tight deadline.`,
+    (l) => `Give me a concrete example where ${l} changed the outcome of a project.`,
+  ],
+  es: [
+    (l) => `Cuénteme sobre una situación reciente en la que dependió de ${l}.`,
+    (l) => `Describa un ejemplo concreto de ${l} en un puesto reciente.`,
+    (l) => `Cuénteme de un momento en que ${l} fue puesto a prueba bajo presión real o un plazo ajustado.`,
+    (l) => `Deme un ejemplo concreto en el que ${l} cambió el resultado de un proyecto.`,
+  ],
+  fr: [
+    (l) => `Parlez-moi d'une situation récente où vous vous êtes appuyé sur ${l}.`,
+    (l) => `Décrivez un exemple concret de ${l} dans un poste récent.`,
+    (l) => `Racontez-moi un moment où ${l} a été mis à l'épreuve sous une pression réelle ou un délai serré.`,
+    (l) => `Donnez-moi un exemple concret où ${l} a changé l'issue d'un projet.`,
+  ],
+};
+
+interface StrengthQuestionContext {
+  /** True if no other signal for this candidate scored higher (ties excluded). */
+  isTopOverall: boolean;
+  /** This signal's score minus the second-highest signal's score; only meaningful when isTopOverall. */
+  gapToNext: number;
+  /** This candidate's real lowest-scoring evaluated dimension, for contrast --
+   * only cited when confidenceLevel says there's genuine dispersion to name,
+   * reusing the same MAD-based signal the confidence label is already built
+   * on rather than a separately-calibrated threshold. Null when this signal
+   * *is* the lowest one (nothing to contrast against). */
+  lowestOther: { label: string; score: number } | null;
+  /** "high" | "moderate" | "low" -- from the already-computed confidence.level. */
+  confidenceLevel: string;
 }
 
-function buildInterviewQuestions(signals: EvidenceSignal[], risks: HiringRisk[], locale: IntelligenceLocale): InterviewValidationQuestion[] {
+function questionForStrength(
+  signal: EvidenceSignal,
+  context: StrengthQuestionContext,
+  openerIndex: number,
+  locale: IntelligenceLocale
+): InterviewValidationQuestion {
+  const label = signal.competencyLabel;
+  const openers = STRENGTH_OPENERS[locale];
+  const question = openers[openerIndex % openers.length](label.toLowerCase());
+  const score = Math.round(signal.normalizedScore);
+
+  let reason: string;
+  if (context.isTopOverall && context.gapToNext >= 3) {
+    reason =
+      locale === "es"
+        ? `Dimensión con la puntuación más alta de este candidato (${score}/100, ${context.gapToNext} puntos por encima de su siguiente área más fuerte). Confirmar que esto se traduce en conducta laboral observable y no solo en desempeño de evaluación.`
+        : locale === "fr"
+          ? `Dimension la mieux notée pour ce candidat (${score}/100, ${context.gapToNext} points au-dessus de son deuxième meilleur domaine). À confirmer : que ce signal se traduit en comportement professionnel observable, pas seulement en performance d'évaluation.`
+          : `Highest-scoring dimension for this candidate (${score}/100, ${context.gapToNext} points above their next-strongest area). Confirm this translates into observable workplace behavior, not just assessment performance.`;
+  } else if (context.confidenceLevel !== "high" && context.lowestOther) {
+    const { label: lowLabel, score: lowScore } = context.lowestOther;
+    reason =
+      locale === "es"
+        ? `${score}/100. En contraste, ${lowLabel.toLowerCase()} fue el área más débil de este candidato (${Math.round(lowScore)}/100) — conviene confirmar que esta fortaleza se sostiene pese a esa diferencia.`
+        : locale === "fr"
+          ? `${score}/100. À l'inverse, ${lowLabel.toLowerCase()} a été le point le plus faible de ce candidat (${Math.round(lowScore)}/100) — à confirmer que cette force tient malgré cet écart.`
+          : `${score}/100. By contrast, ${lowLabel.toLowerCase()} was this candidate's softest area (${Math.round(lowScore)}/100) — worth confirming this strength holds up given that spread.`;
+  } else {
+    reason =
+      locale === "es"
+        ? `${score}/100, consistente con el perfil general de evidencia de este candidato. Confirmar que la señal se traduce en conducta laboral observable.`
+        : locale === "fr"
+          ? `${score}/100, cohérent avec le profil de preuves global de ce candidat. À confirmer : que ce signal se traduit en comportement professionnel observable.`
+          : `${score}/100, consistent with this candidate's overall evidence profile. Confirm the signal translates into observable workplace behavior.`;
+  }
+
+  return { competency: label, question, reason, evidenceSignalIds: [signal.id] };
+}
+
+function buildInterviewQuestions(
+  signals: EvidenceSignal[],
+  risks: HiringRisk[],
+  competencyEvidence: CompetencyEvidence[],
+  confidenceLevel: string,
+  locale: IntelligenceLocale
+): InterviewValidationQuestion[] {
   // Multiple signals (e.g. an assessment's "overall" signal and one of its
   // per-dimension signals) can share the same competencyId. Track which
   // competencies already have a question so we never ask the same thing twice.
@@ -357,11 +420,41 @@ function buildInterviewQuestions(signals: EvidenceSignal[], risks: HiringRisk[],
     .filter((signal) => signal.direction === "positive")
     .sort((a, b) => b.normalizedScore - a.normalizedScore);
 
+  // Real facts driving the reason text below: the gap between this
+  // candidate's top-scoring dimension and their next-best one, and (when
+  // confidence says there's genuine dispersion) their real lowest-scoring
+  // dimension for contrast -- not a fixed sentence.
+  const allScoresDesc = signals.map((s) => s.normalizedScore).sort((a, b) => b - a);
+  const topScore = allScoresDesc[0] ?? 0;
+  const secondScore = allScoresDesc[1] ?? topScore;
+  const lowestEvidence = competencyEvidence.length
+    ? competencyEvidence.reduce((lowest, e) => (e.score < lowest.score ? e : lowest))
+    : null;
+
+  let openerIndex = 0;
   for (const signal of sortedPositiveSignals) {
     if (strengthQuestions.length >= strengthQuota) break;
     if (usedCompetencyIds.has(signal.competencyId)) continue;
     usedCompetencyIds.add(signal.competencyId);
-    strengthQuestions.push(questionForStrength(signal, locale));
+    const isTopOverall = signal.normalizedScore === topScore;
+    const lowestOther =
+      lowestEvidence && lowestEvidence.competencyId !== signal.competencyId
+        ? { label: lowestEvidence.label, score: lowestEvidence.score }
+        : null;
+    strengthQuestions.push(
+      questionForStrength(
+        signal,
+        {
+          isTopOverall,
+          gapToNext: isTopOverall ? Math.round(topScore - secondScore) : 0,
+          lowestOther,
+          confidenceLevel,
+        },
+        openerIndex,
+        locale
+      )
+    );
+    openerIndex += 1;
   }
 
   return [...riskQuestions, ...strengthQuestions].slice(0, 6);
@@ -513,7 +606,7 @@ export function buildAssessmentIntelligence(options: BuildAssessmentIntelligence
     roleRequirementsProvided,
     locale,
   });
-  const interviewQuestions = buildInterviewQuestions(signals, risks, locale);
+  const interviewQuestions = buildInterviewQuestions(signals, risks, competencyEvidence, confidence.level, locale);
   const strengths = signals
     .filter((signal) => signal.direction === "positive")
     .sort((a, b) => b.normalizedScore - a.normalizedScore)
