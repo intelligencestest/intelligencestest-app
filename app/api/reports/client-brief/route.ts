@@ -175,7 +175,14 @@ export async function POST(request: NextRequest) {
 
   const cards: ClientBriefCandidateCard[] = mainPrimary.map((candidate, index) => {
     const radar = radarForCandidate(candidate, dimensions);
-    const overallScore = radar.length ? radar.reduce((sum, point) => sum + point.value, 0) / radar.length : 0;
+    // Must be derived from the same score that drives ranking (candidate.score,
+    // the full competency-evidence average), not the radar's dimension subset.
+    // sharedRadarDimensions only plots the 5 dimensions with the best cohort-wide
+    // scores, so averaging just those points produced a different "Overall X/5"
+    // number than the one candidates were actually ranked by -- visibly
+    // contradicting the displayed order (a lower-ranked candidate could show a
+    // higher partial-dimension average than the candidate above them).
+    const overallScore = candidate.score / 20;
     return {
       name: candidate.name,
       verdict: candidate.confidence ? `${candidate.recommendationTitle} · ${candidate.confidence} confidence` : candidate.recommendationTitle,
