@@ -92,7 +92,7 @@ const paypalCopy: Record<Locale, {
     recording: "Registrando la suscripción...",
     missing: "El pago con PayPal se está configurando. Contacte con ventas para activar este plan.",
     error: "No pudimos completar el registro de PayPal. Inténtelo de nuevo.",
-    success: "Suscripción registrada. El equipo comercial confirmará la activación.",
+    success: "Suscripción registrada. Su plan se activará automáticamente en unos minutos.",
     subscription: "ID de suscripción",
   },
   en: {
@@ -100,7 +100,7 @@ const paypalCopy: Record<Locale, {
     recording: "Recording subscription...",
     missing: "PayPal checkout is being configured. Contact sales to activate this plan.",
     error: "We could not complete PayPal registration. Please try again.",
-    success: "Subscription recorded. The commercial team will confirm activation.",
+    success: "Subscription recorded. Your plan will activate automatically within a few minutes.",
     subscription: "Subscription ID",
   },
   fr: {
@@ -108,7 +108,7 @@ const paypalCopy: Record<Locale, {
     recording: "Enregistrement de l'abonnement...",
     missing: "Le paiement PayPal est en cours de configuration. Contactez l'équipe commerciale pour activer cette offre.",
     error: "Nous n'avons pas pu finaliser l'enregistrement PayPal. Veuillez réessayer.",
-    success: "Abonnement enregistré. L'équipe commerciale confirmera l'activation.",
+    success: "Abonnement enregistré. Votre offre sera activée automatiquement dans quelques minutes.",
     subscription: "ID d'abonnement",
   },
 };

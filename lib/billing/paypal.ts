@@ -33,6 +33,8 @@ export interface PayPalSubscriptionConfig {
   clientId: string | null;
   secret: string | null;
   plans: Record<PayPalPlan, string | null>;
+  /** PayPal webhook id (from webhook registration) — required to verify webhook signatures. */
+  webhookId: string | null;
   missingCheckout: string[];
   missingServer: string[];
 }
@@ -68,6 +70,10 @@ export function getPayPalSubscriptionConfig(): PayPalSubscriptionConfig {
             "PAYPAL_PROFESSIONAL_PLAN_ID"
           ) ?? SANDBOX_FALLBACK_PLANS.professional,
   };
+  const webhookId =
+    mode === "live"
+      ? readEnv("PAYPAL_LIVE_WEBHOOK_ID", "PAYPAL_WEBHOOK_ID")
+      : readEnv("PAYPAL_SANDBOX_WEBHOOK_ID", "PAYPAL_WEBHOOK_ID");
   const missingCheckout = [
     !clientId ? (mode === "live" ? "PAYPAL_CLIENT_ID" : "PAYPAL_SANDBOX_CLIENT_ID") : null,
     !plans.starter ? "PAYPAL_STARTER_PLAN_ID" : null,
@@ -78,7 +84,82 @@ export function getPayPalSubscriptionConfig(): PayPalSubscriptionConfig {
     !secret ? (mode === "live" ? "PAYPAL_SECRET" : "PAYPAL_SANDBOX_SECRET") : null,
   ].filter((value): value is string => Boolean(value));
 
-  return { mode, apiBase, clientId, secret, plans, missingCheckout, missingServer };
+  return { mode, apiBase, clientId, secret, plans, webhookId, missingCheckout, missingServer };
+}
+
+export async function getPayPalAccessToken(config: PayPalSubscriptionConfig): Promise<string> {
+  if (!config.clientId || !config.secret) {
+    throw new Error("PayPal server credentials are missing.");
+  }
+  const tokenResponse = await fetch(`${config.apiBase}/v1/oauth2/token`, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${Buffer.from(`${config.clientId}:${config.secret}`).toString("base64")}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+    cache: "no-store",
+  });
+  if (!tokenResponse.ok) {
+    throw new Error("PayPal access token request failed.");
+  }
+  const tokenPayload = (await tokenResponse.json()) as { access_token?: string };
+  if (!tokenPayload.access_token) {
+    throw new Error("PayPal access token was missing.");
+  }
+  return tokenPayload.access_token;
+}
+
+export interface PayPalWebhookHeaders {
+  transmissionId: string | null;
+  transmissionTime: string | null;
+  certUrl: string | null;
+  authAlgo: string | null;
+  transmissionSig: string | null;
+}
+
+/**
+ * Verifies a webhook delivery via PayPal's verify-webhook-signature API —
+ * PayPal itself checks the transmission signature against the registered
+ * webhook, so spoofed posts (whatever their body claims) come back INVALID.
+ * `rawBody` is embedded verbatim so the signed bytes are exactly what we
+ * received, not a re-serialization.
+ */
+export async function verifyPayPalWebhookSignature(
+  headers: PayPalWebhookHeaders,
+  rawBody: string,
+  config: PayPalSubscriptionConfig
+): Promise<boolean> {
+  if (!config.webhookId) throw new Error("PAYPAL_WEBHOOK_ID is not configured.");
+  if (
+    !headers.transmissionId ||
+    !headers.transmissionTime ||
+    !headers.certUrl ||
+    !headers.authAlgo ||
+    !headers.transmissionSig
+  ) {
+    return false;
+  }
+
+  const token = await getPayPalAccessToken(config);
+  const body =
+    `{"transmission_id":${JSON.stringify(headers.transmissionId)},` +
+    `"transmission_time":${JSON.stringify(headers.transmissionTime)},` +
+    `"cert_url":${JSON.stringify(headers.certUrl)},` +
+    `"auth_algo":${JSON.stringify(headers.authAlgo)},` +
+    `"transmission_sig":${JSON.stringify(headers.transmissionSig)},` +
+    `"webhook_id":${JSON.stringify(config.webhookId)},` +
+    `"webhook_event":${rawBody}}`;
+
+  const response = await fetch(`${config.apiBase}/v1/notifications/verify-webhook-signature`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body,
+    cache: "no-store",
+  });
+  if (!response.ok) return false;
+  const result = (await response.json()) as { verification_status?: string };
+  return result.verification_status === "SUCCESS";
 }
 
 export interface PayPalSubscriptionDetails {
