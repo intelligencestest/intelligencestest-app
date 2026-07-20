@@ -35,11 +35,17 @@ export interface ClientBriefCandidateCard {
   /** e.g. "strongest overall alignment, recommended for interview" — combined with name as "<strong>{name}</strong> — {verdict}". */
   verdict: string;
   isPrimary: boolean;
-  /** 0-5, shown as "Overall X.X / 5". */
+  /** 0-100, shown as "Overall XX / 100" -- same scale as ClientBriefBenchEntry.score
+   * so a reader never sees two different scales for "overall score" in one document. */
   overallScore: number;
   /** Cohort percentile (0-100, rounded for display) — evidence-methodology Stage 1. */
   percentile?: number;
   radar: ClientBriefRadarPoint[];
+  /** Why the confidence label reads the way it does -- derived only from the
+   * competency-evidence scores already rendered on this card (via the same
+   * MAD-based consistency measure the real confidence score uses), never
+   * from confidenceCaveat/limitations/risks, which stay internal-only. */
+  confidenceNote?: { kind: "consistent"; competencyCount: number } | { kind: "spread"; lowestLabel: string };
 }
 
 export interface ClientBriefInterviewQuestion {
@@ -210,6 +216,18 @@ function copy(locale: ClientBriefLocale) {
     },
     recommendedCandidates: (n: number) =>
       es ? `${n} candidatos recomendados` : fr ? `${n} candidats recommandés` : `${n} candidates recommended`,
+    confidenceNoteConsistent: (n: number) =>
+      es
+        ? `consistente en las ${n} competencias evaluadas`
+        : fr
+        ? `résultats cohérents sur les ${n} compétences évaluées`
+        : `consistent across all ${n} competencies evaluated`,
+    confidenceNoteSpread: (lowestLabel: string) =>
+      es
+        ? `mayor variación entre competencias — más bajo en ${lowestLabel.toLowerCase()}`
+        : fr
+        ? `écart plus marqué entre les compétences — plus faible en ${lowestLabel.toLowerCase()}`
+        : `wider spread across competencies — lower on ${lowestLabel.toLowerCase()}`,
   };
 }
 
@@ -383,6 +401,11 @@ function coverPageHtml(data: ShortlistData, c: ReturnType<typeof copy>): string 
   </section>`;
 }
 
+function confidenceNoteText(note: ClientBriefCandidateCard["confidenceNote"], c: ReturnType<typeof copy>): string | null {
+  if (!note) return null;
+  return note.kind === "consistent" ? c.confidenceNoteConsistent(note.competencyCount) : c.confidenceNoteSpread(note.lowestLabel);
+}
+
 function detailedCandidateCardHtml(card: ClientBriefCandidateCard, index: number, canvasId: string, c: ReturnType<typeof copy>): string {
   const tier = card.isPrimary ? "lead" : "alternate";
   const rows = card.radar
@@ -401,7 +424,8 @@ function detailedCandidateCardHtml(card: ClientBriefCandidateCard, index: number
             <span class="candidate-index">${escapeHtml(c.candidateLabel(index + 1))}</span>
             <h3 class="candidate-leadline"><strong>${escapeHtml(card.name)}</strong> — ${escapeHtml(card.verdict)}</h3>
           </header>
-          <div class="score-support"><span>${escapeHtml(c.assessmentProfile)}</span><strong>${escapeHtml(c.overall)} ${card.overallScore.toFixed(1)} / 5${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</strong></div>
+          <div class="score-support"><span>${escapeHtml(c.assessmentProfile)}</span><strong>${escapeHtml(c.overall)} ${Math.round(card.overallScore)} / 100${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</strong></div>
+          ${confidenceNoteText(card.confidenceNote, c) ? `<p class="confidence-note">${escapeHtml(confidenceNoteText(card.confidenceNote, c)!)}</p>` : ""}
           <div class="radar-wrap"><canvas id="${canvasId}"></canvas></div>
           <div class="dimension-list">${rows}</div>
         </article>`;
@@ -474,7 +498,8 @@ function compactCardHtml(card: ClientBriefCandidateCard, accent: string, canvasI
         <span class="compact-card__name">${escapeHtml(card.name)}</span>
       </div>
       <div class="compact-card__verdict">${escapeHtml(card.verdict)}</div>
-      <div class="compact-card__score">${escapeHtml(c.overall)} <strong>${card.overallScore.toFixed(1)} / 5</strong>${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</div>
+      <div class="compact-card__score">${escapeHtml(c.overall)} <strong>${Math.round(card.overallScore)} / 100</strong>${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</div>
+      ${confidenceNoteText(card.confidenceNote, c) ? `<div class="compact-card__confidence-note">${escapeHtml(confidenceNoteText(card.confidenceNote, c)!)}</div>` : ""}
       <div class="compact-card__chart"><canvas id="${canvasId}"></canvas></div>
       <div class="compact-card__bars">${bars}</div>
     </div>`;
@@ -827,6 +852,7 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .candidate-leadline strong { color: var(--ink); font-weight: 750; }
     .score-support { min-height: 7.5mm; padding: 1.8mm 5mm; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); display: flex; align-items: center; justify-content: space-between; gap: 4mm; color: #858d98; font-size: 6.2pt; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; }
     .score-support strong { color: #747d89; font-size: 6.6pt; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; }
+    .confidence-note { margin: 1.6mm 5mm 0; color: var(--muted); font-size: 6.4pt; line-height: 1.4; font-style: italic; }
     .radar-wrap { position: relative; width: 100%; height: 58mm; padding: 2.5mm 1.5mm 0.5mm; }
     .radar-wrap canvas { width: 100% !important; height: 100% !important; }
     .dimension-list { padding: 1mm 5mm 4mm; display: grid; gap: 2.2mm; }
@@ -853,6 +879,7 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .compact-card__score-standalone { margin: 1mm 0; }
     .compact-card__score-value { font-family: var(--serif); font-size: 13pt; font-weight: 650; color: var(--ink); }
     .compact-card__score-unit { font-size: 7.5pt; color: var(--muted); margin-left: 1mm; }
+    .compact-card__confidence-note { font-size: 5.6pt; color: var(--muted); line-height: 1.3; font-style: italic; margin-bottom: 1.5mm; }
     .compact-card__chart { height: 28mm; display: flex; justify-content: center; }
     .compact-card__bars { margin-top: 1.5mm; display: grid; gap: 1.1mm; }
     .compact-card__bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 14mm; align-items: center; gap: 1.5mm; color: var(--body); font-size: 5.8pt; }

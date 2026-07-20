@@ -182,7 +182,29 @@ export async function POST(request: NextRequest) {
     // number than the one candidates were actually ranked by -- visibly
     // contradicting the displayed order (a lower-ranked candidate could show a
     // higher partial-dimension average than the candidate above them).
-    const overallScore = candidate.score / 20;
+    // 0-100, unscaled -- matches ClientBriefBenchEntry.score so the primary
+    // shortlist and the backup bench never show two different scales for the
+    // same "overall score" concept in one document (the radar chart itself
+    // stays on its own 0-5 axis, a plot convention, not the headline number).
+    const overallScore = candidate.score;
+
+    // "Why" behind the confidence label -- derived only from competencyEvidence,
+    // the exact scores already rendered as this card's radar/bars, using the
+    // same MAD-based robustSD the real confidence score is built on (spec
+    // Stage 2). Never reads confidenceCaveat/limitations/risks, which stay
+    // internal-only; this is a presentational summary of data already on the
+    // client-safe side of that boundary.
+    const competencyScores = candidate.competencyEvidence.map((e) => e.score);
+    const confidenceNote: ClientBriefCandidateCard["confidenceNote"] =
+      competencyScores.length < 2
+        ? undefined
+        : candidate.confidence === "high"
+          ? { kind: "consistent", competencyCount: competencyScores.length }
+          : {
+              kind: "spread",
+              lowestLabel: candidate.competencyEvidence.reduce((lowest, e) => (e.score < lowest.score ? e : lowest)).label,
+            };
+
     return {
       name: candidate.name,
       verdict: candidate.confidence ? `${candidate.recommendationTitle} · ${candidate.confidence} confidence` : candidate.recommendationTitle,
@@ -190,6 +212,7 @@ export async function POST(request: NextRequest) {
       overallScore,
       percentile: displayedPercentile(candidate.score, cohortScores),
       radar,
+      confidenceNote,
     };
   });
 
