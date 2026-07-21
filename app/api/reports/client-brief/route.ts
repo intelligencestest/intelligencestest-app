@@ -4,7 +4,6 @@ import { buildAssessmentIntelligence, type AssessmentResultInput } from "@/lib/a
 import { generateShortlistNarrative } from "@/lib/claude";
 import {
   buildClientBriefHTML,
-  defaultInterviewObjectiveTitle,
   type ClientBriefBenchEntry,
   type ClientBriefCandidateCard,
   type ClientBriefInterviewPage,
@@ -19,6 +18,7 @@ import {
   tierSelection,
   type RankedCandidate,
 } from "@/lib/pdf/client-brief-selection";
+import { executiveSummaryEvidence, interviewObjective } from "@/lib/pdf/client-brief-copy";
 import { renderHTMLToPDF } from "@/lib/pdf/render-pdf";
 import { normalizePrimaryColor, validateReportFooterTextInput } from "@/lib/security/company-branding";
 import { sanitizeLogoUrl } from "@/lib/security/logo-url";
@@ -224,14 +224,27 @@ export async function POST(request: NextRequest) {
     verdict: candidate.recommendationTitle,
   }));
 
-  const interviewPages: ClientBriefInterviewPage[] = mainPrimary.map((candidate, index) => ({
-    name: candidate.name,
-    verdict: candidate.recommendationTitle,
-    isPrimary: index === 0,
-    objectiveTitle: defaultInterviewObjectiveTitle(clientLocale),
-    objectiveCopy: candidate.rationale,
-    questions: candidate.interviewQuestions.slice(0, 4).map((q) => ({ focusLabel: q.competency, question: q.question, verifies: q.reason })),
-  }));
+  const interviewPages: ClientBriefInterviewPage[] = mainPrimary.map((candidate, index) => {
+    const objective = interviewObjective({
+      locale: clientLocale,
+      candidateName: candidate.name,
+      confidence: candidate.confidence,
+      competencyEvidence: candidate.competencyEvidence,
+      roleTitle: project.role_title || project.name,
+    });
+
+    return {
+      name: candidate.name,
+      verdict: candidate.recommendationTitle,
+      isPrimary: index === 0,
+      objectiveTitle: objective.title,
+      objectiveCopy: objective.copy,
+      // TODO(client-brief-copy): tied competency scores can yield identical
+      // question-reason sentences. Keep the evidence logic unchanged for now;
+      // add competency-aware tie phrasing in a separate, lower-priority pass.
+      questions: candidate.interviewQuestions.slice(0, 4).map((q) => ({ focusLabel: q.competency, question: q.question, verifies: q.reason })),
+    };
+  });
 
   const narrative = await generateShortlistNarrative({
     locale: clientLocale,
@@ -241,7 +254,13 @@ export async function POST(request: NextRequest) {
     candidates: mainPrimary.slice(0, 2).map((candidate, index) => ({
       name: candidate.name,
       recommendationTitle: candidate.recommendationTitle,
-      rationale: candidate.rationale,
+      executiveEvidence: executiveSummaryEvidence({
+        locale: clientLocale,
+        candidateName: candidate.name,
+        confidence: candidate.confidence,
+        competencyEvidence: candidate.competencyEvidence,
+        narrativePosition: index === 0 ? "lead" : "alternate",
+      }),
       isPrimary: index === 0,
     })),
   });

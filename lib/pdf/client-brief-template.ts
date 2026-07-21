@@ -662,7 +662,7 @@ function interviewPageHtml(
       ${reportLegalHtml(
         c,
         escapeHtml(c.disclaimerShort),
-        `${escapeHtml(c.confidential)} · <span class="engine-credit">${escapeHtml(c.engineCredit)} <strong>IntelligencesTest</strong></span>`,
+        footerLeft,
         pageLabel,
         reportFooterText
       )}
@@ -703,7 +703,7 @@ export function buildClientBriefHTML(data: ShortlistData): string {
         page,
         c,
         `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`,
-        "",
+        `${escapeHtml(c.confidential)} · ${escapeHtml(data.agencyName)}`,
         data.reportFooterText
       );
     })

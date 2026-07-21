@@ -6,9 +6,9 @@
  *
  * Used to generate the page-2 narrative paragraph for the client-facing
  * shortlist brief (lib/pdf/client-brief-template.ts). Never throws — falls
- * back to a deterministic, still-natural-prose paragraph built from the
- * assessment engine's own rationale text if ANTHROPIC_API_KEY is unset or
- * the call fails, so PDF generation never hard-fails on this step.
+ * back to a deterministic, still-natural-prose paragraph built from
+ * candidate-specific evidence if ANTHROPIC_API_KEY is unset or the call
+ * fails, so PDF generation never hard-fails on this step.
  */
 
 export type NarrativeLocale = "en" | "es" | "fr";
@@ -17,8 +17,8 @@ export interface NarrativeCandidateInput {
   name: string;
   /** e.g. "Recommended for client interview" */
   recommendationTitle: string;
-  /** Assessment engine's own rationale sentence for this candidate. */
-  rationale: string;
+  /** Candidate-specific, score-grounded evidence written only for page 2. */
+  executiveEvidence: string;
   isPrimary: boolean;
 }
 
@@ -42,7 +42,7 @@ function localePrompt(locale: NarrativeLocale): string {
 
 function buildPrompt(input: NarrativeInput): string {
   const candidateLines = input.candidates
-    .map((c) => `- ${c.name} (${c.isPrimary ? "primary" : "secondary"} recommendation, "${c.recommendationTitle}"): ${c.rationale}`)
+    .map((c) => `- ${c.name} (${c.isPrimary ? "primary" : "secondary"} recommendation, "${c.recommendationTitle}"): ${c.executiveEvidence}`)
     .join("\n");
 
   return `You are writing the executive summary paragraph of a client-facing recruitment shortlist brief for a hiring agency's client. Write in ${localePrompt(input.locale)}.
@@ -53,7 +53,7 @@ Candidates recommended: ${input.recommendedCount}
 Top-ranked candidates:
 ${candidateLines}
 
-Write a single narrative paragraph of 3-4 sentences, in natural prose (no bullet points, no headers). Open with a sentence noting how many candidates were evaluated and how many are recommended (use the exact "candidates recommended" count above — if it's larger than 2, make clear the named candidates below are the top of a larger recommended set, not the only ones). Name the top-ranked candidate and state why they lead the set. If there is a second candidate listed, mention them briefly too. Tone: confident, professional, consultative — like a recruiter briefing a client. Do not use words like "incomplete", "verification status", "score", or any internal assessment jargon. Output only the paragraph text, nothing else.`;
+Write a single narrative paragraph of 3-4 sentences, in natural prose (no bullet points, no headers). Open with a sentence noting how many candidates were evaluated and how many are recommended (use the exact "candidates recommended" count above — if it's larger than 2, make clear the named candidates below are the top of a larger recommended set, not the only ones). Name the top-ranked candidate and state why they lead the set. If there is a second candidate listed, mention them briefly too. Use each candidate's supplied evidence, but paraphrase it naturally. Never repeat a clause, framing sentence, or candidate description between candidates. Tone: confident, professional, consultative — like a recruiter briefing a client. Do not use words like "incomplete", "verification status", "score", or any internal assessment jargon. Output only the paragraph text, nothing else.`;
 }
 
 function fallbackNarrative(input: NarrativeInput): string {
@@ -69,22 +69,22 @@ function fallbackNarrative(input: NarrativeInput): string {
 
   if (input.locale === "es") {
     const lead = moreThanNamed
-      ? `De ${input.totalCandidates} candidatos evaluados para el puesto de ${input.roleTitle}, ${input.recommendedCount} son recomendados, encabezados por ${primary.name}. ${primary.rationale}`
-      : `De ${input.totalCandidates} candidatos evaluados para el puesto de ${input.roleTitle}, ${primary.name} es nuestra recomendación principal. ${primary.rationale}`;
-    const tail = secondary ? ` ${secondary.name} es una alternativa a considerar: ${secondary.rationale}` : "";
+      ? `De ${input.totalCandidates} candidatos evaluados para el puesto de ${input.roleTitle}, ${input.recommendedCount} son recomendados, encabezados por ${primary.name}. ${primary.executiveEvidence}`
+      : `De ${input.totalCandidates} candidatos evaluados para el puesto de ${input.roleTitle}, ${primary.name} es nuestra recomendación principal. ${primary.executiveEvidence}`;
+    const tail = secondary ? ` ${secondary.name} es una alternativa a considerar: ${secondary.executiveEvidence}` : "";
     return lead + tail;
   }
   if (input.locale === "fr") {
     const lead = moreThanNamed
-      ? `Parmi les ${input.totalCandidates} candidats évalués pour le poste de ${input.roleTitle}, ${input.recommendedCount} sont recommandés, en tête desquels ${primary.name}. ${primary.rationale}`
-      : `Parmi les ${input.totalCandidates} candidats évalués pour le poste de ${input.roleTitle}, ${primary.name} est notre recommandation principale. ${primary.rationale}`;
-    const tail = secondary ? ` ${secondary.name} est une alternative à considérer : ${secondary.rationale}` : "";
+      ? `Parmi les ${input.totalCandidates} candidats évalués pour le poste de ${input.roleTitle}, ${input.recommendedCount} sont recommandés, en tête desquels ${primary.name}. ${primary.executiveEvidence}`
+      : `Parmi les ${input.totalCandidates} candidats évalués pour le poste de ${input.roleTitle}, ${primary.name} est notre recommandation principale. ${primary.executiveEvidence}`;
+    const tail = secondary ? ` ${secondary.name} est une alternative à considérer : ${secondary.executiveEvidence}` : "";
     return lead + tail;
   }
   const lead = moreThanNamed
-    ? `Of ${input.totalCandidates} candidates evaluated for the ${input.roleTitle} role, ${input.recommendedCount} are recommended, led by ${primary.name}. ${primary.rationale}`
-    : `Of ${input.totalCandidates} candidates evaluated for the ${input.roleTitle} role, ${primary.name} is our strongest recommendation. ${primary.rationale}`;
-  const tail = secondary ? ` ${secondary.name} is worth considering as well: ${secondary.rationale}` : "";
+    ? `Of ${input.totalCandidates} candidates evaluated for the ${input.roleTitle} role, ${input.recommendedCount} are recommended, led by ${primary.name}. ${primary.executiveEvidence}`
+    : `Of ${input.totalCandidates} candidates evaluated for the ${input.roleTitle} role, ${primary.name} is our strongest recommendation. ${primary.executiveEvidence}`;
+  const tail = secondary ? ` ${secondary.name} is worth considering as well: ${secondary.executiveEvidence}` : "";
   return lead + tail;
 }
 
