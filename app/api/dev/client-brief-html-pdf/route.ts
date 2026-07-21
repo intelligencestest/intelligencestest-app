@@ -1,4 +1,5 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireInternalAdminForApi } from "@/lib/internal-admin";
 import { buildClientBriefHTML, type ShortlistData } from "@/lib/pdf/client-brief-template";
 import { renderHTMLToPDF } from "@/lib/pdf/render-pdf";
 
@@ -120,6 +121,14 @@ const FIXTURE: ShortlistData = {
 };
 
 export async function GET(request: NextRequest) {
+  // Internal-admin gate. This route is deployed to production, and the proxy's
+  // matcher excludes /api/*, so without this check it is reachable by anyone.
+  // The fixture carries no real candidate data, but each call launches a
+  // Chromium process — unauthenticated, that is a free resource-exhaustion
+  // lever. Same gate the rest of the internal-only surface uses.
+  const { admin } = await requireInternalAdminForApi("support");
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   const download = request.nextUrl.searchParams.get("download") === "1";
   const html = buildClientBriefHTML(FIXTURE);
   const pdf = await renderHTMLToPDF(html);
