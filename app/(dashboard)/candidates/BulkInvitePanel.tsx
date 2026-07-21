@@ -66,9 +66,11 @@ export default function BulkInvitePanel({ projects, projectAssessments }: Props)
         recent: "Lotes recientes",
         loading: "Cargando lotes...",
         empty: "Todavía no hay cargas CSV.",
-        sent: "enviados",
+        sent: "enviados al proveedor",
         failed: "fallidos",
         processed: "procesados",
+        deliveryNote:
+          "\"Enviados al proveedor\" significa que el proveedor de correo aceptó la invitación. La entrega final al buzón del candidato (incluidos los rebotes por direcciones inválidas) todavía no se rastrea aquí.",
         failures: "Ver errores",
         row: "Fila",
         available: (slots: number, total: number) =>
@@ -76,8 +78,8 @@ export default function BulkInvitePanel({ projects, projectAssessments }: Props)
         status: {
           pending: "En cola",
           processing: "Enviando",
-          completed: "Completado",
-          completed_with_failures: "Completado con errores",
+          completed: "Procesado",
+          completed_with_failures: "Procesado con errores",
           failed: "Fallido",
         } as Record<InviteBatchStatus, string>,
       }
@@ -98,9 +100,11 @@ export default function BulkInvitePanel({ projects, projectAssessments }: Props)
         recent: "Recent batches",
         loading: "Loading batches...",
         empty: "No CSV uploads yet.",
-        sent: "sent",
+        sent: "submitted",
         failed: "failed",
         processed: "processed",
+        deliveryNote:
+          "\"Submitted\" means the email provider accepted the invitation. Final delivery to the candidate's inbox (including bounces from invalid addresses) is not tracked here yet.",
         failures: "View failures",
         row: "Row",
         available: (slots: number, total: number) =>
@@ -108,8 +112,8 @@ export default function BulkInvitePanel({ projects, projectAssessments }: Props)
         status: {
           pending: "Queued",
           processing: "Sending",
-          completed: "Completed",
-          completed_with_failures: "Completed with failures",
+          completed: "Processed",
+          completed_with_failures: "Processed with failures",
           failed: "Failed",
         } as Record<InviteBatchStatus, string>,
       };
@@ -354,6 +358,7 @@ export default function BulkInvitePanel({ projects, projectAssessments }: Props)
                 </div>
               );
             })}
+            <p className="pt-1 text-[11px] leading-4 text-[var(--it-faint)]">{copy.deliveryNote}</p>
           </div>
         )}
       </div>

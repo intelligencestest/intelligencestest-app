@@ -69,12 +69,21 @@ fi
 pm2 save
 pm2 startup | tail -1 | bash   # auto-run the generated startup command
 
-echo "==> [8/10] Configuring invite batch scheduler"
+echo "==> [8/10] Configuring scheduled workers (invite batches + trial emails)"
 install -m 0750 "$APP_DIR/deploy/process-invite-batches.sh" /usr/local/bin/intelligencestest-invite-batches
 touch /var/log/intelligencestest-invite-batches.log
 chmod 0640 /var/log/intelligencestest-invite-batches.log
-CRON_LINE="* * * * * /usr/local/bin/intelligencestest-invite-batches >> /var/log/intelligencestest-invite-batches.log 2>&1"
-(crontab -l 2>/dev/null | grep -v 'intelligencestest-invite-batches' || true; echo "$CRON_LINE") | crontab -
+
+install -m 0750 "$APP_DIR/deploy/process-trial-emails.sh" /usr/local/bin/intelligencestest-trial-emails
+touch /var/log/intelligencestest-trial-emails.log
+chmod 0640 /var/log/intelligencestest-trial-emails.log
+
+# Invite batches: every minute (claims 10 rows per run).
+# Trial emails: once daily at 09:00 server time -- the endpoint is idempotent
+# per company/kind, so the exact hour only affects when recipients see it.
+BATCH_CRON="* * * * * /usr/local/bin/intelligencestest-invite-batches >> /var/log/intelligencestest-invite-batches.log 2>&1"
+TRIAL_CRON="0 9 * * * /usr/local/bin/intelligencestest-trial-emails >> /var/log/intelligencestest-trial-emails.log 2>&1"
+(crontab -l 2>/dev/null | grep -v 'intelligencestest-invite-batches' | grep -v 'intelligencestest-trial-emails' || true; echo "$BATCH_CRON"; echo "$TRIAL_CRON") | crontab -
 
 echo "==> [9/10] Configuring Nginx"
 NGINX_CONF="/etc/nginx/sites-available/$APP_NAME"

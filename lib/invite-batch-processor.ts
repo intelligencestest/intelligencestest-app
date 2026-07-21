@@ -16,6 +16,16 @@ interface InviteBatch {
   test_type: string;
 }
 
+/**
+ * NOTE on "sent": this means the email provider (Resend) accepted the message
+ * for delivery, not that it reached the candidate's inbox. Bounces from
+ * invalid addresses happen asynchronously afterwards and are NOT reflected
+ * here -- a batch of undeliverable addresses still reports sent_count = total,
+ * failed_count = 0. The UI labels this "submitted" rather than "sent" for that
+ * reason (see BulkInvitePanel). Real delivery tracking needs the Resend
+ * message id persisted per row plus a follow-up status poll; see the deferred
+ * backlog note in the project memory.
+ */
 type BatchRowStatus = "pending" | "processing" | "sent" | "failed";
 
 interface BatchStatusRow {
