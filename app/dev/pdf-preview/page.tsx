@@ -1,7 +1,23 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getInternalAdmin } from "@/lib/internal-admin";
+
 // Dev-only preview page for the Client Shortlist Brief PDF template.
 // Renders static fake data (see lib/pdf/agency-brief/fakeData.ts) — no
 // database connection. Not linked from any nav.
-export default function PdfPreviewPage() {
+//
+// Guarded for the same reason as /dev/client-brief-html-preview: /dev is
+// not in the proxy's PROTECTED list, so this would otherwise be publicly
+// reachable in production. 404s rather than showing an access screen —
+// unlisted tooling should not advertise its own existence.
+
+// Private surface: never indexed (robots.ts is advisory; this is not).
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
+export default async function PdfPreviewPage() {
+  const adminCtx = await getInternalAdmin();
+  if (!adminCtx) notFound();
+
   return (
     <div style={{ minHeight: "100vh", background: "#f4f4f5", padding: "24px" }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>

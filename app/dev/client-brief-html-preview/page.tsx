@@ -1,7 +1,24 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getInternalAdmin } from "@/lib/internal-admin";
+
 // Dev-only preview page for the new HTML/Puppeteer client-brief pipeline.
 // Renders static fixture data (see app/api/dev/client-brief-html-pdf/route.ts)
 // — no database connection. Not linked from any nav.
-export default function ClientBriefHtmlPreviewPage() {
+//
+// This page is deployed to production, and /dev is not in the proxy's
+// PROTECTED list, so without the guard below it is publicly reachable.
+// It 404s rather than showing an access screen like /admin does: /admin is
+// a destination operators navigate to, whereas this is unlisted tooling
+// that should not advertise its own existence.
+
+// Private surface: never indexed (robots.ts is advisory; this is not).
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
+export default async function ClientBriefHtmlPreviewPage() {
+  const adminCtx = await getInternalAdmin();
+  if (!adminCtx) notFound();
+
   return (
     <div style={{ minHeight: "100vh", background: "#f4f4f5", padding: "24px" }}>
       <div style={{ maxWidth: 900, margin: "0 auto" }}>
