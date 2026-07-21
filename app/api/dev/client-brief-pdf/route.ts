@@ -1,4 +1,5 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireInternalAdminForApi } from "@/lib/internal-admin";
 import { renderClientShortlistBriefToBuffer } from "@/lib/pdf/agency-brief/render";
 import { FAKE_AGENCY_BRIEF } from "@/lib/pdf/agency-brief/fakeData";
 
@@ -10,6 +11,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
+  // Internal-admin gate. This route is deployed to production, and the proxy's
+  // matcher excludes /api/*, so without this check it is reachable by anyone.
+  // The fake data carries no real candidate information, but the render is
+  // unmetered work an anonymous caller could trigger at will. Same gate as
+  // the sibling /api/dev/client-brief-html-pdf route.
+  const { admin } = await requireInternalAdminForApi("support");
+  if (!admin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
   const download = request.nextUrl.searchParams.get("download") === "1";
   const pdf = await renderClientShortlistBriefToBuffer(FAKE_AGENCY_BRIEF);
 
