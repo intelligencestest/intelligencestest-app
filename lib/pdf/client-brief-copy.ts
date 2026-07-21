@@ -92,59 +92,59 @@ export function interviewObjective(input: InterviewObjectiveInput): { title: str
 
   if (!shape) {
     if (input.locale === "es") return {
-      title: `Validar la evidencia de ${name} en el contexto del puesto`,
+      title: "Validar la evidencia disponible en el contexto del puesto",
       copy: `Solicite ejemplos recientes de ${role} y examine las decisiones, las alternativas consideradas y los resultados observables antes de confirmar la recomendación.`,
     };
     if (input.locale === "fr") return {
-      title: `Valider les éléments concernant ${name} dans le contexte du poste`,
+      title: "Valider les éléments disponibles dans le contexte du poste",
       copy: `Demandez des exemples récents liés au poste de ${role}, puis examinez les décisions, les options envisagées et les résultats observables avant de confirmer la recommandation.`,
     };
     return {
-      title: `Validate ${name}'s evidence in role context`,
+      title: "Validate the available evidence in role context",
       copy: `Ask for recent ${role} examples and examine the decisions, alternatives considered, and observable outcomes before confirming the recommendation.`,
     };
   }
 
   if (shape.count === 1) {
     if (input.locale === "es") return {
-      title: `Comprobar la evidencia de ${name} en ${shape.softest.label}`,
+      title: `Comprobar ${shape.softest.label} en ${shape.softest.score}/100`,
       copy: `Pida ejemplos recientes de ${role} que permitan observar ${shape.softest.label} (${shape.softest.score}/100) en decisiones, acciones y resultados concretos.`,
     };
     if (input.locale === "fr") return {
-      title: `Éprouver les éléments de ${name} sur ${shape.softest.label}`,
+      title: `Éprouver ${shape.softest.label} à ${shape.softest.score}/100`,
       copy: `Demandez des exemples récents liés au poste de ${role} permettant d'observer ${shape.softest.label} (${shape.softest.score}/100) dans des décisions, des actions et des résultats concrets.`,
     };
     return {
-      title: `Test ${name}'s evidence in ${shape.softest.label}`,
+      title: `Test ${shape.softest.label} at ${shape.softest.score}/100`,
       copy: `Ask for recent ${role} examples that make ${shape.softest.label} (${shape.softest.score}/100) observable in specific decisions, actions, and outcomes.`,
     };
   }
 
   if (input.confidence === "high") {
     if (input.locale === "es") return {
-      title: `Confirmar cómo ${name} aplica ${shape.softest.label} en el puesto`,
+      title: `Confirmar ${shape.softest.label} (${shape.softest.score}/100) en el puesto`,
       copy: `Solicite ejemplos recientes de ${role} que muestren ${shape.softest.label} (${shape.softest.score}/100) en decisiones, concesiones y resultados; utilice ${shape.strongest.label} (${shape.strongest.score}/100) como punto de comparación.`,
     };
     if (input.locale === "fr") return {
-      title: `Confirmer comment ${name} mobilise ${shape.softest.label} dans le poste`,
+      title: `Confirmer ${shape.softest.label} (${shape.softest.score}/100) dans le poste`,
       copy: `Demandez des exemples récents liés au poste de ${role} qui rendent ${shape.softest.label} (${shape.softest.score}/100) observable dans les décisions, les arbitrages et les résultats ; utilisez ${shape.strongest.label} (${shape.strongest.score}/100) comme point de comparaison.`,
     };
     return {
-      title: `Confirm ${name}'s ${shape.softest.label} evidence in role context`,
+      title: `Confirm ${shape.softest.label} at ${shape.softest.score}/100 in role context`,
       copy: `Ask for recent examples relevant to the ${role} role that make ${shape.softest.label} (${shape.softest.score}/100) observable in decisions, trade-offs, and outcomes; use ${shape.strongest.label} (${shape.strongest.score}/100) as the comparison point.`,
     };
   }
 
   if (input.locale === "es") return {
-    title: `Examinar la diferencia entre ${shape.strongest.label} y ${shape.softest.label} de ${name}`,
+    title: `Examinar la diferencia de ${shape.spread} puntos: ${shape.strongest.label} frente a ${shape.softest.label}`,
     copy: `Comience con situaciones en las que ${name} recurrió a ${shape.strongest.label} (${shape.strongest.score}/100) y después explore una presión comparable sobre ${shape.softest.label} (${shape.softest.score}/100) para determinar si la diferencia de ${shape.spread} puntos es relevante para el puesto.`,
   };
   if (input.locale === "fr") return {
-    title: `Examiner l'écart de ${name} entre ${shape.strongest.label} et ${shape.softest.label}`,
+    title: `Examiner l'écart de ${shape.spread} points : ${shape.strongest.label} face à ${shape.softest.label}`,
     copy: `Commencez par des situations où ${name} s'est appuyé sur ${shape.strongest.label} (${shape.strongest.score}/100), puis explorez une pression comparable sur ${shape.softest.label} (${shape.softest.score}/100) afin de déterminer si l'écart de ${shape.spread} points est pertinent pour le poste.`,
   };
   return {
-    title: `Test ${name}'s gap between ${shape.strongest.label} and ${shape.softest.label}`,
+    title: `Test the ${shape.spread}-point gap: ${shape.strongest.label} versus ${shape.softest.label}`,
     copy: `Begin with situations where ${name} relied on ${shape.strongest.label} (${shape.strongest.score}/100), then examine equivalent pressure on ${shape.softest.label} (${shape.softest.score}/100) to establish whether the ${shape.spread}-point difference matters in this role.`,
   };
 }

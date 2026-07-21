@@ -60,6 +60,28 @@ export async function renderHTMLToPDF(html: string): Promise<Buffer> {
         })
     );
 
+    // The template performs its own post-font, post-chart layout audit and
+    // records either a ready flag or a precise error. Waiting for that state
+    // prevents fixed-height A4 pages from silently clipping legal/footer
+    // content when copy grows beyond the available page box.
+    await page.waitForFunction(
+      () => {
+        const pdfWindow = window as typeof window & {
+          __PDF_READY__?: boolean;
+          __PDF_READY_ERROR__?: string;
+        };
+        return pdfWindow.__PDF_READY__ === true || Boolean(pdfWindow.__PDF_READY_ERROR__);
+      },
+      { timeout: 10_000 }
+    );
+    const readyError = await page.evaluate(() => {
+      const pdfWindow = window as typeof window & { __PDF_READY_ERROR__?: string };
+      return pdfWindow.__PDF_READY_ERROR__ ?? null;
+    });
+    if (readyError) {
+      throw new Error(`Client brief render readiness check failed: ${readyError}`);
+    }
+
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,

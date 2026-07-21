@@ -841,8 +841,9 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .summary-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14mm; }
     .summary-header-copy { max-width: 124mm; }
     .summary-date { padding-top: 1mm; color: var(--muted); font-size: 8.2pt; text-align: right; white-space: nowrap; }
-    .executive-narrative { margin-top: 7mm; padding: 5mm 0 5.5mm 6mm; border-left: 1.5px solid var(--accent); color: var(--body); font-family: var(--serif); font-size: 12.3pt; line-height: 1.48; }
-    .candidate-grid { margin-top: 7mm; display: grid; gap: 7mm; }
+    .summary .page-inner { padding-top: 15mm; padding-bottom: 10mm; }
+    .executive-narrative { margin-top: 5mm; padding: 4mm 0 4.5mm 5mm; border-left: 1.5px solid var(--accent); color: var(--body); font-family: var(--serif); font-size: 11.8pt; line-height: 1.43; }
+    .candidate-grid { margin-top: 5mm; display: grid; gap: 7mm; }
     .candidate-card { min-width: 0; border: 1px solid var(--hairline); background: var(--paper); display: flex; flex-direction: column; }
     .candidate-card.lead { border-top: 2.2px solid var(--accent); }
     .candidate-card.alternate { border-top: 2.2px solid var(--ink); }
@@ -854,6 +855,7 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .score-support strong { color: #747d89; font-size: 6.6pt; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; }
     .confidence-note { margin: 1.6mm 5mm 0; color: var(--muted); font-size: 6.4pt; line-height: 1.4; font-style: italic; }
     .radar-wrap { position: relative; width: 100%; height: 58mm; padding: 2.5mm 1.5mm 0.5mm; }
+    .summary .radar-wrap { height: 52mm; }
     .radar-wrap canvas { width: 100% !important; height: 100% !important; }
     .dimension-list { padding: 1mm 5mm 4mm; display: grid; gap: 2.2mm; }
     .dimension-row { display: grid; grid-template-columns: minmax(0, 1fr) 30mm; align-items: center; gap: 2.5mm; color: var(--body); font-size: 7.7pt; }
@@ -861,7 +863,7 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .dimension-track { display: block; height: 1.4mm; background: #e8ebef; overflow: hidden; }
     .dimension-fill { display: block; height: 100%; background: var(--accent); }
     .alternate .dimension-fill { background: var(--ink); }
-    .decision-strip { margin-top: 6mm; padding: 4.5mm 5mm; background: var(--soft-blue); display: grid; grid-template-columns: 37mm 1fr; gap: 6mm; align-items: start; }
+    .decision-strip { margin-top: 4.5mm; padding: 3.8mm 5mm; background: var(--soft-blue); display: grid; grid-template-columns: 37mm 1fr; gap: 6mm; align-items: start; }
     .decision-strip h3 { font-family: var(--serif); font-size: 11.8pt; font-weight: 500; line-height: 1.25; }
     .decision-strip p { color: var(--body); font-size: 8.7pt; line-height: 1.48; }
 
@@ -888,14 +890,14 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .compact-card__bar-fill { display: block; height: 100%; background: var(--accent); }
     .compact-card:not(.compact-card--primary) .compact-card__bar-fill { background: var(--ink); }
     .bench-subtitle { margin-top: 2mm; color: var(--muted); font-size: 8.5pt; line-height: 1.45; max-width: 140mm; }
-    .cutoff-note { margin-top: 4mm; color: var(--muted); font-size: 7.6pt; line-height: 1.45; }
+    .cutoff-note { margin-top: 2.5mm; color: var(--muted); font-size: 7.6pt; line-height: 1.45; }
     .bench-omitted { margin-top: 5mm; padding-top: 3mm; border-top: 1px dashed var(--hairline); color: var(--muted); font-size: 8pt; font-style: italic; }
 
     /* --- Interview kit --- */
     .interview-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12mm; }
     .interview-header .section-title { font-size: 24pt; }
     .candidate-pill { margin-top: 1mm; padding: 2.2mm 3mm; border: 1px solid var(--hairline); color: var(--ink); font-size: 8pt; font-weight: 600; white-space: nowrap; }
-    .candidate-brief { margin-top: 6mm; display: grid; grid-template-columns: 44mm 1fr; gap: 7mm; padding: 4.5mm 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+    .candidate-brief { margin-top: 6mm; display: grid; grid-template-columns: 50mm 1fr; gap: 7mm; padding: 4.5mm 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
     .brief-label { color: var(--muted); font-size: 7.5pt; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
     .brief-title { margin-top: 1.5mm; font-family: var(--serif); font-size: 13pt; font-weight: 500; line-height: 1.25; }
     .brief-copy { color: var(--body); font-size: 9pt; line-height: 1.5; }
@@ -941,6 +943,36 @@ export function buildClientBriefHTML(data: ShortlistData): string {
       });
     }
 
+    function assertPageLayout() {
+      var pages = Array.from(document.querySelectorAll(".page"));
+      pages.forEach(function (page, index) {
+        var inner = page.querySelector(".page-inner");
+        var legal = page.querySelector(".report-legal");
+        if (!inner || !legal) {
+          throw new Error("Client brief page " + (index + 1) + " is missing its layout or legal footer block");
+        }
+
+        var pageRect = page.getBoundingClientRect();
+        var legalRect = legal.getBoundingClientRect();
+        var hasVerticalOverflow = inner.scrollHeight > inner.clientHeight + 1;
+        var footerOutsidePage = legalRect.bottom > pageRect.bottom + 1 || legalRect.top < pageRect.top - 1;
+        if (hasVerticalOverflow || footerOutsidePage) {
+          var label = page.getAttribute("aria-label") || "unnamed page";
+          throw new Error(
+            "Client brief layout overflow on page " +
+              (index + 1) +
+              " (" +
+              label +
+              "): content height " +
+              inner.scrollHeight +
+              "px exceeds " +
+              inner.clientHeight +
+              "px"
+          );
+        }
+      });
+    }
+
     async function prepareForPrint() {
       try {
         await document.fonts.ready;
@@ -966,6 +998,7 @@ export function buildClientBriefHTML(data: ShortlistData): string {
         await new Promise(function (resolve) {
           requestAnimationFrame(function () { requestAnimationFrame(resolve); });
         });
+        assertPageLayout();
         document.documentElement.dataset.pdfReady = "true";
         window.__PDF_READY__ = true;
       } catch (error) {
