@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   fetchPayPalSubscription,
   getPayPalSubscriptionConfig,
+  paypalCurrencyForLocale,
   type PayPalPlan,
 } from "@/lib/billing/paypal";
 import { sendPendingSubscriptionAlert } from "@/lib/ops-alert";
@@ -46,7 +47,12 @@ export async function POST(request: NextRequest) {
     return jsonError("User has no company.", 400);
   }
 
-  const config = getPayPalSubscriptionConfig();
+  const { data: company } = await admin
+    .from("companies")
+    .select("language, name")
+    .eq("id", profile.company_id)
+    .maybeSingle();
+  const config = getPayPalSubscriptionConfig(paypalCurrencyForLocale(company?.language));
   const expectedPlanId = config.plans[plan as PayPalPlan];
 
   if (!config.clientId || !config.secret || !expectedPlanId) {
@@ -100,11 +106,6 @@ export async function POST(request: NextRequest) {
   // Activation is a manual ops step — make sure a human hears about it now.
   // A failed alert must not fail the customer's checkout, but it is logged
   // loudly because an unnoticed pending payment is the worst failure mode.
-  const { data: company } = await admin
-    .from("companies")
-    .select("name")
-    .eq("id", profile.company_id)
-    .maybeSingle();
   const alertResult = await sendPendingSubscriptionAlert({
     companyId: profile.company_id,
     companyName: company?.name ?? null,

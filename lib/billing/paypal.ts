@@ -1,5 +1,7 @@
 export type PayPalPlan = "starter" | "professional";
 export type PayPalMode = "sandbox" | "live";
+export type PayPalCurrency = "USD" | "EUR";
+export type PayPalPlanIds = Record<PayPalPlan, string | null>;
 
 // Genuine SANDBOX app + sandbox plans (Starter $49 / Professional $109
 // founding rates). The previous values here were, despite the name, the LIVE
@@ -13,6 +15,14 @@ const SANDBOX_FALLBACK_PLANS: Record<PayPalPlan, string> = {
   starter: "P-84E667415H591160RNJOQHVY",
   professional: "P-3H614029S9451523BNJOQHWA",
 };
+
+export function normalizePayPalCurrency(value: unknown): PayPalCurrency {
+  return value === "EUR" ? "EUR" : "USD";
+}
+
+export function paypalCurrencyForLocale(locale: unknown): PayPalCurrency {
+  return locale === "es" ? "EUR" : "USD";
+}
 
 function readEnv(...names: string[]) {
   for (const name of names) {
@@ -29,17 +39,20 @@ export function getPayPalMode(): PayPalMode {
 
 export interface PayPalSubscriptionConfig {
   mode: PayPalMode;
+  currency: PayPalCurrency;
   apiBase: string;
   clientId: string | null;
   secret: string | null;
-  plans: Record<PayPalPlan, string | null>;
+  plans: PayPalPlanIds;
+  /** Every plan accepted by webhooks, across both checkout currencies. */
+  allPlans: Record<PayPalCurrency, PayPalPlanIds>;
   /** PayPal webhook id (from webhook registration) — required to verify webhook signatures. */
   webhookId: string | null;
   missingCheckout: string[];
   missingServer: string[];
 }
 
-export function getPayPalSubscriptionConfig(): PayPalSubscriptionConfig {
+export function getPayPalSubscriptionConfig(currency: PayPalCurrency = "USD"): PayPalSubscriptionConfig {
   const mode = getPayPalMode();
   const apiBase = mode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
   const clientId =
@@ -51,7 +64,7 @@ export function getPayPalSubscriptionConfig(): PayPalSubscriptionConfig {
     mode === "live"
       ? readEnv("PAYPAL_LIVE_SECRET", "PAYPAL_SECRET")
       : readEnv("PAYPAL_SANDBOX_SECRET", "PAYPAL_SECRET");
-  const plans: Record<PayPalPlan, string | null> = {
+  const usdPlans: PayPalPlanIds = {
     starter:
       mode === "live"
         ? readEnv("NEXT_PUBLIC_PAYPAL_STARTER_PLAN_ID", "PAYPAL_LIVE_STARTER_PLAN_ID", "PAYPAL_STARTER_PLAN_ID")
@@ -70,21 +83,37 @@ export function getPayPalSubscriptionConfig(): PayPalSubscriptionConfig {
             "PAYPAL_PROFESSIONAL_PLAN_ID"
           ) ?? SANDBOX_FALLBACK_PLANS.professional,
   };
+  const eurPlans: PayPalPlanIds = {
+    starter:
+      mode === "live"
+        ? readEnv("PAYPAL_LIVE_EUR_STARTER_PLAN_ID", "PAYPAL_EUR_STARTER_PLAN_ID")
+        : readEnv("PAYPAL_SANDBOX_EUR_STARTER_PLAN_ID", "PAYPAL_EUR_STARTER_PLAN_ID"),
+    professional:
+      mode === "live"
+        ? readEnv("PAYPAL_LIVE_EUR_PROFESSIONAL_PLAN_ID", "PAYPAL_EUR_PROFESSIONAL_PLAN_ID")
+        : readEnv("PAYPAL_SANDBOX_EUR_PROFESSIONAL_PLAN_ID", "PAYPAL_EUR_PROFESSIONAL_PLAN_ID"),
+  };
+  const allPlans: Record<PayPalCurrency, PayPalPlanIds> = { USD: usdPlans, EUR: eurPlans };
+  const plans = allPlans[currency];
   const webhookId =
     mode === "live"
       ? readEnv("PAYPAL_LIVE_WEBHOOK_ID", "PAYPAL_WEBHOOK_ID")
       : readEnv("PAYPAL_SANDBOX_WEBHOOK_ID", "PAYPAL_WEBHOOK_ID");
   const missingCheckout = [
     !clientId ? (mode === "live" ? "PAYPAL_CLIENT_ID" : "PAYPAL_SANDBOX_CLIENT_ID") : null,
-    !plans.starter ? "PAYPAL_STARTER_PLAN_ID" : null,
-    !plans.professional ? "PAYPAL_PROFESSIONAL_PLAN_ID" : null,
+    !plans.starter ? (currency === "EUR" ? `PAYPAL_${mode.toUpperCase()}_EUR_STARTER_PLAN_ID` : "PAYPAL_STARTER_PLAN_ID") : null,
+    !plans.professional
+      ? currency === "EUR"
+        ? `PAYPAL_${mode.toUpperCase()}_EUR_PROFESSIONAL_PLAN_ID`
+        : "PAYPAL_PROFESSIONAL_PLAN_ID"
+      : null,
   ].filter((value): value is string => Boolean(value));
   const missingServer = [
     ...missingCheckout,
     !secret ? (mode === "live" ? "PAYPAL_SECRET" : "PAYPAL_SANDBOX_SECRET") : null,
   ].filter((value): value is string => Boolean(value));
 
-  return { mode, apiBase, clientId, secret, plans, webhookId, missingCheckout, missingServer };
+  return { mode, currency, apiBase, clientId, secret, plans, allPlans, webhookId, missingCheckout, missingServer };
 }
 
 export async function getPayPalAccessToken(config: PayPalSubscriptionConfig): Promise<string> {

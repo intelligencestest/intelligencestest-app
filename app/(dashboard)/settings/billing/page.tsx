@@ -23,7 +23,7 @@ interface PlanData {
   billingProvider: string;
   limits: { candidates: number | null; projects: number | null; recruiters: number | null };
   usage: { candidates: number; projects: number; recruiters: number };
-  pricing: { foundingUsd: number; listUsd: number } | null;
+  pricing: { foundingUsd: number; listUsd: number; foundingEur: number; listEur: number } | null;
 }
 
 function usagePercent(used: number, limit: number | null) {
@@ -146,10 +146,10 @@ const billingCopy: Record<AppLocale, BillingCopy> = {
     professional: "Professional",
     enterprise: "Enterprise",
     trialPrice: "14 días gratis",
-    starterPrice: "49 $/mes",
-    starterPriceNote: "Precio regular: 69 $/mes. Tarifa fundadora bloqueada 12 meses.",
-    professionalPrice: "109 $/mes",
-    professionalPriceNote: "Precio regular: 149 $/mes. Tarifa fundadora bloqueada 12 meses.",
+    starterPrice: "45 €/mes",
+    starterPriceNote: "Tarifa fundadora fija; sin subida programada.",
+    professionalPrice: "95 €/mes",
+    professionalPriceNote: "Tarifa fundadora fija; sin subida programada.",
     enterprisePrice: "Contactar con ventas",
     current: "Actual",
     contactSales: "Contactar con ventas",
@@ -217,9 +217,9 @@ const billingCopy: Record<AppLocale, BillingCopy> = {
     enterprise: "Enterprise",
     trialPrice: "14-day free trial",
     starterPrice: "$49/month",
-    starterPriceNote: "Regular price $69/mo. Founding rate locked for 12 months.",
+    starterPriceNote: "Flat founding rate; no scheduled price increase.",
     professionalPrice: "$109/month",
-    professionalPriceNote: "Regular price $149/mo. Founding rate locked for 12 months.",
+    professionalPriceNote: "Flat founding rate; no scheduled price increase.",
     enterprisePrice: "Contact Sales",
     current: "Current",
     contactSales: "Contact sales",
@@ -286,9 +286,9 @@ const billingCopy: Record<AppLocale, BillingCopy> = {
     enterprise: "Enterprise",
     trialPrice: "14 jours gratuits",
     starterPrice: "49 $/mois",
-    starterPriceNote: "Prix régulier : 69 $/mois. Tarif fondateur bloqué 12 mois.",
+    starterPriceNote: "Tarif fondateur fixe ; aucune hausse programmée.",
     professionalPrice: "109 $/mois",
-    professionalPriceNote: "Prix régulier : 149 $/mois. Tarif fondateur bloqué 12 mois.",
+    professionalPriceNote: "Tarif fondateur fixe ; aucune hausse programmée.",
     enterprisePrice: "Contacter l'équipe commerciale",
     current: "Actuel",
     contactSales: "Contacter l'équipe commerciale",

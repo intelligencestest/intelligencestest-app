@@ -13,8 +13,9 @@ export type ActivationResult =
 /** Maps a PayPal plan id from a webhook event to our plan, or null if it's
  * not one of the plans this app sells (e.g. a legacy or unrelated plan). */
 export function planForPayPalPlanId(paypalPlanId: string, config: PayPalSubscriptionConfig): PayPalPlan | null {
-  if (paypalPlanId === config.plans.starter) return "starter";
-  if (paypalPlanId === config.plans.professional) return "professional";
+  if (paypalPlanId === config.allPlans.USD.starter || paypalPlanId === config.allPlans.EUR.starter) return "starter";
+  if (paypalPlanId === config.allPlans.USD.professional || paypalPlanId === config.allPlans.EUR.professional)
+    return "professional";
   return null;
 }
 

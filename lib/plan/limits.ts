@@ -33,14 +33,18 @@ export interface PlanPricing {
   foundingUsd: number;
   /** The regular list price the founding rate is discounted from (USD/month). */
   listUsd: number;
+  /** Flat Spain-market founding rate charged by Spanish checkout (EUR/month). */
+  foundingEur: number;
+  /** Reference EUR list price only; checkout does not step up automatically. */
+  listEur: number;
 }
 
-/** Launch pricing, mirroring the marketing site: USD, founding rate locked for
- * 12 months, list price shown as the reference. null = not self-serve priced. */
+/** Launch pricing, mirroring the marketing site: flat founding rates with list
+ * prices retained as comparison references only. null = not self-serve priced. */
 export const PLAN_PRICING: Record<PlanId, PlanPricing | null> = {
   trial: null,
-  starter: { foundingUsd: 49, listUsd: 69 },
-  professional: { foundingUsd: 109, listUsd: 149 },
+  starter: { foundingUsd: 49, listUsd: 69, foundingEur: 45, listEur: 60 },
+  professional: { foundingUsd: 109, listUsd: 149, foundingEur: 95, listEur: 130 },
   enterprise: null,
 };
 

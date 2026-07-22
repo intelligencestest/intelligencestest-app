@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { AppLocale } from "@/lib/i18n/locales";
+import type { PayPalCurrency } from "@/lib/billing/paypal";
 
 type Locale = AppLocale;
 type PayPalPlan = "starter" | "professional";
@@ -13,6 +14,7 @@ interface PayPalSubscribeButtonProps {
 
 interface PayPalConfig {
   clientId: string | null;
+  currency: PayPalCurrency;
   configured: boolean;
   missing?: string[];
   plans: Record<PayPalPlan, string | null>;
@@ -52,13 +54,19 @@ declare global {
   }
 }
 
-function loadPayPalSdk(clientId: string) {
-  const scriptId = "paypal-subscription-sdk";
+function loadPayPalSdk(clientId: string, currency: PayPalCurrency) {
+  const scriptId = `paypal-subscription-sdk-${currency.toLowerCase()}`;
 
   return new Promise<void>((resolve, reject) => {
-    if (window.paypal) {
+    const loadedScript = document.querySelector<HTMLScriptElement>('script[data-sdk-integration-source="intelligencestest-settings"]');
+    if (window.paypal && loadedScript?.dataset.currency === currency) {
       resolve();
       return;
+    }
+
+    if (loadedScript && loadedScript.dataset.currency !== currency) {
+      loadedScript.remove();
+      window.paypal = undefined;
     }
 
     const existing = document.getElementById(scriptId) as HTMLScriptElement | null;
@@ -70,9 +78,10 @@ function loadPayPalSdk(clientId: string) {
 
     const script = document.createElement("script");
     script.id = scriptId;
-    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&vault=true&intent=subscription`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=${currency}&vault=true&intent=subscription`;
     script.async = true;
     script.dataset.sdkIntegrationSource = "intelligencestest-settings";
+    script.dataset.currency = currency;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error("PayPal SDK failed to load"));
     document.body.appendChild(script);
@@ -120,6 +129,7 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
   const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
 
   const copy = paypalCopy[locale];
+  const currency: PayPalCurrency = locale === "es" ? "EUR" : "USD";
 
   useEffect(() => {
     let cancelled = false;
@@ -127,7 +137,7 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
     async function renderButton() {
       try {
         setStatus("loading");
-        const response = await fetch("/api/billing/paypal-config", { cache: "no-store" });
+        const response = await fetch(`/api/billing/paypal-config?currency=${currency}`, { cache: "no-store" });
         const config = (await response.json()) as PayPalConfig;
         const planId = config.plans[plan];
 
@@ -143,7 +153,7 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
           return;
         }
 
-        await loadPayPalSdk(config.clientId);
+        await loadPayPalSdk(config.clientId, config.currency);
         if (cancelled || !containerRef.current || !window.paypal) return;
 
         containerRef.current.innerHTML = "";
@@ -192,7 +202,7 @@ export function PayPalSubscribeButton({ plan, locale }: PayPalSubscribeButtonPro
     return () => {
       cancelled = true;
     };
-  }, [plan]);
+  }, [currency, plan]);
 
   return (
     <div className="space-y-2">
