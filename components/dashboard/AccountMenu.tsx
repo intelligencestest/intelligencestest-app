@@ -22,7 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { localePath, toAppLocale } from "@/lib/i18n/locales";
+import { localePath, toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 import { createClient } from "@/lib/supabase";
 import { initialsFor } from "@/lib/user-display";
 
@@ -34,38 +34,64 @@ interface AccountMenuProps {
   collapsed?: boolean;
 }
 
+const ACCOUNT_MENU_COPY: Record<AppLocale, {
+  account: string;
+  company: string;
+  team: string;
+  security: string;
+  billing: string;
+  integrations: string;
+  language: string;
+  languageValue: string;
+  menu: string;
+  admin: string;
+}> = {
+  es: {
+    account: "Cuenta",
+    company: "Empresa",
+    team: "Equipo",
+    security: "Seguridad",
+    billing: "Facturación",
+    integrations: "Integraciones",
+    language: "Idioma",
+    languageValue: "Español",
+    menu: "Menú de cuenta",
+    admin: "Administrador",
+  },
+  fr: {
+    account: "Compte",
+    company: "Entreprise",
+    team: "Équipe",
+    security: "Sécurité",
+    billing: "Facturation",
+    integrations: "Intégrations",
+    language: "Langue",
+    languageValue: "Français",
+    menu: "Menu du compte",
+    admin: "Administrateur",
+  },
+  en: {
+    account: "Account",
+    company: "Company",
+    team: "Team",
+    security: "Security",
+    billing: "Billing",
+    integrations: "Integrations",
+    language: "Language",
+    languageValue: "English",
+    menu: "Account menu",
+    admin: "Admin",
+  },
+};
+
 export function AccountMenu({ userEmail, userName }: AccountMenuProps) {
   const locale = toAppLocale(useLocale());
   const auth = useTranslations("auth");
   const router = useRouter();
-  const es = locale === "es";
   const [loggingOut, setLoggingOut] = useState(false);
   const initials = initialsFor(userName, userEmail);
-  const displayName = userName ?? (es ? "Administrador" : "Admin");
-
-  const copy = es
-    ? {
-        account: "Cuenta",
-        company: "Empresa",
-        team: "Equipo",
-        security: "Seguridad",
-        billing: "Facturación",
-        integrations: "Integraciones",
-        language: "Idioma",
-        languageValue: "Español",
-        menu: "Menú de cuenta",
-      }
-    : {
-        account: "Account",
-        company: "Company",
-        team: "Team",
-        security: "Security",
-        billing: "Billing",
-        integrations: "Integrations",
-        language: "Language",
-        languageValue: "English",
-        menu: "Account menu",
-      };
+  const copy = ACCOUNT_MENU_COPY[locale];
+  const displayName = userName ?? copy.admin;
 
   const handleLogout = async () => {
     setLoggingOut(true);

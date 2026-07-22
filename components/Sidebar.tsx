@@ -24,7 +24,7 @@ type NavItem = { href: string; labelKey: string; icon: LucideIcon };
 /** Navigation grouped into named areas of work — the chrome reads as an
     operating system, not a flat list of pages (design-language.md §5).
     Group labels are presentation copy; kicker: null renders no heading. */
-const navGroups: { kicker: { en: string; es: string } | null; items: NavItem[] }[] = [
+const navGroups: { kicker: { en: string; es: string; fr: string } | null; items: NavItem[] }[] = [
   {
     kicker: null,
     items: [
@@ -33,7 +33,7 @@ const navGroups: { kicker: { en: string; es: string } | null; items: NavItem[] }
     ],
   },
   {
-    kicker: { en: "Pipeline", es: "Proceso" },
+    kicker: { en: "Pipeline", es: "Proceso", fr: "Pipeline" },
     items: [
       { href: "/projects", labelKey: "projects", icon: FolderKanban },
       { href: "/candidates", labelKey: "candidates", icon: Users },
@@ -41,7 +41,7 @@ const navGroups: { kicker: { en: string; es: string } | null; items: NavItem[] }
     ],
   },
   {
-    kicker: { en: "Insight", es: "Análisis" },
+    kicker: { en: "Insight", es: "Análisis", fr: "Analyse" },
     items: [{ href: "/reports", labelKey: "reports", icon: BarChart3 }],
   },
 ];
@@ -51,9 +51,14 @@ interface SidebarProps {
   reviewCount?: number;
 }
 
+const SUBTITLE: Record<ReturnType<typeof toAppLocale>, string> = {
+  en: "Assessment OS",
+  es: "Sistema de evaluación",
+  fr: "Système d'évaluation",
+};
+
 interface SidebarContentProps {
   compact: boolean;
-  es: boolean;
   isActive: (href: string) => boolean;
   locale: ReturnType<typeof toAppLocale>;
   nav: (key: string) => string;
@@ -61,7 +66,7 @@ interface SidebarContentProps {
   reviewCount: number;
 }
 
-function SidebarContent({ compact, es, isActive, locale, nav, onNavigate, reviewCount }: SidebarContentProps) {
+function SidebarContent({ compact, isActive, locale, nav, onNavigate, reviewCount }: SidebarContentProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
@@ -70,7 +75,7 @@ function SidebarContent({ compact, es, isActive, locale, nav, onNavigate, review
           <BrandLogoMark className="h-9 w-9 rounded-lg" />
         ) : (
           <BrandLockup
-            subtitle={es ? "Sistema de evaluación" : "Assessment OS"}
+            subtitle={SUBTITLE[locale]}
             markClassName="h-9 w-9 rounded-lg"
             titleClassName="text-[13px] leading-tight"
             subtitleClassName="text-[11px] leading-tight text-[var(--it-faint)]"
@@ -84,7 +89,7 @@ function SidebarContent({ compact, es, isActive, locale, nav, onNavigate, review
           <div key={gi} className={cn(gi > 0 && (compact ? "mt-3" : "mt-5"))}>
             {group.kicker && !compact && (
               <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.09em] text-[var(--it-faint)]">
-                {es ? group.kicker.es : group.kicker.en}
+                {group.kicker[locale]}
               </p>
             )}
             <div className="space-y-1">
@@ -137,7 +142,6 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
   const pathname = usePathname();
   const nav = useTranslations("nav");
   const locale = toAppLocale(useLocale());
-  const es = locale === "es";
   const [mobileOpen, setMobileOpen] = useState(false);
 
   // Compare against the logical path so /es/projects highlights the same item
@@ -172,7 +176,6 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
       >
         <SidebarContent
           compact={false}
-          es={es}
           isActive={isActive}
           locale={locale}
           nav={nav}
@@ -189,7 +192,6 @@ export default function Sidebar({ reviewCount = 0 }: SidebarProps) {
       >
         <SidebarContent
           compact={compact}
-          es={es}
           isActive={isActive}
           locale={locale}
           nav={nav}

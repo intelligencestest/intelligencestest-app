@@ -7,6 +7,7 @@ import {
   assessmentName as i18nAssessmentName,
   assessmentShort as i18nAssessmentShort,
   categoryLabel as i18nCategoryLabel,
+  dimensionLabel as i18nDimensionLabel,
 } from "@/lib/i18n/assessment-terms";
 
 type Phase = "validating" | "registering" | "ready" | "testing" | "submitting" | "completed" | "battery-continue" | "error";
@@ -78,6 +79,47 @@ function formatTime(seconds: number) {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
+const DIMENSION_DESCRIPTION_FR: Record<string, string> = {
+  "Recognizing emotions, triggers, and impact.": "Reconnaître ses émotions, leurs déclencheurs et leur impact.",
+  "Managing impulses, stress, and reactions.": "Gérer ses impulsions, son stress et ses réactions.",
+  "Sustaining drive, optimism, and initiative.": "Maintenir sa motivation, son optimisme et son esprit d'initiative.",
+  "Understanding and respecting others' perspectives.": "Comprendre et respecter le point de vue des autres.",
+  "Building trust, collaboration, and influence.": "Développer la confiance, la collaboration et l'influence.",
+  "Sets direction and connects work to a larger future.": "Donne une direction et relie le travail à une vision plus large.",
+  "Develops people through feedback, goals, and growth.": "Développe les personnes par le feedback, les objectifs et la progression.",
+  "Builds harmony, trust, and emotional connection.": "Crée de l'harmonie, de la confiance et un lien humain.",
+  "Creates commitment through participation and input.": "Suscite l'adhésion par la participation et la contribution.",
+  "Raises standards through speed and personal example.": "Élève les standards par le rythme et l'exemple personnel.",
+  "Provides firm direction in urgent or high-risk moments.": "Donne une direction ferme dans les situations urgentes ou à haut risque.",
+  "Curiosity, imagination, and comfort with new ideas.": "Curiosité, imagination et aisance face aux idées nouvelles.",
+  "Organization, reliability, and follow-through.": "Organisation, fiabilité et constance dans l'exécution.",
+  "Social energy, assertiveness, and expressiveness.": "Énergie sociale, assurance et expressivité.",
+  "Cooperation, empathy, and trust-building.": "Coopération, empathie et capacité à instaurer la confiance.",
+  "Composure, resilience, and stress regulation.": "Sang-froid, résilience et régulation du stress.",
+  "Clarity, structure, and precision in written communication.": "Clarté, structure et précision dans la communication écrite.",
+  "Confidence, clarity, and adaptability when speaking.": "Assurance, clarté et adaptabilité à l'oral.",
+  "Active listening, retention, and comprehension.": "Écoute active, mémorisation et compréhension.",
+  "Awareness of body language, gestures, and visual cues.": "Lecture du langage corporel, des gestes et des signaux visuels.",
+  "Managing emotional reactions under pressure.": "Gérer ses réactions émotionnelles sous pression.",
+  "Recovering and adapting after setbacks.": "Rebondir et s'adapter après un revers.",
+  "Using healthy methods to manage and reduce stress.": "Employer des méthodes saines pour gérer et réduire le stress.",
+  "Maintaining quality and effectiveness in demanding situations.": "Maintenir la qualité et l'efficacité dans les situations exigeantes.",
+  "Supporting colleagues and prioritising shared success.": "Soutenir ses collègues et donner la priorité à la réussite collective.",
+  "Sharing information clearly and listening actively.": "Partager l'information clairement et pratiquer l'écoute active.",
+  "Following through on commitments dependably.": "Tenir ses engagements de manière fiable.",
+  "Handling disagreements constructively and professionally.": "Gérer les désaccords de façon constructive et professionnelle.",
+  "Using data and logic to evaluate options and decisions.": "Utiliser les données et la logique pour évaluer les options et les décisions.",
+  "Accuracy, thoroughness, and quality in all tasks.": "Précision, rigueur et qualité dans toutes les tâches.",
+  "Working with and through others to achieve shared goals.": "Travailler avec les autres pour atteindre des objectifs communs.",
+  "Flexibility and effectiveness in changing conditions.": "Faire preuve de souplesse et d'efficacité lorsque les conditions changent.",
+  "Focus, initiative, and drive to achieve outcomes.": "Concentration, initiative et détermination à obtenir des résultats.",
+  "Uses evidence, tradeoffs, and risk awareness.": "S'appuie sur les preuves, les arbitrages et la maîtrise des risques.",
+  "Works constructively with others toward shared outcomes.": "Coopère de manière constructive pour atteindre des résultats communs.",
+  "Owns outcomes, mistakes, and follow-through.": "Assume les résultats, les erreurs et le suivi des engagements.",
+  "Adjusts effectively when conditions change.": "S'adapte efficacement lorsque les conditions changent.",
+  "Clarifies context, impact, and next steps.": "Clarifie le contexte, l'impact et les prochaines étapes.",
+};
+
 export default function AssessmentRunner({
   searchParams,
   assessmentName,
@@ -124,11 +166,12 @@ export default function AssessmentRunner({
   const localizedQuestions: RunnerQuestion[] = localeQuestionMap
     ? questions.map((q) => {
         const localizedQ = localeQuestionMap[q.id];
-        if (!localizedQ) return q;
+        const groupLabel = q.groupLabel ? i18nDimensionLabel(q.groupLabel, locale) : q.groupLabel;
+        if (!localizedQ) return { ...q, groupLabel };
         if (q.kind === "choice" && localizedQ.options) {
-          return { ...q, text: localizedQ.text, options: [...localizedQ.options] };
+          return { ...q, text: localizedQ.text, options: [...localizedQ.options], groupLabel };
         }
-        return { ...q, text: localizedQ.text };
+        return { ...q, text: localizedQ.text, groupLabel };
       })
     : questions;
 
@@ -315,6 +358,12 @@ export default function AssessmentRunner({
       : locale === "fr" && instructionsFr
         ? instructionsFr
         : instructions;
+  const localizedDimensionSummary = dimensionSummary?.map((dimension) => ({
+    ...dimension,
+    label: i18nDimensionLabel(dimension.label, locale),
+    description:
+      locale === "fr" ? DIMENSION_DESCRIPTION_FR[dimension.description] ?? dimension.description : dimension.description,
+  }));
   const likertLabels = [...s.likert];
   // The API keeps the English name as its key; only the display localizes.
   const displayName = i18nAssessmentName(assessmentName, locale);
@@ -433,11 +482,11 @@ export default function AssessmentRunner({
             ))}
           </div>
 
-          {dimensionSummary && (
+          {localizedDimensionSummary && (
             <div className="mb-6 rounded-lg border border-[var(--it-hairline)] bg-[var(--it-surface-muted)] p-4">
               <p className="mb-3 text-sm font-medium text-[var(--it-text)]">{s.thisMeasures}</p>
               <div className="grid gap-2 text-sm sm:grid-cols-2">
-                {dimensionSummary.map((dimension) => (
+                {localizedDimensionSummary.map((dimension) => (
                   <div key={dimension.label} className="flex items-start gap-2">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${dimension.className}`} style={{ color: "var(--it-muted)" }}>{dimension.label}</span>
                     <span className="text-[var(--it-muted)]">{dimension.description}</span>
@@ -469,7 +518,7 @@ export default function AssessmentRunner({
       <div className="flex min-h-screen items-center justify-center bg-[var(--it-bg)]">
         <div className="text-center">
           <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-          <p className="text-[var(--it-muted)]">{submittingText}</p>
+          <p className="text-[var(--it-muted)]">{locale === "en" ? submittingText : s.scoringAnswers}</p>
         </div>
       </div>
     );
@@ -520,9 +569,17 @@ export default function AssessmentRunner({
           <p className="text-sm leading-relaxed text-[var(--it-muted)]">{s.submittedSub}</p>
           {result?.completionMetric && (
             <div className="mt-6 rounded-lg border border-[var(--it-hairline)] bg-[var(--it-surface-muted)] p-4">
-              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--it-muted)]">{result.completionMetric.label}</p>
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--it-muted)]">
+                {result.completionMetric.label === "Dominant style"
+                  ? locale === "fr"
+                    ? "Style dominant"
+                    : locale === "es"
+                      ? "Estilo dominante"
+                      : result.completionMetric.label
+                  : result.completionMetric.label}
+              </p>
               <p className={`mt-1 text-sm font-semibold ${result.completionMetric.colorClassName ?? "text-[var(--it-text)]"}`}>
-                {result.completionMetric.value}
+                {i18nDimensionLabel(result.completionMetric.value, locale)}
               </p>
             </div>
           )}

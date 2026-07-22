@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 import { appUrl } from "@/lib/app-url";
 
-export type AuthEmailLocale = "en" | "es";
+export type AuthEmailLocale = "en" | "es" | "fr";
 export type AuthEmailKind = "confirmation" | "recovery" | "welcome";
 
 const LOGO_URL = appUrl("/intelligencestest-email-logo.png");
@@ -16,7 +16,7 @@ function escapeHtml(value: string) {
 }
 
 function toLocale(value: unknown): AuthEmailLocale {
-  return value === "en" ? "en" : "es";
+  return value === "en" || value === "fr" ? value : "es";
 }
 
 function copy(kind: AuthEmailKind, locale: AuthEmailLocale) {
@@ -38,6 +38,26 @@ function copy(kind: AuthEmailKind, locale: AuthEmailLocale) {
         powered: "Con tecnología de IntelligencesTest",
         brandSubtitle: "Plataforma de evaluación humana",
         logoAlt: "Logotipo de IntelligencesTest",
+      };
+    }
+
+    if (locale === "fr") {
+      return {
+        subject: "Bienvenue sur IntelligencesTest",
+        preheader: "Activez votre espace de travail et créez votre mot de passe sécurisé.",
+        greeting: (name?: string | null) => (name ? `Bonjour ${name},` : "Bonjour,"),
+        title: "Votre espace de travail est prêt",
+        intro:
+          "L'espace de travail de votre entreprise a été créé sur IntelligencesTest. Utilisez le bouton ci-dessous pour créer votre mot de passe sécurisé et accéder au tableau de bord.",
+        cta: "Créer un mot de passe et se connecter",
+        noticeTitle: "Accès sécurisé",
+        notice:
+          "Pour votre sécurité, ce lien peut expirer prochainement. Si vous n'attendiez pas cette invitation, contactez la personne qui administre la plateforme au sein de votre organisation.",
+        fallback: "Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :",
+        footer: "Support : support@intelligencestest.com",
+        powered: "Propulsé par IntelligencesTest",
+        brandSubtitle: "Plateforme d'évaluation humaine",
+        logoAlt: "Logo IntelligencesTest",
       };
     }
 
@@ -81,6 +101,26 @@ function copy(kind: AuthEmailKind, locale: AuthEmailLocale) {
       };
     }
 
+    if (locale === "fr") {
+      return {
+        subject: "Réinitialisez votre mot de passe IntelligencesTest",
+        preheader: "Utilisez ce lien sécurisé pour réinitialiser votre mot de passe.",
+        greeting: (name?: string | null) => (name ? `Bonjour ${name},` : "Bonjour,"),
+        title: "Réinitialisez votre mot de passe",
+        intro:
+          "Nous avons reçu une demande de réinitialisation du mot de passe de votre compte. Si vous êtes à l'origine de cette demande, utilisez le bouton ci-dessous pour continuer.",
+        cta: "Réinitialiser le mot de passe",
+        noticeTitle: "Lien sécurisé",
+        notice:
+          "Pour votre sécurité, ce lien peut expirer prochainement. Si vous n'avez pas demandé ce changement, vous pouvez ignorer cet e-mail en toute sécurité.",
+        fallback: "Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :",
+        footer: "Support : support@intelligencestest.com",
+        powered: "Propulsé par IntelligencesTest",
+        brandSubtitle: "Plateforme d'évaluation humaine",
+        logoAlt: "Logo IntelligencesTest",
+      };
+    }
+
     return {
       subject: "Reset your IntelligencesTest password",
       preheader: "Use this secure link to reset your password.",
@@ -117,6 +157,26 @@ function copy(kind: AuthEmailKind, locale: AuthEmailLocale) {
       powered: "Con tecnología de IntelligencesTest",
       brandSubtitle: "Plataforma de evaluación humana",
       logoAlt: "Logotipo de IntelligencesTest",
+    };
+  }
+
+  if (locale === "fr") {
+    return {
+      subject: "Confirmez votre compte IntelligencesTest",
+      preheader: "Confirmez votre adresse e-mail pour activer votre espace de travail.",
+      greeting: (name?: string | null) => (name ? `Bonjour ${name},` : "Bonjour,"),
+      title: "Confirmez votre adresse e-mail",
+      intro:
+        "Merci d'avoir créé votre compte. Confirmez cette adresse e-mail pour activer l'espace de travail de votre entreprise et accéder à votre tableau de bord.",
+      cta: "Confirmer l'e-mail",
+      noticeTitle: "Lien d'activation",
+      notice:
+        "Pour votre sécurité, ce lien peut expirer prochainement. Si vous n'êtes pas à l'origine de la création de ce compte, vous pouvez ignorer cet e-mail en toute sécurité.",
+      fallback: "Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur :",
+      footer: "Support : support@intelligencestest.com",
+      powered: "Propulsé par IntelligencesTest",
+      brandSubtitle: "Plateforme d'évaluation humaine",
+      logoAlt: "Logo IntelligencesTest",
     };
   }
 

@@ -32,7 +32,7 @@ export default async function InboxPage({
   const { entries, totalCount } = await loadReviewQueue(
     admin,
     profile?.company_id,
-    locale === "es" ? "es" : "en",
+    locale === "es" ? "es" : locale === "fr" ? "fr" : "en",
     Date.now() // eslint-disable-line react-hooks/purity
   );
 

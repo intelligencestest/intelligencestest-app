@@ -3,7 +3,7 @@ import { getLocale } from "next-intl/server";
 import { UserPlus } from "lucide-react";
 import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
 import { getPlanUsageSummary } from "@/lib/plan/limits";
-import { localePath, toAppLocale } from "@/lib/i18n/locales";
+import { localePath, toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 type MemberRow = {
   id: string;
@@ -20,59 +20,106 @@ type MemberRow = {
  * invite affordance opens a disclosure that says exactly that. No fake
  * pending rows, no fake role editing.
  */
+const TEAM_COPY: Record<AppLocale, {
+  title: string;
+  description: string;
+  member: string;
+  role: string;
+  status: string;
+  joined: string;
+  you: string;
+  active: string;
+  roleAdmin: string;
+  roleRecruiter: string;
+  seats: (used: number, limit: string) => string;
+  unlimited: string;
+  invite: string;
+  atLimitTitle: string;
+  atLimitBody: string;
+  atLimitCta: string;
+  inviteTitle: string;
+  inviteBody: string;
+  inviteCta: string;
+  soloNote: string;
+  soloHint: string;
+}> = {
+  es: {
+    title: "Equipo",
+    description: "Miembros del espacio de trabajo, roles y acceso.",
+    member: "Miembro",
+    role: "Rol",
+    status: "Estado",
+    joined: "Alta",
+    you: "Tú",
+    active: "Activo",
+    roleAdmin: "Admin",
+    roleRecruiter: "Recruiter",
+    seats: (used: number, limit: string) => `${used} de ${limit} recruiters en su plan`,
+    unlimited: "sin límite",
+    invite: "Invitar recruiter",
+    atLimitTitle: "Ha alcanzado el límite de recruiters de su plan.",
+    atLimitBody: "Amplíe su plan para añadir más miembros al equipo.",
+    atLimitCta: "Ver planes",
+    inviteTitle: "Alta de un nuevo recruiter",
+    inviteBody:
+      "Durante el lanzamiento, las altas de recruiters las gestiona nuestro equipo: envíenos el nombre y el correo del nuevo miembro y lo activaremos en su workspace en menos de 24 horas laborables.",
+    inviteCta: "Contactar con soporte",
+    soloNote: "Por ahora solo usted forma parte del equipo.",
+    soloHint: "Los planes Professional y Enterprise permiten trabajar con más recruiters en el mismo workspace.",
+  },
+  fr: {
+    title: "Équipe",
+    description: "Membres de l'espace de travail, rôles et accès.",
+    member: "Membre",
+    role: "Rôle",
+    status: "Statut",
+    joined: "Ajouté le",
+    you: "Vous",
+    active: "Actif",
+    roleAdmin: "Admin",
+    roleRecruiter: "Recruteur",
+    seats: (used: number, limit: string) => `${used} sur ${limit} recruteurs inclus dans votre forfait`,
+    unlimited: "illimité",
+    invite: "Inviter un recruteur",
+    atLimitTitle: "Vous avez atteint la limite de recruteurs de votre forfait.",
+    atLimitBody: "Passez à un forfait supérieur pour ajouter des membres à l'équipe.",
+    atLimitCta: "Voir les forfaits",
+    inviteTitle: "Ajout d'un nouveau recruteur",
+    inviteBody:
+      "Pendant le lancement, l'ajout de recruteurs est géré par notre équipe : envoyez-nous le nom et l'e-mail du nouveau membre et nous l'activerons dans votre espace de travail sous un jour ouvré.",
+    inviteCta: "Contacter le support",
+    soloNote: "Pour l'instant, vous êtes le seul membre de cette équipe.",
+    soloHint: "Les forfaits Professional et Enterprise permettent de travailler avec davantage de recruteurs dans le même espace de travail.",
+  },
+  en: {
+    title: "Team",
+    description: "Workspace members, roles, and access.",
+    member: "Member",
+    role: "Role",
+    status: "Status",
+    joined: "Joined",
+    you: "You",
+    active: "Active",
+    roleAdmin: "Admin",
+    roleRecruiter: "Recruiter",
+    seats: (used: number, limit: string) => `${used} of ${limit} recruiters on your plan`,
+    unlimited: "unlimited",
+    invite: "Invite recruiter",
+    atLimitTitle: "You have reached your plan's recruiter limit.",
+    atLimitBody: "Upgrade your plan to add more team members.",
+    atLimitCta: "View plans",
+    inviteTitle: "Adding a new recruiter",
+    inviteBody:
+      "During launch, recruiter seats are provisioned by our team: send us the new member's name and email and we will activate them in your workspace within one business day.",
+    inviteCta: "Contact support",
+    soloNote: "For now, you are the only member of this team.",
+    soloHint: "Professional and Enterprise plans support additional recruiters in the same workspace.",
+  },
+};
+
 export default async function TeamSettingsPage() {
   const locale = toAppLocale(await getLocale());
-  const es = locale === "es";
-
-  const copy = es
-    ? {
-        title: "Equipo",
-        description: "Miembros del espacio de trabajo, roles y acceso.",
-        member: "Miembro",
-        role: "Rol",
-        status: "Estado",
-        joined: "Alta",
-        you: "Tú",
-        active: "Activo",
-        roleAdmin: "Admin",
-        roleRecruiter: "Recruiter",
-        seats: (used: number, limit: string) => `${used} de ${limit} recruiters en su plan`,
-        unlimited: "sin límite",
-        invite: "Invitar recruiter",
-        atLimitTitle: "Ha alcanzado el límite de recruiters de su plan.",
-        atLimitBody: "Amplíe su plan para añadir más miembros al equipo.",
-        atLimitCta: "Ver planes",
-        inviteTitle: "Alta de un nuevo recruiter",
-        inviteBody:
-          "Durante el lanzamiento, las altas de recruiters las gestiona nuestro equipo: envíenos el nombre y el correo del nuevo miembro y lo activaremos en su workspace en menos de 24 horas laborables.",
-        inviteCta: "Contactar con soporte",
-        soloNote: "Por ahora solo usted forma parte del equipo.",
-        soloHint: "Los planes Professional y Enterprise permiten trabajar con más recruiters en el mismo workspace.",
-      }
-    : {
-        title: "Team",
-        description: "Workspace members, roles, and access.",
-        member: "Member",
-        role: "Role",
-        status: "Status",
-        joined: "Joined",
-        you: "You",
-        active: "Active",
-        roleAdmin: "Admin",
-        roleRecruiter: "Recruiter",
-        seats: (used: number, limit: string) => `${used} of ${limit} recruiters on your plan`,
-        unlimited: "unlimited",
-        invite: "Invite recruiter",
-        atLimitTitle: "You have reached your plan's recruiter limit.",
-        atLimitBody: "Upgrade your plan to add more team members.",
-        atLimitCta: "View plans",
-        inviteTitle: "Adding a new recruiter",
-        inviteBody:
-          "During launch, recruiter seats are provisioned by our team: send us the new member's name and email and we will activate them in your workspace within one business day.",
-        inviteCta: "Contact support",
-        soloNote: "For now, you are the only member of this team.",
-        soloHint: "Professional and Enterprise plans support additional recruiters in the same workspace.",
-      };
+  const copy = TEAM_COPY[locale];
 
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -97,7 +144,7 @@ export default async function TeamSettingsPage() {
   const team = members ?? [];
   const recruiterLimit = planSummary?.limits.recruiters ?? null;
   const atLimit = recruiterLimit !== null && team.length >= recruiterLimit;
-  const dateLocale = es ? "es-ES" : "en-US";
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale];
 
   const initialsOf = (name: string | null, email: string) => {
     const source = name?.trim() || email;

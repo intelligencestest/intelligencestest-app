@@ -2,11 +2,18 @@
 
 import { useState } from "react";
 import { useLocale } from "next-intl";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 interface GenerateClientBriefButtonProps {
   projectId: string;
   projectName: string;
 }
+
+const GENERATE_BRIEF_COPY: Record<AppLocale, { failed: string; generating: string; generate: string }> = {
+  es: { failed: "No se pudo generar el documento del cliente.", generating: "Generando...", generate: "Generar PDF para el cliente" },
+  fr: { failed: "Impossible de générer le document client.", generating: "Génération en cours...", generate: "Générer le PDF client" },
+  en: { failed: "Failed to generate the client brief.", generating: "Generating...", generate: "Generate client PDF" },
+};
 
 function filenameFromDisposition(disposition: string | null): string | null {
   if (!disposition) return null;
@@ -18,7 +25,7 @@ function filenameFromDisposition(disposition: string | null): string | null {
 // lib/pdf/download.ts (internal report), calling the separate
 // app/api/reports/client-brief pipeline instead.
 export default function GenerateClientBriefButton({ projectId, projectName }: GenerateClientBriefButtonProps) {
-  const es = useLocale() === "es";
+  const copy = GENERATE_BRIEF_COPY[toAppLocale(useLocale())];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,10 +41,7 @@ export default function GenerateClientBriefButton({ projectId, projectName }: Ge
 
       if (!response.ok) {
         const data = await response.json().catch(() => null);
-        setError(
-          data?.error ??
-            (es ? "No se pudo generar el documento del cliente." : "Failed to generate the client brief.")
-        );
+        setError(data?.error ?? copy.failed);
         return;
       }
 
@@ -57,7 +61,7 @@ export default function GenerateClientBriefButton({ projectId, projectName }: Ge
         URL.revokeObjectURL(url);
       }
     } catch {
-      setError(es ? "No se pudo generar el documento del cliente." : "Failed to generate the client brief.");
+      setError(copy.failed);
     } finally {
       setLoading(false);
     }
@@ -81,7 +85,7 @@ export default function GenerateClientBriefButton({ projectId, projectName }: Ge
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0-3-3m3 3 3-3M9 3h6l4 4v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
           </svg>
         )}
-        {loading ? (es ? "Generando..." : "Generating...") : es ? "Generar PDF para el cliente" : "Generate client PDF"}
+        {loading ? copy.generating : copy.generate}
       </button>
       {error && (
         <p className="absolute right-0 top-full mt-1.5 w-64 text-right text-xs text-[#b91c1c]">{error}</p>

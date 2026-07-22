@@ -5,74 +5,126 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { AlertTriangle, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase";
-import { localePath, toAppLocale } from "@/lib/i18n/locales";
+import { localePath, toAppLocale, type AppLocale } from "@/lib/i18n/locales";
+
+const SECURITY_COPY: Record<AppLocale, {
+  title: string;
+  description: string;
+  resetLinkTitle: string;
+  resetLinkText: string;
+  sendResetLink: string;
+  sendingResetLink: string;
+  resetLinkSent: string;
+  resetLinkError: string;
+  changePasswordTitle: string;
+  changePasswordText: string;
+  passwordChanged: string;
+  accountEmailTitle: string;
+  accountEmailText: string;
+  accountEmailChange: string;
+  contactSupport: string;
+  notesTitle: string;
+  notes: string[];
+  dangerZone: string;
+  dangerText: string;
+  requestViaSupport: string;
+  deleteData: string;
+  closeAccount: string;
+}> = {
+  es: {
+    title: "Seguridad",
+    description: "Contraseña y acciones sensibles de la cuenta.",
+    resetLinkTitle: "Enlace de restablecimiento",
+    resetLinkText: "Envíe un enlace seguro a su correo para crear una nueva contraseña.",
+    sendResetLink: "Enviar enlace",
+    sendingResetLink: "Enviando enlace...",
+    resetLinkSent: "Enlace de restablecimiento enviado.",
+    resetLinkError: "No se pudo enviar el enlace de restablecimiento.",
+    changePasswordTitle: "Cambiar contraseña",
+    changePasswordText: "Establezca una nueva contraseña directamente, sin salir de la sesión actual.",
+    passwordChanged: "Contraseña actualizada correctamente.",
+    accountEmailTitle: "Correo de la cuenta",
+    accountEmailText: "Este es el correo con el que inicia sesión y donde recibe las notificaciones del workspace.",
+    accountEmailChange: "Para cambiar el correo de acceso, contacte con soporte y verificaremos la titularidad de la cuenta.",
+    contactSupport: "Contactar con soporte",
+    notesTitle: "Cómo protegemos su cuenta",
+    notes: [
+      "Las sesiones se gestionan con autenticación gestionada y cifrada; nunca almacenamos su contraseña en texto plano.",
+      "Los enlaces de evaluación de candidatos son tokenizados y caducan a los 7 días.",
+      "Los datos de cada empresa viven en un workspace aislado: ningún otro cliente puede acceder a sus candidatos o informes.",
+    ],
+    dangerZone: "Zona de riesgo",
+    dangerText:
+      "Estas acciones son irreversibles. Durante el lanzamiento se procesan manualmente por nuestro equipo, previa verificación de identidad, en un plazo máximo de 72 horas.",
+    requestViaSupport: "Solicitar por soporte",
+    deleteData: "Eliminar todos los datos de evaluación",
+    closeAccount: "Cerrar cuenta",
+  },
+  fr: {
+    title: "Sécurité",
+    description: "Mot de passe et actions sensibles du compte.",
+    resetLinkTitle: "Lien de réinitialisation",
+    resetLinkText: "Envoyez un lien sécurisé à votre e-mail pour créer un nouveau mot de passe.",
+    sendResetLink: "Envoyer le lien",
+    sendingResetLink: "Envoi du lien...",
+    resetLinkSent: "Lien de réinitialisation envoyé.",
+    resetLinkError: "Impossible d'envoyer le lien de réinitialisation.",
+    changePasswordTitle: "Changer le mot de passe",
+    changePasswordText: "Définissez un nouveau mot de passe directement, sans quitter votre session actuelle.",
+    passwordChanged: "Mot de passe mis à jour avec succès.",
+    accountEmailTitle: "E-mail du compte",
+    accountEmailText: "C'est l'e-mail avec lequel vous vous connectez et où vous recevez les notifications de l'espace de travail.",
+    accountEmailChange: "Pour changer votre e-mail de connexion, contactez le support ; nous vérifierons d'abord la titularité du compte.",
+    contactSupport: "Contacter le support",
+    notesTitle: "Comment votre compte est protégé",
+    notes: [
+      "Les sessions utilisent une authentification gérée et chiffrée ; votre mot de passe n'est jamais stocké en texte brut.",
+      "Les liens d'évaluation des candidats sont tokenisés et expirent au bout de 7 jours.",
+      "Les données de chaque entreprise vivent dans un espace de travail isolé : aucun autre client ne peut accéder à vos candidats ou rapports.",
+    ],
+    dangerZone: "Zone à risque",
+    dangerText:
+      "Ces actions sont irréversibles. Pendant le lancement, elles sont traitées manuellement par notre équipe, après vérification d'identité, sous 72 heures maximum.",
+    requestViaSupport: "Demander via le support",
+    deleteData: "Supprimer toutes les données d'évaluation",
+    closeAccount: "Fermer le compte",
+  },
+  en: {
+    title: "Security",
+    description: "Password and sensitive account actions.",
+    resetLinkTitle: "Reset link",
+    resetLinkText: "Send a secure link to your email to create a new password.",
+    sendResetLink: "Send reset link",
+    sendingResetLink: "Sending reset link...",
+    resetLinkSent: "Password reset link sent.",
+    resetLinkError: "Could not send password reset link.",
+    changePasswordTitle: "Change password",
+    changePasswordText: "Set a new password directly, without leaving your current session.",
+    passwordChanged: "Password updated successfully.",
+    accountEmailTitle: "Account email",
+    accountEmailText: "This is the email you sign in with and where workspace notifications are delivered.",
+    accountEmailChange: "To change your sign-in email, contact support and we will verify account ownership first.",
+    contactSupport: "Contact support",
+    notesTitle: "How your account is protected",
+    notes: [
+      "Sessions use managed, encrypted authentication; your password is never stored in plain text.",
+      "Candidate assessment links are tokenized and expire after 7 days.",
+      "Each company's data lives in an isolated workspace: no other customer can access your candidates or reports.",
+    ],
+    dangerZone: "Danger zone",
+    dangerText:
+      "These actions are irreversible. During launch they are processed manually by our team, after identity verification, within 72 hours.",
+    requestViaSupport: "Request via support",
+    deleteData: "Delete all assessment data",
+    closeAccount: "Close account",
+  },
+};
 
 export default function SecuritySettingsPage() {
   const flow = useTranslations("authFlow");
   const locale = useLocale();
-  const es = locale === "es";
-
-  const copy = es
-    ? {
-        title: "Seguridad",
-        description: "Contraseña y acciones sensibles de la cuenta.",
-        resetLinkTitle: "Enlace de restablecimiento",
-        resetLinkText: "Envíe un enlace seguro a su correo para crear una nueva contraseña.",
-        sendResetLink: "Enviar enlace",
-        sendingResetLink: "Enviando enlace...",
-        resetLinkSent: "Enlace de restablecimiento enviado.",
-        resetLinkError: "No se pudo enviar el enlace de restablecimiento.",
-        changePasswordTitle: "Cambiar contraseña",
-        changePasswordText: "Establezca una nueva contraseña directamente, sin salir de la sesión actual.",
-        passwordChanged: "Contraseña actualizada correctamente.",
-        accountEmailTitle: "Correo de la cuenta",
-        accountEmailText: "Este es el correo con el que inicia sesión y donde recibe las notificaciones del workspace.",
-        accountEmailChange: "Para cambiar el correo de acceso, contacte con soporte y verificaremos la titularidad de la cuenta.",
-        contactSupport: "Contactar con soporte",
-        notesTitle: "Cómo protegemos su cuenta",
-        notes: [
-          "Las sesiones se gestionan con autenticación gestionada y cifrada; nunca almacenamos su contraseña en texto plano.",
-          "Los enlaces de evaluación de candidatos son tokenizados y caducan a los 7 días.",
-          "Los datos de cada empresa viven en un workspace aislado: ningún otro cliente puede acceder a sus candidatos o informes.",
-        ],
-        dangerZone: "Zona de riesgo",
-        dangerText:
-          "Estas acciones son irreversibles. Durante el lanzamiento se procesan manualmente por nuestro equipo, previa verificación de identidad, en un plazo máximo de 72 horas.",
-        requestViaSupport: "Solicitar por soporte",
-        deleteData: "Eliminar todos los datos de evaluación",
-        closeAccount: "Cerrar cuenta",
-      }
-    : {
-        title: "Security",
-        description: "Password and sensitive account actions.",
-        resetLinkTitle: "Reset link",
-        resetLinkText: "Send a secure link to your email to create a new password.",
-        sendResetLink: "Send reset link",
-        sendingResetLink: "Sending reset link...",
-        resetLinkSent: "Password reset link sent.",
-        resetLinkError: "Could not send password reset link.",
-        changePasswordTitle: "Change password",
-        changePasswordText: "Set a new password directly, without leaving your current session.",
-        passwordChanged: "Password updated successfully.",
-        accountEmailTitle: "Account email",
-        accountEmailText: "This is the email you sign in with and where workspace notifications are delivered.",
-        accountEmailChange: "To change your sign-in email, contact support and we will verify account ownership first.",
-        contactSupport: "Contact support",
-        notesTitle: "How your account is protected",
-        notes: [
-          "Sessions use managed, encrypted authentication; your password is never stored in plain text.",
-          "Candidate assessment links are tokenized and expire after 7 days.",
-          "Each company's data lives in an isolated workspace: no other customer can access your candidates or reports.",
-        ],
-        dangerZone: "Danger zone",
-        dangerText:
-          "These actions are irreversible. During launch they are processed manually by our team, after identity verification, within 72 hours.",
-        requestViaSupport: "Request via support",
-        deleteData: "Delete all assessment data",
-        closeAccount: "Close account",
-      };
-
   const appLocale = toAppLocale(locale);
+  const copy = SECURITY_COPY[appLocale];
   const contactHref = localePath("/contact", appLocale);
 
   // -- Reset-link flow (unchanged behavior from the old single-page settings) --
@@ -104,7 +156,7 @@ export default function SecuritySettingsPage() {
       const res = await fetch("/api/auth/recovery", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: toEmail, language: es ? "es" : "en" }),
+        body: JSON.stringify({ email: toEmail, language: appLocale }),
       });
       if (!res.ok) throw new Error(copy.resetLinkError);
       setResetMessage({ type: "success", text: copy.resetLinkSent });

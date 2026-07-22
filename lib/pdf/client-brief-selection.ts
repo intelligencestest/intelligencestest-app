@@ -99,7 +99,7 @@ export function tierSelection(
  */
 export const CLIENT_BRIEF_PAGE_BUDGET = 40;
 
-const GRID_CARDS_PER_PAGE = 9; // 3-per-row compact grid, ~3 rows comfortably per A4 page.
+const GRID_CARDS_PER_PAGE = 4; // 2x2 preserves readable conclusions and evidence labels.
 
 function estimateGridPages(count: number, useDetailedLayout: boolean): number {
   if (count === 0) return 0;

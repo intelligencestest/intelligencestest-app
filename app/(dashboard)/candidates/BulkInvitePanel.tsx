@@ -3,6 +3,7 @@
 import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { AlertTriangle, CheckCircle2, ChevronDown, FileSpreadsheet, Loader2, Upload, XCircle } from "lucide-react";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 interface Project {
   id: string;
@@ -44,79 +45,140 @@ function projectName(batch: InviteBatch) {
   return project?.name ?? "—";
 }
 
+const BULK_INVITE_COPY: Record<AppLocale, {
+  title: string;
+  description: string;
+  open: string;
+  close: string;
+  project: string;
+  assessment: string;
+  file: string;
+  choose: string;
+  hint: string;
+  template: string;
+  queue: string;
+  queuing: string;
+  queued: string;
+  recent: string;
+  loading: string;
+  empty: string;
+  sent: string;
+  failed: string;
+  processed: string;
+  deliveryNote: string;
+  failures: string;
+  row: string;
+  available: (slots: number, total: number) => string;
+  status: Record<InviteBatchStatus, string>;
+}> = {
+  es: {
+    title: "Invitación masiva por CSV",
+    description: "Cargue hasta 200 candidatos. Los correos se enviarán en segundo plano.",
+    open: "Subir CSV",
+    close: "Cerrar",
+    project: "Proyecto",
+    assessment: "Evaluación inicial",
+    file: "Archivo CSV",
+    choose: "Seleccione un archivo .csv",
+    hint: "Columnas obligatorias: name, email. Opcionales: role, test_type.",
+    template: "Descargar plantilla",
+    queue: "Poner invitaciones en cola",
+    queuing: "Validando y creando lote...",
+    queued: "Lote creado. El envío comenzará en segundo plano.",
+    recent: "Lotes recientes",
+    loading: "Cargando lotes...",
+    empty: "Todavía no hay cargas CSV.",
+    sent: "enviados al proveedor",
+    failed: "fallidos",
+    processed: "procesados",
+    deliveryNote:
+      "\"Enviados al proveedor\" significa que el proveedor de correo aceptó la invitación. La entrega final al buzón del candidato (incluidos los rebotes por direcciones inválidas) todavía no se rastrea aquí.",
+    failures: "Ver errores",
+    row: "Fila",
+    available: (slots: number, total: number) =>
+      `Su plan tiene ${slots} plaza${slots === 1 ? "" : "s"} disponible${slots === 1 ? "" : "s"} para ${total} filas. Las filas que superen el límite fallarán si no se libera capacidad antes de procesarlas.`,
+    status: {
+      pending: "En cola",
+      processing: "Enviando",
+      completed: "Procesado",
+      completed_with_failures: "Procesado con errores",
+      failed: "Fallido",
+    },
+  },
+  fr: {
+    title: "Invitation en masse par CSV",
+    description: "Importez jusqu'à 200 candidats. Les e-mails d'invitation sont envoyés en arrière-plan.",
+    open: "Importer un CSV",
+    close: "Fermer",
+    project: "Projet",
+    assessment: "Évaluation de départ",
+    file: "Fichier CSV",
+    choose: "Sélectionnez un fichier .csv",
+    hint: "Colonnes obligatoires : name, email. Facultatives : role, test_type.",
+    template: "Télécharger le modèle",
+    queue: "Mettre les invitations en file d'attente",
+    queuing: "Validation et création du lot...",
+    queued: "Lot créé. L'envoi démarrera en arrière-plan.",
+    recent: "Lots récents",
+    loading: "Chargement des lots...",
+    empty: "Aucun import CSV pour le moment.",
+    sent: "soumis au fournisseur",
+    failed: "échecs",
+    processed: "traités",
+    deliveryNote:
+      "« Soumis » signifie que le fournisseur d'e-mail a accepté l'invitation. La livraison finale dans la boîte de réception du candidat (y compris les rebonds pour adresses invalides) n'est pas encore suivie ici.",
+    failures: "Voir les erreurs",
+    row: "Ligne",
+    available: (slots: number, total: number) =>
+      `Votre forfait dispose de ${slots} place${slots === 1 ? "" : "s"} disponible${slots === 1 ? "" : "s"} pour ${total} lignes. Les lignes au-delà de la limite échoueront tant qu'aucune capacité supplémentaire n'est disponible avant le traitement.`,
+    status: {
+      pending: "En attente",
+      processing: "Envoi en cours",
+      completed: "Traité",
+      completed_with_failures: "Traité avec des échecs",
+      failed: "Échec",
+    },
+  },
+  en: {
+    title: "Bulk invite by CSV",
+    description: "Upload up to 200 candidates. Invite emails are sent in the background.",
+    open: "Upload CSV",
+    close: "Close",
+    project: "Project",
+    assessment: "Starting assessment",
+    file: "CSV file",
+    choose: "Choose a .csv file",
+    hint: "Required columns: name, email. Optional: role, test_type.",
+    template: "Download template",
+    queue: "Queue invitations",
+    queuing: "Validating and creating batch...",
+    queued: "Batch created. Sending will begin in the background.",
+    recent: "Recent batches",
+    loading: "Loading batches...",
+    empty: "No CSV uploads yet.",
+    sent: "submitted",
+    failed: "failed",
+    processed: "processed",
+    deliveryNote:
+      "\"Submitted\" means the email provider accepted the invitation. Final delivery to the candidate's inbox (including bounces from invalid addresses) is not tracked here yet.",
+    failures: "View failures",
+    row: "Row",
+    available: (slots: number, total: number) =>
+      `Your plan currently has ${slots} candidate slot${slots === 1 ? "" : "s"} available for ${total} rows. Rows over the limit will fail unless capacity becomes available before processing.`,
+    status: {
+      pending: "Queued",
+      processing: "Sending",
+      completed: "Processed",
+      completed_with_failures: "Processed with failures",
+      failed: "Failed",
+    },
+  },
+};
+
 export default function BulkInvitePanel({ projects, projectAssessments }: Props) {
-  const locale = useLocale();
-  const es = locale === "es";
-  const dateLocale = es ? "es-ES" : "en-US";
-  const copy = es
-    ? {
-        title: "Invitación masiva por CSV",
-        description: "Cargue hasta 200 candidatos. Los correos se enviarán en segundo plano.",
-        open: "Subir CSV",
-        close: "Cerrar",
-        project: "Proyecto",
-        assessment: "Evaluación inicial",
-        file: "Archivo CSV",
-        choose: "Seleccione un archivo .csv",
-        hint: "Columnas obligatorias: name, email. Opcionales: role, test_type.",
-        template: "Descargar plantilla",
-        queue: "Poner invitaciones en cola",
-        queuing: "Validando y creando lote...",
-        queued: "Lote creado. El envío comenzará en segundo plano.",
-        recent: "Lotes recientes",
-        loading: "Cargando lotes...",
-        empty: "Todavía no hay cargas CSV.",
-        sent: "enviados al proveedor",
-        failed: "fallidos",
-        processed: "procesados",
-        deliveryNote:
-          "\"Enviados al proveedor\" significa que el proveedor de correo aceptó la invitación. La entrega final al buzón del candidato (incluidos los rebotes por direcciones inválidas) todavía no se rastrea aquí.",
-        failures: "Ver errores",
-        row: "Fila",
-        available: (slots: number, total: number) =>
-          `Su plan tiene ${slots} plaza${slots === 1 ? "" : "s"} disponible${slots === 1 ? "" : "s"} para ${total} filas. Las filas que superen el límite fallarán si no se libera capacidad antes de procesarlas.`,
-        status: {
-          pending: "En cola",
-          processing: "Enviando",
-          completed: "Procesado",
-          completed_with_failures: "Procesado con errores",
-          failed: "Fallido",
-        } as Record<InviteBatchStatus, string>,
-      }
-    : {
-        title: "Bulk invite by CSV",
-        description: "Upload up to 200 candidates. Invite emails are sent in the background.",
-        open: "Upload CSV",
-        close: "Close",
-        project: "Project",
-        assessment: "Starting assessment",
-        file: "CSV file",
-        choose: "Choose a .csv file",
-        hint: "Required columns: name, email. Optional: role, test_type.",
-        template: "Download template",
-        queue: "Queue invitations",
-        queuing: "Validating and creating batch...",
-        queued: "Batch created. Sending will begin in the background.",
-        recent: "Recent batches",
-        loading: "Loading batches...",
-        empty: "No CSV uploads yet.",
-        sent: "submitted",
-        failed: "failed",
-        processed: "processed",
-        deliveryNote:
-          "\"Submitted\" means the email provider accepted the invitation. Final delivery to the candidate's inbox (including bounces from invalid addresses) is not tracked here yet.",
-        failures: "View failures",
-        row: "Row",
-        available: (slots: number, total: number) =>
-          `Your plan currently has ${slots} candidate slot${slots === 1 ? "" : "s"} available for ${total} rows. Rows over the limit will fail unless capacity becomes available before processing.`,
-        status: {
-          pending: "Queued",
-          processing: "Sending",
-          completed: "Processed",
-          completed_with_failures: "Processed with failures",
-          failed: "Failed",
-        } as Record<InviteBatchStatus, string>,
-      };
+  const locale = toAppLocale(useLocale());
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale];
+  const copy = BULK_INVITE_COPY[locale];
 
   const [open, setOpen] = useState(false);
   const [projectId, setProjectId] = useState(projects[0]?.id ?? "");
@@ -144,7 +206,8 @@ export default function BulkInvitePanel({ projects, projectAssessments }: Props)
   }, []);
 
   useEffect(() => {
-    void loadBatches();
+    const timer = window.setTimeout(() => void loadBatches(), 0);
+    return () => window.clearTimeout(timer);
   }, [loadBatches]);
 
   useEffect(() => {

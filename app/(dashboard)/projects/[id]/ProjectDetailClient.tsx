@@ -6,6 +6,7 @@ import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import GenerateClientBriefButton from "./GenerateClientBriefButton";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 interface Assessment {
   id: string;
@@ -69,8 +70,14 @@ const clientLabels = {
   openingsHint: "How many roles this shortlist is filling. Drives how many candidates the client-facing brief recommends.",
 };
 
+const COPY_BUTTON_LABELS: Record<AppLocale, { copied: string; copy: string }> = {
+  es: { copied: "Copiado", copy: "Copiar" },
+  fr: { copied: "Copié", copy: "Copier" },
+  en: { copied: "Copied!", copy: "Copy" },
+};
+
 function CopyButton({ text }: { text: string }) {
-  const es = useLocale() === "es";
+  const c = COPY_BUTTON_LABELS[toAppLocale(useLocale())];
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -86,7 +93,7 @@ function CopyButton({ text }: { text: string }) {
       <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
       </svg>
-      {copied ? (es ? "Copiado" : "Copied!") : (es ? "Copiar" : "Copy")}
+      {copied ? c.copied : c.copy}
     </button>
   );
 }
@@ -112,12 +119,67 @@ const avatarColors = [
   "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
 ];
 
-export default function ProjectDetailClient({ project, assessments, candidates, allAssessments }: Props) {
-  const router = useRouter();
-  const es = useLocale() === "es";
-  const dateLocale = es ? "es-ES" : "en-US";
-  const copy = es
-    ? {
+const PROJECT_DETAIL_COPY: Record<AppLocale, {
+  status: Record<string, string>;
+  created: string;
+  deadline: string;
+  edit: string;
+  viewReport: string;
+  battery: string;
+  tests: (count: number) => string;
+  totalMinutes: string;
+  add: string;
+  noAssessments: string;
+  addFirst: string;
+  inviteCandidate: string;
+  inviteDescription: string;
+  linkCopied: string;
+  validShare: string;
+  inviteLink: string;
+  emailSent: string;
+  generateAnother: string;
+  candidateName: string;
+  optional: string;
+  emailAddress: string;
+  requiredEmail: string;
+  assessment: string;
+  noAssessmentsInProject: string;
+  copyLink: string;
+  copying: string;
+  sendEmail: string;
+  sending: string;
+  candidates: string;
+  total: string;
+  completion: string;
+  noCandidates: string;
+  inviteFirst: string;
+  anonymous: string;
+  editProject: string;
+  editDescription: string;
+  projectNameRequired: string;
+  projectName: string;
+  description: string;
+  describePlaceholder: string;
+  cancel: string;
+  saving: string;
+  saveChanges: string;
+  addAssessment: string;
+  addAssessmentDescription: string;
+  added: string;
+  failedSave: string;
+  failedAdd: string;
+  validEmail: string;
+  failedInvite: string;
+  network: string;
+  clientLabel: string;
+  roleLabel: string;
+  compareCandidates: string;
+  clientSummary: string;
+  namePlaceholder: string;
+  emailPlaceholder: string;
+  questionsShort: string;
+}> = {
+  es: {
         status: { active: "Activo", draft: "Borrador", archived: "Archivado", invited: "Invitado", started: "Iniciado", completed: "Completado" } as Record<string, string>,
         created: "Creado",
         deadline: "Límite",
@@ -169,8 +231,75 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         validEmail: "Se requiere un correo electrónico válido para enviar la invitación.",
         failedInvite: "No se pudo generar la invitación",
         network: "Error de red. Intente de nuevo.",
-      }
-    : {
+        clientLabel: "Cliente",
+        roleLabel: "Rol",
+        compareCandidates: "Comparar candidatos",
+        clientSummary: "Resumen para el cliente",
+        namePlaceholder: "María García",
+        emailPlaceholder: "maria@ejemplo.com",
+        questionsShort: "preguntas",
+  },
+  fr: {
+        status: { active: "Actif", draft: "Brouillon", archived: "Archivé", invited: "Invité", started: "Commencé", completed: "Terminé" } as Record<string, string>,
+        created: "Créé le",
+        deadline: "Échéance",
+        edit: "Modifier",
+        viewReport: "Voir le rapport",
+        battery: "Bilan d'évaluations",
+        tests: (count: number) => `${count} test${count === 1 ? "" : "s"}`,
+        totalMinutes: "min au total",
+        add: "Ajouter",
+        noAssessments: "Aucune évaluation liée pour le moment.",
+        addFirst: "Ajouter votre première évaluation →",
+        inviteCandidate: "Inviter un candidat",
+        inviteDescription: "Générez un lien d'invitation sécurisé valable 7 jours.",
+        linkCopied: "Lien copié dans le presse-papiers",
+        validShare: "Valable 7 jours, à partager avec votre candidat",
+        inviteLink: "Lien d'invitation",
+        emailSent: "E-mail envoyé",
+        generateAnother: "Générer une autre invitation",
+        candidateName: "Nom du candidat",
+        optional: "facultatif",
+        emailAddress: "Adresse e-mail",
+        requiredEmail: "requis pour envoyer l'e-mail",
+        assessment: "Évaluation",
+        noAssessmentsInProject: "Aucune évaluation dans ce projet.",
+        copyLink: "Copier le lien",
+        copying: "Copie en cours...",
+        sendEmail: "Envoyer l'e-mail",
+        sending: "Envoi en cours...",
+        candidates: "Candidats",
+        total: "au total",
+        completion: "avancement",
+        noCandidates: "Aucun candidat pour le moment",
+        inviteFirst: "Générez un lien d'invitation ci-dessus pour ajouter votre premier candidat.",
+        anonymous: "Sans nom",
+        editProject: "Modifier le projet",
+        editDescription: "Mettez à jour le nom, la description ou l'échéance du projet.",
+        projectNameRequired: "Le nom du projet est obligatoire",
+        projectName: "Nom du projet",
+        description: "Description",
+        describePlaceholder: "Décrivez le rôle ou le contexte de recrutement...",
+        cancel: "Annuler",
+        saving: "Enregistrement...",
+        saveChanges: "Enregistrer les modifications",
+        addAssessment: "Ajouter une évaluation",
+        addAssessmentDescription: "Sélectionnez un test à ajouter au bilan de ce projet.",
+        added: "Ajoutée",
+        failedSave: "Impossible d'enregistrer les modifications",
+        failedAdd: "Impossible d'ajouter l'évaluation. Veuillez réessayer.",
+        validEmail: "Une adresse e-mail valide est requise pour envoyer l'invitation.",
+        failedInvite: "Impossible de générer l'invitation",
+        network: "Erreur réseau. Veuillez réessayer.",
+        clientLabel: "Client",
+        roleLabel: "Rôle",
+        compareCandidates: "Comparer les candidats",
+        clientSummary: "Résumé client",
+        namePlaceholder: "Marie Dupont",
+        emailPlaceholder: "marie@exemple.com",
+        questionsShort: "questions",
+  },
+  en: {
         status: { active: "Active", draft: "Draft", archived: "Archived", invited: "Invited", started: "Started", completed: "Completed" } as Record<string, string>,
         created: "Created",
         deadline: "Deadline",
@@ -222,7 +351,22 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
         validEmail: "A valid email address is required to send an invite.",
         failedInvite: "Failed to generate invite",
         network: "Network error. Please try again.",
-      };
+        clientLabel: "Client",
+        roleLabel: "Role",
+        compareCandidates: "Compare candidates",
+        clientSummary: "Client summary",
+        namePlaceholder: "Jane Smith",
+        emailPlaceholder: "jane@example.com",
+        questionsShort: "Q",
+  },
+};
+
+export default function ProjectDetailClient({ project, assessments, candidates, allAssessments }: Props) {
+  const router = useRouter();
+  const locale = toAppLocale(useLocale());
+  const es = locale === "es";
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale];
+  const copy = PROJECT_DETAIL_COPY[locale];
 
   // Invite state
   const [inviteForm, setInviteForm] = useState({ full_name: "", email: "", assessment_id: assessments[0]?.id ?? "" });
@@ -392,8 +536,8 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
           {(project.client_name || project.role_title) && (
             <p className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--it-faint)]">
               {[
-                project.client_name ? `${es ? "Cliente" : "Client"}: ${project.client_name}` : null,
-                project.role_title ? `${es ? "Rol" : "Role"}: ${project.role_title}` : null,
+                project.client_name ? `${copy.clientLabel}: ${project.client_name}` : null,
+                project.role_title ? `${copy.roleLabel}: ${project.role_title}` : null,
               ].filter(Boolean).join(" · ")}
             </p>
           )}
@@ -436,7 +580,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
             </svg>
-            {es ? "Comparar candidatos" : "Compare candidates"}
+            {copy.compareCandidates}
           </Link>
           <Link
             href={`/projects/${project.id}/client-summary`}
@@ -445,7 +589,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z" />
             </svg>
-            {es ? "Resumen para el cliente" : "Client summary"}
+            {copy.clientSummary}
           </Link>
           <GenerateClientBriefButton projectId={project.id} projectName={project.name} />
           <Link
@@ -507,11 +651,11 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 4.5h6m-8.25 3h10.5m-12 3h13.5M7.5 21h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 16.5 7.5h-9a2.25 2.25 0 0 0-2.25 2.25v9A2.25 2.25 0 0 0 7.5 21Z" />
                       </svg>
                     </div>
-                    <p className="truncate text-sm font-medium text-slate-200">{termName(assessment.name, es ? "es" : "en")}</p>
+                    <p className="truncate text-sm font-medium text-slate-200">{termName(assessment.name, locale)}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3 text-xs text-slate-500">
                     {assessment.duration_minutes != null && <span>{assessment.duration_minutes} min</span>}
-                    {assessment.question_count != null && <span>{assessment.question_count} {es ? "preguntas" : "Q"}</span>}
+                    {assessment.question_count != null && <span>{assessment.question_count} {copy.questionsShort}</span>}
                   </div>
                 </div>
               ))}
@@ -585,7 +729,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                 <input
                   value={inviteForm.full_name}
                   onChange={(e) => setInviteForm((f) => ({ ...f, full_name: e.target.value }))}
-                  placeholder={es ? "María García" : "Jane Smith"}
+                  placeholder={copy.namePlaceholder}
                   className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
                 />
               </div>
@@ -598,7 +742,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   type="email"
                   value={inviteForm.email}
                   onChange={(e) => setInviteForm((f) => ({ ...f, email: e.target.value }))}
-                  placeholder={es ? "maria@ejemplo.com" : "jane@example.com"}
+                  placeholder={copy.emailPlaceholder}
                   className="w-full rounded-xl border border-[#f3f4f6] bg-[#f8fafc] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-slate-600 transition-colors focus:border-[#4f46e5] focus:ring-2 focus:ring-[#4f46e5]/25"
                 />
               </div>
@@ -614,7 +758,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                   >
                     {assessments.map((a) => (
                       <option key={a.id} value={a.id}>
-                        {termName(a.name, es ? "es" : "en")}{a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}
+                        {termName(a.name, locale)}{a.duration_minutes != null ? ` (${a.duration_minutes} min)` : ""}
                       </option>
                     ))}
                   </select>
@@ -885,7 +1029,7 @@ export default function ProjectDetailClient({ project, assessments, candidates, 
                     className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${linked ? "border-emerald-200 bg-emerald-500/5" : "border-[#f3f4f6] bg-[#f8fafc]/55"}`}
                   >
                     <div className="min-w-0 flex-1">
-                      <p className={`truncate text-sm font-medium ${linked ? "text-[#15803d]" : "text-slate-200"}`}>{termName(a.name, es ? "es" : "en")}</p>
+                      <p className={`truncate text-sm font-medium ${linked ? "text-[#15803d]" : "text-slate-200"}`}>{termName(a.name, locale)}</p>
                       <p className="mt-0.5 text-xs text-slate-500">
                         {a.category} · {a.duration_minutes ?? "-"} min · {a.question_count ?? "-"} Q
                       </p>

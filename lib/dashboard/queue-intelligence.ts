@@ -7,6 +7,7 @@ import {
 import type {
   AssessmentResultInput,
   ConfidenceLevel,
+  IntelligenceLocale,
   QueueIntelligenceProjection,
   RecommendationLevel,
   RiskSeverity,
@@ -34,7 +35,7 @@ export { RECOMMENDATION_ORDER };
  */
 export function deriveQueueIntelligence(
   results: AssessmentResultInput[],
-  locale: "en" | "es"
+  locale: IntelligenceLocale
 ): QueueIntelligence {
   if (results.length === 0) {
     return emptyQueueIntelligenceProjection();

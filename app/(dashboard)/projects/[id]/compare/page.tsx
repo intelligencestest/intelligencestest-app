@@ -27,12 +27,6 @@ type CandidateRow = {
   }[];
 };
 
-// buildAssessmentIntelligence only has real es/en content; fr falls back to
-// en for now (same pattern as the report page before French content landed).
-function engineLocale(locale: CompareLang): "es" | "en" {
-  return locale === "es" ? "es" : "en";
-}
-
 export default async function ComparePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const locale: CompareLang = toAppLocale(await getLocale());
@@ -90,7 +84,7 @@ export default async function ComparePage({ params }: { params: Promise<{ id: st
       rawAnswers: r.raw_answers,
     }));
 
-    const report = buildAssessmentIntelligence({ locale: engineLocale(locale), assessments });
+    const report = buildAssessmentIntelligence({ locale, assessments });
     const projection = toQueueIntelligenceProjection(report);
     const evidenceCount = projection.evidenceSignalIds.length;
 

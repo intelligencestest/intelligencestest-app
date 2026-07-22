@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { assessmentName as termName, assessmentDescription as termDesc } from "@/lib/i18n/assessment-terms";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 interface Assessment {
   id: string;
@@ -170,11 +171,39 @@ const clientLabels = {
   openingsHint: "How many roles this shortlist is filling. Drives how many candidates the client-facing brief recommends.",
 };
 
-export default function NewProjectPage() {
-  const router = useRouter();
-  const es = useLocale() === "es";
-  const copy = es
-    ? {
+const NEW_PROJECT_COPY: Record<AppLocale, {
+  projects: string;
+  newProject: string;
+  createProject: string;
+  subtitle: string;
+  details: string;
+  projectName: string;
+  projectPlaceholder: string;
+  deadline: string;
+  description: string;
+  descriptionPlaceholder: string;
+  roleTemplate: string;
+  roleHint: string;
+  tests: string;
+  manualSelection: string;
+  guideSelected: string;
+  customGuide: string;
+  assessmentsFor: (role: string) => string;
+  selectAssessments: string;
+  chooseManual: string;
+  chooseActive: string;
+  selected: string;
+  loading: string;
+  noneActive: string;
+  questions: string;
+  cancel: string;
+  creating: string;
+  selectOne: string;
+  failed: string;
+  roles: Record<string, { role: string; description: string }>;
+  category: Record<string, string>;
+}> = {
+  es: {
         projects: "Proyectos",
         newProject: "Nuevo proyecto",
         createProject: "Crear proyecto",
@@ -227,8 +256,62 @@ export default function NewProjectPage() {
           Productivity: "Productividad",
           Character: "Carácter",
         } as Record<string, string>,
-      }
-    : {
+  },
+  fr: {
+        projects: "Listes de candidats",
+        newProject: "Nouvelle liste de candidats",
+        createProject: "Créer la liste",
+        subtitle: "Configurez une nouvelle liste de candidats pour un poste ouvert.",
+        details: "Détails de la liste",
+        projectName: "Nom de la liste",
+        projectPlaceholder: "ex. Cadre commercial senior — T3 2026",
+        deadline: "Date limite d'évaluation",
+        description: "Description",
+        descriptionPlaceholder: "Décrivez les exigences du poste et ce que vous recherchez chez les candidats...",
+        roleTemplate: "Choisir un modèle de rôle",
+        roleHint: "Guide facultatif uniquement. Les tests ne sont jamais sélectionnés automatiquement.",
+        tests: "tests",
+        manualSelection: "Sélection manuelle",
+        guideSelected: "modèle sélectionné ; choisissez les évaluations ci-dessous manuellement.",
+        customGuide: "choisissez n'importe quelle combinaison d'évaluations ci-dessous.",
+        assessmentsFor: (role: string) => `Évaluations — ${role}`,
+        selectAssessments: "Sélectionner les évaluations",
+        chooseManual: "Choisissez les tests que les candidats effectueront. Rien n'est sélectionné automatiquement.",
+        chooseActive: "Choisissez les tests actifs que les candidats effectueront pour cette liste.",
+        selected: "sélectionnées",
+        loading: "Chargement des évaluations...",
+        noneActive: "Aucune évaluation active n'est disponible pour le moment.",
+        questions: "questions",
+        cancel: "Annuler",
+        creating: "Création en cours...",
+        selectOne: "Sélectionnez au moins une évaluation avant de créer la liste.",
+        failed: "Impossible de créer la liste",
+        roles: {
+          "sales-representative": { role: "Représentant commercial", description: "Bilan central de raisonnement, jugement, intégrité et prise de décision, plus aptitude commerciale." },
+          "customer-service-agent": { role: "Agent du service client", description: "Bilan central de raisonnement, jugement, intégrité et prise de décision, plus compétences en service client." },
+          manager: { role: "Manager", description: "Bilan central de raisonnement, jugement, intégrité et prise de décision pour les short-lists de management." },
+          "software-developer": { role: "Développeur/euse logiciel", description: "Bilan central de raisonnement, jugement, intégrité et prise de décision, plus résolution de problèmes." },
+          "hr-manager": { role: "Responsable RH", description: "Bilan central de raisonnement, jugement, intégrité et prise de décision pour les short-lists RH." },
+          "call-center-agent": { role: "Agent de centre d'appels", description: "Bilan central de raisonnement, jugement, intégrité et prise de décision, plus compétences en service client." },
+          custom: { role: "Personnalisé", description: "Sélectionnez manuellement les évaluations pour créer un bilan adapté au rôle." },
+        } as Record<string, { role: string; description: string }>,
+        category: {
+          Cognitive: "Cognitif",
+          Resilience: "Résilience",
+          Personality: "Personnalité",
+          Leadership: "Leadership",
+          "Workplace Judgment": "Jugement professionnel",
+          Communication: "Communication",
+          Mechanical: "Mécanique",
+          "Work Style": "Style de travail",
+          Sales: "Ventes",
+          "Customer Service": "Service client",
+          Teamwork: "Travail d'équipe",
+          Productivity: "Productivité",
+          Character: "Caractère",
+        } as Record<string, string>,
+  },
+  en: {
         projects: "Client Shortlists",
         newProject: "New Client Shortlist",
         createProject: "Create Shortlist",
@@ -259,7 +342,14 @@ export default function NewProjectPage() {
         failed: "Failed to create shortlist",
         roles: {} as Record<string, { role: string; description: string }>,
         category: {} as Record<string, string>,
-      };
+  },
+};
+
+export default function NewProjectPage() {
+  const router = useRouter();
+  const locale = toAppLocale(useLocale());
+  const es = locale === "es";
+  const copy = NEW_PROJECT_COPY[locale];
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [assessments, setAssessments] = useState<Assessment[]>([]);
@@ -620,13 +710,13 @@ export default function NewProjectPage() {
                             className="mt-1 h-4 w-4 cursor-pointer rounded border-[var(--it-hairline)] bg-[#ffffff] accent-[#4f46e5]"
                           />
                           <span className="min-w-0 flex-1">
-                            <span className="block text-sm font-medium text-[var(--it-text)]">{termName(assessment.name, es ? "es" : "en")}</span>
+                            <span className="block text-sm font-medium text-[var(--it-text)]">{termName(assessment.name, locale)}</span>
                             <span className="mt-1 block text-xs text-slate-500">
                               {assessment.duration_minutes} min / {assessment.question_count} {copy.questions}
                             </span>
                             {assessment.description && (
                               <span className="mt-2 line-clamp-2 block text-xs leading-relaxed text-slate-600">
-                                {termDesc(assessment.name, assessment.description, es ? "es" : "en")}
+                                {termDesc(assessment.name, assessment.description, locale)}
                               </span>
                             )}
                           </span>

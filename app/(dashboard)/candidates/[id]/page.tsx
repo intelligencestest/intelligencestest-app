@@ -39,7 +39,7 @@ export default async function CandidateReportPage({
   const { ctx } = await searchParams;
   const locale = await getLocale();
   const t = await getTranslations("report");
-  const dateLocale = locale === "es" ? "es-ES" : "en-US";
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale as "es" | "en" | "fr"] ?? "en-US";
 
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();

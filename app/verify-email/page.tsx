@@ -24,7 +24,7 @@ export default function VerifyEmailPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         email,
-        language: locale === "es" ? "es" : "en",
+        language: locale,
       }),
     });
     setResending(false);

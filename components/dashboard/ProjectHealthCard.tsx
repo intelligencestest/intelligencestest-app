@@ -26,7 +26,7 @@ export interface ProjectHealthCardProps {
 export default async function ProjectHealthCard({ project, health }: ProjectHealthCardProps) {
   const t = await getTranslations("dashboard");
   const locale = await getLocale();
-  const dateLocale = locale === "es" ? "es-ES" : "en-US";
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale as "es" | "en" | "fr"] ?? "en-US";
   const style = HEALTH_STYLE[health.status];
 
   const reasonText = (() => {

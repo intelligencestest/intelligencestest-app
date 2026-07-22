@@ -5,6 +5,7 @@ import { useLocale } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
 import { Check, Copy, Link2, Loader2, Mail, Search, UserPlus, X } from "lucide-react";
 import { PIPELINE_STAGES, STATUS_CHIP_STYLE } from "@/lib/dashboard/stages";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 import BulkInvitePanel from "./BulkInvitePanel";
 
 interface Candidate {
@@ -35,8 +36,15 @@ interface Props {
 type LoadingMode = "link" | "email" | null;
 type InviteSuccess = { type: "link"; url: string } | { type: "email"; to: string };
 
+const COPY_BUTTON_COPY: Record<AppLocale, { ariaLabel: string; copied: string; copy: string }> = {
+  es: { ariaLabel: "Copiar enlace", copied: "Copiado", copy: "Copiar" },
+  fr: { ariaLabel: "Copier le lien", copied: "Copié", copy: "Copier" },
+  en: { ariaLabel: "Copy link", copied: "Copied!", copy: "Copy" },
+};
+
 function CopyButton({ text }: { text: string }) {
-  const es = useLocale() === "es";
+  const locale = toAppLocale(useLocale());
+  const c = COPY_BUTTON_COPY[locale];
   const [copied, setCopied] = useState(false);
   return (
     <button
@@ -46,20 +54,62 @@ function CopyButton({ text }: { text: string }) {
           setTimeout(() => setCopied(false), 2000);
         });
       }}
-      aria-label={es ? "Copiar enlace" : "Copy link"}
+      aria-label={c.ariaLabel}
       className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--it-primary)]/40 px-3 py-1.5 text-xs font-medium text-[var(--it-link)] transition-colors hover:bg-[var(--it-primary-soft)]"
     >
       <Copy className="h-3.5 w-3.5" strokeWidth={2} />
-      {copied ? (es ? "Copiado" : "Copied!") : (es ? "Copiar" : "Copy")}
+      {copied ? c.copied : c.copy}
     </button>
   );
 }
 
-export default function CandidatesClient({ initialCandidates, projects, projectAssessments }: Props) {
-  const es = useLocale() === "es";
-  const dateLocale = es ? "es-ES" : "en-US";
-  const copy = es
-    ? {
+const CANDIDATES_COPY: Record<AppLocale, {
+  title: string;
+  across: (count: number) => string;
+  inviteCandidate: string;
+  status: Record<string, string>;
+  search: string;
+  allStatuses: string;
+  allProjects: string;
+  candidate: string;
+  project: string;
+  statusHeader: string;
+  invitedAt: string;
+  noCandidates: string;
+  noMatches: string;
+  anonymous: string;
+  unassigned: string;
+  showing: (shown: number, total: number) => string;
+  nextHeader: string;
+  next: Record<string, string>;
+  modalTitle: string;
+  modalDescription: string;
+  validEmail: string;
+  selectProject: string;
+  noLinked: string;
+  failed: string;
+  network: string;
+  copied: string;
+  validShare: string;
+  inviteLink: string;
+  emailSent: string;
+  inviteAnother: string;
+  candidateName: string;
+  optional: string;
+  emailAddress: string;
+  requiredEmail: string;
+  noProjects: string;
+  createFirst: string;
+  assessment: string;
+  selectProjectFirst: string;
+  copying: string;
+  copyLink: string;
+  sending: string;
+  sendEmail: string;
+  namePlaceholder: string;
+  emailPlaceholder: string;
+}> = {
+  es: {
         title: "Candidatos",
         across: (count: number) => `${count} candidato${count === 1 ? "" : "s"} en todos los proyectos`,
         inviteCandidate: "Invitar candidato",
@@ -120,8 +170,74 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         copyLink: "Copiar enlace",
         sending: "Enviando...",
         sendEmail: "Enviar correo",
-      }
-    : {
+        namePlaceholder: "María García",
+        emailPlaceholder: "maria@ejemplo.com",
+  },
+  fr: {
+        title: "Candidats",
+        across: (count: number) => `${count} candidat${count === 1 ? "" : "s"} sur tous les projets`,
+        inviteCandidate: "Inviter un candidat",
+        status: {
+          invited: "Invité",
+          started: "Commencé",
+          completed: "Terminé",
+          reviewed: "Examiné",
+          interview: "Entretien",
+          hired: "Recruté",
+          rejected: "Refusé",
+          withdrawn: "Retiré",
+          expired: "Expiré",
+        } as Record<string, string>,
+        search: "Rechercher par nom ou e-mail...",
+        allStatuses: "Tous les statuts",
+        allProjects: "Tous les projets",
+        candidate: "Candidat",
+        project: "Projet",
+        statusHeader: "Statut",
+        invitedAt: "Invité",
+        noCandidates: "Aucun candidat pour le moment. Cliquez sur Inviter un candidat pour commencer.",
+        noMatches: "Aucun candidat ne correspond à vos filtres.",
+        anonymous: "Sans nom",
+        unassigned: "Non assigné",
+        showing: (shown: number, total: number) => `Affichage de ${shown} sur ${total} candidats`,
+        nextHeader: "Suivant",
+        next: {
+          invited: "En attente",
+          started: "En cours",
+          completed: "À examiner",
+          reviewed: "Décision",
+          interview: "Entretien",
+          hired: "Recruté",
+          closed: "—",
+        } as Record<string, string>,
+        modalTitle: "Inviter un candidat",
+        modalDescription: "Générez un lien d'évaluation sécurisé valable 7 jours.",
+        validEmail: "Une adresse e-mail valide est requise pour envoyer l'invitation.",
+        selectProject: "Sélectionnez d'abord un projet.",
+        noLinked: "Aucune évaluation n'est liée à ce projet.",
+        failed: "Impossible de générer l'invitation",
+        network: "Erreur réseau. Veuillez réessayer.",
+        copied: "Lien copié dans le presse-papiers",
+        validShare: "Valable 7 jours, à partager avec votre candidat",
+        inviteLink: "Lien d'invitation",
+        emailSent: "E-mail envoyé",
+        inviteAnother: "Inviter un autre candidat",
+        candidateName: "Nom du candidat",
+        optional: "facultatif",
+        emailAddress: "Adresse e-mail",
+        requiredEmail: "requis pour envoyer l'e-mail",
+        noProjects: "Aucun projet pour le moment",
+        createFirst: "créez-en un d'abord",
+        assessment: "Évaluation",
+        selectProjectFirst: "Sélectionnez d'abord un projet",
+        copying: "Copie en cours...",
+        copyLink: "Copier le lien",
+        sending: "Envoi en cours...",
+        sendEmail: "Envoyer l'e-mail",
+        namePlaceholder: "Marie Dupont",
+        emailPlaceholder: "marie@exemple.com",
+  },
+  en: {
         title: "Candidates",
         across: (count: number) => `${count} candidate${count !== 1 ? "s" : ""} across all projects`,
         inviteCandidate: "Invite Candidate",
@@ -182,7 +298,15 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
         copyLink: "Copy Link",
         sending: "Sending...",
         sendEmail: "Send Email",
-      };
+        namePlaceholder: "Jane Smith",
+        emailPlaceholder: "jane@example.com",
+  },
+};
+
+export default function CandidatesClient({ initialCandidates, projects, projectAssessments }: Props) {
+  const locale = toAppLocale(useLocale());
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale];
+  const copy = CANDIDATES_COPY[locale];
   const [candidates, setCandidates] = useState<Candidate[]>(initialCandidates);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -533,7 +657,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                   <input
                     value={form.full_name}
                     onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
-                    placeholder={es ? "María García" : "Jane Smith"}
+                    placeholder={copy.namePlaceholder}
                     className={inputClass}
                   />
                 </div>
@@ -547,7 +671,7 @@ export default function CandidatesClient({ initialCandidates, projects, projectA
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    placeholder={es ? "maria@ejemplo.com" : "jane@example.com"}
+                    placeholder={copy.emailPlaceholder}
                     className={inputClass}
                   />
                 </div>

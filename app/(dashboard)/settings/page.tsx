@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 type ProfileState = {
   name: string;
@@ -13,39 +14,63 @@ type ProfileState = {
   role: string;
 };
 
+const SETTINGS_COPY: Record<AppLocale, {
+  profile: string;
+  fullName: string;
+  accountEmail: string;
+  accountRole: string;
+  notifications: string;
+  notificationItems: { key: "candidateCompleted" | "candidateInvited" | "reportReady" | "weeklyDigest"; label: string; desc: string }[];
+  saveChanges: string;
+}> = {
+  es: {
+    profile: "Perfil de la cuenta",
+    fullName: "Nombre completo",
+    accountEmail: "Correo de acceso",
+    accountRole: "Rol",
+    notifications: "Preferencias de notificación",
+    notificationItems: [
+      { key: "candidateCompleted", label: "El candidato completa una evaluación", desc: "Reciba una notificación cuando un candidato finalice su evaluación" },
+      { key: "candidateInvited", label: "El candidato abre la invitación", desc: "Notificación cuando un candidato abre su enlace de invitación" },
+      { key: "reportReady", label: "El informe está listo", desc: "Aviso cuando se genera un informe de proyecto y está listo para revisar" },
+      { key: "weeklyDigest", label: "Resumen semanal", desc: "Resumen de la actividad de evaluación enviado cada lunes" },
+    ],
+    saveChanges: "Guardar cambios",
+  },
+  fr: {
+    profile: "Profil du compte",
+    fullName: "Nom complet",
+    accountEmail: "E-mail de connexion",
+    accountRole: "Rôle",
+    notifications: "Préférences de notification",
+    notificationItems: [
+      { key: "candidateCompleted", label: "Le candidat termine une évaluation", desc: "Recevez une notification lorsqu'un candidat termine son évaluation" },
+      { key: "candidateInvited", label: "Le candidat ouvre l'invitation", desc: "Notification lorsqu'un candidat ouvre son lien d'invitation" },
+      { key: "reportReady", label: "Le rapport est prêt", desc: "Alerte lorsqu'un rapport de projet est généré et prêt à être consulté" },
+      { key: "weeklyDigest", label: "Résumé hebdomadaire", desc: "Un résumé de toute l'activité d'évaluation envoyé chaque lundi" },
+    ],
+    saveChanges: "Enregistrer les modifications",
+  },
+  en: {
+    profile: "Account profile",
+    fullName: "Full name",
+    accountEmail: "Login email",
+    accountRole: "Role",
+    notifications: "Notification preferences",
+    notificationItems: [
+      { key: "candidateCompleted", label: "Candidate completes assessment", desc: "Get notified when a candidate finishes their assessment" },
+      { key: "candidateInvited", label: "Candidate accepts invitation", desc: "Notification when a candidate opens their invitation link" },
+      { key: "reportReady", label: "Report is ready", desc: "Alert when a project report is generated and ready to review" },
+      { key: "weeklyDigest", label: "Weekly digest", desc: "A summary of all assessment activity sent every Monday" },
+    ],
+    saveChanges: "Save changes",
+  },
+};
+
 export default function SettingsPage() {
   const t = useTranslations("settings");
-  const es = useLocale() === "es";
-
-  const copy = es
-    ? {
-        profile: "Perfil de la cuenta",
-        fullName: "Nombre completo",
-        accountEmail: "Correo de acceso",
-        accountRole: "Rol",
-        notifications: "Preferencias de notificación",
-        notificationItems: [
-          { key: "candidateCompleted" as const, label: "El candidato completa una evaluación", desc: "Reciba una notificación cuando un candidato finalice su evaluación" },
-          { key: "candidateInvited" as const, label: "El candidato abre la invitación", desc: "Notificación cuando un candidato abre su enlace de invitación" },
-          { key: "reportReady" as const, label: "El informe está listo", desc: "Aviso cuando se genera un informe de proyecto y está listo para revisar" },
-          { key: "weeklyDigest" as const, label: "Resumen semanal", desc: "Resumen de la actividad de evaluación enviado cada lunes" },
-        ],
-        saveChanges: "Guardar cambios",
-      }
-    : {
-        profile: "Account profile",
-        fullName: "Full name",
-        accountEmail: "Login email",
-        accountRole: "Role",
-        notifications: "Notification preferences",
-        notificationItems: [
-          { key: "candidateCompleted" as const, label: "Candidate completes assessment", desc: "Get notified when a candidate finishes their assessment" },
-          { key: "candidateInvited" as const, label: "Candidate accepts invitation", desc: "Notification when a candidate opens their invitation link" },
-          { key: "reportReady" as const, label: "Report is ready", desc: "Alert when a project report is generated and ready to review" },
-          { key: "weeklyDigest" as const, label: "Weekly digest", desc: "A summary of all assessment activity sent every Monday" },
-        ],
-        saveChanges: "Save changes",
-      };
+  const locale = toAppLocale(useLocale());
+  const copy = SETTINGS_COPY[locale];
 
   const [saved, setSaved] = useState(false);
   const [profileLoading, setProfileLoading] = useState(true);
@@ -150,7 +175,7 @@ export default function SettingsPage() {
               <p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--it-muted)]">{t("languageLocked")}</p>
             </div>
             <span className="inline-flex flex-shrink-0 items-center rounded-full border border-[var(--it-hairline)] bg-gray-900/[0.03] px-3 py-1.5 text-sm font-semibold text-slate-200">
-              {es ? "Español" : "English"}
+              {{ es: "Español", fr: "Français", en: "English" }[locale]}
             </span>
           </div>
 

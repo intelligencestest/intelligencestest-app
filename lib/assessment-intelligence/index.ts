@@ -21,6 +21,7 @@ export type {
   ExecutiveBriefConfidenceLevel,
   ExecutiveBriefDecisionLevel,
   HiringRisk,
+  IntelligenceLocale,
   IntelligenceRecommendation,
   InterviewValidationQuestion,
   QueueIntelligenceProjection,

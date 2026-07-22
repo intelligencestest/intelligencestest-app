@@ -53,7 +53,7 @@ Candidates recommended: ${input.recommendedCount}
 Top-ranked candidates:
 ${candidateLines}
 
-Write a single narrative paragraph of 3-4 sentences, in natural prose (no bullet points, no headers). Open with a sentence noting how many candidates were evaluated and how many are recommended (use the exact "candidates recommended" count above — if it's larger than 2, make clear the named candidates below are the top of a larger recommended set, not the only ones). Name the top-ranked candidate and state why they lead the set. If there is a second candidate listed, mention them briefly too. Use each candidate's supplied evidence, but paraphrase it naturally. Never repeat a clause, framing sentence, or candidate description between candidates. Tone: confident, professional, consultative — like a recruiter briefing a client. Do not use words like "incomplete", "verification status", "score", or any internal assessment jargon. Output only the paragraph text, nothing else.`;
+Write a single narrative paragraph of 3-4 short sentences and no more than 360 characters, in natural prose (no bullet points, no headers). Begin with the decision: name the top-ranked candidate and state why the client should interview them first. If there is a second candidate, identify the distinct reason they remain the next priority. Mention how many candidates were evaluated and recommended only after that decision-first opening (use the exact recommended count above; if it is larger than 2, make clear the named candidates lead a larger recommended set). Use each candidate's supplied evidence, but paraphrase it naturally. Never repeat a clause, framing sentence, or candidate description between candidates. Tone: confident, professional, consultative, like a recruiter briefing a client. Do not use words like "incomplete", "verification status", "score", or any internal assessment jargon. Output only the paragraph text, nothing else.`;
 }
 
 function fallbackNarrative(input: NarrativeInput): string {
@@ -69,23 +69,20 @@ function fallbackNarrative(input: NarrativeInput): string {
 
   if (input.locale === "es") {
     const lead = moreThanNamed
-      ? `De ${input.totalCandidates} candidatos evaluados para el puesto de ${input.roleTitle}, ${input.recommendedCount} son recomendados, encabezados por ${primary.name}. ${primary.executiveEvidence}`
-      : `De ${input.totalCandidates} candidatos evaluados para el puesto de ${input.roleTitle}, ${primary.name} es nuestra recomendación principal. ${primary.executiveEvidence}`;
-    const tail = secondary ? ` ${secondary.name} es una alternativa a considerar: ${secondary.executiveEvidence}` : "";
-    return lead + tail;
+      ? `Entreviste primero a ${primary.name}. ${primary.executiveEvidence} ${secondary ? `${secondary.name} es la siguiente prioridad: ${secondary.executiveEvidence} ` : ""}De ${input.totalCandidates} candidatos evaluados para el puesto de ${input.roleTitle}, ${input.recommendedCount} integran el grupo recomendado.`
+      : `Entreviste primero a ${primary.name}. ${primary.executiveEvidence}${secondary ? ` ${secondary.name} es la siguiente prioridad: ${secondary.executiveEvidence}` : ""} Se evaluaron ${input.totalCandidates} candidatos para el puesto de ${input.roleTitle}.`;
+    return lead;
   }
   if (input.locale === "fr") {
     const lead = moreThanNamed
-      ? `Parmi les ${input.totalCandidates} candidats évalués pour le poste de ${input.roleTitle}, ${input.recommendedCount} sont recommandés, en tête desquels ${primary.name}. ${primary.executiveEvidence}`
-      : `Parmi les ${input.totalCandidates} candidats évalués pour le poste de ${input.roleTitle}, ${primary.name} est notre recommandation principale. ${primary.executiveEvidence}`;
-    const tail = secondary ? ` ${secondary.name} est une alternative à considérer : ${secondary.executiveEvidence}` : "";
-    return lead + tail;
+      ? `Rencontrez ${primary.name} en premier. ${primary.executiveEvidence} ${secondary ? `${secondary.name} est la priorité suivante : ${secondary.executiveEvidence} ` : ""}Sur les ${input.totalCandidates} candidats évalués pour le poste de ${input.roleTitle}, ${input.recommendedCount} composent le groupe recommandé.`
+      : `Rencontrez ${primary.name} en premier. ${primary.executiveEvidence}${secondary ? ` ${secondary.name} est la priorité suivante : ${secondary.executiveEvidence}` : ""} ${input.totalCandidates} candidats ont été évalués pour le poste de ${input.roleTitle}.`;
+    return lead;
   }
   const lead = moreThanNamed
-    ? `Of ${input.totalCandidates} candidates evaluated for the ${input.roleTitle} role, ${input.recommendedCount} are recommended, led by ${primary.name}. ${primary.executiveEvidence}`
-    : `Of ${input.totalCandidates} candidates evaluated for the ${input.roleTitle} role, ${primary.name} is our strongest recommendation. ${primary.executiveEvidence}`;
-  const tail = secondary ? ` ${secondary.name} is worth considering as well: ${secondary.executiveEvidence}` : "";
-  return lead + tail;
+    ? `Interview ${primary.name} first. ${primary.executiveEvidence} ${secondary ? `${secondary.name} is the next priority: ${secondary.executiveEvidence} ` : ""}Of ${input.totalCandidates} candidates evaluated for the ${input.roleTitle} role, ${input.recommendedCount} make up the recommended group.`
+    : `Interview ${primary.name} first. ${primary.executiveEvidence}${secondary ? ` ${secondary.name} is the next priority: ${secondary.executiveEvidence}` : ""} ${input.totalCandidates} candidates were evaluated for the ${input.roleTitle} role.`;
+  return lead;
 }
 
 export async function generateShortlistNarrative(input: NarrativeInput): Promise<string> {

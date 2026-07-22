@@ -9,33 +9,45 @@ import { localePath, toAppLocale } from "@/lib/i18n/locales";
  * integrations are on the roadmap, prioritized by customer demand, and the
  * screen says exactly that — plus what already works today (PDF export).
  */
+const INTEGRATIONS_COPY = {
+  es: {
+    title: "Integraciones",
+    description: "Conexiones con su ecosistema de selección.",
+    roadmapTitle: "En la hoja de ruta",
+    roadmapBody:
+      "Las integraciones con ATS y otras herramientas de selección están en desarrollo y se priorizan según la demanda de los clientes. Cuéntenos qué sistema usa su equipo y lo tendremos en cuenta.",
+    requestCta: "Solicitar una integración",
+    todayTitle: "Disponible hoy",
+    todayBody:
+      "Los informes ejecutivos se exportan en PDF y pueden compartirse o archivarse en cualquier sistema. Los candidatos reciben enlaces directos, sin necesidad de integración.",
+  },
+  fr: {
+    title: "Intégrations",
+    description: "Connexions avec votre écosystème de recrutement.",
+    roadmapTitle: "Sur la feuille de route",
+    roadmapBody:
+      "Les intégrations avec un ATS et d'autres outils de recrutement sont en cours de développement, priorisées selon la demande des clients. Indiquez-nous quel système votre équipe utilise et nous en tiendrons compte.",
+    requestCta: "Demander une intégration",
+    todayTitle: "Disponible dès aujourd'hui",
+    todayBody:
+      "Les rapports exécutifs s'exportent en PDF et peuvent être partagés ou archivés dans n'importe quel système. Les candidats reçoivent des liens directs — aucune intégration requise.",
+  },
+  en: {
+    title: "Integrations",
+    description: "Connections to your hiring ecosystem.",
+    roadmapTitle: "On the roadmap",
+    roadmapBody:
+      "ATS and other hiring-tool integrations are in development, prioritized by customer demand. Tell us which system your team uses and we will take it into account.",
+    requestCta: "Request an integration",
+    todayTitle: "Available today",
+    todayBody:
+      "Executive reports export to PDF and can be shared or archived in any system. Candidates receive direct links — no integration required.",
+  },
+};
+
 export default function IntegrationsSettingsPage() {
   const locale = toAppLocale(useLocale());
-  const es = locale === "es";
-
-  const copy = es
-    ? {
-        title: "Integraciones",
-        description: "Conexiones con su ecosistema de selección.",
-        roadmapTitle: "En la hoja de ruta",
-        roadmapBody:
-          "Las integraciones con ATS y otras herramientas de selección están en desarrollo y se priorizan según la demanda de los clientes. Cuéntenos qué sistema usa su equipo y lo tendremos en cuenta.",
-        requestCta: "Solicitar una integración",
-        todayTitle: "Disponible hoy",
-        todayBody:
-          "Los informes ejecutivos se exportan en PDF y pueden compartirse o archivarse en cualquier sistema. Los candidatos reciben enlaces directos, sin necesidad de integración.",
-      }
-    : {
-        title: "Integrations",
-        description: "Connections to your hiring ecosystem.",
-        roadmapTitle: "On the roadmap",
-        roadmapBody:
-          "ATS and other hiring-tool integrations are in development, prioritized by customer demand. Tell us which system your team uses and we will take it into account.",
-        requestCta: "Request an integration",
-        todayTitle: "Available today",
-        todayBody:
-          "Executive reports export to PDF and can be shared or archived in any system. Candidates receive direct links — no integration required.",
-      };
+  const copy = INTEGRATIONS_COPY[locale];
 
   return (
     <div className="mx-auto max-w-[1200px]">

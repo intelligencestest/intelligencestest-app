@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import { FileText } from "lucide-react";
 import { assessmentShort as termShort } from "@/lib/i18n/assessment-terms";
+import { toAppLocale, type AppLocale } from "@/lib/i18n/locales";
 
 interface Project {
   id: string;
@@ -30,6 +31,131 @@ function scoreTone(score: number) {
   return { text: "text-[#b91c1c]", bar: "bg-[var(--it-danger)]" };
 }
 
+const REPORTS_COPY: Record<AppLocale, {
+  unknown: string;
+  assessment: string;
+  title: string;
+  subtitle: string;
+  noProjects: string;
+  selectProject: string;
+  stats: { totalScored: string; averageScore: string; topScore: string; passRate: string };
+  rankings: string;
+  scored: string;
+  noCompleted: string;
+  topRecommendation: string;
+  topCandidate: string;
+  scoredText: string;
+  onAssessment: string;
+  advance: string;
+  review: string;
+  distribution: string;
+  noData: string;
+  comprehensive: string;
+  comprehensiveSubtitle: string;
+  candidates: (count: number) => string;
+  assessmentsCompleted: (count: number) => string;
+  noEmail: string;
+  avgScore: string;
+  fullReport: string;
+}> = {
+  es: {
+    unknown: "Sin nombre",
+    assessment: "Evaluación",
+    title: "Informes",
+    subtitle: "Ranking de candidatos y desglose de puntuaciones por proyecto",
+    noProjects: "Aún no hay proyectos. Cree un proyecto e invite candidatos para ver informes.",
+    selectProject: "Seleccionar proyecto",
+    stats: {
+      totalScored: "Candidatos con resultados",
+      averageScore: "Promedio de candidatos",
+      topScore: "Mejor puntuación",
+      passRate: "Candidatos 60+",
+    },
+    rankings: "Ranking ejecutivo de candidatos",
+    scored: "con informe",
+    noCompleted: "Aún no hay evaluaciones completadas para este proyecto",
+    topRecommendation: "Recomendación principal",
+    topCandidate: "El candidato principal",
+    scoredText: "obtuvo",
+    onAssessment: "como promedio",
+    advance: " Recomendamos avanzar a entrevista.",
+    review: " Revise el perfil antes de avanzar.",
+    distribution: "Distribución de puntuaciones",
+    noData: "Aún no hay datos",
+    comprehensive: "Informes completos de candidatos",
+    comprehensiveSubtitle: "Abra el informe ejecutivo dentro de la plataforma para revisar evidencia y tomar decisiones",
+    candidates: (count: number) => `${count} candidato${count === 1 ? "" : "s"}`,
+    assessmentsCompleted: (count: number) => `${count} evaluación${count === 1 ? "" : "es"} completada${count === 1 ? "" : "s"}`,
+    noEmail: "Sin correo",
+    avgScore: "promedio",
+    fullReport: "Abrir informe",
+  },
+  fr: {
+    unknown: "Sans nom",
+    assessment: "Évaluation",
+    title: "Rapports",
+    subtitle: "Classements des candidats et répartition des scores par projet",
+    noProjects: "Aucun projet pour le moment. Créez un projet et invitez des candidats pour voir des rapports.",
+    selectProject: "Sélectionner un projet",
+    stats: {
+      totalScored: "Candidats avec résultats",
+      averageScore: "Moyenne des candidats",
+      topScore: "Meilleur score",
+      passRate: "Candidats 60+",
+    },
+    rankings: "Classement exécutif des candidats",
+    scored: "avec rapport",
+    noCompleted: "Aucune évaluation terminée pour ce projet pour le moment",
+    topRecommendation: "Recommandation principale",
+    topCandidate: "Le candidat principal",
+    scoredText: "a obtenu",
+    onAssessment: "en moyenne",
+    advance: " Nous recommandons de le faire avancer à l'étape de l'entretien.",
+    review: " Examinez son profil avant de le faire avancer.",
+    distribution: "Répartition des scores",
+    noData: "Aucune donnée pour le moment",
+    comprehensive: "Rapports complets des candidats",
+    comprehensiveSubtitle: "Ouvrez le rapport exécutif dans la plateforme pour examiner les preuves et prendre des décisions",
+    candidates: (count: number) => `${count} candidat${count === 1 ? "" : "s"}`,
+    assessmentsCompleted: (count: number) => `${count} évaluation${count === 1 ? "" : "s"} terminée${count === 1 ? "" : "s"}`,
+    noEmail: "Aucun e-mail",
+    avgScore: "score moyen",
+    fullReport: "Ouvrir le rapport",
+  },
+  en: {
+    unknown: "Unknown",
+    assessment: "Assessment",
+    title: "Reports",
+    subtitle: "Candidate rankings and score breakdowns by project",
+    noProjects: "No projects yet. Create a project and invite candidates to see reports.",
+    selectProject: "Select Project",
+    stats: {
+      totalScored: "Candidates scored",
+      averageScore: "Candidate average",
+      topScore: "Top Score",
+      passRate: "Candidates 60+",
+    },
+    rankings: "Executive candidate ranking",
+    scored: "with reports",
+    noCompleted: "No completed assessments for this project yet",
+    topRecommendation: "Top Recommendation",
+    topCandidate: "The top candidate",
+    scoredText: "scored",
+    onAssessment: "on average",
+    advance: " We recommend advancing them to the interview stage.",
+    review: " Review their profile before advancing.",
+    distribution: "Score Distribution",
+    noData: "No data yet",
+    comprehensive: "Comprehensive Candidate Reports",
+    comprehensiveSubtitle: "Open the executive report inside the platform to review evidence and make decisions",
+    candidates: (count: number) => `${count} candidate${count !== 1 ? "s" : ""}`,
+    assessmentsCompleted: (count: number) => `${count} completed assessment${count !== 1 ? "s" : ""}`,
+    noEmail: "No email",
+    avgScore: "avg score",
+    fullReport: "Open report",
+  },
+};
+
 export default function ReportsClient({
   projects,
   initialResults,
@@ -40,72 +166,8 @@ export default function ReportsClient({
   selectedProjectId: string | null;
 }) {
   const router = useRouter();
-  const es = useLocale() === "es";
-  const copy = es
-    ? {
-        unknown: "Sin nombre",
-        assessment: "Evaluación",
-        title: "Informes",
-        subtitle: "Ranking de candidatos y desglose de puntuaciones por proyecto",
-        noProjects: "Aún no hay proyectos. Cree un proyecto e invite candidatos para ver informes.",
-        selectProject: "Seleccionar proyecto",
-        stats: {
-          totalScored: "Candidatos con resultados",
-          averageScore: "Promedio de candidatos",
-          topScore: "Mejor puntuación",
-          passRate: "Candidatos 60+",
-        },
-        rankings: "Ranking ejecutivo de candidatos",
-        scored: "con informe",
-        noCompleted: "Aún no hay evaluaciones completadas para este proyecto",
-        topRecommendation: "Recomendación principal",
-        topCandidate: "El candidato principal",
-        scoredText: "obtuvo",
-        onAssessment: "como promedio",
-        advance: " Recomendamos avanzar a entrevista.",
-        review: " Revise el perfil antes de avanzar.",
-        distribution: "Distribución de puntuaciones",
-        noData: "Aún no hay datos",
-        comprehensive: "Informes completos de candidatos",
-        comprehensiveSubtitle: "Abra el informe ejecutivo dentro de la plataforma para revisar evidencia y tomar decisiones",
-        candidates: (count: number) => `${count} candidato${count === 1 ? "" : "s"}`,
-        assessmentsCompleted: (count: number) => `${count} evaluación${count === 1 ? "" : "es"} completada${count === 1 ? "" : "s"}`,
-        noEmail: "Sin correo",
-        avgScore: "promedio",
-        fullReport: "Abrir informe",
-      }
-    : {
-        unknown: "Unknown",
-        assessment: "Assessment",
-        title: "Reports",
-        subtitle: "Candidate rankings and score breakdowns by project",
-        noProjects: "No projects yet. Create a project and invite candidates to see reports.",
-        selectProject: "Select Project",
-        stats: {
-          totalScored: "Candidates scored",
-          averageScore: "Candidate average",
-          topScore: "Top Score",
-          passRate: "Candidates 60+",
-        },
-        rankings: "Executive candidate ranking",
-        scored: "with reports",
-        noCompleted: "No completed assessments for this project yet",
-        topRecommendation: "Top Recommendation",
-        topCandidate: "The top candidate",
-        scoredText: "scored",
-        onAssessment: "on average",
-        advance: " We recommend advancing them to the interview stage.",
-        review: " Review their profile before advancing.",
-        distribution: "Score Distribution",
-        noData: "No data yet",
-        comprehensive: "Comprehensive Candidate Reports",
-        comprehensiveSubtitle: "Open the executive report inside the platform to review evidence and make decisions",
-        candidates: (count: number) => `${count} candidate${count !== 1 ? "s" : ""}`,
-        assessmentsCompleted: (count: number) => `${count} completed assessment${count !== 1 ? "s" : ""}`,
-        noEmail: "No email",
-        avgScore: "avg score",
-        fullReport: "Open report",
-      };
+  const locale = toAppLocale(useLocale());
+  const copy = REPORTS_COPY[locale];
 
   const results = initialResults;
 
@@ -240,7 +302,7 @@ export default function ReportsClient({
                             <div className="mt-1.5 flex flex-wrap gap-1.5">
                               {group.results.map(r => (
                                 <span key={r.id} className="rounded bg-gray-900/[0.04] px-2 py-0.5 text-xs text-[var(--it-muted)]">
-                                  {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), es ? "es" : "en") : "?"} · {r.score}
+                                  {r.assessments ? termShort(r.assessments.name, r.assessments.name.replace(" Test", "").replace(" Assessment", ""), locale) : "?"} · {r.score}
                                 </span>
                               ))}
                             </div>

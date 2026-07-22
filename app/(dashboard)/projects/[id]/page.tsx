@@ -87,7 +87,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     <div>
       <nav className="mb-6 flex items-center gap-2 text-sm">
         <Link href="/projects" className="text-slate-500 transition-colors hover:text-slate-300">
-          {locale === "es" ? "Proyectos" : "Client Shortlists"}
+          {locale === "es" ? "Proyectos" : locale === "fr" ? "Projets clients" : "Client Shortlists"}
         </Link>
         <svg className="h-3 w-3 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

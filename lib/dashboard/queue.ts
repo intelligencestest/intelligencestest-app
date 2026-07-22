@@ -1,5 +1,5 @@
 import type { createAdminClient } from "@/lib/supabase-server";
-import type { AssessmentResultInput } from "@/lib/assessment-intelligence";
+import type { AssessmentResultInput, IntelligenceLocale } from "@/lib/assessment-intelligence";
 import {
   deriveQueueIntelligence,
   RECOMMENDATION_ORDER,
@@ -55,7 +55,7 @@ interface QueueResultRow {
 export async function loadReviewQueue(
   admin: AdminClient,
   companyId: string,
-  locale: "en" | "es",
+  locale: IntelligenceLocale,
   nowMs: number
 ): Promise<{ entries: QueueEntry[]; totalCount: number }> {
   const [{ count }, { data: rows }] = await Promise.all([

@@ -38,24 +38,24 @@ interface BuildAssessmentIntelligenceOptions {
 const COPY = {
   es: {
     noRoleModel:
-      "No se proporciono un modelo de competencias del rol; el informe evalua desempeno en evaluaciones completadas, no ajuste completo al puesto.",
-    singleAssessment: "La conclusion se basa en una sola evaluacion completada, por lo que la confianza no puede ser alta.",
-    unsupported: "Algunas evaluaciones aun no tienen interpretacion metodologica especifica en el motor de inteligencia.",
+      "No se proporcionó un modelo de competencias del puesto; el informe evalúa el desempeño en las evaluaciones completadas, no el ajuste global al puesto.",
+    singleAssessment: "La conclusión se basa en una única evaluación completada, por lo que la confianza no puede ser alta.",
+    unsupported: "Algunas evaluaciones aún no cuentan con una interpretación metodológica específica en el motor de inteligencia.",
     mixedEvidence: "La evidencia es mixta entre evaluaciones o dimensiones, por lo que la confianza disminuye.",
-    evidenceCount: (count: number) => `${count} evaluacion${count === 1 ? "" : "es"} completada${count === 1 ? "" : "s"} analizada${count === 1 ? "" : "s"}.`,
-    summaryHeadline: "Recomendacion basada en evidencia completada y trazable.",
+    evidenceCount: (count: number) => `${count} evaluación${count === 1 ? "" : "es"} completada${count === 1 ? "" : "s"} analizada${count === 1 ? "" : "s"}.`,
+    summaryHeadline: "Recomendación basada en evidencia completada y trazable.",
     summaryBody:
-      "La recomendacion usa senales de evidencia extraidas de evaluaciones completadas. Las conclusiones se limitan a los instrumentos disponibles y deben validarse con entrevista estructurada.",
-    proceedTitle: "Avanzar con validacion estructurada",
-    reviewTitle: "Revisar con validacion adicional",
+      "La recomendación utiliza señales extraídas de las evaluaciones completadas. Las conclusiones se limitan a los instrumentos disponibles y deben validarse mediante una entrevista estructurada.",
+    proceedTitle: "Avanzar con validación estructurada",
+    reviewTitle: "Revisar con validación adicional",
     cautionTitle: "No avanzar sin evidencia adicional",
-    strongTitle: "Avanzar con prioridad, sujeto a validacion",
-    proceedRationale: "La evidencia completada respalda continuar el proceso, manteniendo validacion dirigida en entrevista.",
-    reviewRationale: "La evidencia requiere revision antes de avanzar porque existen riesgos, mezcla de senales o cobertura limitada.",
-    cautionRationale: "La evidencia disponible no respalda una decision positiva sin informacion adicional.",
-    strongRationale: "La evidencia completada es favorable y consistente, aunque la decision final sigue dependiendo del rol, entrevista y referencias.",
-    defaultStep: "Validar las senales reportadas con ejemplos conductuales recientes antes de tomar una decision final.",
-    roleStep: "Comparar esta evidencia con las competencias criticas del rol antes de confirmar ajuste.",
+    strongTitle: "Avanzar con prioridad, sujeto a validación",
+    proceedRationale: "La evidencia completada respalda la continuidad del proceso, con una validación dirigida durante la entrevista.",
+    reviewRationale: "La evidencia requiere una revisión antes de avanzar debido a los riesgos, las señales mixtas o la cobertura limitada.",
+    cautionRationale: "La evidencia disponible no respalda una decisión positiva sin información adicional.",
+    strongRationale: "La evidencia completada es favorable y consistente, aunque la decisión final sigue dependiendo del puesto, la entrevista y las referencias.",
+    defaultStep: "Validar las señales identificadas mediante ejemplos conductuales recientes antes de tomar una decisión final.",
+    roleStep: "Comparar esta evidencia con las competencias críticas del puesto antes de confirmar el ajuste.",
     riskPrefix: "Validar riesgo",
   },
   en: {
@@ -172,7 +172,6 @@ function buildCompetencyEvidence(signals: EvidenceSignal[], locale: Intelligence
 
 function hasMixedEvidence(signals: EvidenceSignal[]): boolean {
   const hasPositive = signals.some((signal) => signal.direction === "positive");
-  const hasRisk = signals.some((signal) => signal.direction === "risk");
   // MAD-based dispersion (evidence-methodology Stage 2) replaces the old
   // min/max range check: with 20+ dimension-level signals, a single small
   // sub-dimension outlier made the range test flag nearly every candidate
@@ -463,14 +462,12 @@ function buildInterviewQuestions(
 function calculateConfidence({
   signals,
   assessmentCount,
-  risks,
   mixed,
   roleRequirementsProvided,
   locale,
 }: {
   signals: EvidenceSignal[];
   assessmentCount: number;
-  risks: HiringRisk[];
   mixed: boolean;
   roleRequirementsProvided: boolean;
   locale: IntelligenceLocale;
@@ -501,7 +498,7 @@ function calculateConfidence({
 
   if (assessmentCount >= 2) factors.push(c.evidenceCount(assessmentCount) as string);
   if (knownSignals.length >= 2) {
-    factors.push(locale === "es" ? "Existen multiples senales metodologicas interpretables." : locale === "fr" ? "Plusieurs signaux méthodologiques interprétables sont disponibles." : "Multiple methodologically interpretable signals are available.");
+    factors.push(locale === "es" ? "Existen múltiples señales con interpretación metodológica." : locale === "fr" ? "Plusieurs signaux méthodologiques interprétables sont disponibles." : "Multiple methodologically interpretable signals are available.");
   }
   if (mixed) limitations.push(c.mixedEvidence as string);
   if (hasScoreOnly) limitations.push(c.unsupported as string);
@@ -591,7 +588,6 @@ export function buildAssessmentIntelligence(options: BuildAssessmentIntelligence
   const confidence = calculateConfidence({
     signals,
     assessmentCount: assessments.length,
-    risks,
     mixed,
     roleRequirementsProvided,
     locale,

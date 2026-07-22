@@ -18,7 +18,7 @@ import {
   tierSelection,
   type RankedCandidate,
 } from "@/lib/pdf/client-brief-selection";
-import { executiveSummaryEvidence, interviewObjective } from "@/lib/pdf/client-brief-copy";
+import { buildCandidateInterviewPlan, executiveSummaryEvidence } from "@/lib/pdf/client-brief-copy";
 import { renderHTMLToPDF } from "@/lib/pdf/render-pdf";
 import { normalizePrimaryColor, validateReportFooterTextInput } from "@/lib/security/company-branding";
 import { sanitizeLogoUrl } from "@/lib/security/logo-url";
@@ -44,14 +44,21 @@ type CandidateRow = {
   }[];
 };
 
-// buildAssessmentIntelligence only has real es/en content; fr falls back to
-// en (same convention as app/(dashboard)/projects/[id]/compare/page.tsx).
-function engineLocale(language: unknown): "es" | "en" {
-  return language === "es" ? "es" : "en";
-}
-
+// ClientBriefLocale and IntelligenceLocale are both "en" | "es" | "fr", so
+// the same resolved locale drives both the wrapper copy and the underlying
+// assessment-intelligence content (evidence labels, interview questions).
 function briefLocale(language: unknown): ClientBriefLocale {
   return language === "es" || language === "fr" ? language : "en";
+}
+
+function confidenceVerdict(locale: ClientBriefLocale, confidence?: string): string | null {
+  if (!confidence) return null;
+  const labels: Record<string, Record<ClientBriefLocale, string>> = {
+    high: { es: "confianza alta", en: "high confidence", fr: "confiance élevée" },
+    moderate: { es: "confianza media", en: "moderate confidence", fr: "confiance moyenne" },
+    low: { es: "confianza baja", en: "low confidence", fr: "confiance faible" },
+  };
+  return labels[confidence]?.[locale] ?? null;
 }
 
 export async function POST(request: NextRequest) {
@@ -100,7 +107,6 @@ export async function POST(request: NextRequest) {
     .returns<CandidateRow[]>();
 
   const candidates = candidateRows ?? [];
-  const locale = engineLocale(company.language);
   const clientLocale = briefLocale(company.language);
 
   const ranked: RankedCandidate[] = candidates
@@ -118,7 +124,7 @@ export async function POST(request: NextRequest) {
         rawAnswers: r.raw_answers,
       }));
 
-      const report = buildAssessmentIntelligence({ locale, assessments });
+      const report = buildAssessmentIntelligence({ locale: clientLocale, assessments });
       const competencyEvidence = report.competencyEvidence.map((e) => ({ label: e.label, score: e.score }));
       const overallScore = competencyEvidence.length
         ? competencyEvidence.reduce((sum, e) => sum + e.score, 0) / competencyEvidence.length
@@ -172,6 +178,22 @@ export async function POST(request: NextRequest) {
   const mainBackup = plan.main.backup;
 
   const dimensions = sharedRadarDimensions(mainPrimary);
+  const interviewPlans = new Map(
+    mainPrimary.map((candidate) => [
+      candidate,
+      buildCandidateInterviewPlan({
+        locale: clientLocale,
+        candidateName: candidate.name,
+        confidence: candidate.confidence,
+        competencyEvidence: candidate.competencyEvidence,
+        roleTitle: project.role_title || project.name,
+        sourceQuestions: candidate.interviewQuestions.map((question) => ({
+          competency: question.competency,
+          question: question.question,
+        })),
+      }),
+    ])
+  );
 
   const cards: ClientBriefCandidateCard[] = mainPrimary.map((candidate, index) => {
     const radar = radarForCandidate(candidate, dimensions);
@@ -187,6 +209,7 @@ export async function POST(request: NextRequest) {
     // same "overall score" concept in one document (the radar chart itself
     // stays on its own 0-5 axis, a plot convention, not the headline number).
     const overallScore = candidate.score;
+    const interviewPlan = interviewPlans.get(candidate)!;
 
     // "Why" behind the confidence label -- derived only from competencyEvidence,
     // the exact scores already rendered as this card's radar/bars, using the
@@ -207,8 +230,12 @@ export async function POST(request: NextRequest) {
 
     return {
       name: candidate.name,
-      verdict: candidate.confidence ? `${candidate.recommendationTitle} · ${candidate.confidence} confidence` : candidate.recommendationTitle,
+      verdict: confidenceVerdict(clientLocale, candidate.confidence)
+        ? `${candidate.recommendationTitle} · ${confidenceVerdict(clientLocale, candidate.confidence)}`
+        : candidate.recommendationTitle,
       isPrimary: index === 0,
+      profileConclusion: interviewPlan.profileConclusion,
+      isPriorityRecommendation: candidate.level === "strong",
       overallScore,
       percentile: displayedPercentile(candidate.score, cohortScores),
       radar,
@@ -225,24 +252,15 @@ export async function POST(request: NextRequest) {
   }));
 
   const interviewPages: ClientBriefInterviewPage[] = mainPrimary.map((candidate, index) => {
-    const objective = interviewObjective({
-      locale: clientLocale,
-      candidateName: candidate.name,
-      confidence: candidate.confidence,
-      competencyEvidence: candidate.competencyEvidence,
-      roleTitle: project.role_title || project.name,
-    });
+    const interviewPlan = interviewPlans.get(candidate)!;
 
     return {
       name: candidate.name,
       verdict: candidate.recommendationTitle,
       isPrimary: index === 0,
-      objectiveTitle: objective.title,
-      objectiveCopy: objective.copy,
-      // TODO(client-brief-copy): tied competency scores can yield identical
-      // question-reason sentences. Keep the evidence logic unchanged for now;
-      // add competency-aware tie phrasing in a separate, lower-priority pass.
-      questions: candidate.interviewQuestions.slice(0, 4).map((q) => ({ focusLabel: q.competency, question: q.question, verifies: q.reason })),
+      objectiveTitle: interviewPlan.objectiveTitle,
+      objectiveCopy: interviewPlan.objectiveCopy,
+      questions: interviewPlan.questions,
     };
   });
 

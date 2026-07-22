@@ -91,7 +91,7 @@ function CandidateSubList({ candidates, nowMs }: { candidates: AlertCandidate[];
   const t = useTranslations("dashboard");
   const locale = useLocale();
   const router = useRouter();
-  const dateLocale = locale === "es" ? "es-ES" : "en-US";
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale as "es" | "en" | "fr"] ?? "en-US";
   const [resolved, setResolved] = useState<Set<string>>(new Set());
 
   const open = candidates.filter((c) => !resolved.has(c.id));

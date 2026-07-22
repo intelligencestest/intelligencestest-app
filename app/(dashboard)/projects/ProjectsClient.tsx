@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowRight, Check, CheckCircle2, Link2, Loader2, Mail, Plus, Users, X } from "lucide-react";
 import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
+import { toAppLocale } from "@/lib/i18n/locales";
 
 interface Assessment {
   id: string;
@@ -44,8 +45,11 @@ const statusConfig: Record<string, { class: string; dot: string }> = {
 
 export default function ProjectsClient({ projects, countsByProject, projectAssessments, activeCount, totalCandidates }: Props) {
   const t = useTranslations("projects");
-  const locale = useLocale();
-  const dateLocale = locale === "es" ? "es-ES" : "en-US";
+  const locale = toAppLocale(useLocale());
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale];
+  const clientLabel = { es: "Cliente", fr: "Client", en: "Client" }[locale];
+  const namePlaceholder = { es: "María García", fr: "Marie Dupont", en: "Jane Smith" }[locale];
+  const emailPlaceholder = { es: "maria@ejemplo.com", fr: "marie@exemple.com", en: "jane@example.com" }[locale];
 
   const [inviteProjectId, setInviteProjectId] = useState<string | null>(null);
   const [form, setForm] = useState({ full_name: "", email: "", assessment_id: "" });
@@ -167,7 +171,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                 <div className="min-w-0">
                   {project.client_name && (
                     <p className="mb-1 truncate text-xs font-medium uppercase tracking-wide text-[var(--it-faint)]">
-                      {locale === "es" ? "Cliente" : "Client"}: {project.client_name}
+                      {clientLabel}: {project.client_name}
                     </p>
                   )}
                   <div className="flex items-start justify-between gap-3">
@@ -318,7 +322,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                   <input
                     value={form.full_name}
                     onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
-                    placeholder={locale === "es" ? "María García" : "Jane Smith"}
+                    placeholder={namePlaceholder}
                     className="w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
                   />
                 </div>
@@ -331,7 +335,7 @@ export default function ProjectsClient({ projects, countsByProject, projectAsses
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    placeholder={locale === "es" ? "maria@ejemplo.com" : "jane@example.com"}
+                    placeholder={emailPlaceholder}
                     className="w-full rounded-xl border border-[var(--it-hairline)] bg-[var(--it-bg)] px-4 py-2.5 text-sm text-slate-100 outline-none placeholder:text-[var(--it-faint)] transition-colors focus:border-[var(--it-primary)] focus:ring-2 focus:ring-[var(--it-primary)]/25"
                   />
                 </div>

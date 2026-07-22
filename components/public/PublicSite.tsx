@@ -28,6 +28,12 @@ function BrandMark({ subtitle = "Assessment Platform" }: { subtitle?: string } =
   );
 }
 
+function brandSubtitle(locale: "en" | "es" | "fr") {
+  if (locale === "es") return "Plataforma de Evaluación";
+  if (locale === "fr") return "Plateforme d'évaluation";
+  return "Assessment Platform";
+}
+
 export async function PublicHeader({ copy }: { copy: PublicCopy }) {
   // Keep Spanish visitors under /es so their entry language carries into signup.
   const locale = toAppLocale(await getLocale());
@@ -36,7 +42,7 @@ export async function PublicHeader({ copy }: { copy: PublicCopy }) {
     <header className="sticky top-0 z-40 border-b border-[#f3f4f6] bg-[#f8fafc]/92 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-6 lg:px-8">
         <Link href={home} aria-label="IntelligencesTest home">
-          <BrandMark subtitle={locale === "es" ? "Plataforma de Evaluación" : "Assessment Platform"} />
+          <BrandMark subtitle={brandSubtitle(locale)} />
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-400 lg:flex" aria-label={copy.nav.primaryAria}>
           <a href={`${home}#product`} className="transition hover:text-[var(--it-text)]">{copy.nav.features}</a>
@@ -102,7 +108,7 @@ export async function PublicFooter({ copy }: { copy: PublicCopy }) {
       <div className="mx-auto max-w-7xl px-5 pt-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <BrandMark subtitle={locale === "es" ? "Plataforma de Evaluación" : "Assessment Platform"} />
+            <BrandMark subtitle={brandSubtitle(locale)} />
             <p className="mt-4 max-w-sm text-sm leading-6 text-[var(--it-muted)]">{copy.footer.body}</p>
           </div>
 

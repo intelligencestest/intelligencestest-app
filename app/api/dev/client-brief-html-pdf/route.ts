@@ -33,7 +33,9 @@ const FIXTURE: ShortlistData = {
       name: "Sara M.",
       verdict: "strongest overall alignment, recommended for interview",
       isPrimary: true,
-      overallScore: 4.6,
+      profileConclusion: "Broad strength is credible; interview should test translation at role scale.",
+      isPriorityRecommendation: true,
+      overallScore: 92.0,
       radar: [
         { label: "Communication clarity", value: 4.8 },
         { label: "Analytical reasoning", value: 4.5 },
@@ -46,7 +48,9 @@ const FIXTURE: ShortlistData = {
       name: "Yassine B.",
       verdict: "credible operational alignment, recommended for interview",
       isPrimary: false,
-      overallScore: 3.3,
+      profileConclusion: "Decision strength is promising; execution detail is the main boundary to test.",
+      isPriorityRecommendation: true,
+      overallScore: 83.0,
       radar: [
         { label: "Communication clarity", value: 3.4 },
         { label: "Analytical reasoning", value: 3.1 },

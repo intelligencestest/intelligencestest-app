@@ -23,12 +23,6 @@ type CandidateRow = {
   }[];
 };
 
-// Same fallback as the internal report / compare screen: real French
-// engine content doesn't exist yet, so fr reads the es/en engine locale.
-function engineLocale(locale: SummaryLang): "es" | "en" {
-  return locale === "es" ? "es" : "en";
-}
-
 const RECOMMENDATION_ORDER: Record<RecommendationLevel, number> = {
   strong: 0,
   proceed: 1,
@@ -82,7 +76,7 @@ export default async function ClientSummaryPage({ params }: { params: Promise<{ 
         rawAnswers: r.raw_answers,
       }));
 
-      const report = buildAssessmentIntelligence({ locale: engineLocale(locale), assessments });
+      const report = buildAssessmentIntelligence({ locale, assessments });
 
       return {
         candidateId: candidate.id,

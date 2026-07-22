@@ -32,7 +32,8 @@ export function formatDate(value?: string, locale = "es"): string {
   if (!value) return "";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(locale === "en" ? "en-US" : "es-ES", {
+  const dateLocale = locale === "en" ? "en-US" : locale === "fr" ? "fr-FR" : "es-ES";
+  return new Intl.DateTimeFormat(dateLocale, {
     year: "numeric",
     month: "short",
     day: "numeric",

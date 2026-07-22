@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 import { Check, Clock, ListChecks, Loader2, Plus, X } from "lucide-react";
+import { toAppLocale } from "@/lib/i18n/locales";
 
 interface Assessment {
   id: string;
@@ -54,6 +55,94 @@ const ASSESSMENT_NAMES_ES: Record<string, string> = {
   "integrity-ethics":       "Prueba de Integridad y Ética",
   "decision-making":        "Prueba de Toma de Decisiones",
   "learning-agility":       "Prueba de Agilidad de Aprendizaje",
+};
+
+const CATEGORY_NAMES_FR: Record<string, string> = {
+  "Cognitive": "Cognitif",
+  "Personality": "Personnalité",
+  "Workplace Judgment": "Jugement professionnel",
+  "Leadership": "Leadership",
+  "Resilience": "Résilience",
+  "Communication": "Communication",
+  "Work Style": "Style de travail",
+  "Mechanical": "Raisonnement mécanique",
+  "Sales": "Ventes",
+  "Customer Service": "Service client",
+  "Teamwork": "Travail d'équipe",
+  "Productivity": "Productivité",
+  "Character": "Caractère",
+};
+
+const ASSESSMENT_NAMES_FR: Record<string, string> = {
+  "critical-thinking":      "Test de pensée critique",
+  "numerical-intelligence": "Test d'intelligence numérique",
+  "personality-type":       "Test de type de personnalité",
+  "situational-judgment":   "Test de jugement situationnel",
+  "emotional-intelligence": "Test d'intelligence émotionnelle",
+  "leadership-styles":      "Test de styles de leadership",
+  "aq":                     "Test de quotient d'adversité (QA)",
+  "attention-detail":       "Test d'attention aux détails",
+  "verbal-reasoning":       "Test de raisonnement verbal",
+  "abstract-reasoning":     "Test de raisonnement abstrait",
+  "mechanical-reasoning":   "Test de raisonnement mécanique",
+  "communication-skills":   "Test de compétences en communication",
+  "problem-solving":        "Test de résolution de problèmes",
+  "work-style":             "Évaluation du style de travail",
+  "sales-aptitude":         "Test d'aptitude commerciale",
+  "customer-service-skills":"Test de compétences en service client",
+  "teamwork-collaboration": "Test de travail d'équipe et collaboration",
+  "time-management":        "Test de gestion du temps",
+  "stress-tolerance":       "Test de tolérance au stress",
+  "integrity-ethics":       "Test d'intégrité et d'éthique",
+  "decision-making":        "Test de prise de décision",
+  "learning-agility":       "Test d'agilité d'apprentissage",
+};
+
+const ASSESSMENT_DESCS_FR: Record<string, string> = {
+  "critical-thinking":
+    "Mesure la capacité de raisonnement analytique et de pensée critique.",
+  "numerical-intelligence":
+    "Mesure la capacité de raisonnement quantitatif.",
+  "personality-type":
+    "Profil complet du type de personnalité.",
+  "situational-judgment":
+    "Mesure le jugement pratique dans des scénarios professionnels réalistes.",
+  "emotional-intelligence":
+    "Mesure l'intelligence émotionnelle selon les 5 dimensions de Goleman.",
+  "leadership-styles":
+    "Identifie le style de leadership dominant.",
+  "aq":
+    "Mesure la capacité à faire face à l'adversité et aux défis.",
+  "attention-detail":
+    "Mesure la précision et l'exactitude à travers 40 questions de détection d'erreurs en orthographe, données, calculs, mise en forme et cohérence référentielle.",
+  "verbal-reasoning":
+    "Évalue la compréhension, les relations entre les mots et la déduction logique à travers 30 questions incluant analogies, intrus et syllogismes.",
+  "abstract-reasoning":
+    "Évalue la reconnaissance de motifs et le raisonnement non verbal à travers 25 questions de séquences et matrices.",
+  "mechanical-reasoning":
+    "Évalue la compréhension des principes mécaniques — engrenages, leviers, poulies, forces, circuits et dynamique des fluides — à travers 30 questions.",
+  "communication-skills":
+    "Profile l'efficacité de communication selon 4 dimensions : communication écrite, verbale, écoute active et communication non verbale. 35 affirmations à échelle de Likert.",
+  "problem-solving":
+    "Évalue la résolution de problèmes et la qualité des décisions à travers 30 scénarios professionnels réalistes.",
+  "work-style":
+    "Profile les préférences de travail selon 5 dimensions : analytique, orienté détail, collaboratif, adaptable et orienté résultats. 40 affirmations à échelle de Likert.",
+  "sales-aptitude":
+    "Évalue l'aptitude à la vente B2B selon 4 dimensions : prospection, persuasion, gestion des objections et conclusion. 35 questions basées sur des scénarios.",
+  "customer-service-skills":
+    "Évalue l'efficacité du service client selon 4 dimensions : empathie, résolution de problèmes, communication et patience. 35 questions basées sur des scénarios.",
+  "teamwork-collaboration":
+    "Profile le style de travail collaboratif selon 4 dimensions : coopération, communication, fiabilité et résolution de conflits. 35 affirmations à échelle de Likert.",
+  "time-management":
+    "Évalue la gestion du temps et des priorités selon 4 dimensions : priorisation, planification, concentration et gestion des délais. 30 questions basées sur des scénarios.",
+  "stress-tolerance":
+    "Mesure la résilience et le sang-froid sous pression selon 4 dimensions : contrôle émotionnel, résilience, stratégies d'adaptation et performance sous pression. 30 affirmations à échelle de Likert.",
+  "integrity-ethics":
+    "Évalue l'intégrité professionnelle selon 4 dimensions : honnêteté, responsabilité, éthique et fiabilité. 30 questions basées sur des scénarios.",
+  "decision-making":
+    "Évalue la qualité des décisions selon 4 dimensions : analyse, jugement, évaluation des risques et rapidité. 30 questions basées sur des scénarios.",
+  "learning-agility":
+    "Mesure l'adaptabilité et l'état d'esprit de croissance selon 4 dimensions : flexibilité mentale, vitesse d'apprentissage, réceptivité au feedback et expérimentation. 30 questions basées sur des scénarios.",
 };
 
 const ASSESSMENT_DESCS_ES: Record<string, string> = {
@@ -132,164 +221,214 @@ type SampleEntry = {
   match: (name: string) => boolean;
   text: string;
   textEs: string;
+  textFr: string;
   options: string[];
   optionsEs: string[];
+  optionsFr: string[];
 };
+
+const LIKERT_EN = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"];
+const LIKERT_ES = ["Muy en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Muy de acuerdo"];
+const LIKERT_FR = ["Pas du tout d'accord", "Pas d'accord", "Neutre", "D'accord", "Tout à fait d'accord"];
 
 const sampleQuestions: SampleEntry[] = [
   {
     match: (name) => name.includes("critical"),
     text: "All analysts review briefs before submitting reports. Maya submitted a report. What can be concluded?",
     textEs: "Todos los analistas revisan los informes antes de enviarlos. Maya envió un informe. ¿Qué se puede concluir?",
+    textFr: "Tous les analystes relisent leurs notes avant de soumettre un rapport. Maya a soumis un rapport. Que peut-on en conclure ?",
     options: ["Maya reviewed a brief", "Maya may have reviewed a brief", "All submitted reports are accurate", "No conclusion is possible"],
     optionsEs: ["Maya revisó un informe", "Maya puede haber revisado un informe", "Todos los informes enviados son precisos", "No se puede llegar a ninguna conclusión"],
+    optionsFr: ["Maya a relu une note", "Maya a peut-être relu une note", "Tous les rapports soumis sont exacts", "Aucune conclusion n'est possible"],
   },
   {
     match: (name) => name.includes("numerical"),
     text: "Sales increased from 80 to 100 units. What was the percentage increase?",
     textEs: "Las ventas aumentaron de 80 a 100 unidades. ¿Cuál fue el aumento porcentual?",
+    textFr: "Les ventes sont passées de 80 à 100 unités. Quel a été le pourcentage d'augmentation ?",
     options: ["20%", "25%", "30%", "40%"],
     optionsEs: ["20%", "25%", "30%", "40%"],
+    optionsFr: ["20%", "25%", "30%", "40%"],
   },
   {
     match: (name) => name.includes("personality"),
     text: "I plan my work carefully before moving into execution.",
     textEs: "Planifico mi trabajo cuidadosamente antes de pasar a la ejecución.",
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"],
-    optionsEs: ["Muy en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Muy de acuerdo"],
+    textFr: "Je planifie soigneusement mon travail avant de passer à l'exécution.",
+    options: LIKERT_EN,
+    optionsEs: LIKERT_ES,
+    optionsFr: LIKERT_FR,
   },
   {
     match: (name) => name.includes("situational"),
     text: "A stakeholder asks for an unrealistic deadline. What is the strongest response?",
     textEs: "Un interesado solicita un plazo poco realista. ¿Cuál es la respuesta más sólida?",
+    textFr: "Un interlocuteur demande un délai irréaliste. Quelle est la réponse la plus solide ?",
     options: ["Say yes and hope scope changes", "Explain tradeoffs and offer a realistic path", "Reject the request", "Ask someone else to respond"],
     optionsEs: ["Decir que sí y esperar que el alcance cambie", "Explicar las compensaciones y ofrecer un camino realista", "Rechazar la solicitud", "Pedir a otro que responda"],
+    optionsFr: ["Dire oui et espérer que le périmètre change", "Expliquer les compromis et proposer une solution réaliste", "Rejeter la demande", "Demander à quelqu'un d'autre de répondre"],
   },
   {
     match: (name) => name.includes("emotional"),
     text: "I notice how my mood affects the way I communicate with others.",
     textEs: "Noto cómo mi estado de ánimo afecta la forma en que me comunico con los demás.",
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"],
-    optionsEs: ["Muy en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Muy de acuerdo"],
+    textFr: "Je remarque comment mon humeur affecte ma façon de communiquer avec les autres.",
+    options: LIKERT_EN,
+    optionsEs: LIKERT_ES,
+    optionsFr: LIKERT_FR,
   },
   {
     match: (name) => name.includes("leadership"),
     text: "A team is uncertain about direction. What do you do first?",
     textEs: "Un equipo no tiene clara la dirección. ¿Qué hace primero?",
+    textFr: "Une équipe est incertaine quant à la direction à suivre. Que faites-vous en premier ?",
     options: ["Set a clear future direction", "Coach individuals", "Repair morale", "Invite shared input"],
     optionsEs: ["Establecer una dirección futura clara", "Orientar a las personas", "Reconstruir la moral", "Invitar al equipo a participar"],
+    optionsFr: ["Fixer une direction future claire", "Coacher les individus", "Réparer le moral", "Inviter une contribution partagée"],
   },
   {
     match: (name) => name.includes("adversity") || name.includes("aq"),
     text: "When facing a difficult situation, I believe I can influence the outcome.",
     textEs: "Cuando me enfrento a una situación difícil, creo que puedo influir en el resultado.",
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"],
-    optionsEs: ["Muy en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Muy de acuerdo"],
+    textFr: "Face à une situation difficile, je crois pouvoir influencer le résultat.",
+    options: LIKERT_EN,
+    optionsEs: LIKERT_ES,
+    optionsFr: LIKERT_FR,
   },
   {
     match: (name) => name.includes("attention"),
     text: "Which entry does not match the formatting rule used by the rest of the list?",
     textEs: "¿Qué entrada no sigue la regla de formato usada por el resto de la lista?",
+    textFr: "Quelle entrée ne correspond pas à la règle de formatage utilisée par le reste de la liste ?",
     options: ["AX-1042", "AX-1402", "AX-1047", "XA-1042"],
     optionsEs: ["AX-1042", "AX-1402", "AX-1047", "XA-1042"],
+    optionsFr: ["AX-1042", "AX-1402", "AX-1047", "XA-1042"],
   },
   {
     match: (name) => name.includes("verbal"),
     text: "If all approved invoices are reviewed, and this invoice was not reviewed, what follows?",
     textEs: "Si todas las facturas aprobadas son revisadas, y esta factura no fue revisada, ¿qué se concluye?",
+    textFr: "Si toutes les factures approuvées sont vérifiées, et que cette facture n'a pas été vérifiée, que peut-on en conclure ?",
     options: ["It was approved", "It was not approved", "It may still be approved", "It was rejected"],
     optionsEs: ["Fue aprobada", "No fue aprobada", "Puede haber sido aprobada de todas formas", "Fue rechazada"],
+    optionsFr: ["Elle a été approuvée", "Elle n'a pas été approuvée", "Elle pourrait tout de même avoir été approuvée", "Elle a été rejetée"],
   },
   {
     match: (name) => name.includes("abstract"),
     text: "Which pattern best completes the sequence?",
     textEs: "¿Qué patrón completa mejor la secuencia?",
+    textFr: "Quel motif complète le mieux la séquence ?",
     options: ["Same shape, darker fill", "Rotated shape, same fill", "New shape, lighter fill", "Mirrored shape, darker fill"],
     optionsEs: ["Misma forma, relleno más oscuro", "Forma girada, mismo relleno", "Nueva forma, relleno más claro", "Forma en espejo, relleno más oscuro"],
+    optionsFr: ["Même forme, remplissage plus foncé", "Forme pivotée, même remplissage", "Nouvelle forme, remplissage plus clair", "Forme en miroir, remplissage plus foncé"],
   },
   {
     match: (name) => name.includes("mechanical"),
     text: "If gear A turns clockwise and touches gear B, which direction does gear B turn?",
     textEs: "Si el engranaje A gira en sentido horario y toca al engranaje B, ¿en qué dirección gira el engranaje B?",
+    textFr: "Si l'engrenage A tourne dans le sens horaire et touche l'engrenage B, dans quel sens tourne l'engrenage B ?",
     options: ["Clockwise", "Counterclockwise", "It does not move", "Direction cannot be known"],
     optionsEs: ["En sentido horario", "En sentido antihorario", "No se mueve", "No se puede determinar la dirección"],
+    optionsFr: ["Sens horaire", "Sens antihoraire", "Il ne bouge pas", "La direction ne peut pas être déterminée"],
   },
   {
     match: (name) => name.includes("communication"),
     text: "A client misunderstood your update. What is the best next step?",
     textEs: "Un cliente malinterpretó su actualización. ¿Cuál es el mejor paso siguiente?",
+    textFr: "Un client a mal compris votre mise à jour. Quelle est la meilleure prochaine étape ?",
     options: ["Repeat the same message", "Clarify the key point and next action", "Wait for them to calm down", "Send every detail"],
     optionsEs: ["Repetir el mismo mensaje", "Aclarar el punto clave y la próxima acción", "Esperar a que se calmen", "Enviar todos los detalles"],
+    optionsFr: ["Répéter le même message", "Clarifier le point clé et l'action suivante", "Attendre qu'il se calme", "Envoyer tous les détails"],
   },
   {
     match: (name) => name.includes("problem"),
     text: "You have limited data and a deadline today. What is the best response?",
     textEs: "Tiene datos limitados y un plazo hoy. ¿Cuál es la mejor respuesta?",
+    textFr: "Vous avez des données limitées et une échéance aujourd'hui. Quelle est la meilleure réponse ?",
     options: ["Wait for perfect data", "Use evidence, state assumptions, and flag risk", "Guess quickly", "Ask someone else to decide"],
     optionsEs: ["Esperar datos perfectos", "Usar la evidencia disponible, declarar supuestos y señalar el riesgo", "Adivinar rápidamente", "Pedir a alguien más que decida"],
+    optionsFr: ["Attendre des données parfaites", "Utiliser les preuves disponibles, formuler des hypothèses et signaler le risque", "Deviner rapidement", "Demander à quelqu'un d'autre de décider"],
   },
   {
     match: (name) => name.includes("work style"),
     text: "I prefer clear priorities and structured execution.",
     textEs: "Prefiero prioridades claras y una ejecución estructurada.",
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"],
-    optionsEs: ["Muy en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Muy de acuerdo"],
+    textFr: "Je préfère des priorités claires et une exécution structurée.",
+    options: LIKERT_EN,
+    optionsEs: LIKERT_ES,
+    optionsFr: LIKERT_FR,
   },
   {
     match: (name) => name.includes("sales aptitude") || name.includes("sales"),
     text: "A prospect says 'Your price is too high.' What is your best initial response?",
     textEs: "Un prospecto dice 'Su precio es demasiado alto.' ¿Cuál es su mejor respuesta inicial?",
+    textFr: "Un prospect dit « Votre prix est trop élevé. » Quelle est votre meilleure réponse initiale ?",
     options: ["Offer a discount immediately", "Ask 'Compared to what?' and explore the value the investment generates", "Explain your cost structure in detail", "Tell them the price is non-negotiable"],
     optionsEs: ["Ofrecer un descuento de inmediato", "Preguntar '¿Comparado con qué?' y explorar el valor que genera la inversión", "Explicar su estructura de costos en detalle", "Decirle que el precio no es negociable"],
+    optionsFr: ["Offrir immédiatement une remise", "Demander « Comparé à quoi ? » et explorer la valeur générée par l'investissement", "Expliquer en détail votre structure de coûts", "Lui dire que le prix n'est pas négociable"],
   },
   {
     match: (name) => name.includes("customer service"),
     text: "A customer is upset about a delayed order. What is your first action?",
     textEs: "Un cliente está molesto por un pedido retrasado. ¿Cuál es su primera acción?",
+    textFr: "Un client est contrarié par une commande retardée. Quelle est votre première action ?",
     options: ["Explain the reasons for the delay immediately", "Acknowledge their frustration and apologise before asking for details", "Transfer to a manager", "Look up the order number in silence"],
     optionsEs: ["Explicar de inmediato las razones del retraso", "Reconocer su frustración y disculparse antes de pedir detalles", "Transferir a un gerente", "Buscar el número de pedido en silencio"],
+    optionsFr: ["Expliquer immédiatement les raisons du retard", "Reconnaître sa frustration et s'excuser avant de demander des détails", "Transférer à un responsable", "Rechercher le numéro de commande en silence"],
   },
   {
     match: (name) => name.includes("teamwork") || name.includes("collaboration"),
     text: "I step in to help a colleague who is struggling, even when it is not my formal responsibility.",
     textEs: "Intervengo para ayudar a un colega que tiene dificultades, incluso cuando no es formalmente mi responsabilidad.",
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"],
-    optionsEs: ["Muy en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Muy de acuerdo"],
+    textFr: "J'interviens pour aider un collègue en difficulté, même quand ce n'est pas formellement ma responsabilité.",
+    options: LIKERT_EN,
+    optionsEs: LIKERT_ES,
+    optionsFr: LIKERT_FR,
   },
   {
     match: (name) => name.includes("time management"),
     text: "You have four tasks due today. Two are urgent and important. What do you tackle first?",
     textEs: "Tiene cuatro tareas vencidas hoy. Dos son urgentes e importantes. ¿Con cuál empieza?",
+    textFr: "Vous avez quatre tâches à rendre aujourd'hui. Deux sont urgentes et importantes. Par laquelle commencez-vous ?",
     options: ["The easiest task to build momentum", "The two that are both urgent and important", "Work through the list in order", "Delegate the hardest task"],
     optionsEs: ["La tarea más fácil para ganar impulso", "Las dos que son urgentes e importantes", "Trabajar la lista en orden", "Delegar la tarea más difícil"],
+    optionsFr: ["La tâche la plus facile pour prendre de l'élan", "Les deux qui sont à la fois urgentes et importantes", "Traiter la liste dans l'ordre", "Déléguer la tâche la plus difficile"],
   },
   {
     match: (name) => name.includes("stress tolerance"),
     text: "I remain calm and make sound decisions even when under significant time pressure.",
     textEs: "Me mantengo tranquilo/a y tomo decisiones acertadas incluso bajo una presión de tiempo significativa.",
-    options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"],
-    optionsEs: ["Muy en desacuerdo", "En desacuerdo", "Neutral", "De acuerdo", "Muy de acuerdo"],
+    textFr: "Je reste calme et prends de bonnes décisions même sous une pression temporelle importante.",
+    options: LIKERT_EN,
+    optionsEs: LIKERT_ES,
+    optionsFr: LIKERT_FR,
   },
   {
     match: (name) => name.includes("integrity") || name.includes("ethics"),
     text: "You discover an error in a report already shared with leadership. What do you do?",
     textEs: "Descubre un error en un informe ya compartido con la dirección. ¿Qué hace?",
+    textFr: "Vous découvrez une erreur dans un rapport déjà partagé avec la direction. Que faites-vous ?",
     options: ["Hope no one notices and correct it quietly next time", "Inform the relevant parties immediately and correct the error", "Wait to see if anyone raises it first", "Ask a colleague to flag it anonymously"],
     optionsEs: ["Esperar que nadie lo note y corregirlo silenciosamente la próxima vez", "Informar a las partes relevantes de inmediato y corregir el error", "Esperar a ver si alguien lo señala primero", "Pedir a un colega que lo señale anónimamente"],
+    optionsFr: ["Espérer que personne ne le remarque et le corriger discrètement la prochaine fois", "Informer immédiatement les parties concernées et corriger l'erreur", "Attendre de voir si quelqu'un le signale en premier", "Demander à un collègue de le signaler anonymement"],
   },
   {
     match: (name) => name.includes("decision making") || name.includes("decision-making"),
     text: "You must decide between two proposals with limited time. What is your first step?",
     textEs: "Debe decidir entre dos propuestas con tiempo limitado. ¿Cuál es su primer paso?",
+    textFr: "Vous devez choisir entre deux propositions avec un temps limité. Quelle est votre première étape ?",
     options: ["Choose the lower-cost option immediately", "Define clear evaluation criteria before comparing", "Go with the more recognisable brand", "Ask your manager to decide"],
     optionsEs: ["Elegir de inmediato la opción de menor costo", "Definir criterios de evaluación claros antes de comparar", "Optar por la marca más reconocida", "Pedir a su gerente que decida"],
+    optionsFr: ["Choisir immédiatement l'option la moins chère", "Définir des critères d'évaluation clairs avant de comparer", "Opter pour la marque la plus reconnue", "Demander à votre responsable de décider"],
   },
   {
     match: (name) => name.includes("learning agility"),
     text: "A colleague suggests a different approach to a task you have always done the same way. What do you do?",
     textEs: "Un colega sugiere un enfoque diferente para una tarea que siempre ha realizado de la misma manera. ¿Qué hace?",
+    textFr: "Un collègue suggère une approche différente pour une tâche que vous avez toujours réalisée de la même manière. Que faites-vous ?",
     options: ["Dismiss it — your method is proven", "Evaluate it on its merits and pilot it if promising", "Adopt it only if instructed to by a manager", "Ignore it — experience outweighs novelty"],
     optionsEs: ["Descartarlo — su método está probado", "Evaluarlo por sus méritos y probarlo si es prometedor", "Adoptarlo solo si un gerente se lo indica", "Ignorarlo — la experiencia supera la novedad"],
+    optionsFr: ["L'ignorer — votre méthode est éprouvée", "L'évaluer sur ses mérites et la tester si elle est prometteuse", "L'adopter seulement si un responsable vous le demande", "L'ignorer — l'expérience prime sur la nouveauté"],
   },
 ];
 
@@ -361,8 +500,9 @@ interface Project {
 
 export default function AssessmentsClient({ assessments, projects }: { assessments: Assessment[]; projects: Project[] }) {
   const t = useTranslations("assessments");
-  const locale = useLocale();
+  const locale = toAppLocale(useLocale());
   const es = locale === "es";
+  const fr = locale === "fr";
 
   const [preview, setPreview] = useState<Assessment | null>(null);
   const [projectPickerFor, setProjectPickerFor] = useState<string | null>(null);
@@ -409,16 +549,22 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
 
   function localName(assessment: Assessment) {
     const slug = slugForAssessment(assessment.name);
-    return es ? (ASSESSMENT_NAMES_ES[slug] ?? assessment.name) : assessment.name;
+    if (es) return ASSESSMENT_NAMES_ES[slug] ?? assessment.name;
+    if (fr) return ASSESSMENT_NAMES_FR[slug] ?? assessment.name;
+    return assessment.name;
   }
 
   function localDesc(assessment: Assessment, fallback: string) {
     const slug = slugForAssessment(assessment.name);
-    return es ? (ASSESSMENT_DESCS_ES[slug] ?? assessment.description ?? fallback) : (assessment.description ?? fallback);
+    if (es) return ASSESSMENT_DESCS_ES[slug] ?? assessment.description ?? fallback;
+    if (fr) return ASSESSMENT_DESCS_FR[slug] ?? assessment.description ?? fallback;
+    return assessment.description ?? fallback;
   }
 
   function localCategory(category: string) {
-    return es ? (CATEGORY_NAMES_ES[category] ?? category) : category;
+    if (es) return CATEGORY_NAMES_ES[category] ?? category;
+    if (fr) return CATEGORY_NAMES_FR[category] ?? category;
+    return category;
   }
 
   function getSample(assessment: Assessment) {
@@ -428,8 +574,8 @@ export default function AssessmentsClient({ assessments, projects }: { assessmen
       return { text: t("fallbackSample"), options: ["Option A", "Option B", "Option C", "Option D"] };
     }
     return {
-      text: es ? match.textEs : match.text,
-      options: es ? match.optionsEs : match.options,
+      text: es ? match.textEs : fr ? match.textFr : match.text,
+      options: es ? match.optionsEs : fr ? match.optionsFr : match.options,
     };
   }
 

@@ -23,7 +23,8 @@ export default function MorningGreeting({ firstName }: { firstName?: string }) {
           ? t("greetingAfternoon")
           : t("greetingEvening");
 
-  const dateLabel = now?.toLocaleDateString(locale === "es" ? "es-ES" : "en-US", {
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale as "es" | "en" | "fr"] ?? "en-US";
+  const dateLabel = now?.toLocaleDateString(dateLocale, {
     weekday: "long",
     day: "numeric",
     month: "long",

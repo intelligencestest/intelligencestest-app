@@ -35,6 +35,10 @@ export interface ClientBriefCandidateCard {
   /** e.g. "strongest overall alignment, recommended for interview" — combined with name as "<strong>{name}</strong> — {verdict}". */
   verdict: string;
   isPrimary: boolean;
+  /** Conclusion-first profile interpretation derived from the candidate's own evidence pattern. */
+  profileConclusion: string;
+  /** True only when the recommendation level itself is strong, independent of rank. */
+  isPriorityRecommendation: boolean;
   /** 0-100, shown as "Overall XX / 100" -- same scale as ClientBriefBenchEntry.score
    * so a reader never sees two different scales for "overall score" in one document. */
   overallScore: number;
@@ -49,7 +53,7 @@ export interface ClientBriefCandidateCard {
 }
 
 export interface ClientBriefInterviewQuestion {
-  /** Short competency label shown top-right of the question card, e.g. "Stakeholder judgement". */
+  /** Candidate-specific evidence implication shown top-right of the question card. */
   focusLabel: string;
   question: string;
   verifies: string;
@@ -110,15 +114,20 @@ export interface ShortlistData {
 }
 
 const DEFAULT_ACCENT = DEFAULT_REPORT_PRIMARY_COLOR;
-const COMPACT_GRID_PAGE_SIZE = 9; // 3-per-row compact grid, 3 rows per physical page.
+const COMPACT_GRID_PAGE_SIZE = 4; // 2x2, preserving readable evidence labels and conclusions.
 
 function escapeHtml(value: string): string {
   return value
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
+}
+
+function formatScore(score: number): string {
+  return score.toFixed(1);
 }
 
 /** Safe to embed inside a <script> block: JSON-encodes and neutralizes </script. */
@@ -142,8 +151,8 @@ function copy(locale: ClientBriefLocale) {
   const fr = locale === "fr";
   return {
     confidential: es ? "Confidencial" : fr ? "Confidentiel" : "Confidential",
-    shortlistRecommendation: es ? "Recomendación de shortlist" : fr ? "Recommandation de shortlist" : "Shortlist recommendation",
-    coverTitle: es ? "Recomendación de entrevista de candidatos" : fr ? "Recommandation d'entretien candidats" : "Candidate interview recommendation",
+    shortlistRecommendation: es ? "Recomendación de shortlist" : fr ? "Recommandation de présélection" : "Shortlist recommendation",
+    coverTitle: es ? "Recomendación de entrevista de candidatos" : fr ? "Recommandation d'entretiens avec les candidats" : "Candidate interview recommendation",
     preparedFor: es ? "Preparado para" : fr ? "Préparé pour" : "Prepared for",
     preparedOn: es ? "Preparado el" : fr ? "Préparé le" : "Prepared on",
     disclaimerLabel: es ? "Evaluación profesional:" : fr ? "Évaluation professionnelle :" : "Professional evaluation:",
@@ -158,37 +167,37 @@ function copy(locale: ClientBriefLocale) {
       : fr
       ? "Ce rapport soutient l'évaluation professionnelle et ne constitue pas une décision d'embauche automatisée."
       : "This report supports professional evaluation and does not constitute an automated hiring decision.",
-    shortlistDecisionBrief: es ? "Informe de decisión de shortlist" : fr ? "Note de décision shortlist" : "Shortlist decision brief",
+    shortlistDecisionBrief: es ? "Informe de decisión de shortlist" : fr ? "Note de décision — présélection" : "Shortlist decision brief",
     candidateLabel: (n: number) => (es ? `Candidato ${String(n).padStart(2, "0")}` : fr ? `Candidat ${String(n).padStart(2, "0")}` : `Candidate ${String(n).padStart(2, "0")}`),
-    assessmentProfile: es ? "Perfil de evaluación" : fr ? "Profil d'évaluation" : "Assessment profile",
+    profileConclusion: es ? "Conclusión del perfil" : fr ? "Conclusion du profil" : "Profile conclusion",
     overall: es ? "Total" : fr ? "Total" : "Overall",
-    recommendedPlan: es ? "Plan de entrevista recomendado" : fr ? "Plan d'entretien recommandé" : "Recommended interview plan",
+    recommendedPlan: es ? "Entrevistar primero" : fr ? "À rencontrer en premier" : "Interview first",
     recommendedPlanCopy: (names: string) =>
       es
-        ? `Entreviste a ${names} usando las guías específicas de cada candidato en las páginas siguientes. Las preguntas están diseñadas para convertir la evidencia de la evaluación en una entrevista estructurada y comparable, manteniendo la decisión final en el equipo de contratación.`
+        ? `Entreviste a ${names} con las guías específicas de las páginas siguientes. En cada pregunta, registre si la evidencia queda confirmada, debilitada o sin resolver para mantener una comparación clara y lista para la decisión.`
         : fr
-        ? `Rencontrez ${names} à l'aide des guides spécifiques à chaque candidat dans les pages suivantes. Les questions sont conçues pour transformer les preuves d'évaluation en un entretien structuré et comparable, tout en laissant la décision finale à l'équipe de recrutement.`
-        : `Interview ${names} using the candidate-specific guides on the following pages. The questions are designed to turn the assessment evidence into a structured, comparable client interview while keeping the final decision with the hiring team.`,
+        ? `Rencontrez ${names} à l'aide des guides qui suivent. Pour chaque question, notez si les éléments sont confirmés, affaiblis ou non résolus afin de conserver une comparaison exploitable.`
+        : `Interview ${names} using the candidate-specific guides on the following pages. For each probe, record whether the evidence is confirmed, weakened, or unresolved so the comparison stays decision-ready.`,
     recommendedPlanCopyMany: (count: number) =>
       es
-        ? `Entreviste a los ${count} candidatos principales usando las guías específicas de cada candidato en las páginas siguientes. Las preguntas están diseñadas para convertir la evidencia de la evaluación en una entrevista estructurada y comparable, manteniendo la decisión final en el equipo de contratación.`
+        ? `Entreviste a los ${count} candidatos principales con las guías específicas de las páginas siguientes. En cada pregunta, registre si la evidencia queda confirmada, debilitada o sin resolver para mantener una comparación clara y lista para la decisión.`
         : fr
-        ? `Rencontrez les ${count} candidats principaux à l'aide des guides spécifiques à chaque candidat dans les pages suivantes. Les questions sont conçues pour transformer les preuves d'évaluation en un entretien structuré et comparable, tout en laissant la décision finale à l'équipe de recrutement.`
-        : `Interview the top ${count} candidates using the candidate-specific guides on the following pages. The questions are designed to turn the assessment evidence into a structured, comparable client interview while keeping the final decision with the hiring team.`,
+        ? `Rencontrez les ${count} candidats prioritaires à l'aide des guides qui suivent. Pour chaque question, notez si les éléments sont confirmés, affaiblis ou non résolus afin de conserver une comparaison exploitable.`
+        : `Interview the top ${count} candidates using the candidate-specific guides on the following pages. For each probe, record whether the evidence is confirmed, weakened, or unresolved so the comparison stays decision-ready.`,
     structuredInterviewGuide: es ? "Guía de entrevista estructurada" : fr ? "Guide d'entretien structuré" : "Structured interview guide",
     interviewObjective: es ? "Objetivo de la entrevista" : fr ? "Objectif de l'entretien" : "Interview objective",
     objectiveTitle: es
       ? "Traducir la evidencia en ejemplos específicos del puesto"
       : fr
-      ? "Traduire les preuves en exemples spécifiques au poste"
+      ? "Transposer les éléments d'évaluation en exemples liés au poste"
       : "Translate the assessment evidence into role-specific examples",
-    whatThisVerifies: es ? "Qué verifica esto" : fr ? "Ce que cela vérifie" : "What this verifies",
-    useConsistently: es ? "Usar de forma consistente" : fr ? "Utiliser de façon cohérente" : "Use consistently",
+    decisionUse: es ? "Uso en la decisión" : fr ? "Utilité décisionnelle" : "Decision use",
+    recordEvidence: es ? "Registrar evidencia, no impresiones" : fr ? "Consigner les preuves, pas les impressions" : "Record evidence, not impressions",
     useConsistentlyCopy: es
-      ? "Haga las mismas preguntas clave a cada finalista y use preguntas de seguimiento para examinar la evidencia y las decisiones detrás de cada ejemplo."
+      ? "Para cada respuesta, anote la situación, la acción, la disyuntiva y el resultado. Marque la señal citada como confirmada, debilitada o no resuelta; no trate la fluidez por sí sola como confirmación."
       : fr
-      ? "Posez les mêmes questions clés à chaque finaliste, puis utilisez des relances pour examiner les preuves et les décisions derrière chaque exemple."
-      : "Ask the same core questions for every finalist, then use follow-ups to examine the evidence and decisions behind each example.",
+      ? "Pour chaque réponse, notez la situation, l'action, l'arbitrage et le résultat. Classez le signal comme confirmé, affaibli ou non résolu ; l'aisance seule ne suffit pas."
+      : "For each answer, note the situation, action, trade-off, and result. Mark the cited signal confirmed, weakened, or unresolved; do not treat fluency alone as confirmation.",
     engineCredit: es ? "Motor de evaluación por" : fr ? "Moteur d'évaluation par" : "Assessment engine by",
     backupBench: es ? "Candidatos suplentes, clasificados" : fr ? "Candidats de réserve, classés" : "Backup candidates, ranked",
     backupBenchSubtitle: es
@@ -202,20 +211,53 @@ function copy(locale: ClientBriefLocale) {
         : fr
         ? `${n} candidats de réserve supplémentaires ont été évalués mais omis de ce document afin d'en conserver une longueur raisonnable.`
         : `${n} additional backup candidates were evaluated but omitted from this document to keep it a manageable length.`,
-    fullShortlist: es ? "Shortlist completa" : fr ? "Shortlist complète" : "Full shortlist",
+    fullShortlist: es ? "Shortlist completa" : fr ? "Présélection complète" : "Full shortlist",
     poolContinuousNote: es
-      ? "Nota metodológica: el número de candidatos recomendados refleja un grupo continuo — no se encontró un corte natural claro en las puntuaciones dentro de la ventana de revisión, por lo que se aplicó el margen operativo estándar."
+      ? "No apareció un corte natural claro, por lo que el margen operativo estándar definió el grupo de entrevista."
       : fr
-      ? "Note méthodologique : le nombre de candidats recommandés reflète un vivier continu — aucune rupture nette des scores n'a été constatée dans la fenêtre d'examen ; la marge opérationnelle standard a donc été appliquée."
-      : "Methodology note: the recommended count reflects a continuous candidate pool — no clear natural break in scores was found within the review window, so the standard operational buffer was applied.",
+      ? "Aucune rupture naturelle nette n'est apparue ; la marge opérationnelle standard a donc défini le groupe d'entretien."
+      : "No clear natural score break appeared, so the standard operational buffer set the interview group.",
     percentileLabel: (n: number) => {
-      if (es) return `percentil ${n}`;
-      if (fr) return `${n}e percentile`;
+      if (es) return `percentil ${n} del grupo`;
+      if (fr) return `${n}e percentile du vivier`;
       const suffix = n % 100 >= 11 && n % 100 <= 13 ? "th" : n % 10 === 1 ? "st" : n % 10 === 2 ? "nd" : n % 10 === 3 ? "rd" : "th";
-      return `${n}${suffix} percentile`;
+      return `${n}${suffix} pool percentile`;
     },
     recommendedCandidates: (n: number) =>
       es ? `${n} candidatos recomendados` : fr ? `${n} candidats recommandés` : `${n} candidates recommended`,
+    summaryConclusion: (names: string[]) => {
+      const first = names[0] ?? (es ? "El candidato principal" : fr ? "Le candidat principal" : "The lead candidate");
+      const second = names[1];
+      if (!second) return es ? `${first} es la prioridad de entrevista` : fr ? `${first} est la priorité d'entretien` : `${first} is the interview priority`;
+      return es ? `${first} lidera; ${second} es la siguiente prioridad` : fr ? `${first} arrive en tête ; ${second} est la priorité suivante` : `${first} leads; ${second} is the next priority`;
+    },
+    shortlistConclusion: (priorityCount: number, total: number) =>
+      es
+        ? `${priorityCount} de ${total} candidatos justifican prioridad inmediata`
+        : fr
+        ? `${priorityCount} candidats sur ${total} justifient une priorité immédiate`
+        : `${priorityCount} of ${total} candidates warrant immediate priority`,
+    methodologyHeading: es ? "Metodología" : fr ? "Méthodologie" : "Methodology",
+    methodologyCutoff: es
+      ? "El corte mantiene la selección operativa aprobada. El percentil compara cada puntuación exacta con el grupo evaluado en este proceso, no con una norma externa."
+      : fr
+      ? "Le seuil préserve la sélection opérationnelle approuvée. Le percentile compare chaque score exact à ce vivier, et non à une norme externe."
+      : "The cutoff preserves the approved operational selection. Pool percentile compares the exact score with this evaluated cohort, not with an external norm.",
+    methodologyConfidence: es
+      ? "Base de confianza: refleja la consistencia de las respuestas que sustentan cada puntuación. No aumenta ni reduce la puntuación ni el percentil dentro del grupo."
+      : fr
+      ? "Base de confiance : cohérence des réponses étayant chaque score. Elle ne modifie ni le score ni le percentile du vivier."
+      : "Confidence basis: response consistency supporting a score. It does not raise or lower the score or pool percentile.",
+    evidenceScope: es
+      ? "Alcance de la evidencia: este informe compara únicamente la evidencia de evaluación presentada. No evalúa el historial laboral, las referencias, la motivación, la disponibilidad, el encaje salarial ni el rendimiento en un ejercicio práctico en directo."
+      : fr
+      ? "Périmètre des éléments : cette note compare uniquement les résultats d'évaluation présentés. Elle ne couvre pas le parcours professionnel, les références, la motivation, la disponibilité, l'adéquation salariale ni la performance lors d'une mise en situation."
+      : "Evidence scope: This brief compares the assessment evidence shown. It does not evaluate employment history, references, motivation, availability, compensation alignment, or performance in a live work sample.",
+    roundedScoreNote: es
+      ? "Las puntuaciones se muestran con un decimal; los percentiles usan valores exactos antes del redondeo."
+      : fr
+      ? "Les scores sont affichés avec une décimale ; les percentiles utilisent les valeurs exactes avant arrondi."
+      : "Scores display to one decimal; percentiles use exact values before rounding.",
     confidenceNoteConsistent: (n: number) =>
       es
         ? `consistente en las ${n} competencias evaluadas`
@@ -242,6 +284,27 @@ function joinNames(locale: ClientBriefLocale, names: string[]): string {
   if (names.length <= 1) return names[0] ?? "";
   const and = locale === "es" ? "y" : locale === "fr" ? "et" : "and";
   return `${names.slice(0, -1).join(", ")} ${and} ${names[names.length - 1]}`;
+}
+
+function assertPercentileConsistency(data: ShortlistData): void {
+  const entries = [
+    ...data.cards.map((card) => ({ name: card.name, score: card.overallScore, percentile: card.percentile })),
+    ...(data.benchEntries ?? []).map((entry) => ({ name: entry.name, score: entry.score, percentile: entry.percentile })),
+  ];
+  for (let left = 0; left < entries.length; left += 1) {
+    for (let right = left + 1; right < entries.length; right += 1) {
+      const a = entries[left];
+      const b = entries[right];
+      if (Math.abs(a.score - b.score) < Number.EPSILON && a.percentile !== undefined && b.percentile !== undefined && a.percentile !== b.percentile) {
+        throw new Error(`Client brief percentile mismatch: ${a.name} and ${b.name} have identical exact scores but different percentiles`);
+      }
+    }
+  }
+}
+
+function hasRoundedScoreCollision(data: ShortlistData): boolean {
+  const scores = [...data.cards.map((card) => card.overallScore), ...(data.benchEntries ?? []).map((entry) => entry.score)];
+  return scores.some((score, index) => scores.slice(index + 1).some((other) => formatScore(score) === formatScore(other) && Math.abs(score - other) >= Number.EPSILON));
 }
 
 /** Wraps a label onto multiple lines at word boundaries for Chart.js pointLabels
@@ -322,7 +385,7 @@ function compactRadarChartConfig(radar: ClientBriefRadarPoint[], color: string, 
         r: {
           ...base.options.scales.r,
           ticks: { ...base.options.scales.r.ticks, display: false },
-          pointLabels: { ...base.options.scales.r.pointLabels, padding: 4, font: { family: "Public Sans Local", size: 6.5, weight: "500", lineHeight: 1.1 } },
+          pointLabels: { ...base.options.scales.r.pointLabels, padding: 5, font: { family: "Public Sans Local", size: 8.25, weight: "500", lineHeight: 1.1 } },
         },
       },
     },
@@ -401,11 +464,6 @@ function coverPageHtml(data: ShortlistData, c: ReturnType<typeof copy>): string 
   </section>`;
 }
 
-function confidenceNoteText(note: ClientBriefCandidateCard["confidenceNote"], c: ReturnType<typeof copy>): string | null {
-  if (!note) return null;
-  return note.kind === "consistent" ? c.confidenceNoteConsistent(note.competencyCount) : c.confidenceNoteSpread(note.lowestLabel);
-}
-
 function detailedCandidateCardHtml(card: ClientBriefCandidateCard, index: number, canvasId: string, c: ReturnType<typeof copy>): string {
   const tier = card.isPrimary ? "lead" : "alternate";
   const rows = card.radar
@@ -422,10 +480,9 @@ function detailedCandidateCardHtml(card: ClientBriefCandidateCard, index: number
         <article class="candidate-card ${tier}">
           <header class="candidate-card-header">
             <span class="candidate-index">${escapeHtml(c.candidateLabel(index + 1))}</span>
-            <h3 class="candidate-leadline"><strong>${escapeHtml(card.name)}</strong> — ${escapeHtml(card.verdict)}</h3>
+            <h3 class="candidate-leadline"><strong>${escapeHtml(card.name)}</strong> - ${escapeHtml(card.verdict)}</h3>
           </header>
-          <div class="score-support"><span>${escapeHtml(c.assessmentProfile)}</span><strong>${escapeHtml(c.overall)} ${Math.round(card.overallScore)} / 100${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</strong></div>
-          ${confidenceNoteText(card.confidenceNote, c) ? `<p class="confidence-note">${escapeHtml(confidenceNoteText(card.confidenceNote, c)!)}</p>` : ""}
+          <div class="score-support"><span>${escapeHtml(card.profileConclusion)}</span><strong>${escapeHtml(c.overall)} ${formatScore(card.overallScore)} / 100${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</strong></div>
           <div class="radar-wrap"><canvas id="${canvasId}"></canvas></div>
           <div class="dimension-list">${rows}</div>
         </article>`;
@@ -439,16 +496,11 @@ function executiveSummaryPageHtml(data: ShortlistData, c: ReturnType<typeof copy
   // The recommended set the client is told about = primary cards + the ranked
   // bench (including any bench entries trimmed for the page budget) — this
   // must agree with the narrative, which counts the full selected set.
-  const totalRecommended = data.cards.length + (data.benchEntries?.length ?? 0) + (data.benchOmittedCount ?? 0);
   const cardsHtml = spotlight.map((card, index) => detailedCandidateCardHtml(card, index, `spotlight-${index}`, c)).join("");
   const names = joinNames(data.locale, spotlight.map((card) => card.name));
-  const title =
-    totalRecommended === 1
-      ? (data.locale === "es" ? "Un candidato recomendado para entrevista" : data.locale === "fr" ? "Un candidat recommandé pour entretien" : "One candidate recommended for interview")
-      : totalRecommended === 2
-      ? (data.locale === "es" ? "Dos candidatos recomendados para entrevista" : data.locale === "fr" ? "Deux candidats recommandés pour entretien" : "Two candidates recommended for interview")
-      : c.recommendedCandidates(totalRecommended);
-  const planCopy = totalRecommended > 2 ? c.recommendedPlanCopyMany(data.cards.length) : c.recommendedPlanCopy(names);
+  const title = c.summaryConclusion(spotlight.map((card) => card.name));
+  const planCopy = data.cards.length > 2 ? c.recommendedPlanCopyMany(data.cards.length) : c.recommendedPlanCopy(names);
+  const methodologyNote = `<p class="rounding-note">${escapeHtml(c.roundedScoreNote)}</p>`;
 
   return `
   <section class="page summary" aria-label="Executive summary">
@@ -471,7 +523,13 @@ function executiveSummaryPageHtml(data: ShortlistData, c: ReturnType<typeof copy
         <h3>${escapeHtml(c.recommendedPlan)}</h3>
         <p>${escapeHtml(planCopy)}</p>
       </div>
-      ${data.cutoffDecisionType === "policy_fallback" ? `<p class="cutoff-note">${escapeHtml(c.poolContinuousNote)}</p>` : ""}
+      <section class="methodology-panel" aria-label="${escapeHtml(c.methodologyHeading)}">
+        <h3>${escapeHtml(c.methodologyHeading)}</h3>
+        <p>${escapeHtml(c.methodologyCutoff)}${data.cutoffDecisionType === "policy_fallback" ? ` ${escapeHtml(c.poolContinuousNote)}` : ""}</p>
+        <p>${escapeHtml(c.methodologyConfidence)}</p>
+        ${methodologyNote}
+        <p class="evidence-scope">${escapeHtml(c.evidenceScope)}</p>
+      </section>
 
       ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${escapeHtml(c.preparedFor)} ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, pageLabel, data.reportFooterText)}
     </div>
@@ -498,8 +556,8 @@ function compactCardHtml(card: ClientBriefCandidateCard, accent: string, canvasI
         <span class="compact-card__name">${escapeHtml(card.name)}</span>
       </div>
       <div class="compact-card__verdict">${escapeHtml(card.verdict)}</div>
-      <div class="compact-card__score">${escapeHtml(c.overall)} <strong>${Math.round(card.overallScore)} / 100</strong>${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</div>
-      ${confidenceNoteText(card.confidenceNote, c) ? `<div class="compact-card__confidence-note">${escapeHtml(confidenceNoteText(card.confidenceNote, c)!)}</div>` : ""}
+      <div class="compact-card__conclusion">${escapeHtml(card.profileConclusion)}</div>
+      <div class="compact-card__score">${escapeHtml(c.overall)} <strong>${formatScore(card.overallScore)} / 100</strong>${card.percentile !== undefined ? ` · ${escapeHtml(c.percentileLabel(card.percentile))}` : ""}</div>
       <div class="compact-card__chart"><canvas id="${canvasId}"></canvas></div>
       <div class="compact-card__bars">${bars}</div>
     </div>`;
@@ -512,7 +570,7 @@ function benchEntryHtml(entry: ClientBriefBenchEntry, c: ReturnType<typeof copy>
         <span class="compact-card__rank">${entry.rank}</span>
         <span class="compact-card__name">${escapeHtml(entry.name)}</span>
       </div>
-      <div class="compact-card__score-standalone"><span class="compact-card__score-value">${Math.round(entry.score)}</span><span class="compact-card__score-unit">/100</span>${entry.percentile !== undefined ? `<span class="compact-card__score-unit"> · ${escapeHtml(c.percentileLabel(entry.percentile))}</span>` : ""}</div>
+      <div class="compact-card__score-standalone"><span class="compact-card__score-value">${formatScore(entry.score)}</span><span class="compact-card__score-unit">/100</span>${entry.percentile !== undefined ? `<span class="compact-card__score-unit"> · ${escapeHtml(c.percentileLabel(entry.percentile))}</span>` : ""}</div>
       <div class="compact-card__verdict">${escapeHtml(entry.verdict)}</div>
     </div>`;
 }
@@ -568,13 +626,14 @@ function compactGridPagesHtml(
           ? `<div class="summary-header">
           <div class="summary-header-copy">
             <div class="eyebrow">${escapeHtml(c.fullShortlist)}</div>
-            <h2 class="section-title" style="font-size: 20pt;">${escapeHtml(c.recommendedCandidates(data.cards.length + (data.benchEntries?.length ?? 0) + (data.benchOmittedCount ?? 0)))}</h2>
+            <h2 class="section-title" style="font-size: 22pt;">${escapeHtml(c.shortlistConclusion(data.cards.filter((card) => card.isPriorityRecommendation).length, data.cards.length + (data.benchEntries?.length ?? 0) + (data.benchOmittedCount ?? 0)))}</h2>
           </div>
           <div class="summary-date">${escapeHtml(data.roleTitle)}<br>${escapeHtml(data.date)}</div>
         </div>`
           : `<div class="eyebrow">${escapeHtml(c.fullShortlist)}</div>`
       }
       <div class="cards-grid">${cardsHtml}</div>
+      ${isFirst && hasRoundedScoreCollision(data) ? `<p class="rounding-note grid-rounding-note">${escapeHtml(c.roundedScoreNote)}</p>` : ""}
       ${reportLegalHtml(c, escapeHtml(c.disclaimerShort), `${escapeHtml(c.confidential)} · ${data.clientName ? escapeHtml(data.clientName) : escapeHtml(data.shortlistName)}`, `${String(pageNumber).padStart(2, "0")} / ${String(totalPages).padStart(2, "0")}`, data.reportFooterText)}
     </div>
   </section>`);
@@ -626,7 +685,7 @@ function interviewPageHtml(
           </div>
           <h3 class="question-text">${escapeHtml(q.question)}</h3>
           <div class="verify-block">
-            <div class="verify-label">${escapeHtml(c.whatThisVerifies)}</div>
+            <div class="verify-label">${escapeHtml(c.decisionUse)}</div>
             <p class="verify-copy">${escapeHtml(q.verifies)}</p>
           </div>
         </article>`
@@ -655,7 +714,7 @@ function interviewPageHtml(
       <div class="question-grid">${questionsHtml}</div>
 
       <div class="interview-close">
-        <strong>${escapeHtml(c.useConsistently)}</strong>
+        <strong>${escapeHtml(c.recordEvidence)}</strong>
         <p>${escapeHtml(c.useConsistentlyCopy)}</p>
       </div>
 
@@ -671,6 +730,7 @@ function interviewPageHtml(
 }
 
 export function buildClientBriefHTML(data: ShortlistData): string {
+  assertPercentileConsistency(data);
   const c = copy(data.locale);
   const accent = normalizePrimaryColor(data.accentColor) ?? DEFAULT_ACCENT;
   const isCompact = data.cards.length > 2;
@@ -727,56 +787,56 @@ export function buildClientBriefHTML(data: ShortlistData): string {
       font-family: "Fraunces Display Local";
       src: url("${fontFileUrl("fraunces-display-medium.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 100 900;
+      font-weight: 500;
       font-display: block;
     }
     @font-face {
       font-family: "Fraunces Local";
       src: url("${fontFileUrl("fraunces-text-medium.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 100 549;
+      font-weight: 500;
       font-display: block;
     }
     @font-face {
       font-family: "Fraunces Local";
       src: url("${fontFileUrl("fraunces-text-semibold.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 550 674;
+      font-weight: 600;
       font-display: block;
     }
     @font-face {
       font-family: "Fraunces Local";
       src: url("${fontFileUrl("fraunces-text-bold.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 675 900;
+      font-weight: 700;
       font-display: block;
     }
     @font-face {
       font-family: "Public Sans Local";
       src: url("${fontFileUrl("public-sans-regular.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 100 449;
+      font-weight: 400;
       font-display: block;
     }
     @font-face {
       font-family: "Public Sans Local";
       src: url("${fontFileUrl("public-sans-medium.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 450 549;
+      font-weight: 500;
       font-display: block;
     }
     @font-face {
       font-family: "Public Sans Local";
       src: url("${fontFileUrl("public-sans-semibold.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 550 649;
+      font-weight: 600;
       font-display: block;
     }
     @font-face {
       font-family: "Public Sans Local";
       src: url("${fontFileUrl("public-sans-bold.woff2")}") format("woff2");
       font-style: normal;
-      font-weight: 650 900;
+      font-weight: 700;
       font-display: block;
     }
 
@@ -804,17 +864,17 @@ export function buildClientBriefHTML(data: ShortlistData): string {
 
     .page { position: relative; width: var(--page-w); height: var(--page-h); margin: 0 auto 18px; overflow: hidden; background: var(--paper); page-break-after: always; break-after: page; }
     .page:last-child { page-break-after: auto; break-after: auto; }
-    .grid-page { overflow: visible; }
+    .grid-page { overflow: hidden; }
 
-    .page-inner { height: 100%; padding: 16mm 18mm 13mm; display: flex; flex-direction: column; }
+    .page-inner { height: 100%; padding: 16mm 18mm 15mm; display: flex; flex-direction: column; }
 
     .eyebrow { color: var(--accent); font-size: 8.2pt; font-weight: 600; letter-spacing: 0.14em; line-height: 1.2; text-transform: uppercase; }
-    .section-title { margin-top: 2.5mm; font-family: var(--serif-display); font-size: 25pt; font-weight: 500; letter-spacing: -0.025em; line-height: 1.08; }
+    .section-title { margin-top: 2.5mm; font-family: var(--serif-display); font-size: 22pt; font-weight: 500; letter-spacing: -0.025em; line-height: 1.08; }
     .page-footer { padding-top: 2.8mm; border-top: 1px solid var(--hairline); display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-size: 7.7pt; letter-spacing: 0.015em; }
     .page-number { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
     .report-legal { margin-top: auto; }
-    .report-custom-note { margin: 0 0 2.3mm; padding: 2.2mm 3mm; border-left: 1.5px solid var(--accent); background: var(--soft-blue); color: var(--body); font-size: 7.2pt; font-weight: 500; line-height: 1.35; white-space: pre-wrap; }
-    .report-disclaimer { padding: 0 0 2.6mm; color: var(--muted); font-size: 7pt; line-height: 1.38; }
+    .report-custom-note { margin: 0 0 2.3mm; padding: 2.2mm 3mm; border-left: 1.5px solid var(--accent); background: var(--soft-blue); color: var(--body); font-size: 7.8pt; font-weight: 500; line-height: 1.4; white-space: pre-wrap; }
+    .report-disclaimer { padding: 0 0 2.6mm; color: var(--muted); font-size: 7.5pt; line-height: 1.4; }
     .report-disclaimer strong { color: var(--body); font-weight: 600; }
 
     /* --- Cover --- */
@@ -841,78 +901,86 @@ export function buildClientBriefHTML(data: ShortlistData): string {
     .summary-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14mm; }
     .summary-header-copy { max-width: 124mm; }
     .summary-date { padding-top: 1mm; color: var(--muted); font-size: 8.2pt; text-align: right; white-space: nowrap; }
-    .summary .page-inner { padding-top: 15mm; padding-bottom: 10mm; }
-    .executive-narrative { margin-top: 5mm; padding: 4mm 0 4.5mm 5mm; border-left: 1.5px solid var(--accent); color: var(--body); font-family: var(--serif); font-size: 11.8pt; line-height: 1.43; }
-    .candidate-grid { margin-top: 5mm; display: grid; gap: 7mm; }
+    .summary .page-inner { padding-top: 15mm; padding-bottom: 18mm; }
+    .executive-narrative { margin-top: 2mm; max-width: 116mm; padding: 2.2mm 0 2.4mm 5mm; border-left: 1.5px solid var(--accent); color: var(--body); font-family: var(--sans); font-size: 10.25pt; line-height: 1.48; }
+    .candidate-grid { margin-top: 2mm; display: grid; gap: 7mm; }
     .candidate-card { min-width: 0; border: 1px solid var(--hairline); background: var(--paper); display: flex; flex-direction: column; }
     .candidate-card.lead { border-top: 2.2px solid var(--accent); }
     .candidate-card.alternate { border-top: 2.2px solid var(--ink); }
-    .candidate-card-header { min-height: 28mm; padding: 4.6mm 5mm 4mm; }
+    .candidate-card-header { min-height: 24mm; padding: 3.5mm 5mm 3.2mm; }
     .candidate-index { display: block; color: var(--muted); font-size: 7.4pt; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
-    .candidate-leadline { margin-top: 2mm; font-family: var(--serif); font-size: 13.4pt; font-weight: 650; letter-spacing: -0.012em; line-height: 1.22; }
-    .candidate-leadline strong { color: var(--ink); font-weight: 750; }
-    .score-support { min-height: 7.5mm; padding: 1.8mm 5mm; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); display: flex; align-items: center; justify-content: space-between; gap: 4mm; color: #858d98; font-size: 6.2pt; font-weight: 500; letter-spacing: 0.09em; text-transform: uppercase; }
-    .score-support strong { color: #747d89; font-size: 6.6pt; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0; text-transform: none; }
-    .confidence-note { margin: 1.6mm 5mm 0; color: var(--muted); font-size: 6.4pt; line-height: 1.4; font-style: italic; }
+    .candidate-leadline { margin-top: 2mm; font-family: var(--serif); font-size: 15.2pt; font-weight: 600; letter-spacing: -0.012em; line-height: 1.2; }
+    .candidate-leadline strong { color: var(--ink); font-weight: 700; }
+    .score-support { min-height: 12mm; padding: 2mm 5mm; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); display: grid; align-items: center; gap: 1mm; color: var(--body); font-size: 8.75pt; font-weight: 600; line-height: 1.3; }
+    .score-support strong { color: var(--muted); font-size: 8.25pt; font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: 0; }
+    .confidence-note { margin: 1.5mm 5mm 0; color: var(--muted); font-size: 8.25pt; line-height: 1.4; font-style: italic; }
     .radar-wrap { position: relative; width: 100%; height: 58mm; padding: 2.5mm 1.5mm 0.5mm; }
-    .summary .radar-wrap { height: 52mm; }
+    .summary .radar-wrap { height: 32mm; }
     .radar-wrap canvas { width: 100% !important; height: 100% !important; }
-    .dimension-list { padding: 1mm 5mm 4mm; display: grid; gap: 2.2mm; }
-    .dimension-row { display: grid; grid-template-columns: minmax(0, 1fr) 30mm; align-items: center; gap: 2.5mm; color: var(--body); font-size: 7.7pt; }
+    .dimension-list { padding: 1mm 5mm 3.5mm; display: grid; gap: 1.7mm; }
+    .dimension-row { display: grid; grid-template-columns: minmax(0, 1fr) 30mm; align-items: center; gap: 2.5mm; color: var(--body); font-size: 8.25pt; }
     .dimension-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .dimension-track { display: block; height: 1.4mm; background: #e8ebef; overflow: hidden; }
     .dimension-fill { display: block; height: 100%; background: var(--accent); }
     .alternate .dimension-fill { background: var(--ink); }
-    .decision-strip { margin-top: 4.5mm; padding: 3.8mm 5mm; background: var(--soft-blue); display: grid; grid-template-columns: 37mm 1fr; gap: 6mm; align-items: start; }
+    .decision-strip { margin-top: 2mm; padding: 2.8mm 5mm; background: var(--soft-blue); display: grid; grid-template-columns: 37mm 1fr; gap: 6mm; align-items: start; }
     .decision-strip h3 { font-family: var(--serif); font-size: 11.8pt; font-weight: 500; line-height: 1.25; }
-    .decision-strip p { color: var(--body); font-size: 8.7pt; line-height: 1.48; }
+    .decision-strip p { color: var(--body); font-size: 8.7pt; line-height: 1.45; }
+    .methodology-panel { margin-top: 2mm; padding-top: 2mm; border-top: 1px solid var(--hairline); display: grid; grid-template-columns: 1fr 1fr; gap: 2mm 5mm; align-items: start; }
+    .methodology-panel h3 { grid-column: 1 / -1; font-family: var(--sans); font-size: 10pt; font-weight: 600; line-height: 1.25; }
+    .methodology-panel p { color: var(--body); font-size: 8.5pt; line-height: 1.42; }
+    .methodology-panel .rounding-note { grid-column: 1 / -1; margin-top: -0.5mm; }
+    .methodology-panel .evidence-scope { grid-column: 1 / -1; }
+    .rounding-note { color: var(--muted); font-size: 8.5pt; line-height: 1.42; font-style: italic; }
 
     /* --- Compact grid (>2 primary candidates) + backup bench --- */
-    .cards-grid { display: flex; flex-wrap: wrap; gap: 4mm; margin-top: 7mm; }
-    .compact-card { width: calc((100% - 8mm) / 3); box-sizing: border-box; border: 1px solid var(--hairline); background: var(--paper); padding: 3.5mm 4mm 4mm; break-inside: avoid; }
+    .cards-grid { display: flex; flex-wrap: wrap; gap: 4mm 5mm; margin-top: 5mm; }
+    .compact-card { width: calc((100% - 5mm) / 2); box-sizing: border-box; border: 1px solid var(--hairline); background: var(--paper); padding: 4mm 4.5mm 4.5mm; break-inside: avoid; }
     .compact-card--primary { border-top: 2.2px solid var(--accent); }
     .compact-card--bench { background: var(--soft); }
     .compact-card__header { display: flex; align-items: center; gap: 2mm; margin-bottom: 1mm; }
-    .compact-card__rank { flex-shrink: 0; width: 5mm; height: 5mm; border-radius: 999px; background: var(--ink); color: #fff; font-family: var(--sans); font-size: 6.5pt; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-    .compact-card__name { font-family: var(--serif); font-size: 10.5pt; font-weight: 650; color: var(--ink); }
-    .compact-card__verdict { font-size: 7pt; color: var(--body); line-height: 1.35; margin-bottom: 1.5mm; min-height: 6mm; }
-    .compact-card__score { font-size: 6.5pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1mm; }
-    .compact-card__score strong { color: var(--ink); text-transform: none; letter-spacing: 0; font-family: var(--serif); font-size: 8.5pt; }
+    .compact-card__rank { flex-shrink: 0; width: 6mm; height: 6mm; border-radius: 999px; background: var(--ink); color: #fff; font-family: var(--sans); font-size: 8.25pt; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .compact-card__name { font-family: var(--serif); font-size: 13pt; font-weight: 600; color: var(--ink); }
+    .compact-card__verdict { font-size: 8.5pt; color: var(--body); line-height: 1.4; margin-bottom: 1.5mm; min-height: 7mm; }
+    .compact-card__conclusion { min-height: 9mm; margin-bottom: 1.5mm; color: var(--ink); font-size: 8.75pt; font-weight: 600; line-height: 1.3; }
+    .compact-card__score { font-size: 8.25pt; color: var(--muted); margin-bottom: 1mm; }
+    .compact-card__score strong { color: var(--ink); letter-spacing: 0; font-family: var(--sans); font-size: 10pt; font-weight: 600; }
     .compact-card__score-standalone { margin: 1mm 0; }
     .compact-card__score-value { font-family: var(--serif); font-size: 13pt; font-weight: 650; color: var(--ink); }
     .compact-card__score-unit { font-size: 7.5pt; color: var(--muted); margin-left: 1mm; }
-    .compact-card__confidence-note { font-size: 5.6pt; color: var(--muted); line-height: 1.3; font-style: italic; margin-bottom: 1.5mm; }
-    .compact-card__chart { height: 28mm; display: flex; justify-content: center; }
+    .compact-card__confidence-note { font-size: 8.25pt; color: var(--muted); line-height: 1.35; font-style: italic; margin-bottom: 1.5mm; }
+    .compact-card__chart { height: 30mm; display: flex; justify-content: center; }
     .compact-card__bars { margin-top: 1.5mm; display: grid; gap: 1.1mm; }
-    .compact-card__bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 14mm; align-items: center; gap: 1.5mm; color: var(--body); font-size: 5.8pt; }
+    .compact-card__bar-row { display: grid; grid-template-columns: minmax(0, 1fr) 18mm; align-items: center; gap: 1.8mm; color: var(--body); font-size: 8.25pt; }
     .compact-card__bar-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .compact-card__bar-track { display: block; height: 1.1mm; background: #e8ebef; overflow: hidden; }
     .compact-card__bar-fill { display: block; height: 100%; background: var(--accent); }
     .compact-card:not(.compact-card--primary) .compact-card__bar-fill { background: var(--ink); }
     .bench-subtitle { margin-top: 2mm; color: var(--muted); font-size: 8.5pt; line-height: 1.45; max-width: 140mm; }
-    .cutoff-note { margin-top: 2.5mm; color: var(--muted); font-size: 7.6pt; line-height: 1.45; }
+    .cutoff-note { margin-top: 2.5mm; color: var(--muted); font-size: 8.25pt; line-height: 1.45; }
+    .grid-rounding-note { margin-top: 3mm; }
     .bench-omitted { margin-top: 5mm; padding-top: 3mm; border-top: 1px dashed var(--hairline); color: var(--muted); font-size: 8pt; font-style: italic; }
 
     /* --- Interview kit --- */
     .interview-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12mm; }
-    .interview-header .section-title { font-size: 24pt; }
-    .candidate-pill { margin-top: 1mm; padding: 2.2mm 3mm; border: 1px solid var(--hairline); color: var(--ink); font-size: 8pt; font-weight: 600; white-space: nowrap; }
-    .candidate-brief { margin-top: 6mm; display: grid; grid-template-columns: 50mm 1fr; gap: 7mm; padding: 4.5mm 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
-    .brief-label { color: var(--muted); font-size: 7.5pt; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; }
+    .interview-header .section-title { font-size: 22pt; }
+    .candidate-pill { margin-top: 1mm; padding: 2.2mm 3mm; border: 1px solid var(--hairline); color: var(--ink); font-size: 8.25pt; font-weight: 600; line-height: 1.2; white-space: nowrap; }
+    .candidate-brief { margin-top: 4.5mm; display: grid; grid-template-columns: 50mm 1fr; gap: 7mm; padding: 4mm 0; border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); }
+    .brief-label { color: var(--muted); font-size: 7.8pt; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; }
     .brief-title { margin-top: 1.5mm; font-family: var(--serif); font-size: 13pt; font-weight: 500; line-height: 1.25; }
-    .brief-copy { color: var(--body); font-size: 9pt; line-height: 1.5; }
-    .question-grid { margin-top: 6mm; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5mm; }
-    .question-card { min-height: 82mm; padding: 4.8mm 5mm 4.5mm; border: 1px solid var(--hairline); display: flex; flex-direction: column; background: var(--paper); }
+    .brief-copy { color: var(--body); font-size: 9.25pt; line-height: 1.48; }
+    .question-grid { margin-top: 4mm; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4.5mm; }
+    .question-card { min-height: 72mm; padding: 4.2mm 4.8mm 4mm; border: 1px solid var(--hairline); display: flex; flex-direction: column; background: var(--paper); }
     .question-topline { display: flex; align-items: center; justify-content: space-between; gap: 4mm; }
     .question-number { width: 7mm; height: 7mm; display: grid; place-items: center; background: var(--accent); color: #ffffff; font-size: 7.3pt; font-weight: 600; line-height: 1; }
-    .question-focus { color: var(--accent); font-size: 7.2pt; font-weight: 600; letter-spacing: 0.09em; text-align: right; text-transform: uppercase; }
-    .question-text { margin-top: 4mm; color: var(--ink); font-family: var(--serif); font-size: 11.4pt; font-weight: 500; line-height: 1.34; }
+    .question-focus { color: var(--accent); font-family: var(--serif); font-size: 11.5pt; font-weight: 500; letter-spacing: 0; line-height: 1.35; text-align: right; }
+    .question-text { margin-top: 3.2mm; color: var(--ink); font-family: var(--sans); font-size: 9.75pt; font-weight: 500; line-height: 1.42; }
     .verify-block { margin-top: auto; padding-top: 4mm; }
-    .verify-label { display: flex; align-items: center; gap: 2mm; color: var(--muted); font-size: 7.2pt; font-weight: 600; letter-spacing: 0.11em; text-transform: uppercase; }
+    .verify-label { display: flex; align-items: center; gap: 2mm; color: var(--muted); font-size: 7.8pt; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
     .verify-label::before { content: ""; width: 5mm; height: 1px; background: var(--accent); }
-    .verify-copy { margin-top: 2mm; color: var(--body); font-size: 8.35pt; line-height: 1.45; }
-    .interview-close { margin-top: 5.5mm; padding: 3.8mm 4.5mm; background: var(--soft); display: grid; grid-template-columns: 34mm 1fr; gap: 5mm; align-items: start; }
-    .interview-close strong { font-family: var(--serif); font-size: 10.5pt; font-weight: 500; }
+    .verify-copy { margin-top: 2mm; color: var(--body); font-size: 8.75pt; line-height: 1.45; }
+    .interview-close { margin-top: 3.5mm; padding: 3.2mm 4.5mm; background: var(--soft); display: grid; grid-template-columns: 45mm 1fr; gap: 5mm; align-items: start; }
+    .interview-close strong { font-family: var(--serif); font-size: 11.5pt; font-weight: 500; line-height: 1.3; }
     .interview-close p { color: var(--body); font-size: 8.25pt; line-height: 1.45; }
     .engine-credit { color: var(--muted); }
     .engine-credit strong { color: var(--body); font-weight: 500; }
@@ -956,7 +1024,10 @@ export function buildClientBriefHTML(data: ShortlistData): string {
         var legalRect = legal.getBoundingClientRect();
         var hasVerticalOverflow = inner.scrollHeight > inner.clientHeight + 1;
         var footerOutsidePage = legalRect.bottom > pageRect.bottom + 1 || legalRect.top < pageRect.top - 1;
-        if (hasVerticalOverflow || footerOutsidePage) {
+        var footerSafeGap = pageRect.bottom - legalRect.bottom;
+        var minimumFooterSafeGap = (8 * 96) / 25.4;
+        var footerTooLow = footerSafeGap < minimumFooterSafeGap;
+        if (hasVerticalOverflow || footerOutsidePage || footerTooLow) {
           var label = page.getAttribute("aria-label") || "unnamed page";
           throw new Error(
             "Client brief layout overflow on page " +
@@ -967,6 +1038,8 @@ export function buildClientBriefHTML(data: ShortlistData): string {
               inner.scrollHeight +
               "px exceeds " +
               inner.clientHeight +
+              "px; footer safe gap " +
+              footerSafeGap +
               "px"
           );
         }

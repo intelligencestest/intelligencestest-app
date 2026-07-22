@@ -155,6 +155,22 @@ export const DIMENSION_FR: Record<string, string> = {
   Democratic: "Démocratique",
   Pacesetting: "Exigeant",
   Commanding: "Directif",
+  Written: "Écrit",
+  Verbal: "Oral",
+  Listening: "Écoute",
+  "Non-verbal": "Non verbal",
+  "Emotional Control": "Maîtrise émotionnelle",
+  Resilience: "Résilience",
+  "Coping Strategies": "Stratégies d'adaptation",
+  "Performance Under Pressure": "Performance sous pression",
+  Cooperation: "Coopération",
+  Reliability: "Fiabilité",
+  "Conflict Resolution": "Résolution des conflits",
+  Analytical: "Analytique",
+  "Detail-Oriented": "Souci du détail",
+  Collaborative: "Collaboratif",
+  Adaptable: "Adaptable",
+  "Results-Driven": "Axé sur les résultats",
 };
 
 // Spanish catalog descriptions, keyed by the canonical assessment name.

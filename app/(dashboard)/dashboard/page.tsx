@@ -3,6 +3,7 @@ import { Plus } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { createServerSupabaseClient, createAdminClient } from "@/lib/supabase-server";
 import { assessmentName as termName } from "@/lib/i18n/assessment-terms";
+import { toAppLocale } from "@/lib/i18n/locales";
 import { DAY, EXPIRING_WINDOW_MS, relativeTime } from "@/lib/dashboard/format";
 import { loadReviewQueue, type QueueSort } from "@/lib/dashboard/queue";
 import { deriveProjectHealth, HEALTH_ORDER } from "@/lib/dashboard/project-health";
@@ -50,8 +51,8 @@ export default async function DashboardPage({
   const { queue: queueParam } = await searchParams;
   const queueSort: QueueSort = queueParam === "recommendation" ? "recommendation" : "waiting";
 
-  const locale = await getLocale();
-  const intelLocale = locale === "es" ? "es" : "en";
+  const locale = toAppLocale(await getLocale());
+  const intelLocale = locale;
   const t = await getTranslations("dashboard");
   const supabase = await createServerSupabaseClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -66,7 +67,7 @@ export default async function DashboardPage({
   const firstName = profile?.full_name?.split(" ")[0];
 
   const nowMs = Date.now(); // eslint-disable-line react-hooks/purity -- server component, one render per request; dashboard recency math needs request-time clock.
-  const dateLocale = locale === "es" ? "es-ES" : "en-US";
+  const dateLocale = { es: "es-ES", en: "en-US", fr: "fr-FR" }[locale];
 
   // TODO(phase-2): replace full-table reads with event-fed rollups so the
   // dashboard stays a fixed number of indexed queries at enterprise volume.
